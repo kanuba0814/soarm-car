@@ -1,0 +1,47 @@
+version: 2
+language: zh-CN
+product_task: go_to_place_and_grasp
+
+execution:
+  free_text_motion: false
+  require_named_place: true
+  require_allowed_object: true
+  require_base_stationary_for_arm: true
+  stale_command_timeout_ms: 500
+  cancel_phrases: ["停止", "停下", "取消", "急停"]
+
+intents:
+  stop:
+    confirmation: none
+    priority: emergency
+    action: cancel_all_and_stop
+
+  go_to_place_and_grasp:
+    phrases:
+      - "去{place}抓取{object}"
+      - "到{place}拿起{object}"
+      - "前往{place}抓{object}"
+    confirmation: repeat_place_and_object
+    action: mhs_run_go_to_place_and_grasp
+    prerequisites:
+      - place_in_allowlist
+      - object_in_allowlist
+      - lidar_ready
+      - map_loaded
+      - localization_ready
+      - tf_ready
+      - safety_ready
+      - base_ready
+      - camera_ready
+      - arm_homed
+    allowed_places: []
+    allowed_objects: []
+
+maintenance:
+  enabled_by_voice: false
+  capabilities:
+    - base_nudge
+    - navigate_only
+    - arm_home
+    - grasp_only
+    - release_object

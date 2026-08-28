@@ -1,0 +1,75 @@
+version: 1
+mission: go_to_place_and_grasp
+
+input:
+  required:
+    - request_id
+    - place_id
+    - object_id
+  allow_free_coordinates: false
+  allow_open_vocabulary_objects: false
+  allowed_places: [demo_table]
+  allowed_objects: [demo_cube]
+
+stages:
+  - validating
+  - navigating
+  - waiting_for_base_stationary
+  - perceiving
+  - planning_grasp
+  - executing_grasp
+  - verifying_grasp
+  - holding_object
+
+success_requires:
+  - named_place_reached
+  - localization_valid
+  - base_stationary
+  - object_pose_fresh
+  - grasp_plan_collision_free
+  - grasp_execution_complete
+  - object_held_verified
+  - arm_in_safe_holding_pose
+
+safety:
+  command_ttl_required: true
+  control_lease_required: true
+  idempotency_required: true
+  expected_state_version_required: true
+  physical_estop_required: true
+  base_watchdog_required: true
+  require_lidar_data_fresh: true
+  require_localization_valid: true
+  require_map_loaded: true
+  require_tf_valid: true
+  require_base_stationary_for_arm: true
+  auto_resume_after_restart: false
+  auto_reset_estop: false
+  limits:
+    lidar_data_max_age_ms: null
+    localization_max_age_ms: null
+    localization_max_covariance: null
+    base_stationary_linear_mps: null
+    base_stationary_angular_radps: null
+    base_stationary_hold_ms: null
+    object_pose_max_age_ms: null
+    mission_timeout_s: null
+    perception_retry_limit: null
+    planning_retry_limit: null
+
+failure:
+  cancel_active_navigation: true
+  cancel_active_manipulation: true
+  command_base_stop: true
+  preserve_payload_when_safe: true
+  report_stage_and_reason: true
+  retry_old_request_after_restart: false
+
+out_of_scope:
+  - grasp_while_moving
+  - arbitrary_place
+  - arbitrary_object
+  - delivery_after_grasp
+  - place_at_second_location
+  - model_generated_velocity
+  - model_generated_joint_trajectory

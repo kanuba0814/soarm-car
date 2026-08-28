@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="soarm_car_layout">
+  <material name="chassis"><color rgba="0.66 0.72 0.78 1"/></material>
+  <material name="dark"><color rgba="0.05 0.06 0.07 1"/></material>
+  <material name="arm"><color rgba="0.92 0.64 0.12 1"/></material>
+  <material name="sensor"><color rgba="0.08 0.12 0.16 1"/></material>
+  <material name="front"><color rgba="0.05 0.48 1 1"/></material>
+
+  <link name="base_link">
+    <visual><origin xyz="0 0 0.075"/><geometry><box size="0.30 0.20 0.10"/></geometry><material name="chassis"/></visual>
+    <visual><origin xyz="0 0 0.14"/><geometry><box size="0.28 0.18 0.025"/></geometry><material name="dark"/></visual>
+  </link>
+
+  <xacro:macro name="wheel" params="name x y">
+    <link name="${name}">
+      <visual><origin rpy="1.5708 0 0"/><geometry><cylinder radius="0.045" length="0.035"/></geometry><material name="dark"/></visual>
+      <visual><origin rpy="1.5708 0.55 0"/><geometry><box size="0.075 0.042 0.010"/></geometry><material name="chassis"/></visual>
+      <visual><origin rpy="1.5708 -0.55 0"/><geometry><box size="0.075 0.042 0.010"/></geometry><material name="chassis"/></visual>
+    </link>
+    <joint name="${name}_joint" type="fixed"><origin xyz="${x} ${y} 0.045" rpy="0 0 0"/><parent link="base_link"/><child link="${name}"/></joint>
+  </xacro:macro>
+  <xacro:wheel name="left_front_wheel" x="0.10" y="0.115"/>
+  <xacro:wheel name="left_rear_wheel" x="-0.10" y="0.115"/>
+  <xacro:wheel name="right_front_wheel" x="0.10" y="-0.115"/>
+  <xacro:wheel name="right_rear_wheel" x="-0.10" y="-0.115"/>
+
+  <!-- Proposed new front is +X. The arm occupies the old camera area at the new rear. -->
+  <link name="arm_mount"><visual><geometry><cylinder radius="0.055" length="0.018"/></geometry><material name="dark"/></visual></link>
+  <joint name="layout_arm_x" type="prismatic"><origin xyz="-0.10 0 0.17"/><parent link="base_link"/><child link="arm_mount"/><axis xyz="1 0 0"/><limit lower="-0.07" upper="0.20" effort="1" velocity="1"/></joint>
+
+  <xacro:macro name="arm_segment" params="link length radius">
+    <link name="${link}"><visual><origin xyz="0 0 ${length/2}"/><geometry><cylinder radius="${radius}" length="${length}"/></geometry><material name="arm"/></visual></link>
+  </xacro:macro>
+  <xacro:arm_segment link="arm_shoulder" length="0.065" radius="0.035"/>
+  <joint name="arm_shoulder_pan" type="revolute"><parent link="arm_mount"/><child link="arm_shoulder"/><axis xyz="0 0 1"/><limit lower="-1.92" upper="1.92" effort="10" velocity="2"/></joint>
+  <xacro:arm_segment link="arm_upper" length="0.13" radius="0.023"/>
+  <joint name="arm_shoulder_lift" type="revolute"><origin xyz="0 0 0.065"/><parent link="arm_shoulder"/><child link="arm_upper"/><axis xyz="0 1 0"/><limit lower="-1.75" upper="1.75" effort="10" velocity="2"/></joint>
+  <xacro:arm_segment link="arm_forearm" length="0.13" radius="0.021"/>
+  <joint name="arm_elbow_flex" type="revolute"><origin xyz="0 0 0.13"/><parent link="arm_upper"/><child link="arm_forearm"/><axis xyz="0 1 0"/><limit lower="-1.69" upper="1.69" effort="10" velocity="2"/></joint>
+  <xacro:arm_segment link="arm_wrist" length="0.075" radius="0.018"/>
+  <joint name="arm_wrist_flex" type="revolute"><origin xyz="0 0 0.13"/><parent link="arm_forearm"/><child link="arm_wrist"/><axis xyz="0 1 0"/><limit lower="-1.66" upper="1.66" effort="10" velocity="2"/></joint>
+  <link name="arm_gripper"><visual><origin xyz="0.035 0 0.01"/><geometry><box size="0.09 0.06 0.025"/></geometry><material name="dark"/></visual></link>
+  <joint name="arm_wrist_roll" type="revolute"><origin xyz="0 0 0.075"/><parent link="arm_wrist"/><child link="arm_gripper"/><axis xyz="0 0 1"/><limit lower="-2.74" upper="2.84" effort="10" velocity="2"/></joint>
+  <link name="arm_jaw"><visual><origin xyz="0.045 0.03 0"/><geometry><box size="0.08 0.012 0.018"/></geometry><material name="arm"/></visual></link>
+  <joint name="arm_gripper_opening" type="revolute"><parent link="arm_gripper"/><child link="arm_jaw"/><axis xyz="0 0 1"/><limit lower="-0.17" upper="1.2" effort="10" velocity="2"/></joint>
+
+  <!-- Camera remains a movable front candidate, not a final mounting decision. -->
+  <link name="camera_link"><visual><geometry><box size="0.085 0.035 0.032"/></geometry><material name="sensor"/></visual></link>
+  <joint name="layout_camera_x" type="prismatic"><origin xyz="0.115 0 0.17"/><parent link="base_link"/><child link="camera_link"/><axis xyz="1 0 0"/><limit lower="-0.22" upper="0.06" effort="1" velocity="1"/></joint>
+  <link name="livox_frame"><visual><origin xyz="0 0 0.03"/><geometry><cylinder radius="0.036" length="0.06"/></geometry><material name="sensor"/></visual></link>
+  <joint name="livox_mount" type="fixed"><origin xyz="0.015 0 0.17"/><parent link="base_link"/><child link="livox_frame"/></joint>
+
+  <link name="new_front_marker">
+    <visual><origin xyz="0.23 0 0.04" rpy="0 1.5708 0"/><geometry><cylinder radius="0.008" length="0.14"/></geometry><material name="front"/></visual>
+    <visual><origin xyz="0.31 0 0.04"/><geometry><sphere radius="0.024"/></geometry><material name="front"/></visual>
+  </link>
+  <joint name="new_front_marker_joint" type="fixed"><parent link="base_link"/><child link="new_front_marker"/></joint>
+</robot>

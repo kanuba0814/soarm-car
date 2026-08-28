@@ -1,0 +1,1 @@
+<?xml version="1.0"?><robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="soarm_fake"><link name="base_link"><visual><geometry><box size="0.6 0.4 0.2"/></geometry><material name="blue"><color rgba="0.2 0.7 1 1"/></material></visual></link></robot>

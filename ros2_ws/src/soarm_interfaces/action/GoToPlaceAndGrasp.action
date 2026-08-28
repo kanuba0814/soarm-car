@@ -1,0 +1,12 @@
+string request_id
+string place_id
+string object_id
+---
+bool success
+string request_id
+string final_stage
+string reason
+---
+string stage
+string detail
+uint8 progress_percent

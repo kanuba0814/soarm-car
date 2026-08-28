@@ -1,0 +1,63 @@
+/global_localization:
+    ros__parameters:
+        map_voxel_size: 0.5
+        scan_voxel_size: 0.5
+        freq_localization: 1.0          # [Hz]
+        localization_th: 0.9
+        fov: 6.283185307179586           # 2*pi, radian; full FOV
+        fov_far: 100.0
+
+/transform_fusion:
+    ros__parameters:
+        freq_pub_localization: 50.0
+
+/global_map_publisher:
+    ros__parameters:
+        map_file_path: "/home/aiteam/autoware_map/sample-map-rosbag/pointcloud_map.pcd"
+        interval: 5                     # publish interval in seconds
+
+/**:
+    ros__parameters:
+        feature_extract_enable: false
+        point_filter_num: 4
+        max_iteration: 3
+        filter_size_surf: 0.5
+        filter_size_map: 0.5
+        cube_side_length: 1000.0
+        runtime_pos_log_enable: false
+
+        common:
+            lid_topic:  "/sensing/lidar/top/pointcloud_raw"
+            imu_topic:  "/sensing/imu/tamagawa/imu_raw"
+            time_sync_en: false         # ONLY turn on when external time synchronization is really not possible
+            time_offset_lidar_to_imu: 0.0
+
+        preprocess:
+            lidar_type: 2                # 1 Livox(CustomMsg) / 2 Velodyne / 3 ouster / 4 MID360(PointCloud2)
+            scan_line: 32                # 官方 sample rosbag 为 Velodyne 32 线（VLP-32C/HDL-32E）
+            scan_rate: 10                # Velodyne 扫描频率, Hz
+            timestamp_unit: 3            # 0-second, 1-ms, 2-us, 3-ns
+            blind: 2.0
+
+        mapping:
+            acc_cov: 0.1
+            gyr_cov: 0.1
+            b_acc_cov: 0.0001
+            b_gyr_cov: 0.0001
+            fov_degree:    360.0
+            det_range:     100.0
+            extrinsic_est_en:  false
+            extrinsic_T: [ 0., 0., 0. ]
+            extrinsic_R: [ 1., 0., 0.,
+                        0., 1., 0.,
+                        0., 0., 1.]
+
+        publish:
+            path_en:  false
+            scan_publish_en:  true       # false: close all the point cloud output
+            dense_publish_en: true       # false: low down the points number in a global-frame point clouds scan.
+            scan_bodyframe_pub_en: true  # true: output the point cloud scans in IMU-body-frame
+
+        pcd_save:
+            pcd_save_en: false
+            interval: -1

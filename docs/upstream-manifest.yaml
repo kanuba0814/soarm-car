@@ -1,0 +1,90 @@
+version: 1
+accessed: 2026-08-28
+baseline:
+  os_candidate: Ubuntu 22.04 arm64 or vendor Raspberry Pi OS host
+  ros: humble
+  middleware: verify vendor Fast DDS baseline before changing
+
+sources:
+  - id: lerobot-so101
+    url: https://huggingface.co/docs/lerobot/en/so101
+    local: docs/research/sources/lerobot-so101.html
+    license: documentation; verify separately
+  - id: lerobot
+    url: https://github.com/huggingface/lerobot
+    license: Apache-2.0
+    pin: TODO before implementation
+  - id: ros2-pi-jazzy-reference
+    url: https://docs.ros.org/en/jazzy/How-To-Guides/Installing-on-Raspberry-Pi.html
+    local: docs/research/sources/ros2-raspberry-pi.html
+  - id: nav2-jazzy-reference
+    url: https://docs.ros.org/en/jazzy/p/navigation2/
+    local: docs/research/sources/nav2-jazzy.html
+  - id: moveit-binary-install
+    url: https://moveit.ai/install-moveit2/binary/
+    local: docs/research/sources/moveit-binary-install.html
+  - id: raspberry-pi-5-product-brief
+    url: https://pip-assets.raspberrypi.com/categories/892-raspberry-pi-5/documents/RP-008348-DS-5-raspberry-pi-5-product-brief.pdf
+    local: docs/research/sources/raspberry-pi-5-product-brief.pdf
+  - id: orbbec-ros2
+    url: https://github.com/orbbec/OrbbecSDK_ROS2
+    branch_rule: legacy OpenNI -> main; supported current devices -> v2-main
+    local_readme: docs/research/sources/orbbec/OrbbecSDK_ROS2-v2-main-README.md
+    license: Apache-2.0
+    pin: TODO after camera identification
+  - id: anthropic-mhs-research-preview
+    url: https://www.anthropic.com/news/model-hardware-standard-research-preview
+    local: docs/research/sources/mhs/anthropic-model-hardware-standard-research-preview.html
+    status: limited research preview; specification and SDK not public
+    license: not published
+  - id: mhs-preview-landing
+    url: https://www.modelhardwarestandard.com/
+    local: docs/research/sources/mhs/modelhardwarestandard-preview.html
+    status: application-only preview
+  - id: mcp-specification-2025-06-18
+    url: https://modelcontextprotocol.io/specification/2025-06-18
+    local: docs/research/sources/mhs/mcp-specification-2025-06-18.html
+    schema: docs/research/sources/mhs/mcp-schema-2025-06-18.ts
+    license_file: docs/research/sources/mhs/mcp-specification-LICENSE
+    relation: public optional agent protocol referenced by MHS; not the MHS specification
+
+vendor_assets:
+  - id: wheeltec-humble-2025-04
+    local_archive: /home/gxxl/Documents/wheeltec robot ROS资料/1.WHEELTEC ROS机器人通用资料/7.ROS源码/ROS2源码/Humble源码/JP6.2_常规ROS主控_src_250401.zip
+    sha256: b12dd038b1992d60c9633e84e9238754431cd7563e6ac906cd558962e41d170e
+    extracted_to: vendor/wheeltec
+    redistribution: restricted_pending_license_clarification
+  - id: wheeltec-raspberry-pi5-backup
+    source: local full-device backup
+    local_file: /home/gxxl/Downloads/mmcfullback.img.gz
+    compressed_size: 19650522808
+    uncompressed_size: 62534975488
+    sha256: c05c5775c96b99fc87d21e82f13a56ddc8201fec5769147dcb2e2a2de1f703db
+    host: Raspberry Pi OS 64-bit / Debian 12 Bookworm
+    ros2_container: ros2:wheeltec
+    ros2_container_id: sha256:fe02032d9692bf5e7a805dfb34a455a528f7a9096e48284379c9b0f3b69e82f5
+    container_base: Ubuntu 22.04 arm64
+    ros: humble
+    git_tracked: false
+  - id: wheeltec-humble-2024-09
+    local_archive: /home/gxxl/Documents/wheeltec robot ROS资料/1.WHEELTEC ROS机器人通用资料/7.ROS源码/ROS2源码/Humble源码/JP5.1.1_常规ROS主控_humble_src_202409.zip
+    sha256: 7cd1abae9345986ff362278c150dcf28aa43aa08aab0f2f984b3e65be584f21c
+    extracted_component: ros2_astra_camera
+    extracted_to: vendor/wheeltec/src/ros2_astra_camera
+  - id: mid360-localization-workspace
+    local_archive: temple/localization_ws_portale.zip
+    size: 374854806
+    sha256: b1697dfff70d5915a959f557f93ef09d38ed1b1acedbc640ff9044a165db23a0
+    upstream: https://github.com/myeongw002/FAST_LIO_LOCALIZATION_ROS2.git
+    upstream_commit: 3a005b965c566245c33a624b60a31235e77d3c44
+    extracted_to: vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2
+    redistribution: restricted_pending_license_clarification
+  - id: livox-ros-driver2
+    url: https://github.com/Livox-SDK/livox_ros_driver2.git
+    commit: 4a1def929e5b59c7a8122d19fce6efba581ce9f7
+    extracted_to: vendor/localization/src/livox_ros_driver2
+    launch: launch_ROS2/msg_MID360_launch.py
+    pointcloud_topic: /livox/lidar
+    pointcloud_type: livox_ros_driver2/msg/CustomMsg
+    imu_topic: /livox/imu
+    license: MIT

@@ -1,0 +1,33 @@
+services:
+  ros2-dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      args:
+        GRAPHICS_IMAGE: ${GRAPHICS_IMAGE:-local/arc140t-focal-dri:mesa-25.1.7}
+    platform: linux/amd64
+    working_dir: /workspaces/soarm-car
+    hostname: ${HOSTNAME:-soarm-ros2}
+    volumes:
+      - .:/workspaces/soarm-car
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-/dev/null}:/tmp/.host-xauthority:ro
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      - ${VIDEO_GID:-39}
+      - ${RENDER_GID:-105}
+    network_mode: host
+    ipc: host
+    security_opt:
+      - label=disable
+    environment:
+      DISPLAY: ${DISPLAY:-:0}
+      XAUTHORITY: /tmp/.host-xauthority
+      XDG_RUNTIME_DIR: /tmp/runtime-root
+      QT_X11_NO_MITSHM: "1"
+      QT_XCB_GL_INTEGRATION: xcb_glx
+      LIBGL_ALWAYS_SOFTWARE: ${LIBGL_ALWAYS_SOFTWARE:-0}
+      ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-42}
+    stdin_open: true
+    tty: true

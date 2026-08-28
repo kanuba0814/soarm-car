@@ -1,0 +1,1 @@
+KERNEL=="video*", ATTRS{idVendor}=="2bc5", ATTRS{idProduct}=="0610",ATTRS{index}=="1", MODE:="0777",  SYMLINK+="Astra_Gemini"

@@ -1,0 +1,35 @@
+# ROS 2 / colcon
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Editors and OS
+.vscode/
+.idea/
+.DS_Store
+
+# Pi local runtime
+.pi/
+
+# Runtime secrets and large captures
+.env
+.env.*
+!.env.example
+*.bag
+*.db3
+*.mcap
+
+# Downloaded system/container images (manifest only goes in Git)
+artifacts/images/
+*.img
+*.img.xz
+*.iso
+*.tar.zst
+
+# Original third-party workspace archives (source manifests/snapshots are tracked separately)
+temple/*.zip
