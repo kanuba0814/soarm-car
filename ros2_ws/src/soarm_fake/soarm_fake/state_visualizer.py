@@ -47,10 +47,10 @@ class StateVisualizer(Node):
         text.id = 0
         text.type = Marker.TEXT_VIEW_FACING
         text.action = Marker.ADD
-        text.pose.position.x = -0.02
-        text.pose.position.z = 0.62
+        text.pose.position.x = 0.0
+        text.pose.position.z = 0.58
         text.pose.orientation.w = 1.0
-        text.scale.z = 0.11
+        text.scale.z = 0.045
         text.color.r, text.color.g, text.color.b, text.color.a = red, green, blue, 1.0
         text.text = f'STATE: {self.state}'
         markers.markers.append(text)
