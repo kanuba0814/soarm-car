@@ -20,13 +20,14 @@ For example, when `nav2_map_server` is installed: `ros2 run nav2_map_server map_
 
 The container builds the pinned `vendor/localization` snapshot that matches `temple/localization_ws_portale.zip`; the archive and its nested Git objects are not copied into the image. `livox_ros_driver2` is built with `LIVOX_ROS_DRIVER2_MESSAGES_ONLY=ON`, which generates the official messages without linking the physical Livox SDK. Hardware builds retain the driver's default SDK-dependent path.
 
-Run the two consumer smokes in order:
+Run the mapping and localisation consumer smokes in order, then run the independent multi-direction odometry accuracy check:
 
 ```bash
 ./scripts/dev-fastlio-navigation-room-smoke.sh
 ./scripts/dev-fastlio-localization-smoke.sh
+./scripts/dev-fastlio-odometry-accuracy-smoke.sh
 ```
 
-The first starts Fortress and FAST-LIO mapping, drives a short safe arc, verifies `CustomMsg`/IMU/registered-cloud/odometry consumers, and saves `artifacts/fastlio_navigation_room.pcd`. The second restarts the same room with ground-truth map TF disabled, loads that PCD, seeds ICP near the known simulation origin, and verifies `/map_to_odom`, `/localization`, the two Autoware covariance topics, and `map -> camera_init`. Both smokes isolate ROS DDS and Ignition Transport (`ROS_DOMAIN_ID` and `IGN_PARTITION`) so another running Gazebo instance cannot mix simulation clocks into FAST-LIO.
+The first starts Fortress and FAST-LIO mapping, drives a short safe arc, verifies `CustomMsg`/IMU/registered-cloud/odometry consumers, and saves `artifacts/fastlio_navigation_room.pcd`. The second restarts the same room with ground-truth map TF disabled, loads that PCD, seeds ICP near the known simulation origin, and verifies `/map_to_odom`, `/localization`, the two Autoware covariance topics, and `map -> camera_init`. The accuracy smoke runs forward, left, right, reverse, and second-left segments, aligns the initial FAST-LIO and Gazebo frames, checks path length and checkpoint position/yaw errors, and writes its runtime report to `artifacts/fastlio_odometry_accuracy.json`. Set `FASTLIO_GUI=true` to show Gazebo and RViz during that check. All smokes isolate ROS DDS and Ignition Transport (`ROS_DOMAIN_ID` and `IGN_PARTITION`) so another running Gazebo instance cannot mix simulation clocks into FAST-LIO.
 
 Passing these tests proves the simulated ROS input and localisation software seams work together in this room. It does not validate a physical MID-360, unknown initial-pose recovery, long-run drift, relocalisation after kidnapping, real-time performance on the deployment computer, or vehicle-specific sensor calibration.
