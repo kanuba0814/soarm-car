@@ -26,6 +26,7 @@ __pycache__/
 
 # Downloaded system/container images (manifest only goes in Git)
 artifacts/images/
+artifacts/*.pcd
 *.img
 *.img.xz
 *.iso

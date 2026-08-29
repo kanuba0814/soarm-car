@@ -26,16 +26,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-colcon-common-extensions \
     python3-rosdep \
     python3-yaml \
+    libpcl-dev \
+    python3-numpy \
+    python3-open3d \
     ros-humble-foxglove-bridge \
     ros-humble-joint-state-publisher-gui \
     ros-humble-nav2-map-server \
     ros-humble-nav2-lifecycle-manager \
     ros-humble-robot-state-publisher \
+    ros-humble-pcl-ros \
     ros-humble-ros-gz-sim \
     ros-humble-ros-gz-bridge \
     ros-humble-ros2-control \
     ros-humble-ros2-controllers \
     ros-humble-rviz2 \
+    ros-humble-tf-transformations \
     ros-humble-xacro \
     ros-humble-visualization-msgs \
     && rm -rf /var/lib/apt/lists/*
@@ -64,7 +69,10 @@ RUN mkdir -p /opt/mesa/share/glvnd/egl_vendor.d \
 
 WORKDIR /workspaces/soarm-car
 COPY ros2_ws/src /workspaces/soarm-car/ros2_ws/src
-RUN source /opt/ros/humble/setup.bash && cd ros2_ws && colcon build --symlink-install
+COPY vendor/localization/src /workspaces/soarm-car/vendor/localization/src
+RUN source /opt/ros/humble/setup.bash && colcon build --symlink-install \
+    --base-paths ros2_ws/src vendor/localization/src \
+    --cmake-args -DLIVOX_ROS_DRIVER2_MESSAGES_ONLY=ON
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

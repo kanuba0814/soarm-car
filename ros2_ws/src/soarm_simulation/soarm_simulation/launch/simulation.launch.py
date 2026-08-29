@@ -37,13 +37,15 @@ def generate_launch_description():
         # senior_akm is defined as native SDF so its Ackermann system can apply wheel forces;
         # robot_state_publisher above supplies the matching ROS arm/sensor TF description.
         Node(package='ros_gz_bridge', executable='parameter_bridge', condition=IfCondition(LaunchConfiguration('simulation')), arguments=[
+            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
             '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
             '/gazebo/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
             '/gazebo/imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
+            '/gazebo/livox_imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
             '/camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
             '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
             '/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
-            '/mid360/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+            '/mid360/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
             '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
             '/gazebo/arm_shoulder_pan/cmd_pos@std_msgs/msg/Float64]gz.msgs.Double',
             '/gazebo/arm_shoulder_lift/cmd_pos@std_msgs/msg/Float64]gz.msgs.Double',

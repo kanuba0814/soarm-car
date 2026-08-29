@@ -57,11 +57,13 @@ assert len([name for name in links if name.startswith('pillar_')]) == 8
 for name in ('pillar_fl_upper', 'pillar_fr_upper', 'pillar_rl_upper', 'pillar_rr_upper'):
     assert abs(pose(name)[1][2] - 0.0185) < 1e-9, (name, pose(name))
 PY
-container="$(docker compose run -d --rm ros2-dev bash -lc 'ros2 launch soarm_simulation simulation.launch.py')"
+ros_domain_id="${ROS_DOMAIN_ID:-85}"
+ign_partition="${IGN_PARTITION:-soarm_sim_smoke_$$}"
+container="$(docker compose run -d --rm -e ROS_DOMAIN_ID="$ros_domain_id" -e IGN_PARTITION="$ign_partition" ros2-dev bash -lc 'ros2 launch soarm_simulation simulation.launch.py')"
 cleanup() { docker stop "$container" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 ros_command='source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && ros2'
-for _ in {1..45}; do
+for _ in {1..120}; do
     if docker exec "$container" bash -lc "test -f /tmp/soarm_ros2/install/setup.bash" && docker exec "$container" bash -lc "$ros_command action list | grep -qx /go_to_place_and_grasp"; then break; fi
     sleep 1
 done
@@ -83,8 +85,8 @@ done
 # timeout owns the publisher lifecycle inside the container, avoiding a stale command publisher.
 inside_timeout 4 ros2 topic pub -r 20 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.2, y: 0.9}, angular: {z: 0.25}}" >/tmp/soarm-drive.log 2>&1 & publisher=$!
 sleep 3
-inside "topic echo /gazebo/odom --once" >/tmp/soarm-gazebo-drive.yaml
-inside "topic echo /odom --once" >/tmp/soarm-odom-drive.yaml
+inside_timeout 10 ros2 topic echo /gazebo/odom --once >/tmp/soarm-gazebo-drive.yaml
+inside_timeout 10 ros2 topic echo /odom --once >/tmp/soarm-odom-drive.yaml
 wait "$publisher" || true
 # Keep the zero command alive long enough for the ROS->Gazebo bridge.
 inside_timeout 2 ros2 topic pub -r 20 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.0, y: 0.0}, angular: {z: 0.0}}" >/dev/null 2>&1 || true

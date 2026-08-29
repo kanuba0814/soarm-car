@@ -15,11 +15,13 @@ assert pgm.startswith(b'P5\n') and b'160 120\n255\n' in pgm
 assert 'resolution: 0.05' in Path('ros2_ws/src/soarm_simulation/maps/navigation_room.yaml').read_text()
 assert 'origin: [-4.0, -3.0, 0.0]' in Path('ros2_ws/src/soarm_simulation/maps/navigation_room.yaml').read_text()
 PY
-container="$(docker compose run -d --rm ros2-dev bash -lc 'ros2 launch soarm_simulation simulation.launch.py world:=navigation_room')"
+ros_domain_id="${ROS_DOMAIN_ID:-86}"
+ign_partition="${IGN_PARTITION:-soarm_navigation_smoke_$$}"
+container="$(docker compose run -d --rm -e ROS_DOMAIN_ID="$ros_domain_id" -e IGN_PARTITION="$ign_partition" ros2-dev bash -lc 'ros2 launch soarm_simulation simulation.launch.py world:=navigation_room')"
 cleanup() { docker stop "$container" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 ros_command='source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && ros2'
-for _ in {1..45}; do
+for _ in {1..120}; do
     if docker exec "$container" bash -lc "test -f /tmp/soarm_ros2/install/setup.bash && $ros_command topic info /mid360/points | grep -q 'Publisher count: 1'"; then break; fi
     sleep 1
 done
@@ -27,10 +29,9 @@ inside() { docker exec "$container" bash -lc "$ros_command $*"; }
 inside_timeout() { local seconds=$1 command; shift; printf -v command '%q ' "$@"; docker exec "$container" bash -lc "source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && timeout $seconds $command"; }
 inside_timeout 15 ros2 topic echo /mid360/points --once --qos-reliability best_effort >/tmp/navigation-room-points.yaml
 inside_timeout 10 ros2 topic echo /gazebo/odom --once >/tmp/navigation-room-odom-before.yaml
-inside_timeout 3 ros2 topic pub -r 20 /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.2}, angular: {z: 0.0}}' >/dev/null 2>&1 || true
-sleep 1
+inside "topic pub -r 20 --times 60 /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.2}, angular: {z: 0.0}}'" >/dev/null
 inside_timeout 10 ros2 topic echo /gazebo/odom --once >/tmp/navigation-room-odom-drive.yaml
-inside_timeout 2 ros2 topic pub -r 20 /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.0}, angular: {z: 0.0}}' >/dev/null 2>&1 || true
+inside "topic pub -r 20 --times 20 /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.0}, angular: {z: 0.0}}'" >/dev/null
 sleep 1
 inside_timeout 10 ros2 topic echo /gazebo/odom --once >/tmp/navigation-room-odom-stop.yaml
 python3 - <<'PY'

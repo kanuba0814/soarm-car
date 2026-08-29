@@ -640,6 +640,11 @@
           </range>
         </lidar>
       </sensor>
+      <sensor name="livox_imu" type="imu">
+        <topic>/gazebo/livox_imu</topic>
+        <update_rate>50</update_rate>
+        <always_on>true</always_on>
+      </sensor>
     </link>
     <joint name="livox_joint" type="fixed">
       <pose relative_to="livox_frame">0 0 0 0 0 0</pose>

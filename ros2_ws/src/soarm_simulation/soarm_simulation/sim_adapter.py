@@ -12,7 +12,8 @@ from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
-from sensor_msgs.msg import Imu, JointState, LaserScan, PointCloud2, PointField
+from sensor_msgs.msg import Imu, JointState, PointCloud2, PointField
+from livox_ros_driver2.msg import CustomMsg, CustomPoint
 from std_msgs.msg import Float32, Float64
 from tf2_ros import TransformBroadcaster
 
@@ -38,6 +39,8 @@ class SimAdapter(Node):
         self.power_pub = self.create_publisher(Float32, '/PowerVoltage', 5)
         self.imu_pub = self.create_publisher(Imu, '/imu/data_raw', 50)
         self.points_pub = self.create_publisher(PointCloud2, '/mid360/points', 10)
+        self.livox_pub = self.create_publisher(CustomMsg, '/livox/lidar', 10)
+        self.livox_imu_pub = self.create_publisher(Imu, '/livox/imu', 50)
         self.joint_commands = {
             name: self.create_publisher(Float64, f'/gazebo/{name}/cmd_pos', 10)
             for name in ALL_ARM_JOINTS
@@ -45,7 +48,8 @@ class SimAdapter(Node):
         self.tf = TransformBroadcaster(self)
         self.create_subscription(Odometry, '/gazebo/odom', self.on_gazebo_odom, 20)
         self.create_subscription(Imu, '/gazebo/imu', self.on_imu, 50)
-        self.create_subscription(LaserScan, '/mid360/scan', self.on_scan, 10)
+        self.create_subscription(Imu, '/gazebo/livox_imu', self.on_livox_imu, 50)
+        self.create_subscription(PointCloud2, '/mid360/scan/points', self.on_points, 10)
         # /joint_states is bridged directly from Fortress JointStatePublisher. This callback is
         # deliberately only a cache for Action completion, never a synthetic state publisher.
         self.create_subscription(JointState, '/joint_states', self.on_gazebo_joint_state, 20)
@@ -94,25 +98,63 @@ class SimAdapter(Node):
         source.header.frame_id = 'gyro_link'
         self.imu_pub.publish(source)
 
-    def on_scan(self, scan):
+    def on_livox_imu(self, source):
+        # This is a separate IMU collocated with the simulated LiDAR, not gyro_link.
+        source.header.frame_id = 'livox_frame'
+        self.livox_imu_pub.publish(source)
+
+    def on_points(self, source):
+        """Preserve Fortress GPU LiDAR geometry and adapt it to FAST-LIO's CustomMsg ABI.
+
+        Fortress PointCloudPacked has no per-return time.  Offset times are therefore a
+        deterministic linear 100 ms scan approximation, rather than MID-360 firing times.
+        """
+        fields = {field.name: field for field in source.fields}
+        required = {'x', 'y', 'z'}
+        xyz_fields = [fields[name] for name in required if name in fields]
+        valid_xyz = (len(xyz_fields) == 3 and source.point_step > 0 and
+                     all(field.datatype == PointField.FLOAT32 and
+                         field.offset + 4 <= source.point_step for field in xyz_fields))
+        if source.is_bigendian or not valid_xyz:
+            self.get_logger().warning(
+                'MID-360 PointCloud2 requires little-endian float32 x/y/z fields; dropping scan')
+            return
         import struct
         points = []
-        for index, distance in enumerate(scan.ranges):
-            if math.isfinite(distance) and scan.range_min <= distance <= scan.range_max:
-                angle = scan.angle_min + index * scan.angle_increment
-                points.append((distance * math.cos(angle), distance * math.sin(angle), 0.0))
-        message = PointCloud2()
-        message.header = scan.header
-        message.header.frame_id = 'livox_frame'
-        message.height = 1
-        message.width = len(points)
-        message.is_dense = True
-        message.point_step = 12
-        message.row_step = 12 * len(points)
-        message.fields = [PointField(name=name, offset=offset, datatype=PointField.FLOAT32, count=1)
-                          for name, offset in [('x', 0), ('y', 4), ('z', 8)]]
-        message.data = b''.join(struct.pack('<fff', *point) for point in points)
-        self.points_pub.publish(message)
+        intensity_field = fields.get('intensity')
+        if intensity_field is not None and not (
+                intensity_field.datatype == PointField.FLOAT32 and
+                intensity_field.offset + 4 <= source.point_step):
+            intensity_field = None
+        for row in range(source.height):
+            for column in range(source.width):
+                base = row * source.row_step + column * source.point_step
+                if base + source.point_step > len(source.data):
+                    break
+                x, y, z = (struct.unpack_from('<f', source.data, base + fields[name].offset)[0]
+                           for name in ('x', 'y', 'z'))
+                if not all(math.isfinite(value) for value in (x, y, z)):
+                    continue
+                reflectivity = 128
+                if intensity_field is not None:
+                    intensity = struct.unpack_from('<f', source.data, base + intensity_field.offset)[0]
+                    if math.isfinite(intensity):
+                        reflectivity = max(0, min(255, round(intensity)))
+                points.append((x, y, z, reflectivity))
+
+        # Keep the original native point cloud available for inspection/debugging.
+        source.header.frame_id = 'livox_frame'
+        self.points_pub.publish(source)
+        message = CustomMsg()
+        message.header = source.header
+        message.timebase = source.header.stamp.sec * 1_000_000_000 + source.header.stamp.nanosec
+        message.point_num = len(points)
+        message.lidar_id = 0
+        message.points = [CustomPoint(
+            offset_time=0 if len(points) < 2 else index * 100_000_000 // (len(points) - 1),
+            x=x, y=y, z=z, reflectivity=reflectivity, tag=0x10, line=index % 4)
+            for index, (x, y, z, reflectivity) in enumerate(points)]
+        self.livox_pub.publish(message)
 
     def on_gazebo_joint_state(self, source):
         self.gazebo_joints.update(zip(source.name, source.position))
