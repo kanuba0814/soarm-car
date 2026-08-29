@@ -28,6 +28,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-yaml \
     ros-humble-foxglove-bridge \
     ros-humble-joint-state-publisher-gui \
+    ros-humble-nav2-map-server \
+    ros-humble-nav2-lifecycle-manager \
     ros-humble-robot-state-publisher \
     ros-humble-ros-gz-sim \
     ros-humble-ros-gz-bridge \

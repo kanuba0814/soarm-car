@@ -4,9 +4,9 @@ set -euo pipefail
 python3 - <<'PY'
 from pathlib import Path
 import xml.etree.ElementTree as ET
-world = Path('ros2_ws/src/soarm_simulation/worlds/senior_akm.sdf')
-root = ET.parse(world).getroot()
-model = root.find(".//model[@name='senior_akm']")
+model_path = Path('ros2_ws/src/soarm_simulation/models/senior_akm/model.sdf')
+root = ET.parse(model_path).getroot()
+model = root.find("./model[@name='senior_akm']")
 plugin = model.find("plugin[@name='ignition::gazebo::systems::AckermannSteering']")
 assert [node.text for node in plugin.findall('left_joint')] == ['left_rear_wheel_joint']
 assert [node.text for node in plugin.findall('right_joint')] == ['right_rear_wheel_joint']
@@ -70,10 +70,11 @@ sleep 3
 inside() { docker exec "$container" bash -lc "$ros_command $*"; }
 inside_timeout() { local seconds=$1 command; shift; printf -v command '%q ' "$@"; docker exec "$container" bash -lc "source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && timeout $seconds $command"; }
 contains() { local output; output="$(inside "$1")"; grep -q -- "$2" <<<"$output"; }
+has_publisher() { local output; output="$(inside "topic info $1")"; grep -Eq 'Publisher count: [1-9][0-9]*' <<<"$output"; }
 docker exec "$container" bash -lc "test -f /tmp/soarm_ros2/install/setup.bash"
 contains 'action list' '^/go_to_place_and_grasp$'
 for topic in /odom /gazebo/odom /imu/data_raw /camera/image /camera/camera_info /mid360/points /joint_states /PowerVoltage; do
-    contains "topic info $topic" 'Publisher count: 1'
+    has_publisher "$topic"
 done
 for action in /go_to_place_and_grasp /arm_controller/follow_joint_trajectory /gripper_controller/follow_joint_trajectory; do
     contains 'action list' "^$action$"

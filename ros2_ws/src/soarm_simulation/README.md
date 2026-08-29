@@ -6,3 +6,11 @@
 * `/arm_controller/follow_joint_trajectory` drives the five native Fortress arm joints and verifies convergence through the bridged `/joint_states`; no arm state is fabricated. The coarse arm links use position-controlled, gravity-disabled dynamics to emulate powered servos; this is a pose/API simulation, not evidence for torque, payload, or contact performance. `/gripper_controller/follow_joint_trajectory` preserves the real controller-facing API, but the coarse single-servo gripper is explicitly an interface-level kinematic approximation: contact and physical position convergence are not acceptance claims.
 * `/go_to_place_and_grasp` accepts only `demo_table` / `demo_cube`; it moves, stops, commands the approximate gripper seam, physically lifts the shoulder joint, and supports rejection/cancel. There is no MoveIt or Nav2 and no Gazebo object-attach plugin, so object grasp success remains an approximation.
 * Fortress attaches RGB-D, IMU, and GPU LiDAR sensors to `camera_link`, `gyro_link`, and `livox_frame` in the native SDF vehicle. The physical LiDAR scan is converted to an approximate `PointCloud2`; it deliberately does not manufacture Livox `CustomMsg` or per-point timestamps.
+
+## Navigation/localisation room
+
+Use `ros2 launch soarm_simulation simulation.launch.py world:=navigation_room` to start the 8 m x 6 m localisation room. It keeps the existing native `senior_akm` model (spawn pose `0 0 0`) and adds 1.8 m-high, 0.12 m-thick walls, a south-wall door aperture (`x=2..3`), an L wall, cylinder, and distinct small/large boxes. The spawn has at least 1 m clearance to every static collision.
+
+`maps/navigation_room.yaml` is a standard `nav_msgs/OccupancyGrid` map-server YAML: resolution `0.05` m/cell and origin `[-4.0, -3.0, 0.0]`. Its 160 x 120 PGM covers `x=[-4,4]`, `y=[-3,3]`, matching the world coordinates (+X forward, +Y left). Black cells represent the same walls and static obstacles; the south door aperture remains free.
+
+For example, when `nav2_map_server` is installed: `ros2 run nav2_map_server map_server --ros-args -p yaml_filename:=$(ros2 pkg prefix soarm_simulation)/share/soarm_simulation/maps/navigation_room.yaml`.
