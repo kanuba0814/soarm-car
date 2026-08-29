@@ -1,0 +1,5 @@
+input:
+  allowed_places: [demo_table]
+  allowed_objects: [demo_cube]
+places:
+  demo_table: [1.20, 0.0]

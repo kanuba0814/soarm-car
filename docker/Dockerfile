@@ -29,6 +29,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-humble-foxglove-bridge \
     ros-humble-joint-state-publisher-gui \
     ros-humble-robot-state-publisher \
+    ros-humble-ros-gz-sim \
+    ros-humble-ros-gz-bridge \
+    ros-humble-ros2-control \
+    ros-humble-ros2-controllers \
     ros-humble-rviz2 \
     ros-humble-xacro \
     ros-humble-visualization-msgs \
