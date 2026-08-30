@@ -42,7 +42,7 @@ kill "$correction_probe" 2>/dev/null || true
 wait "$correction_probe" 2>/dev/null || true
 grep -q 'frame_id: map' "$logs/map_to_odom.yaml"
 
-docker exec -i "$container" bash -lc "$ros python3 -" >"$logs/metrics.json" <<'PY'
+docker exec -i "$container" bash -lc "source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && python3 -" >"$logs/metrics.json" <<'PY'
 import json, math, time
 import rclpy
 from geometry_msgs.msg import PoseStamped
