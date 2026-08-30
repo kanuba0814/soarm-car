@@ -36,11 +36,9 @@ for _ in {1..180}; do
 done
 $ready
 # No global transform can precede an accepted ICP correction.
-inside 'run tf2_ros tf2_echo map odom_combined' >"$logs/preinit_tf.log" 2>&1 &
-probe=$!
-sleep 2
-kill "$probe" 2>/dev/null || true
-wait "$probe" 2>/dev/null || true
+docker exec "$container" bash -lc \
+    "source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && timeout 2 ros2 run tf2_ros tf2_echo map odom_combined" \
+    >"$logs/preinit_tf.log" 2>&1 || [[ $? -eq 124 ]]
 ! grep -q 'Translation:' "$logs/preinit_tf.log"
 wait_for_topic() {
     local topic=$1 expected=$2
@@ -65,10 +63,10 @@ for _ in {1..120}; do
 done
 docker logs "$container" 2>&1 | grep -q 'Initial global localization succeeded.'
 # Consume an actual correction rather than relying on graph discovery timing.
-docker exec "$container" bash -lc "$ros topic echo /map_to_odom --once --no-daemon" >"$logs/map_to_odom.yaml" & correction_probe=$!
-sleep 10
-kill "$correction_probe" 2>/dev/null || true
-wait "$correction_probe" 2>/dev/null || true
+wait_for_topic /map_to_odom nav_msgs/msg/Odometry
+docker exec "$container" timeout 30 bash -lc \
+    "$ros topic echo /map_to_odom nav_msgs/msg/Odometry --once --no-daemon" \
+    >"$logs/map_to_odom.yaml"
 grep -q 'frame_id: map' "$logs/map_to_odom.yaml"
 inside 'topic info /odom --verbose' >"$logs/odom_info.txt"
 grep -q 'Publisher count: 1' "$logs/odom_info.txt"
