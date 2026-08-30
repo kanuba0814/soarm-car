@@ -68,6 +68,37 @@ class TransformFusionNode(Node):
         (message.pose.pose.orientation.x, message.pose.pose.orientation.y,
          message.pose.pose.orientation.z, message.pose.pose.orientation.w) = quat
 
+    @staticmethod
+    def transform_twist(target, source, base_to_body):
+        rotation = base_to_body[:3, :3]
+        offset = base_to_body[:3, 3]
+        linear_body = np.array([
+            source.twist.twist.linear.x,
+            source.twist.twist.linear.y,
+            source.twist.twist.linear.z,
+        ])
+        angular_body = np.array([
+            source.twist.twist.angular.x,
+            source.twist.twist.angular.y,
+            source.twist.twist.angular.z,
+        ])
+        angular_base = rotation @ angular_body
+        # v_body_origin = v_base_origin + omega x base_to_body_offset.
+        linear_base = rotation @ linear_body + np.cross(offset, angular_base)
+        target.twist.twist.linear.x, target.twist.twist.linear.y, target.twist.twist.linear.z = linear_base
+        target.twist.twist.angular.x, target.twist.twist.angular.y, target.twist.twist.angular.z = angular_base
+        skew_offset = np.array([
+            [0.0, -offset[2], offset[1]],
+            [offset[2], 0.0, -offset[0]],
+            [-offset[1], offset[0], 0.0],
+        ])
+        adjoint = np.block([
+            [rotation, skew_offset @ rotation],
+            [np.zeros((3, 3)), rotation],
+        ])
+        covariance = np.array(source.twist.covariance).reshape(6, 6)
+        target.twist.covariance = (adjoint @ covariance @ adjoint.T).reshape(36).tolist()
+
     def send_tf(self, parent, child, matrix, stamp):
         transform = TransformStamped()
         transform.header.stamp = stamp
@@ -86,7 +117,9 @@ class TransformFusionNode(Node):
         if raw_odom is None:
             return
 
-        # A=T_baseFootprint_body and O=T_cameraInit_body. Nav2 gets
+        # Define odom_combined as the initial base_footprint frame. At startup
+        # camera_init coincides with body, so T_odom_cameraInit=A. With
+        # A=T_baseFootprint_body and O=T_cameraInit_body:
         # T_odom_base=A*O*inv(A). No map edge exists until ICP accepts M.
         odom_to_base = self.base_to_body @ self.pose_matrix(raw_odom) @ np.linalg.inv(self.base_to_body)
         odom = Odometry()
@@ -95,12 +128,14 @@ class TransformFusionNode(Node):
         odom.child_frame_id = self.base_frame
         self.fill_pose(odom, odom_to_base)
         odom.pose.covariance = raw_odom.pose.covariance
-        odom.twist = raw_odom.twist
+        self.transform_twist(odom, raw_odom, self.base_to_body)
         self.odom_pub.publish(odom)
         self.send_tf(self.odom_frame, self.base_frame, odom_to_base, raw_odom.header.stamp)
 
         if correction is None:
             return
+        # M=T_map_cameraInit and T_cameraInit_odom=inv(A), hence
+        # T_map_odom=M*inv(A). The complete map pose is M*O*inv(A).
         map_to_odom = self.pose_matrix(correction) @ np.linalg.inv(self.base_to_body)
         self.send_tf(self.map_frame, self.odom_frame, map_to_odom, raw_odom.header.stamp)
         localization = copy.deepcopy(odom)
