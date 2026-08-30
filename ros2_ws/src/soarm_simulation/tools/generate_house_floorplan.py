@@ -13,12 +13,18 @@ from xml.etree import ElementTree as ET
 
 PACKAGE_ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = PACKAGE_ROOT / "models" / "house_floorplan" / "model.sdf"
+FURNITURE_MODEL_PATH = PACKAGE_ROOT / "models" / "house_furniture" / "model.sdf"
 MAP_PATH = PACKAGE_ROOT / "maps" / "house_floorplan.pgm"
 SOURCE_URL = "https://github.com/xtrinch/sweethome3d-house-plans.git"
 SOURCE_COMMIT = "f0af4c6258ab5fcdabac1654e0796f9b18b44e94"
 SOURCE_SHA256 = "1cc879ec4dbe435264a30973ec85ee5a0a221b314ebdf3c98680bf20cb6685e2"
 EXPECTED_WALLS = 21
 EXPECTED_DOORS = 10
+FURNITURE_SELECTORS = (
+    ("coffee_table", "Coffee table", 1.9570004, 6.040051),
+    ("small_table", "Marble table", 5.1323346, 6.876649),
+    ("desk", "Desk", 12.814735, 7.440789),
+)
 WALL_HEIGHT = 2.4384
 CENTER_X = 7.454154
 CENTER_Y = 6.672447
@@ -31,13 +37,15 @@ FRAME_WIDTH = 0.05
 
 Wall = tuple[float, float, float, float, float]
 Door = tuple[float, float, float, float, float]
+Furniture = tuple[str, float, float, float, float, float, float]
 WALLS: list[Wall] = []
 DOORS: list[Door] = []
+FURNITURE: list[Furniture] = []
 
 
 def load_geometry(source_path: Path) -> None:
     """Load the metric ground-floor structure directly from a Sweet Home 3D file."""
-    global WALLS, DOORS
+    global WALLS, DOORS, FURNITURE
     source_digest = hashlib.sha256(source_path.read_bytes()).hexdigest()
     if source_digest != SOURCE_SHA256:
         raise ValueError(
@@ -73,6 +81,28 @@ def load_geometry(source_path: Path) -> None:
         if element.get("level") == level
         and "door" in element.get("name", "").lower()
     ]
+    source_furniture = [element for element in root.findall("pieceOfFurniture")
+                        if element.get("level") == level]
+    FURNITURE = []
+    for model_name, source_name, expected_x, expected_y in FURNITURE_SELECTORS:
+        matches = [
+            element for element in source_furniture
+            if element.get("name") == source_name
+            and abs(float(element.get("x")) / 100 - expected_x) < 0.001
+            and abs(float(element.get("y")) / 100 - expected_y) < 0.001
+        ]
+        if len(matches) != 1:
+            raise ValueError(f"Expected one source furniture item for {model_name}, got {len(matches)}")
+        element = matches[0]
+        FURNITURE.append((
+            model_name,
+            float(element.get("x")) / 100,
+            float(element.get("y")) / 100,
+            float(element.get("width")) / 100,
+            float(element.get("depth")) / 100,
+            float(element.get("height")) / 100,
+            float(element.get("angle", "0")),
+        ))
     if len(WALLS) != EXPECTED_WALLS or len(DOORS) != EXPECTED_DOORS:
         raise ValueError(
             f"Expected {EXPECTED_WALLS} walls and {EXPECTED_DOORS} door-like openings "
@@ -209,6 +239,62 @@ def generate_sdf() -> None:
     ET.ElementTree(sdf).write(MODEL_PATH, encoding="utf-8", xml_declaration=True)
 
 
+def local_box(parent: ET.Element, kind: str, name: str, pose: tuple[float, float, float],
+              size: tuple[float, float, float], color: str = "", yaw: float = 0.0) -> None:
+    element = ET.SubElement(parent, kind, {"name": name})
+    ET.SubElement(element, "pose").text = (
+        f"{pose[0]:.5f} {pose[1]:.5f} {pose[2]:.5f} 0 0 {yaw:.7f}"
+    )
+    geometry = ET.SubElement(element, "geometry")
+    box = ET.SubElement(geometry, "box")
+    ET.SubElement(box, "size").text = f"{size[0]:.5f} {size[1]:.5f} {size[2]:.5f}"
+    if kind == "visual":
+        material = ET.SubElement(element, "material")
+        ET.SubElement(material, "diffuse").text = color
+        ET.SubElement(material, "ambient").text = color
+
+
+def generate_furniture_sdf() -> None:
+    sdf = ET.Element("sdf", {"version": "1.9"})
+    model = ET.SubElement(sdf, "model", {"name": "house_furniture"})
+    ET.SubElement(model, "static").text = "true"
+    colors = {
+        "coffee_table": "0.25 0.12 0.06 1",
+        "small_table": "0.62 0.64 0.61 1",
+        "desk": "0.58 0.34 0.14 1",
+    }
+    link = ET.SubElement(model, "link", {"name": "furniture"})
+    for model_name, x, y, width, depth, height, angle in FURNITURE:
+        world_x, world_y = plan_to_world(x, y)
+        world_yaw = -angle
+        top_thickness = 0.08
+        top_pose = (world_x, world_y, height - top_thickness / 2)
+        top_size = (width, depth, top_thickness)
+        local_box(link, "collision", f"{model_name}_navigation_footprint",
+                  (world_x, world_y, height / 2), (width, depth, height), yaw=world_yaw)
+        local_box(link, "visual", f"{model_name}_top_visual", top_pose, top_size,
+                  colors[model_name], world_yaw)
+        leg_height = height - top_thickness
+        leg_size = min(0.08, width / 8, depth / 8)
+        inset = leg_size / 2 + 0.05
+        for index, (leg_x, leg_y) in enumerate((
+            (-width / 2 + inset, -depth / 2 + inset),
+            (-width / 2 + inset, depth / 2 - inset),
+            (width / 2 - inset, -depth / 2 + inset),
+            (width / 2 - inset, depth / 2 - inset),
+        )):
+            rotated_x = math.cos(angle) * leg_x + math.sin(angle) * leg_y
+            rotated_y = -math.sin(angle) * leg_x + math.cos(angle) * leg_y
+            pose = (world_x + rotated_x, world_y + rotated_y, leg_height / 2)
+            size = (leg_size, leg_size, leg_height)
+            local_box(link, "visual", f"{model_name}_leg_visual_{index}", pose, size,
+                      colors[model_name], world_yaw)
+
+    ET.indent(sdf, space="  ")
+    FURNITURE_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    ET.ElementTree(sdf).write(FURNITURE_MODEL_PATH, encoding="utf-8", xml_declaration=True)
+
+
 def distance_to_segment(px: float, py: float, segment: Wall) -> float:
     x1, y1 = plan_to_world(segment[0], segment[1])
     x2, y2 = plan_to_world(segment[2], segment[3])
@@ -219,6 +305,16 @@ def distance_to_segment(px: float, py: float, segment: Wall) -> float:
 
 def is_on_segment(world_x: float, world_y: float, segment: Wall) -> bool:
     return distance_to_segment(world_x, world_y, segment) <= segment[4] / 2
+
+
+def is_in_furniture(world_x: float, world_y: float, furniture: Furniture) -> bool:
+    _name, x, y, width, depth, _height, angle = furniture
+    plan_x = world_x + CENTER_X
+    plan_y = CENTER_Y - world_y
+    dx, dy = plan_x - x, plan_y - y
+    local_x = math.cos(angle) * dx + math.sin(angle) * dy
+    local_y = -math.sin(angle) * dx + math.cos(angle) * dy
+    return abs(local_x) <= width / 2 and abs(local_y) <= depth / 2
 
 
 def generate_map() -> None:
@@ -263,7 +359,9 @@ def generate_map() -> None:
         world_y = MAP_ORIGIN_Y + (MAP_HEIGHT - row - 0.5) * MAP_RESOLUTION
         for column in range(MAP_WIDTH):
             world_x = MAP_ORIGIN_X + (column + 0.5) * MAP_RESOLUTION
-            if any(is_on_segment(world_x, world_y, segment) for segment in occupied_segments):
+            if (any(is_on_segment(world_x, world_y, segment) for segment in occupied_segments)
+                    or any(is_in_furniture(world_x, world_y, furniture)
+                           for furniture in FURNITURE)):
                 pixels[row * MAP_WIDTH + column] = 0
 
     MAP_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -280,8 +378,10 @@ def main() -> None:
     arguments = parser.parse_args()
     load_geometry(arguments.source_sh3d)
     generate_sdf()
+    generate_furniture_sdf()
     generate_map()
     print(f"Generated {MODEL_PATH.relative_to(PACKAGE_ROOT)} from {arguments.source_sh3d}")
+    print(f"Generated {FURNITURE_MODEL_PATH.relative_to(PACKAGE_ROOT)}")
     print(f"Generated {MAP_PATH.relative_to(PACKAGE_ROOT)}")
 
 

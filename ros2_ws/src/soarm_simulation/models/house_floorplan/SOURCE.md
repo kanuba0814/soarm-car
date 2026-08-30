@@ -15,10 +15,11 @@ verifies the exact upstream archive SHA-256, then reads the model directly and
 verifies the expected 21 walls, 10 door-like openings, and 2.4384 m wall height.
 
 All source objects whose names contain `door` are converted to open door frames.
-Door leaves, swing arcs, loose furniture, roof, and ceiling are omitted for a
-deterministic localization/navigation environment. Windows remain collision-solid
-because a ground robot cannot traverse them and lidar commonly observes their
-wall plane.
+Door leaves, swing arcs, roof, and ceiling are omitted. Three selected table
+items are generated separately as `house_furniture`; other loose furniture is
+omitted for a deterministic localization/navigation environment. Windows remain
+collision-solid because a ground robot cannot traverse them and lidar commonly
+observes their wall plane.
 
 Regenerate from a pinned checkout:
 
