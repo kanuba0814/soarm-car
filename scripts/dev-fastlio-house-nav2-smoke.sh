@@ -28,7 +28,12 @@ for _ in {1..180}; do
 done
 [[ "$(inside 'node list')" == *'/planner_server'* ]]
 # No global transform can precede an accepted ICP correction.
-if inside 'run tf2_ros tf2_echo map odom_combined' >/tmp/fastlio-preinit-tf 2>&1 & probe=$!; then sleep 2; kill "$probe" 2>/dev/null || true; wait "$probe" 2>/dev/null || true; ! grep -q 'Translation:' /tmp/fastlio-preinit-tf; fi
+inside 'run tf2_ros tf2_echo map odom_combined' >"$logs/preinit_tf.log" 2>&1 &
+probe=$!
+sleep 2
+kill "$probe" 2>/dev/null || true
+wait "$probe" 2>/dev/null || true
+! grep -q 'Translation:' "$logs/preinit_tf.log"
 wait_for_topic() {
     local topic=$1 expected=$2
     for _ in {1..90}; do
