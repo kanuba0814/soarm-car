@@ -30,6 +30,7 @@
       </link>
     </model>
     <include><uri>model://house_floorplan</uri></include>
+    <include><uri>model://house_furniture</uri></include>
     <!-- The source-plan centre is clear by more than one metre. -->
     <include>
       <uri>model://senior_akm</uri>

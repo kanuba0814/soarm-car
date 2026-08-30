@@ -11,6 +11,7 @@ import xml.etree.ElementTree as ET
 root = Path('ros2_ws/src/soarm_simulation')
 world = ET.parse(root / 'worlds/house_floorplan.sdf').getroot()
 assert world.find("./world/include/uri[.='model://house_floorplan']") is not None
+assert world.find("./world/include/uri[.='model://house_furniture']") is not None
 assert world.find("./world/include/uri[.='model://senior_akm']") is not None
 model = ET.parse(root / 'models/house_floorplan/model.sdf').getroot()
 collisions = model.findall('.//collision')
@@ -20,6 +21,14 @@ assert sum(name.startswith('door_frame_') for name in names) == 20
 assert sum(name.startswith('door_header_') for name in names) == 10
 assert not any('leaf' in name or 'swing' in name for name in names)
 assert len(model.findall('.//visual')) == len(collisions) == 60
+furniture = ET.parse(root / 'models/house_furniture/model.sdf').getroot()
+assert [link.get('name') for link in furniture.findall('.//link')] == ['furniture']
+assert [collision.get('name') for collision in furniture.findall('.//collision')] == [
+    'coffee_table_navigation_footprint',
+    'small_table_navigation_footprint',
+    'desk_navigation_footprint',
+]
+assert len(furniture.findall('.//visual')) == 15
 
 pgm = (root / 'maps/house_floorplan.pgm').read_bytes()
 header, body = pgm.split(b'\n255\n', 1)
@@ -31,6 +40,13 @@ assert 'resolution: 0.05' in yaml
 assert 'origin: [-8.0, -7.25, 0.0]' in yaml
 
 width, height = 320, 290
+def map_value(world_x, world_y):
+    column = int((world_x - -8.0) / 0.05)
+    row = height - 1 - int((world_y - -7.25) / 0.05)
+    return body[row * width + column]
+for centre in ((-5.4971536, 0.632396), (-2.3218194, -0.204202), (5.360581, -0.768342)):
+    assert map_value(*centre) == 0, centre
+
 occupied = {index for index, value in enumerate(body) if value == 0}
 free = {index for index, value in enumerate(body) if value == 254}
 # Inflate by 0.20 m, slightly over half the robot width.
@@ -63,6 +79,15 @@ while queue:
             seen.add(candidate)
             queue.append(candidate)
 assert len(seen) / len(traversable) > 0.97, (len(seen), len(traversable))
+def grid_index(world_x, world_y):
+    column = int((world_x - -8.0) / 0.05)
+    row = height - 1 - int((world_y - -7.25) / 0.05)
+    return row * width + column
+# Representative goals cover the living room, central routes, right rooms,
+# diagonal corridor, and furniture-adjacent free space.
+for goal in ((-5.0, 2.0), (-3.0, 0.8), (-1.0, -1.0), (0.0, 2.0),
+             (4.0, 2.0), (5.0, -2.0), (5.0, -5.0), (4.0, -4.0)):
+    assert grid_index(*goal) in seen, goal
 PY
 python3 -m py_compile \
     ros2_ws/src/soarm_simulation/tools/generate_house_floorplan.py \
@@ -110,13 +135,14 @@ ros_command='source /opt/ros/humble/setup.bash && source /workspaces/soarm-car/i
 ready=false
 for _ in {1..120}; do
     if docker exec "$container_name" bash -lc \
-        "test -f /tmp/house_floorplan/install/setup.bash && $ros_command topic info /mid360/points | grep -q 'Publisher count: 1'"; then
+        "test -f /tmp/house_floorplan/install/setup.bash && $ros_command topic info /mid360/points | grep -q 'Publisher count: 1' && $ros_command topic info /map | grep -Eq 'Publisher count: [1-9]' && $ros_command topic info /gazebo/odom | grep -q 'Publisher count: 1'"; then
         ready=true
         break
     fi
     sleep 1
 done
 $ready || { docker logs "$container_name" >&2; exit 1; }
+docker exec "$container_name" bash -lc "ign model --list | grep -q 'house_furniture'"
 inside() { docker exec "$container_name" bash -lc "$ros_command $*"; }
 inside_timeout() {
     local seconds=$1 command
@@ -149,6 +175,7 @@ def position(path):
     return float(match.group(1)), float(match.group(2))
 before = position(root / 'odom-before.yaml')
 after = position(root / 'odom-after.yaml')
-assert math.hypot(after[0] - before[0], after[1] - before[1]) > 0.1, (before, after)
+distance = math.hypot(after[0] - before[0], after[1] - before[1])
+assert distance > 0.1, (before, after)
 PY
 printf '%s\n' "House floor-plan Fortress consumer smoke passed in isolated container $container_name."
