@@ -29,7 +29,10 @@ done
 [[ "$(inside 'node list')" == *'/planner_server'* ]]
 # No global transform can precede an accepted ICP correction.
 if inside 'run tf2_ros tf2_echo map odom_combined' >/tmp/fastlio-preinit-tf 2>&1 & probe=$!; then sleep 2; kill "$probe" 2>/dev/null || true; wait "$probe" 2>/dev/null || true; ! grep -q 'Translation:' /tmp/fastlio-preinit-tf; fi
-inside "topic pub --times 3 -r 2 /initialpose geometry_msgs/msg/PoseWithCovarianceStamped '{header: {frame_id: map}, pose: {pose: {position: {x: 0.0, y: 0.0, z: 0.0}, orientation: {w: 1.0}}}}'" >/dev/null
+for topic in /global_map /cloud_registered /Odometry; do
+    docker exec "$container" bash -lc "$ros topic echo $topic --once --no-daemon" >/dev/null
+done
+inside "topic pub --times 6 -r 2 /initialpose geometry_msgs/msg/PoseWithCovarianceStamped '{header: {frame_id: map}, pose: {pose: {position: {x: 0.0, y: 0.0, z: 0.0}, orientation: {w: 1.0}}}}'" >/dev/null
 for _ in {1..120}; do
     docker logs "$container" 2>&1 | grep -q 'Initial global localization succeeded.' && break
     sleep 1
