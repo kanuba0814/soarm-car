@@ -1,0 +1,10 @@
+# This tree intentionally has no Spin or rotate-in-place recovery. The Ackermann
+# chassis must remain able to follow an arc while planning or tracking is retried externally.
+<root main_tree_to_execute="NavigateToPose">
+  <BehaviorTree ID="NavigateToPose">
+    <PipelineSequence name="NavigateWithAckermann">
+      <ComputePathToPose goal="{goal}" path="{path}" planner_id="{planner_id}"/>
+      <FollowPath path="{path}" controller_id="{controller_id}"/>
+    </PipelineSequence>
+  </BehaviorTree>
+</root>
