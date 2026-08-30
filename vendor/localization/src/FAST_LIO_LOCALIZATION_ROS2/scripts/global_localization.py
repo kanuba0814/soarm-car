@@ -33,6 +33,8 @@ class GlobalLocalizationNode(Node):
         self.declare_parameter('localization_th', 0.9)
         self.declare_parameter('fov', 2 * np.pi)
         self.declare_parameter('fov_far', 100.0)
+        self.declare_parameter('base_to_body_xyz', [0.0, 0.0, 0.232])
+        self.declare_parameter('base_to_body_rpy', [0.0, 0.0, 0.0])
 
         self.map_voxel_size    = self.get_parameter('map_voxel_size').value
         self.scan_voxel_size   = self.get_parameter('scan_voxel_size').value
@@ -40,6 +42,8 @@ class GlobalLocalizationNode(Node):
         self.localization_th   = self.get_parameter('localization_th').value
         self.FOV               = self.get_parameter('fov').value
         self.FOV_FAR           = self.get_parameter('fov_far').value
+        self.base_to_body = (tf_transformations.translation_matrix(self.get_parameter('base_to_body_xyz').value) @
+                             tf_transformations.euler_matrix(*self.get_parameter('base_to_body_rpy').value))
 
         # ─── State Variables ─────────────────────────────────────
         self.global_map    = None
@@ -91,7 +95,12 @@ class GlobalLocalizationNode(Node):
             self.get_logger().warn('Waiting for first scan before initial localization.')
             return
 
-        initial = self.pose_to_mat(msg)
+        if self.cur_odom is None:
+            self.get_logger().warn('Waiting for FAST-LIO odometry before initial localization.')
+            return
+        # G=T_map_base from /initialpose, O=T_cameraInit_body from FAST-LIO.
+        # ICP estimates M=T_map_cameraInit, so M_initial=G*A*inv(O).
+        initial = self.pose_to_mat(msg) @ self.base_to_body @ np.linalg.inv(self.pose_to_mat(self.cur_odom))
         success = self.global_localization(initial)
         if success:
             self.initialized = True
@@ -117,10 +126,15 @@ class GlobalLocalizationNode(Node):
 
     def global_localization(self, pose_est):
         self.get_logger().info('Performing global localization via ICP...')
+        if self.cur_scan is None or self.cur_odom is None:
+            return False
         scan_copy = copy.deepcopy(self.cur_scan)
 
         submap = self.crop_global_map_in_FOV(scan_copy, pose_est, self.cur_odom)
 
+        if len(submap.points) == 0:
+            self.get_logger().warn('ICP submap is empty.')
+            return False
         T, _       = self.registration_at_scale(scan_copy, submap, initial=pose_est, scale=5)
         T, fitness = self.registration_at_scale(scan_copy, submap, initial=T,         scale=1)
         self.get_logger().info(f'ICP fitness: {fitness:.3f}')
