@@ -3,7 +3,13 @@
         map_voxel_size: 0.2
         scan_voxel_size: 0.2
         freq_localization: 1.0
-        localization_th: 0.7
+        localization_th: 0.4
+        localization_rmse_th: 0.3
+        max_correspondence_distance: 0.5
+        max_correction_translation: 0.25
+        max_correction_rotation: 0.15
+        use_coarse_initialization: false
+        coarse_scale: 5.0
         fov: 6.283185307179586
         fov_far: 50.0
         base_to_body_xyz: [0.0, 0.0, 0.232]

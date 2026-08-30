@@ -31,6 +31,12 @@ class GlobalLocalizationNode(Node):
         self.declare_parameter('scan_voxel_size', 0.1)
         self.declare_parameter('freq_localization', 0.5)      # Hz
         self.declare_parameter('localization_th', 0.9)
+        self.declare_parameter('localization_rmse_th', 1.0e9)
+        self.declare_parameter('max_correspondence_distance', 1.0)
+        self.declare_parameter('max_correction_translation', 1.0e9)
+        self.declare_parameter('max_correction_rotation', 1.0e9)
+        self.declare_parameter('use_coarse_initialization', True)
+        self.declare_parameter('coarse_scale', 5.0)
         self.declare_parameter('fov', 2 * np.pi)
         self.declare_parameter('fov_far', 100.0)
         self.declare_parameter('base_to_body_xyz', [0.0, 0.0, 0.232])
@@ -40,6 +46,12 @@ class GlobalLocalizationNode(Node):
         self.scan_voxel_size   = self.get_parameter('scan_voxel_size').value
         self.freq_localization = self.get_parameter('freq_localization').value
         self.localization_th   = self.get_parameter('localization_th').value
+        self.localization_rmse_th = self.get_parameter('localization_rmse_th').value
+        self.max_correspondence_distance = self.get_parameter('max_correspondence_distance').value
+        self.max_correction_translation = self.get_parameter('max_correction_translation').value
+        self.max_correction_rotation = self.get_parameter('max_correction_rotation').value
+        self.use_coarse_initialization = self.get_parameter('use_coarse_initialization').value
+        self.coarse_scale = self.get_parameter('coarse_scale').value
         self.FOV               = self.get_parameter('fov').value
         self.FOV_FAR           = self.get_parameter('fov_far').value
         self.base_to_body = (tf_transformations.translation_matrix(self.get_parameter('base_to_body_xyz').value) @
@@ -139,11 +151,12 @@ class GlobalLocalizationNode(Node):
         if len(submap.points) == 0:
             self.get_logger().warn('ICP submap is empty.')
             return False
-        T, _       = self.registration_at_scale(scan_copy, submap, initial=pose_est, scale=5)
-        T, fitness = self.registration_at_scale(scan_copy, submap, initial=T,         scale=1)
-        self.get_logger().info(f'ICP fitness: {fitness:.3f}')
+        T, fitness, rmse = self.registration_candidate(scan_copy, submap, pose_est)
+        self.get_logger().info(
+            f'ICP fitness: {fitness:.3f}, inlier RMSE: {rmse:.3f} m')
 
-        if fitness > self.localization_th:
+        accepted, rejection_reason = self.registration_is_acceptable(T, fitness, rmse)
+        if accepted:
             self.T_map_to_odom = T
             odom = Odometry()
             xyz  = tf_transformations.translation_from_matrix(T)
@@ -156,8 +169,39 @@ class GlobalLocalizationNode(Node):
             self.pub_map_to_odom.publish(odom)
             return True
 
-        self.get_logger().warn('Global localization failed (fitness below threshold).')
+        self.get_logger().warn(f'Global localization rejected ({rejection_reason}).')
         return False
+
+    def registration_candidate(self, scan, submap, pose_est):
+        T = pose_est
+        # A coarse search is useful only for the first, uncertain pose guess.
+        # Re-running it during tracking lets repeated walls pull a valid prior
+        # into a different room before the fine pass can refine it.
+        if not self.initialized and self.use_coarse_initialization:
+            T, _, _ = self.registration_at_scale(
+                scan, submap, initial=T, scale=self.coarse_scale)
+        return self.registration_at_scale(scan, submap, initial=T, scale=1.0)
+
+    def registration_is_acceptable(self, candidate, fitness, rmse):
+        if fitness <= self.localization_th:
+            return False, f'fitness={fitness:.3f}'
+        if rmse >= self.localization_rmse_th:
+            return False, f'RMSE={rmse:.3f} m'
+        if not self.initialized:
+            return True, ''
+
+        correction_delta = np.linalg.inv(self.T_map_to_odom) @ candidate
+        translation_delta = np.linalg.norm(correction_delta[:3, 3])
+        cosine = np.clip(
+            (np.trace(correction_delta[:3, :3]) - 1.0) / 2.0,
+            -1.0,
+            1.0)
+        rotation_delta = np.arccos(cosine)
+        if translation_delta >= self.max_correction_translation:
+            return False, f'correction jump={translation_delta:.3f} m'
+        if rotation_delta >= self.max_correction_rotation:
+            return False, f'correction jump={rotation_delta:.3f} rad'
+        return True, ''
 
     def crop_global_map_in_FOV(self, scan, pose_est, odom):
         # /cloud_registered is already expressed in camera_init. pose_est is
@@ -170,10 +214,11 @@ class GlobalLocalizationNode(Node):
         pts_scan = (T_map2scan @ hom.T).T
 
         if self.FOV >= 2*np.pi:
-            mask = (pts_scan[:,0] < self.FOV_FAR)
+            mask = np.linalg.norm(pts_scan[:, :3], axis=1) < self.FOV_FAR
         else:
-            ang  = np.arctan2(pts_scan[:,1], pts_scan[:,0])
-            mask = (pts_scan[:,0]>0)&(pts_scan[:,0]<self.FOV_FAR)&(np.abs(ang)<self.FOV/2)
+            ang = np.arctan2(pts_scan[:,1], pts_scan[:,0])
+            radius = np.linalg.norm(pts_scan[:, :2], axis=1)
+            mask = (radius < self.FOV_FAR) & (np.abs(ang) < self.FOV/2)
 
         subpts = pts[mask]
         submap = o3d.geometry.PointCloud()
@@ -191,12 +236,12 @@ class GlobalLocalizationNode(Node):
         def down(p): return p.voxel_down_sample(self.scan_voxel_size * scale)
         reg = o3d.pipelines.registration.registration_icp(
             down(scan), down(submap),
-            max_correspondence_distance=1.0*scale,
+            max_correspondence_distance=self.max_correspondence_distance * scale,
             init=initial,
             estimation_method=o3d.pipelines.registration.TransformationEstimationPointToPoint(),
             criteria=o3d.pipelines.registration.ICPConvergenceCriteria(max_iteration=20)
         )
-        return reg.transformation, reg.fitness
+        return reg.transformation, reg.fitness, reg.inlier_rmse
 
     @staticmethod
     def pose_to_mat(pose_stamped):
