@@ -4,6 +4,7 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from nav2_common.launch import RewrittenYaml
 
 
@@ -13,10 +14,14 @@ def generate_launch_description():
     nav2_share = get_package_share_directory('nav2_bringup')
     params_file = os.path.join(navigation_share, 'config', 'house_nav2.yaml')
     behavior_tree = os.path.join(navigation_share, 'behavior_trees', 'navigate_ackermann.xml')
+    through_poses_tree = os.path.join(navigation_share, 'behavior_trees', 'navigate_through_poses_ackermann.xml')
     configured_params = RewrittenYaml(
         source_file=params_file,
-        param_rewrites={'default_bt_xml_filename': behavior_tree},
-        convert_types=True,
+        param_rewrites={
+            'default_nav_to_pose_bt_xml': behavior_tree,
+            'default_nav_through_poses_bt_xml': through_poses_tree,
+        },
+        convert_types=False,
     )
 
     return LaunchDescription([
@@ -38,6 +43,6 @@ def generate_launch_description():
                 'use_sim_time': 'true',
                 'autostart': 'true',
                 'params_file': configured_params,
-                'use_composition': 'false',
+                'use_composition': 'False',
             }.items()),
     ])

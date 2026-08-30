@@ -1,0 +1,10 @@
+# This navigator is configured alongside NavigateToPose so BtNavigator never loads a
+# default recovery tree containing Spin for the Ackermann chassis.
+<root main_tree_to_execute="NavigateThroughPoses">
+  <BehaviorTree ID="NavigateThroughPoses">
+    <PipelineSequence name="NavigateThroughPosesWithAckermann">
+      <ComputePathThroughPoses goals="{goals}" path="{path}" planner_id="{planner_id}"/>
+      <FollowPath path="{path}" controller_id="{controller_id}"/>
+    </PipelineSequence>
+  </BehaviorTree>
+</root>
