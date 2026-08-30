@@ -17,7 +17,11 @@ PY
 name="soarm-fastlio-house-$$"; domain="${ROS_DOMAIN_ID:-92}"; partition="${IGN_PARTITION:-$name}"
 logs="$(mktemp -d /tmp/soarm-fastlio-house.XXXXXX)"
 container="$(docker compose run -d --name "$name" -e ROS_DOMAIN_ID="$domain" -e IGN_PARTITION="$partition" ros2-dev bash -lc 'ros2 launch soarm_navigation house_fastlio_nav2.launch.py')"
-cleanup() { docker logs "$container" >"$logs/container.log" 2>&1 || true; docker stop "$container" >/dev/null 2>&1 || true; }
+cleanup() {
+    docker logs "$container" >"$logs/container.log" 2>&1 || true
+    docker stop "$container" >/dev/null 2>&1 || true
+    docker rm "$container" >/dev/null 2>&1 || true
+}
 trap cleanup EXIT
 ros='source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && ros2'
 inside() { docker exec "$container" bash -lc "$ros $*"; }
