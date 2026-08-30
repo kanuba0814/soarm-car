@@ -129,15 +129,19 @@ class TransformFusionNode(Node):
         self.fill_pose(odom, odom_to_base)
         odom.pose.covariance = raw_odom.pose.covariance
         self.transform_twist(odom, raw_odom, self.base_to_body)
+        tf_stamp = self.get_clock().now().to_msg()
         self.odom_pub.publish(odom)
-        self.send_tf(self.odom_frame, self.base_frame, odom_to_base, raw_odom.header.stamp)
+        # This node is a 50 Hz transform fusion boundary. Re-stamp its latest
+        # fused estimate for TF consumers while /odom retains the FAST-LIO
+        # measurement timestamp above.
+        self.send_tf(self.odom_frame, self.base_frame, odom_to_base, tf_stamp)
 
         if correction is None:
             return
         # M=T_map_cameraInit and T_cameraInit_odom=inv(A), hence
         # T_map_odom=M*inv(A). The complete map pose is M*O*inv(A).
         map_to_odom = self.pose_matrix(correction) @ np.linalg.inv(self.base_to_body)
-        self.send_tf(self.map_frame, self.odom_frame, map_to_odom, raw_odom.header.stamp)
+        self.send_tf(self.map_frame, self.odom_frame, map_to_odom, tf_stamp)
         localization = copy.deepcopy(odom)
         localization.header.frame_id = self.map_frame
         self.fill_pose(localization, map_to_odom @ odom_to_base)
