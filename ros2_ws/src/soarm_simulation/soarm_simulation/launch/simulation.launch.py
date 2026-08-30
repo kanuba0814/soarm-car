@@ -14,9 +14,12 @@ def generate_launch_description():
     robot = Command(['xacro ', os.path.join(description_share, 'urdf', 'soarm_car_layout.urdf.xacro')])
     models_path = os.path.join(sim_share, 'models')
     world_path = PathJoinSubstitution([sim_share, 'worlds', PythonExpression(["'", LaunchConfiguration('world'), ".sdf'"])])
-    navigation_room = IfCondition(PythonExpression(["'", LaunchConfiguration('world'), "' == 'navigation_room'"]))
+    map_path = PathJoinSubstitution([sim_share, 'maps', PythonExpression(["'", LaunchConfiguration('world'), ".yaml'"])])
+    localisation_world = IfCondition(PythonExpression([
+        "'", LaunchConfiguration('world'), "' in ['navigation_room', 'house_floorplan']",
+    ]))
     ground_truth_map_tf = IfCondition(PythonExpression([
-        "'", LaunchConfiguration('world'), "' == 'navigation_room' and '",
+        "'", LaunchConfiguration('world'), "' in ['navigation_room', 'house_floorplan'] and '",
         LaunchConfiguration('ground_truth_map_tf'), "' == 'true'",
     ]))
     gazebo = IncludeLaunchDescription(
@@ -26,7 +29,7 @@ def generate_launch_description():
     return LaunchDescription([
         SetEnvironmentVariable('IGN_GAZEBO_RESOURCE_PATH', models_path),
         SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', models_path),
-        DeclareLaunchArgument('world', default_value='senior_akm', description='World basename from share/soarm_simulation/worlds; use navigation_room for localisation.'),
+        DeclareLaunchArgument('world', default_value='senior_akm', description='World basename from share/soarm_simulation/worlds; use navigation_room or house_floorplan for localisation.'),
         DeclareLaunchArgument('simulation', default_value='true', description='true starts Fortress; false keeps the hardware-compatible ROS seam only.'),
         DeclareLaunchArgument('gz_args', default_value='-r -s', description='Gazebo arguments; use "-r" to open the GUI.'),
         DeclareLaunchArgument('spawn_robot', default_value='true'),
@@ -58,8 +61,8 @@ def generate_launch_description():
         Node(package='soarm_simulation', executable='odom_path'),
         Node(
             package='nav2_map_server', executable='map_server', name='map_server',
-            condition=navigation_room,
-            parameters=[{'yaml_filename': os.path.join(sim_share, 'maps', 'navigation_room.yaml')}],
+            condition=localisation_world,
+            parameters=[{'yaml_filename': map_path}],
         ),
         Node(
             package='tf2_ros', executable='static_transform_publisher', name='ground_truth_map_tf',
@@ -68,7 +71,7 @@ def generate_launch_description():
         ),
         Node(
             package='nav2_lifecycle_manager', executable='lifecycle_manager', name='lifecycle_manager_map',
-            condition=navigation_room,
+            condition=localisation_world,
             parameters=[{'autostart': True, 'node_names': ['map_server']}],
         ),
         Node(
