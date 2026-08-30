@@ -115,6 +115,7 @@ latest_odom = None
 latest_global_plan = None
 latest_local_plan = None
 latest_costmap = None
+max_occupied_cells = 0
 odom_samples = []
 feedback_samples = []
 
@@ -150,8 +151,9 @@ def on_local_plan(message):
 
 
 def on_costmap(message):
-    global latest_costmap
+    global latest_costmap, max_occupied_cells
     latest_costmap = message
+    max_occupied_cells = max(max_occupied_cells, sum(value >= 100 for value in message.data))
 
 
 def path_geometry(path):
@@ -205,6 +207,7 @@ while latest_odom is None and time.monotonic() < end:
     rclpy.spin_once(node, timeout_sec=0.2)
 assert latest_odom is not None, 'no /odom before goal'
 start = latest_odom.pose.pose.position
+start_yaw = yaw_from_quaternion(latest_odom.pose.pose.orientation)
 goal = NavigateToPose.Goal()
 goal.pose = PoseStamped()
 goal.pose.header.frame_id = 'map'
@@ -232,12 +235,19 @@ final = latest_odom.pose.pose.position
 error = math.hypot(final.x - goal.pose.pose.position.x, final.y - goal.pose.pose.position.y)
 linear_speed = math.hypot(latest_odom.twist.twist.linear.x, latest_odom.twist.twist.linear.y)
 angular_speed = abs(latest_odom.twist.twist.angular.z)
+yaw_changes = [abs(math.atan2(math.sin(sample['yaw'] - start_yaw), math.cos(sample['yaw'] - start_yaw)))
+               for sample in odom_samples]
+max_yaw_change = max(yaw_changes, default=0.0)
+max_lateral_displacement = max((abs(sample['y'] - start.y) for sample in odom_samples), default=0.0)
 print(json.dumps({
     'result_status': result.status,
     'start': [round(start.x, 3), round(start.y, 3)],
     'final': [round(final.x, 3), round(final.y, 3)],
     'final_error': round(error, 3),
     'final_speed': [round(linear_speed, 3), round(angular_speed, 3)],
+    'max_yaw_change': round(max_yaw_change, 3),
+    'max_lateral_displacement': round(max_lateral_displacement, 3),
+    'max_local_costmap_occupied_cells': max_occupied_cells,
     'global_plan': path_geometry(latest_global_plan),
     'local_plan': path_geometry(latest_local_plan),
     'feedback_tail': feedback_samples[-8:],
@@ -246,6 +256,10 @@ print(json.dumps({
 }, sort_keys=True))
 assert result.status == 4, f'NavigateToPose status {result.status}, expected SUCCEEDED (4)'
 assert error <= 0.35, f'final position error {error:.3f} m'
+assert max_yaw_change >= 0.35, f'path did not exercise a material turn: {max_yaw_change:.3f} rad'
+assert max_lateral_displacement >= 0.5, f'path lateral displacement too small: {max_lateral_displacement:.3f} m'
+assert latest_costmap is not None, 'no local costmap received'
+assert max_occupied_cells > 0, 'local VoxelLayer never retained an occupied obstacle cell'
 assert linear_speed <= 0.05 and angular_speed <= 0.10, (linear_speed, angular_speed)
 node.destroy_node()
 rclpy.shutdown()
