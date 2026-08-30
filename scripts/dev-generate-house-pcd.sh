@@ -18,6 +18,13 @@ for _ in {1..150}; do
     sleep 1
 done
 inside 'node list' | grep -qx '/laser_mapping'
+# Anchor camera_init before motion: wait until LiDAR/IMU initialization has
+# produced the first FAST-LIO pose, then run the declared open-loop arc.
+for _ in {1..90}; do
+    [[ "$(inside 'topic type /Odometry' 2>/dev/null || true)" == 'nav_msgs/msg/Odometry' ]] && break
+    sleep 1
+done
+docker exec "$container" timeout 30 bash -lc "$ros topic echo /Odometry nav_msgs/msg/Odometry --once --no-daemon" >/dev/null
 # This bounded arc remains in the initial open area and deliberately turns.
 inside "topic pub -r 20 --times 160 /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.12}, angular: {z: 0.18}}'" >/dev/null
 inside "topic pub -r 20 --times 20 /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.0}, angular: {z: 0.0}}'" >/dev/null

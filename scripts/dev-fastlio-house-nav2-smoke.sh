@@ -70,6 +70,11 @@ sleep 10
 kill "$correction_probe" 2>/dev/null || true
 wait "$correction_probe" 2>/dev/null || true
 grep -q 'frame_id: map' "$logs/map_to_odom.yaml"
+inside 'topic info /odom --verbose' >"$logs/odom_info.txt"
+grep -q 'Publisher count: 1' "$logs/odom_info.txt"
+grep -q 'Node name: transform_fusion' "$logs/odom_info.txt"
+inside 'node info /senior_akm_sim_adapter' >"$logs/sim_adapter_info.txt"
+! grep -q '/gazebo/odom' "$logs/sim_adapter_info.txt"
 
 docker exec -i "$container" bash -lc "source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && python3 -" >"$logs/metrics.json" <<'PY'
 import json, math, subprocess, time
@@ -82,22 +87,23 @@ from rclpy.action import ActionClient
 
 def yaw(q): return math.atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z))
 rclpy.init(); n=rclpy.create_node('fastlio_house_acceptance')
-state={'odom':None, 'occupied':0, 'samples':[]}
+state={'odom':None, 'localization':None, 'occupied':0, 'samples':[]}
 def odom(msg):
     state['odom']=msg; state['samples'].append((msg.header.stamp.sec+msg.header.stamp.nanosec/1e9, msg.pose.pose.position.x, msg.pose.pose.position.y, yaw(msg.pose.pose.orientation), msg.twist.twist.linear.x, msg.twist.twist.angular.z))
+def localization(msg): state['localization']=msg
 def cost(msg): state['occupied']=max(state['occupied'], sum(cell >= 100 for cell in msg.data))
-n.create_subscription(Odometry, '/odom', odom, 30); n.create_subscription(Costmap, '/local_costmap/costmap_raw', cost, 10)
+n.create_subscription(Odometry, '/odom', odom, 30); n.create_subscription(Odometry, '/localization', localization, 30); n.create_subscription(Costmap, '/local_costmap/costmap_raw', cost, 10)
 c=ActionClient(n, NavigateToPose, '/navigate_to_pose'); assert c.wait_for_server(timeout_sec=45)
 end=time.monotonic()+30
-while state['odom'] is None and time.monotonic()<end:rclpy.spin_once(n,timeout_sec=.2)
-assert state['odom'] is not None
+while (state['odom'] is None or state['localization'] is None) and time.monotonic()<end:rclpy.spin_once(n,timeout_sec=.2)
+assert state['odom'] is not None and state['localization'] is not None
 start=state['odom']; g=NavigateToPose.Goal(); g.pose=PoseStamped(); g.pose.header.frame_id='map'; g.pose.pose.position.x=1.0; g.pose.pose.position.y=1.0; g.pose.pose.orientation.z=math.sin(math.pi/8); g.pose.pose.orientation.w=math.cos(math.pi/8)
 f=c.send_goal_async(g)
 rclpy.spin_until_future_complete(n,f,timeout_sec=20); h=f.result(); assert h and h.accepted
 r=h.get_result_async(); rclpy.spin_until_future_complete(n,r,timeout_sec=120); assert r.result() and r.result().status==4
 settle=time.monotonic()+1.5
 while time.monotonic()<settle:rclpy.spin_once(n,timeout_sec=.1)
-o=state['odom']
+o=state['localization']
 raw_truth=subprocess.check_output(['ign','topic','-e','-t','/world/house_floorplan/dynamic_pose/info','-n','1','--json-output'],text=True,timeout=10)
 truth_message=json.loads(raw_truth)
 truth=next(pose for pose in truth_message['pose'] if pose.get('name')=='senior_akm')
