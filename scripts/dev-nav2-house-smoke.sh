@@ -37,8 +37,8 @@ assert params['controller_server']['ros__parameters']['FollowPath']['use_rotate_
 assert params['controller_server']['ros__parameters']['goal_checker']['yaw_goal_tolerance'] == 1.2
 assert params['behavior_server']['ros__parameters']['behavior_plugins'] == ['backup', 'drive_on_heading', 'wait']
 assert local_source['topic'] == '/mid360/points' and local_source['marking'] and local_source['clearing']
-assert local_source['obstacle_min_range'] == 0.35
-assert 0.274 < local_source['obstacle_min_range'] < local_source['obstacle_max_range']
+assert local_source['obstacle_min_range'] == 0.60
+assert 0.45 < local_source['obstacle_min_range'] < local_source['obstacle_max_range']
 assert local_source['observation_persistence'] == 0.5 and local_source['max_obstacle_height'] == 1.5
 # The smoke target is map-free with one metre of static-wall clearance, leaving
 # room for the 0.24 m costmap radius and the 0.8 m Dubins turning radius.
@@ -91,7 +91,7 @@ for _ in {1..150}; do
         && grep -qx '/behavior_server' "$output_dir/nodes.txt" \
         && grep -qx '/velocity_smoother' "$output_dir/nodes.txt" \
         && ! grep -q amcl "$output_dir/nodes.txt" \
-        && docker exec "$container_name" bash -lc "$ros_setup ros2 param get /local_costmap/local_costmap voxel_layer.mid360.obstacle_min_range" | grep -q '0.35'; then
+        && docker exec "$container_name" bash -lc "$ros_setup ros2 param get /local_costmap/local_costmap voxel_layer.mid360.obstacle_min_range" | grep -q '0.6'; then
         ready=true
         break
     fi
