@@ -48,7 +48,8 @@ class SimAdapter(Node):
             for name in ALL_ARM_JOINTS
         }
         self.tf = TransformBroadcaster(self) if self.publish_odometry else None
-        self.create_subscription(Odometry, '/gazebo/odom', self.on_gazebo_odom, 20)
+        if self.publish_odometry:
+            self.create_subscription(Odometry, '/gazebo/odom', self.on_gazebo_odom, 20)
         self.create_subscription(Imu, '/gazebo/imu', self.on_imu, 50)
         self.create_subscription(Imu, '/gazebo/livox_imu', self.on_livox_imu, 50)
         self.create_subscription(PointCloud2, '/mid360/scan/points', self.on_points, 10)

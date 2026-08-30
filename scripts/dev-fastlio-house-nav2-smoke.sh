@@ -46,7 +46,7 @@ wait "$correction_probe" 2>/dev/null || true
 grep -q 'frame_id: map' "$logs/map_to_odom.yaml"
 
 docker exec -i "$container" bash -lc "source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && python3 -" >"$logs/metrics.json" <<'PY'
-import json, math, time
+import json, math, subprocess, time
 import rclpy
 from geometry_msgs.msg import PoseStamped
 from nav2_msgs.action import NavigateToPose
@@ -56,12 +56,11 @@ from rclpy.action import ActionClient
 
 def yaw(q): return math.atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z))
 rclpy.init(); n=rclpy.create_node('fastlio_house_acceptance')
-state={'odom':None, 'truth':None, 'occupied':0, 'samples':[]}
+state={'odom':None, 'occupied':0, 'samples':[]}
 def odom(msg):
     state['odom']=msg; state['samples'].append((msg.header.stamp.sec+msg.header.stamp.nanosec/1e9, msg.pose.pose.position.x, msg.pose.pose.position.y, yaw(msg.pose.pose.orientation), msg.twist.twist.linear.x, msg.twist.twist.angular.z))
-def truth(msg): state['truth']=msg
 def cost(msg): state['occupied']=max(state['occupied'], sum(cell >= 100 for cell in msg.data))
-n.create_subscription(Odometry, '/odom', odom, 30); n.create_subscription(Odometry, '/gazebo/odom', truth, 30); n.create_subscription(Costmap, '/local_costmap/costmap_raw', cost, 10)
+n.create_subscription(Odometry, '/odom', odom, 30); n.create_subscription(Costmap, '/local_costmap/costmap_raw', cost, 10)
 c=ActionClient(n, NavigateToPose, '/navigate_to_pose'); assert c.wait_for_server(timeout_sec=45)
 end=time.monotonic()+30
 while state['odom'] is None and time.monotonic()<end:rclpy.spin_once(n,timeout_sec=.2)
@@ -72,10 +71,20 @@ rclpy.spin_until_future_complete(n,f,timeout_sec=20); h=f.result(); assert h and
 r=h.get_result_async(); rclpy.spin_until_future_complete(n,r,timeout_sec=120); assert r.result() and r.result().status==4
 settle=time.monotonic()+1.5
 while time.monotonic()<settle:rclpy.spin_once(n,timeout_sec=.1)
-o=state['odom']; t=state['truth']; assert t is not None
+o=state['odom']
+raw_truth=subprocess.check_output(['ign','topic','-e','-t','/world/house_floorplan/dynamic_pose/info','-n','1','--json-output'],text=True,timeout=10)
+truth_message=json.loads(raw_truth)
+truth=next(pose for pose in truth_message['pose'] if pose.get('name')=='senior_akm')
+truth_position=truth.get('position',{})
+truth_orientation=truth.get('orientation',{})
+truth_x=truth_position.get('x',0.0); truth_y=truth_position.get('y',0.0)
+class TruthQuaternion: pass
+truth_q=TruthQuaternion()
+truth_q.x=truth_orientation.get('x',0.0); truth_q.y=truth_orientation.get('y',0.0)
+truth_q.z=truth_orientation.get('z',0.0); truth_q.w=truth_orientation.get('w',1.0)
 error=math.hypot(o.pose.pose.position.x-1,o.pose.pose.position.y-1)
-truth_error=math.hypot(o.pose.pose.position.x-t.pose.pose.position.x,o.pose.pose.position.y-t.pose.pose.position.y)
-yaw_error=abs(math.atan2(math.sin(yaw(o.pose.pose.orientation)-yaw(t.pose.pose.orientation)),math.cos(yaw(o.pose.pose.orientation)-yaw(t.pose.pose.orientation))))
+truth_error=math.hypot(o.pose.pose.position.x-truth_x,o.pose.pose.position.y-truth_y)
+yaw_error=abs(math.atan2(math.sin(yaw(o.pose.pose.orientation)-yaw(truth_q)),math.cos(yaw(o.pose.pose.orientation)-yaw(truth_q))))
 turn=max(abs(math.atan2(math.sin(s[3]-yaw(start.pose.pose.orientation)),math.cos(s[3]-yaw(start.pose.pose.orientation)))) for s in state['samples'])
 lateral=max(abs(s[2]-start.pose.pose.position.y) for s in state['samples'])
 active=[s for s in state['samples'] if abs(s[4])>.02 or abs(s[5])>.02]
