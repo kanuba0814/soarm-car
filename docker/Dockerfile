@@ -33,6 +33,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-humble-joint-state-publisher-gui \
     ros-humble-nav2-map-server \
     ros-humble-nav2-lifecycle-manager \
+    ros-humble-navigation2 \
+    ros-humble-nav2-bringup \
     ros-humble-robot-state-publisher \
     ros-humble-pcl-ros \
     ros-humble-ros-gz-sim \
