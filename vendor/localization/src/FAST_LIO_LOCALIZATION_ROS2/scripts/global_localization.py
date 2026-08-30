@@ -86,6 +86,10 @@ class GlobalLocalizationNode(Node):
         self.destroy_subscription(self._map_sub)
 
     def cb_init_pose(self, msg: PoseWithCovarianceStamped):
+        if msg.header.frame_id != 'map':
+            self.get_logger().warn(
+                f'Initial pose must be in map, got {msg.header.frame_id!r}.')
+            return
         if self.global_map is None:
             self.get_logger().warn('Waiting for global map before initial localization.')
             return
@@ -156,8 +160,10 @@ class GlobalLocalizationNode(Node):
         return False
 
     def crop_global_map_in_FOV(self, scan, pose_est, odom):
-        T_scan     = self.pose_to_mat(odom)
-        T_map2scan = np.linalg.inv(pose_est @ T_scan)
+        # /cloud_registered is already expressed in camera_init. pose_est is
+        # T_map_cameraInit, so applying the current body odometry again would
+        # move the FOV twice as the robot travels.
+        T_map2scan = np.linalg.inv(pose_est)
 
         pts = np.asarray(self.global_map.points)
         hom = np.hstack([pts, np.ones((pts.shape[0],1))])
