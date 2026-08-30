@@ -21,12 +21,16 @@ cleanup() { docker logs "$container" >"$logs/container.log" 2>&1 || true; docker
 trap cleanup EXIT
 ros='source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && ros2'
 inside() { docker exec "$container" bash -lc "$ros $*"; }
+ready=false
 for _ in {1..180}; do
     nodes="$(inside 'node list' 2>/dev/null || true)"
-    [[ "$nodes" == *'/global_localization'* && "$nodes" == *'/planner_server'* && "$nodes" != *amcl* ]] && break
+    if [[ "$nodes" == *'/global_localization'* && "$nodes" == *'/planner_server'* && "$nodes" != *amcl* ]]; then
+        ready=true
+        break
+    fi
     sleep 1
 done
-[[ "$(inside 'node list')" == *'/planner_server'* ]]
+$ready
 # No global transform can precede an accepted ICP correction.
 inside 'run tf2_ros tf2_echo map odom_combined' >"$logs/preinit_tf.log" 2>&1 &
 probe=$!
