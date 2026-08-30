@@ -29,8 +29,21 @@ done
 [[ "$(inside 'node list')" == *'/planner_server'* ]]
 # No global transform can precede an accepted ICP correction.
 if inside 'run tf2_ros tf2_echo map odom_combined' >/tmp/fastlio-preinit-tf 2>&1 & probe=$!; then sleep 2; kill "$probe" 2>/dev/null || true; wait "$probe" 2>/dev/null || true; ! grep -q 'Translation:' /tmp/fastlio-preinit-tf; fi
-for topic in /global_map /cloud_registered /Odometry; do
-    docker exec "$container" bash -lc "$ros topic echo $topic --once --no-daemon" >/dev/null
+wait_for_topic() {
+    local topic=$1 expected=$2
+    for _ in {1..90}; do
+        [[ "$(inside "topic type $topic" 2>/dev/null || true)" == "$expected" ]] && return 0
+        sleep 1
+    done
+    return 1
+}
+for topic_and_type in \
+    '/global_map sensor_msgs/msg/PointCloud2' \
+    '/cloud_registered sensor_msgs/msg/PointCloud2' \
+    '/Odometry nav_msgs/msg/Odometry'; do
+    read -r topic message_type <<<"$topic_and_type"
+    wait_for_topic "$topic" "$message_type"
+    docker exec "$container" timeout 30 bash -lc "$ros topic echo $topic $message_type --once --no-daemon" >/dev/null
 done
 inside "topic pub --times 6 -r 2 /initialpose geometry_msgs/msg/PoseWithCovarianceStamped '{header: {frame_id: map}, pose: {pose: {position: {x: 0.0, y: 0.0, z: 0.0}, orientation: {w: 1.0}}}}'" >/dev/null
 for _ in {1..120}; do
