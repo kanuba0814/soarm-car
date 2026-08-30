@@ -28,13 +28,15 @@ class SimAdapter(Node):
     def __init__(self):
         super().__init__('senior_akm_sim_adapter')
         self.declare_parameter('policy_file', '')
+        self.declare_parameter('publish_odometry', True)
         self.policy = self._load_policy(self.get_parameter('policy_file').value)
         self.gazebo_joints = {}
         self.resource_lock = threading.Lock()
         self.base_busy = False
         self.arm_busy = False
         self.hold_targets = {name: 0.0 for name in ALL_ARM_JOINTS}
-        self.odom_pub = self.create_publisher(Odometry, '/odom', 20)
+        self.publish_odometry = self.get_parameter('publish_odometry').value
+        self.odom_pub = self.create_publisher(Odometry, '/odom', 20) if self.publish_odometry else None
         self.command_pub = self.create_publisher(Twist, '/cmd_vel', 20)
         self.power_pub = self.create_publisher(Float32, '/PowerVoltage', 5)
         self.imu_pub = self.create_publisher(Imu, '/imu/data_raw', 50)
@@ -45,7 +47,7 @@ class SimAdapter(Node):
             name: self.create_publisher(Float64, f'/gazebo/{name}/cmd_pos', 10)
             for name in ALL_ARM_JOINTS
         }
-        self.tf = TransformBroadcaster(self)
+        self.tf = TransformBroadcaster(self) if self.publish_odometry else None
         self.create_subscription(Odometry, '/gazebo/odom', self.on_gazebo_odom, 20)
         self.create_subscription(Imu, '/gazebo/imu', self.on_imu, 50)
         self.create_subscription(Imu, '/gazebo/livox_imu', self.on_livox_imu, 50)
@@ -79,6 +81,8 @@ class SimAdapter(Node):
             return yaml.safe_load(source)
 
     def on_gazebo_odom(self, source):
+        if not self.publish_odometry:
+            return
         odom = Odometry()
         odom.header.stamp = source.header.stamp
         odom.header.frame_id = 'odom_combined'

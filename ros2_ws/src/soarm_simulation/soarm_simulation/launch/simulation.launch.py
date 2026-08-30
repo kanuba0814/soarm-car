@@ -34,6 +34,7 @@ def generate_launch_description():
         DeclareLaunchArgument('gz_args', default_value='-r -s', description='Gazebo arguments; use "-r" to open the GUI.'),
         DeclareLaunchArgument('spawn_robot', default_value='true'),
         DeclareLaunchArgument('ground_truth_map_tf', default_value='true', description='Publish identity map->odom_combined for room preview; disable when AMCL/localisation owns this transform.'),
+        DeclareLaunchArgument('publish_sim_odometry', default_value='true', description='Publish /odom and odom_combined TF from Gazebo; disable when FAST-LIO owns Nav2 odometry.'),
         DeclareLaunchArgument('rviz', default_value='false', description='Start RViz with robot, TF, odometry path, point cloud and camera displays.'),
         gazebo,
         Node(package='robot_state_publisher', executable='robot_state_publisher', parameters=[{'robot_description': robot}]),
@@ -57,7 +58,10 @@ def generate_launch_description():
             '/gazebo/arm_wrist_roll/cmd_pos@std_msgs/msg/Float64]gz.msgs.Double',
             '/gazebo/arm_gripper_opening/cmd_pos@std_msgs/msg/Float64]gz.msgs.Double',
         ]),
-        Node(package='soarm_simulation', executable='sim_adapter', parameters=[{'policy_file': os.path.join(sim_share, 'config', 'mission_policy.yaml')}]),
+        Node(package='soarm_simulation', executable='sim_adapter', parameters=[
+            {'policy_file': os.path.join(sim_share, 'config', 'mission_policy.yaml')},
+            {'publish_odometry': LaunchConfiguration('publish_sim_odometry')},
+        ]),
         Node(package='soarm_simulation', executable='odom_path'),
         Node(
             package='nav2_map_server', executable='map_server', name='map_server',
