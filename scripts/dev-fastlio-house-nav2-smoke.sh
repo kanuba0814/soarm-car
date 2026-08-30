@@ -95,31 +95,60 @@ c=ActionClient(n, NavigateToPose, '/navigate_to_pose'); assert c.wait_for_server
 end=time.monotonic()+30
 while (state['odom'] is None or state['localization'] is None) and time.monotonic()<end:rclpy.spin_once(n,timeout_sec=.2)
 assert state['odom'] is not None and state['localization'] is not None
-start=state['odom']; g=NavigateToPose.Goal(); g.pose=PoseStamped(); g.pose.header.frame_id='map'; g.pose.pose.position.x=1.0; g.pose.pose.position.y=1.0; g.pose.pose.orientation.z=math.sin(math.pi/8); g.pose.pose.orientation.w=math.cos(math.pi/8)
-f=c.send_goal_async(g)
-rclpy.spin_until_future_complete(n,f,timeout_sec=20); h=f.result(); assert h and h.accepted
-r=h.get_result_async(); rclpy.spin_until_future_complete(n,r,timeout_sec=120); assert r.result() and r.result().status==4
-settle=time.monotonic()+1.5
-while time.monotonic()<settle:rclpy.spin_once(n,timeout_sec=.1)
+start=state['odom']
+
+def fortress_pose():
+    raw=subprocess.check_output(
+        ['ign','topic','-e','-t','/world/house_floorplan/dynamic_pose/info','-n','1','--json-output'],
+        text=True,timeout=10)
+    truth=next(pose for pose in json.loads(raw)['pose'] if pose.get('name')=='senior_akm')
+    position=truth.get('position',{}); orientation=truth.get('orientation',{})
+    class TruthQuaternion: pass
+    q=TruthQuaternion(); q.x=orientation.get('x',0.0); q.y=orientation.get('y',0.0)
+    q.z=orientation.get('z',0.0); q.w=orientation.get('w',1.0)
+    return position.get('x',0.0),position.get('y',0.0),yaw(q)
+
+goals=[
+    (1.0,1.0,math.pi/4),
+    (0.3,1.84,math.pi),
+    (-1.7,1.84,math.pi),
+    (0.3,1.84,0.0),
+    (-1.7,1.84,math.pi),
+]
+checkpoints=[]
+for index,(goal_x,goal_y,goal_yaw) in enumerate(goals):
+    g=NavigateToPose.Goal(); g.pose=PoseStamped(); g.pose.header.frame_id='map'
+    g.pose.pose.position.x=goal_x; g.pose.pose.position.y=goal_y
+    g.pose.pose.orientation.z=math.sin(goal_yaw/2); g.pose.pose.orientation.w=math.cos(goal_yaw/2)
+    sent=c.send_goal_async(g); rclpy.spin_until_future_complete(n,sent,timeout_sec=20)
+    handle=sent.result(); status=-1
+    if handle and handle.accepted:
+        result=handle.get_result_async(); rclpy.spin_until_future_complete(n,result,timeout_sec=120)
+        if result.result() is not None: status=result.result().status
+    settle=time.monotonic()+1.0
+    while time.monotonic()<settle:rclpy.spin_once(n,timeout_sec=.1)
+    o=state['localization']; truth_x,truth_y,truth_yaw=fortress_pose()
+    checkpoint={
+        'goal_index':index,
+        'status':status,
+        'goal_error_m':math.hypot(o.pose.pose.position.x-goal_x,o.pose.pose.position.y-goal_y),
+        'truth_xy_error_m':math.hypot(o.pose.pose.position.x-truth_x,o.pose.pose.position.y-truth_y),
+        'truth_yaw_error_rad':abs(math.atan2(math.sin(yaw(o.pose.pose.orientation)-truth_yaw),math.cos(yaw(o.pose.pose.orientation)-truth_yaw))),
+    }
+    checkpoints.append(checkpoint)
+    if status != 4: break
+
 o=state['localization']
-raw_truth=subprocess.check_output(['ign','topic','-e','-t','/world/house_floorplan/dynamic_pose/info','-n','1','--json-output'],text=True,timeout=10)
-truth_message=json.loads(raw_truth)
-truth=next(pose for pose in truth_message['pose'] if pose.get('name')=='senior_akm')
-truth_position=truth.get('position',{})
-truth_orientation=truth.get('orientation',{})
-truth_x=truth_position.get('x',0.0); truth_y=truth_position.get('y',0.0)
-class TruthQuaternion: pass
-truth_q=TruthQuaternion()
-truth_q.x=truth_orientation.get('x',0.0); truth_q.y=truth_orientation.get('y',0.0)
-truth_q.z=truth_orientation.get('z',0.0); truth_q.w=truth_orientation.get('w',1.0)
-error=math.hypot(o.pose.pose.position.x-1,o.pose.pose.position.y-1)
-truth_error=math.hypot(o.pose.pose.position.x-truth_x,o.pose.pose.position.y-truth_y)
-yaw_error=abs(math.atan2(math.sin(yaw(o.pose.pose.orientation)-yaw(truth_q)),math.cos(yaw(o.pose.pose.orientation)-yaw(truth_q))))
 turn=max(abs(math.atan2(math.sin(s[3]-yaw(start.pose.pose.orientation)),math.cos(s[3]-yaw(start.pose.pose.orientation)))) for s in state['samples'])
 lateral=max(abs(s[2]-start.pose.pose.position.y) for s in state['samples'])
 active=[s for s in state['samples'] if abs(s[4])>.02 or abs(s[5])>.02]
-metrics={'final_error_m':error,'truth_xy_error_m':truth_error,'truth_yaw_error_rad':yaw_error,'max_turn_rad':turn,'max_lateral_m':lateral,'occupied_cells':state['occupied'],'active_twist_samples':len(active),'final_twist':[o.twist.twist.linear.x,o.twist.twist.angular.z]}; print(json.dumps(metrics,sort_keys=True))
-assert error<=.35 and truth_error<=.20 and yaw_error<=.10 and turn>=.35 and lateral>=.5 and state['occupied']>0 and active and abs(o.twist.twist.linear.x)<=.05 and abs(o.twist.twist.angular.z)<=.10
+metrics={'checkpoints':checkpoints,'max_turn_rad':turn,'max_lateral_m':lateral,'occupied_cells':state['occupied'],'active_twist_samples':len(active),'final_twist':[o.twist.twist.linear.x,o.twist.twist.angular.z]}; print(json.dumps(metrics,sort_keys=True))
+assert len(checkpoints)==len(goals)
+assert all(point['status']==4 for point in checkpoints)
+assert all(point['goal_error_m']<=.35 for point in checkpoints)
+assert all(point['truth_xy_error_m']<=.20 and point['truth_yaw_error_rad']<=.10 for point in checkpoints)
+assert turn>=.35 and lateral>=.5 and state['occupied']>0 and active
+assert abs(o.twist.twist.linear.x)<=.05 and abs(o.twist.twist.angular.z)<=.10
 PY
 cat "$logs/metrics.json"
 printf 'FAST-LIO house Nav2 acceptance smoke passed.\n'
