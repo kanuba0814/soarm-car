@@ -17,8 +17,8 @@ def generate_launch_description():
     configured_params = RewrittenYaml(
         source_file=params_file,
         param_rewrites={
-            'default_nav_to_pose_bt_xml': os.path.join(navigation_share, 'behavior_trees', 'navigate_ackermann.xml'),
-            'default_nav_through_poses_bt_xml': os.path.join(navigation_share, 'behavior_trees', 'navigate_through_poses_ackermann.xml'),
+            'default_nav_to_pose_bt_xml': os.path.join(navigation_share, 'behavior_trees', 'navigate_holonomic.xml'),
+            'default_nav_through_poses_bt_xml': os.path.join(navigation_share, 'behavior_trees', 'navigate_through_poses_holonomic.xml'),
         },
         convert_types=False,
     )

@@ -13,8 +13,8 @@ def generate_launch_description():
     simulation_share = get_package_share_directory('soarm_simulation')
     nav2_share = get_package_share_directory('nav2_bringup')
     params_file = os.path.join(navigation_share, 'config', 'house_nav2.yaml')
-    behavior_tree = os.path.join(navigation_share, 'behavior_trees', 'navigate_ackermann.xml')
-    through_poses_tree = os.path.join(navigation_share, 'behavior_trees', 'navigate_through_poses_ackermann.xml')
+    behavior_tree = os.path.join(navigation_share, 'behavior_trees', 'navigate_holonomic.xml')
+    through_poses_tree = os.path.join(navigation_share, 'behavior_trees', 'navigate_through_poses_holonomic.xml')
     configured_params = RewrittenYaml(
         source_file=params_file,
         param_rewrites={

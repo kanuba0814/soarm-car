@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>soarm_simulation</name><version>0.1.0</version>
-  <description>ROS 2 Humble and Gazebo Fortress first-pass simulation for senior_akm and SO-ARM101.</description>
+  <description>ROS 2 Humble and Gazebo Fortress chassis-first simulation for Kuruma mecanum.</description>
   <maintainer email="dev@example.invalid">soarm-car</maintainer><license>Apache-2.0</license>
   <buildtool_depend>ament_python</buildtool_depend>
   <exec_depend>rclpy</exec_depend><exec_depend>livox_ros_driver2</exec_depend><exec_depend>action_msgs</exec_depend><exec_depend>control_msgs</exec_depend><exec_depend>geometry_msgs</exec_depend><exec_depend>nav_msgs</exec_depend><exec_depend>sensor_msgs</exec_depend><exec_depend>std_msgs</exec_depend><exec_depend>trajectory_msgs</exec_depend><exec_depend>tf2_ros</exec_depend><exec_depend>soarm_interfaces</exec_depend>

@@ -11,6 +11,6 @@
     <model name="ground"><static>true</static><link name="link"><collision name="collision"><geometry><plane><normal>0 0 1</normal></plane></geometry></collision><visual name="visual"><geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry><material><diffuse>0.32 0.35 0.31 1</diffuse></material></visual></link></model>
     <include><uri>model://navigation_room</uri></include>
     <!-- Spawn at (0, 0): all static geometry is at least one metre from the robot footprint. -->
-    <include><uri>model://senior_akm</uri><name>senior_akm</name><pose>0 0 0 0 0 0</pose></include>
+    <include><uri>model://kuruma</uri><name>kuruma</name><pose>0 0 0 0 0 0</pose></include>
   </world>
 </sdf>

@@ -6,7 +6,7 @@ from pathlib import Path
 import xml.etree.ElementTree as ET
 world = ET.parse('ros2_ws/src/soarm_simulation/worlds/navigation_room.sdf').getroot()
 assert world.find("./world/include/uri[.='model://navigation_room']") is not None
-assert world.find("./world/include/uri[.='model://senior_akm']") is not None
+assert world.find("./world/include/uri[.='model://kuruma']") is not None
 room = ET.parse('ros2_ws/src/soarm_simulation/models/navigation_room/model.sdf').getroot()
 for collision in ('north_wall', 'south_wall_west', 'east_wall', 'west_wall', 'l_wall_vertical', 'l_wall_horizontal', 'cylinder', 'small_box', 'large_box'):
     assert room.find(f".//collision[@name='{collision}']") is not None, collision

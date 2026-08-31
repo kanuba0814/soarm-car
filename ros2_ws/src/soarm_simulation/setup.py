@@ -6,7 +6,7 @@ setup(name='soarm_simulation', version='0.1.0', packages=['soarm_simulation'], d
     ('share/soarm_simulation', ['package.xml', 'README.md']),
     (os.path.join('share', 'soarm_simulation', 'launch'), glob('soarm_simulation/launch/*.launch.py')),
     (os.path.join('share', 'soarm_simulation', 'worlds'), glob('worlds/*')),
-    (os.path.join('share', 'soarm_simulation', 'models', 'senior_akm'), glob('models/senior_akm/*')),
+    (os.path.join('share', 'soarm_simulation', 'models', 'kuruma'), glob('models/kuruma/*')),
     (os.path.join('share', 'soarm_simulation', 'models', 'navigation_room'), glob('models/navigation_room/*')),
     (os.path.join('share', 'soarm_simulation', 'models', 'house_floorplan'), glob('models/house_floorplan/*')),
     (os.path.join('share', 'soarm_simulation', 'models', 'house_furniture'), glob('models/house_furniture/*')),

@@ -33,8 +33,8 @@
     <include><uri>model://house_furniture</uri></include>
     <!-- The source-plan centre is clear by more than one metre. -->
     <include>
-      <uri>model://senior_akm</uri>
-      <name>senior_akm</name>
+      <uri>model://kuruma</uri>
+      <name>kuruma</name>
       <pose>0 0 0 0 0 0</pose>
     </include>
   </world>

@@ -29,7 +29,7 @@ def generate_launch_description():
     return LaunchDescription([
         SetEnvironmentVariable('IGN_GAZEBO_RESOURCE_PATH', models_path),
         SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', models_path),
-        DeclareLaunchArgument('world', default_value='senior_akm', description='World basename from share/soarm_simulation/worlds; use navigation_room or house_floorplan for localisation.'),
+        DeclareLaunchArgument('world', default_value='kuruma', description='World basename from share/soarm_simulation/worlds; use navigation_room or house_floorplan for localisation.'),
         DeclareLaunchArgument('simulation', default_value='true', description='true starts Fortress; false keeps the hardware-compatible ROS seam only.'),
         DeclareLaunchArgument('gz_args', default_value='-r -s', description='Gazebo arguments; use "-r" to open the GUI.'),
         DeclareLaunchArgument('spawn_robot', default_value='true'),
@@ -38,8 +38,7 @@ def generate_launch_description():
         DeclareLaunchArgument('rviz', default_value='false', description='Start RViz with robot, TF, odometry path, point cloud and camera displays.'),
         gazebo,
         Node(package='robot_state_publisher', executable='robot_state_publisher', parameters=[{'robot_description': robot}]),
-        # senior_akm is defined as native SDF so its Ackermann system can apply wheel forces;
-        # robot_state_publisher above supplies the matching ROS arm/sensor TF description.
+        # Kuruma is native SDF so the Fortress mecanum system applies wheel forces; robot_state_publisher supplies matching sensor TF.
         Node(package='ros_gz_bridge', executable='parameter_bridge', condition=IfCondition(LaunchConfiguration('simulation')), arguments=[
             '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
             '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
@@ -49,18 +48,13 @@ def generate_launch_description():
             '/camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
             '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
             '/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
-            '/mid360/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+            '/mid360/scan/points/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
             '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
-            '/gazebo/arm_shoulder_pan/cmd_pos@std_msgs/msg/Float64]gz.msgs.Double',
-            '/gazebo/arm_shoulder_lift/cmd_pos@std_msgs/msg/Float64]gz.msgs.Double',
-            '/gazebo/arm_elbow_flex/cmd_pos@std_msgs/msg/Float64]gz.msgs.Double',
-            '/gazebo/arm_wrist_flex/cmd_pos@std_msgs/msg/Float64]gz.msgs.Double',
-            '/gazebo/arm_wrist_roll/cmd_pos@std_msgs/msg/Float64]gz.msgs.Double',
-            '/gazebo/arm_gripper_opening/cmd_pos@std_msgs/msg/Float64]gz.msgs.Double',
         ]),
         Node(package='soarm_simulation', executable='sim_adapter', parameters=[
             {'policy_file': os.path.join(sim_share, 'config', 'mission_policy.yaml')},
             {'publish_odometry': LaunchConfiguration('publish_sim_odometry')},
+            {'arm_enabled': False},
         ]),
         Node(package='soarm_simulation', executable='odom_path'),
         Node(

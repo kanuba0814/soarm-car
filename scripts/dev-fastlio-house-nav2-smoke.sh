@@ -78,7 +78,7 @@ grep -q 'frame_id: map' "$logs/map_to_odom.yaml"
 inside 'topic info /odom --verbose' >"$logs/odom_info.txt"
 grep -q 'Publisher count: 1' "$logs/odom_info.txt"
 grep -q 'Node name: transform_fusion' "$logs/odom_info.txt"
-inside 'node info /senior_akm_sim_adapter' >"$logs/sim_adapter_info.txt"
+inside 'node info /kuruma_sim_adapter' >"$logs/sim_adapter_info.txt"
 ! grep -q '/gazebo/odom' "$logs/sim_adapter_info.txt"
 
 docker exec -i "$container" bash -lc "source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && python3 -" >"$logs/metrics.json" <<'PY'
@@ -108,7 +108,7 @@ def fortress_pose():
     raw=subprocess.check_output(
         ['ign','topic','-e','-t','/world/house_floorplan/dynamic_pose/info','-n','1','--json-output'],
         text=True,timeout=10)
-    truth=next(pose for pose in json.loads(raw)['pose'] if pose.get('name')=='senior_akm')
+    truth=next(pose for pose in json.loads(raw)['pose'] if pose.get('name')=='kuruma')
     position=truth.get('position',{}); orientation=truth.get('orientation',{})
     class TruthQuaternion: pass
     q=TruthQuaternion(); q.x=orientation.get('x',0.0); q.y=orientation.get('y',0.0)

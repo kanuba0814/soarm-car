@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Consumer smoke: installed Nav2 drives the native Fortress Ackermann model to a house goal.
+# Consumer smoke: installed Nav2 drives the native Fortress mecanum model to a house goal.
 container_name="${SOARM_TEST_CONTAINER:-soarm-nav2-house-test-$$}"
 test_image="${SOARM_TEST_IMAGE:-soarm-car-nav2-ros2-dev:latest}"
 ros_domain_id="${ROS_DOMAIN_ID:-97}"
@@ -29,19 +29,18 @@ import yaml
 
 params = yaml.safe_load(Path('ros2_ws/src/soarm_navigation/config/house_nav2.yaml').read_text())
 local_source = params['local_costmap']['local_costmap']['ros__parameters']['voxel_layer']['mid360']
-tree = Path('ros2_ws/src/soarm_navigation/behavior_trees/navigate_ackermann.xml').read_text()
-through_poses_tree = Path('ros2_ws/src/soarm_navigation/behavior_trees/navigate_through_poses_ackermann.xml').read_text()
-assert params['planner_server']['ros__parameters']['GridBased']['motion_model_for_search'] == 'DUBIN'
-assert params['planner_server']['ros__parameters']['GridBased']['minimum_turning_radius'] >= 0.8
-assert params['controller_server']['ros__parameters']['FollowPath']['use_rotate_to_heading'] is False
-assert params['controller_server']['ros__parameters']['goal_checker']['yaw_goal_tolerance'] == 1.2
+tree = Path('ros2_ws/src/soarm_navigation/behavior_trees/navigate_holonomic.xml').read_text()
+through_poses_tree = Path('ros2_ws/src/soarm_navigation/behavior_trees/navigate_through_poses_holonomic.xml').read_text()
+assert params['planner_server']['ros__parameters']['GridBased']['plugin'] == 'nav2_smac_planner/SmacPlanner2D'
+assert params['controller_server']['ros__parameters']['FollowPath']['plugin'] == 'dwb_core::DWBLocalPlanner'
+assert params['velocity_smoother']['ros__parameters']['max_velocity'][1] == 0.4
 assert params['behavior_server']['ros__parameters']['behavior_plugins'] == ['backup', 'drive_on_heading', 'wait']
 assert local_source['topic'] == '/mid360/points' and local_source['marking'] and local_source['clearing']
 assert local_source['obstacle_min_range'] == 0.60
 assert 0.45 < local_source['obstacle_min_range'] < local_source['obstacle_max_range']
 assert local_source['observation_persistence'] == 0.5 and local_source['max_obstacle_height'] == 1.5
 # The smoke target is map-free with one metre of static-wall clearance, leaving
-# room for the 0.24 m costmap radius and the 0.8 m Dubins turning radius.
+# room for the 0.31 m square footprint.
 pgm = Path('ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm').read_bytes().split(b'\n255\n', 1)[1]
 width, height, resolution, origin_x, origin_y = 320, 290, 0.05, -8.0, -7.25
 def cell_value(x, y):
@@ -136,6 +135,7 @@ def on_odom(message):
         'y': round(position.y, 3),
         'yaw': round(yaw_from_quaternion(message.pose.pose.orientation), 3),
         'linear_x': round(message.twist.twist.linear.x, 3),
+        'linear_y': round(message.twist.twist.linear.y, 3),
         'angular_z': round(message.twist.twist.angular.z, 3),
     })
 
@@ -212,8 +212,8 @@ goal = NavigateToPose.Goal()
 goal.pose = PoseStamped()
 goal.pose.header.frame_id = 'map'
 goal.pose.header.stamp = node.get_clock().now().to_msg()
-# This map-free diagonal goal is 1.41 m away and needs a left Ackermann arc;
-# its pi/4 final heading avoids the prior target's 7.5 m Dubins loop to yaw zero.
+# This map-free diagonal goal is 1.41 m away and needs a holonomic approach;
+# its pi/4 final heading exercises position and final-yaw tracking in the open map area.
 goal.pose.pose.position.x = 1.0
 goal.pose.pose.position.y = 1.0
 goal.pose.pose.orientation.z = math.sin(math.pi / 8.0)

@@ -5,7 +5,7 @@ Visualization Manager:
   Class: ""
   Global Options:
     Background Color: 18; 21; 27
-    Fixed Frame: odom_combined
+    Fixed Frame: map
     Frame Rate: 30
   Displays:
     - Class: rviz_default_plugins/Grid
@@ -57,6 +57,42 @@ Visualization Manager:
       Line Width: 0.025
       Color: 255; 180; 30
       Buffer Length: 1
+    - Class: rviz_default_plugins/Path
+      Name: Global plan
+      Enabled: true
+      Topic:
+        Value: /plan
+      Line Style: Lines
+      Line Width: 0.035
+      Color: 80; 210; 255
+      Buffer Length: 1
+    - Class: rviz_default_plugins/Path
+      Name: Local plan
+      Enabled: true
+      Topic:
+        Value: /local_plan
+      Line Style: Lines
+      Line Width: 0.045
+      Color: 255; 80; 190
+      Buffer Length: 1
+    - Class: rviz_default_plugins/Map
+      Name: Global costmap
+      Enabled: true
+      Topic:
+        Value: /global_costmap/costmap
+        Durability Policy: Transient Local
+      Alpha: 0.28
+      Color Scheme: costmap
+      Draw Behind: true
+    - Class: rviz_default_plugins/Map
+      Name: Local costmap
+      Enabled: true
+      Topic:
+        Value: /local_costmap/costmap
+        Durability Policy: Transient Local
+      Alpha: 0.35
+      Color Scheme: costmap
+      Draw Behind: false
     - Class: rviz_default_plugins/PointCloud2
       Name: MID-360 approximation
       Enabled: true
@@ -80,6 +116,12 @@ Visualization Manager:
     - Class: rviz_default_plugins/Select
     - Class: rviz_default_plugins/FocusCamera
     - Class: rviz_default_plugins/Measure
+    - Class: rviz_default_plugins/SetInitialPose
+      Topic:
+        Value: /initialpose
+    - Class: rviz_default_plugins/SetGoal
+      Topic:
+        Value: /goal_pose
   Views:
     Current:
       Class: rviz_default_plugins/Orbit

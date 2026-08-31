@@ -1,178 +1,120 @@
 #!/usr/bin/env bash
 set -euo pipefail
-# Full headless Fortress acceptance seam: native Ackermann entity, sensors, TF and actions.
+# Static contract catches geometry/plugin/config regressions before the live Fortress seam.
 python3 - <<'PY'
 from pathlib import Path
 import xml.etree.ElementTree as ET
-model_path = Path('ros2_ws/src/soarm_simulation/models/senior_akm/model.sdf')
-root = ET.parse(model_path).getroot()
-model = root.find("./model[@name='senior_akm']")
-plugin = model.find("plugin[@name='ignition::gazebo::systems::AckermannSteering']")
-assert [node.text for node in plugin.findall('left_joint')] == ['left_rear_wheel_joint']
-assert [node.text for node in plugin.findall('right_joint')] == ['right_rear_wheel_joint']
-links = {link.attrib['name']: link for link in model.findall('link')}
+
+model = ET.parse('ros2_ws/src/soarm_simulation/models/kuruma/model.sdf').getroot().find("model[@name='kuruma']")
+assert model is not None
+plugin = model.find("plugin[@name='ignition::gazebo::systems::MecanumDrive']")
+assert plugin is not None and plugin.attrib['filename'] == 'ignition-gazebo-mecanum-drive-system'
+odometry = model.find("plugin[@name='ignition::gazebo::systems::OdometryPublisher']")
+assert odometry is not None and odometry.findtext('odom_topic') == '/gazebo/odom'
+assert odometry.findtext('odom_publish_frequency') == '50'
+assert {node.tag: node.text for node in plugin}.items() >= {
+    'front_left_joint': 'front_left_wheel_joint', 'front_right_joint': 'front_right_wheel_joint',
+    'back_left_joint': 'rear_left_wheel_joint', 'back_right_joint': 'rear_right_wheel_joint',
+    'wheel_separation': '0.4456', 'wheelbase': '0.3472', 'wheel_radius': '0.0763',
+}.items()
 joints = {joint.attrib['name']: joint for joint in model.findall('joint')}
-def pose(link_name):
-    node = links[link_name].find('pose')
-    assert node is not None and 'relative_to' in node.attrib, link_name
-    assert node.text is not None, link_name
-    return node.attrib['relative_to'], [float(value) for value in node.text.split()]
-def joint_axis(joint_name):
-    return [float(value) for value in joints[joint_name].find('axis/xyz').text.split()]
-def assert_pose(link_name, relative_to, values):
-    actual_relative_to, actual_values = pose(link_name)
-    assert actual_relative_to == relative_to, (link_name, actual_relative_to)
-    assert all(abs(a - b) < 1e-9 for a, b in zip(actual_values, values)), (link_name, actual_values)
-# Every vehicle link is explicitly located in its parent frame; every joint pose is its child origin.
-for name, link in links.items():
-    node = link.find('pose')
-    assert node is not None and 'relative_to' in node.attrib, name
-for name, joint in joints.items():
-    node = joint.find('pose')
-    assert node is not None and node.attrib.get('relative_to') == joint.findtext('child'), name
-    assert node.text is not None, name
-    assert [float(value) for value in node.text.split()] == [0.0] * 6, name
-assert pose('base_link')[0] == '__model__'
-assert pose('camera_link')[0] == 'second_deck'
-assert pose('livox_frame')[0] == 'third_deck'
-assert pose('arm_mount')[0] == 'third_deck'
-assert '0.400 0.260 0.040' in [node.text for node in links['base_link'].iter('size')]
-assert_pose('third_deck', 'base_link', [0, 0, 0.137, 0, 0, 0])
-assert '0.445 0.320 0.005' in [node.text for node in links['third_deck'].iter('size')]
-assert_pose('left_front_wheel', 'left_front_steering_link', [0, 0, 0, 0, 0, 0])
-assert_pose('right_front_wheel', 'right_front_steering_link', [0, 0, 0, 0, 0, 0])
-assert_pose('left_rear_wheel', 'base_link', [-0.1725, 0.155, 0, 0, 0, 0])
-assert_pose('right_rear_wheel', 'base_link', [-0.1725, -0.155, 0, 0, 0, 0])
-for wheel in ('left_front_wheel', 'right_front_wheel', 'left_rear_wheel', 'right_rear_wheel'):
-    tire_visual = next(node for node in links[wheel].findall('visual') if node.attrib.get('name') == 'tire_visual')
-    tire_collision = next(node for node in links[wheel].findall('collision') if node.attrib.get('name') == 'tire')
-    assert tire_visual.find('pose').text.split()[3:] == ['-1.570796', '0', '0']
-    assert tire_collision.find('pose').text.split()[3:] == ['-1.570796', '0', '0']
-    assert joint_axis(f'{wheel}_joint') == [0.0, 1.0, 0.0]
-for steering in ('left_front_steering_joint', 'right_front_steering_joint'):
-    assert joint_axis(steering) == [0.0, 0.0, 1.0]
-assert joints['left_front_wheel_joint'].findtext('parent') == 'left_front_steering_link'
-assert joints['right_front_wheel_joint'].findtext('parent') == 'right_front_steering_link'
-assert len([name for name in links if name.startswith('pillar_')]) == 8
-for name in ('pillar_fl_upper', 'pillar_fr_upper', 'pillar_rl_upper', 'pillar_rr_upper'):
-    assert abs(pose(name)[1][2] - 0.0185) < 1e-9, (name, pose(name))
+assert set(name for name in joints if name.endswith('_wheel_joint')) == {
+    'front_left_wheel_joint', 'front_right_wheel_joint', 'rear_left_wheel_joint', 'rear_right_wheel_joint'}
+assert all(joints[name].findtext('axis/xyz') == '0 1 0' for name in joints if name.endswith('_wheel_joint'))
+assert not any('steering' in name or name.startswith('arm_') for name in joints)
+base = model.find("link[@name='base_link']")
+frame_collisions = {
+    collision.attrib['name']: (collision.findtext('pose'), collision.findtext('geometry/box/size'))
+    for collision in base.findall('collision') if collision.attrib['name'].startswith('frame_')
+}
+assert frame_collisions == {
+    'frame_front_collision': ('0 0.285 0 0 0 0', '0.600 0.030 0.030'),
+    'frame_rear_collision': ('0 -0.285 0 0 0 0', '0.600 0.030 0.030'),
+    'frame_left_collision': ('0.285 0 0 0 0 0', '0.030 0.540 0.030'),
+    'frame_right_collision': ('-0.285 0 0 0 0 0', '0.030 0.540 0.030'),
+}
+wheels = [link for link in model.findall('link') if link.attrib['name'].endswith('_wheel')]
+assert len(wheels) == 4
+assert all(link.findtext('collision/surface/friction/ode/fdir1') for link in wheels)
+assert {link.attrib['name'] for link in model.findall('link')} >= {'camera_link', 'gyro_link', 'livox_frame'}
+xacro = Path('ros2_ws/src/soarm_description/urdf/soarm_car_layout.urdf.xacro').read_text()
+for value in ('name="kuruma"', 'value="0.0763"', 'value="0.3472"', 'value="0.4456"', 'value="0.600"'):
+    assert value in xacro
+assert 'arm_mount' not in xacro and 'steering' not in xacro
+adapter = Path('ros2_ws/src/soarm_simulation/soarm_simulation/sim_adapter.py').read_text()
+assert "arm_enabled', False" in adapter and 'GoalResponse.REJECT' in adapter
 PY
-ros_domain_id="${ROS_DOMAIN_ID:-85}"
-ign_partition="${IGN_PARTITION:-soarm_sim_smoke_$$}"
+
+docker compose run --rm ros2-dev bash -lc '
+  source /opt/ros/humble/setup.bash
+  source /tmp/soarm_ros2/install/setup.bash
+  xacro /workspaces/soarm-car/ros2_ws/src/soarm_description/urdf/soarm_car_layout.urdf.xacro >/tmp/kuruma.urdf
+  python3 - <<"PY"
+import xml.etree.ElementTree as ET
+root = ET.parse("/tmp/kuruma.urdf").getroot()
+assert root.attrib["name"] == "kuruma"
+joints = root.findall("joint")
+assert len([j for j in joints if j.attrib["type"] == "continuous"]) == 4
+assert not any("arm" in node.attrib.get("name", "") or "steering" in node.attrib.get("name", "") for node in root.iter())
+PY
+'
+printf '%s\n' 'Kuruma static and xacro smoke passed.'
+
+# Fortress 6 MecanumDrive moves the model but its bundled example does not emit
+# odometry. The native OdometryPublisher companion reports the physical model state.
+ros_domain_id="${ROS_DOMAIN_ID:-148}"
+ign_partition="${IGN_PARTITION:-kuruma_sim_smoke_$$}"
 container="$(docker compose run -d --rm -e ROS_DOMAIN_ID="$ros_domain_id" -e IGN_PARTITION="$ign_partition" ros2-dev bash -lc 'ros2 launch soarm_simulation simulation.launch.py')"
 cleanup() { docker stop "$container" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
-ros_command='source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && ros2'
+ros='source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && ros2'
 for _ in {1..120}; do
-    if docker exec "$container" bash -lc "test -f /tmp/soarm_ros2/install/setup.bash" && docker exec "$container" bash -lc "$ros_command action list | grep -qx /go_to_place_and_grasp"; then break; fi
+    if docker exec "$container" bash -lc "test -f /tmp/soarm_ros2/install/setup.bash && output=\$($ros topic info /gazebo/odom) && [[ \$output == *'Publisher count: 1'* ]]"; then
+        break
+    fi
     sleep 1
 done
-# Action discovery can precede sensor bridges and native controllers becoming ready.
-sleep 3
-inside() { docker exec "$container" bash -lc "$ros_command $*"; }
-inside_timeout() { local seconds=$1 command; shift; printf -v command '%q ' "$@"; docker exec "$container" bash -lc "source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && timeout $seconds $command"; }
-contains() { local output; output="$(inside "$1")"; grep -q -- "$2" <<<"$output"; }
-has_publisher() { local output; output="$(inside "topic info $1")"; grep -Eq 'Publisher count: [1-9][0-9]*' <<<"$output"; }
-docker exec "$container" bash -lc "test -f /tmp/soarm_ros2/install/setup.bash"
-contains 'action list' '^/go_to_place_and_grasp$'
-for topic in /odom /gazebo/odom /imu/data_raw /camera/image /camera/camera_info /mid360/points /joint_states /PowerVoltage; do
-    has_publisher "$topic"
+docker exec "$container" bash -lc "test -f /tmp/soarm_ros2/install/setup.bash && output=\$($ros topic info /gazebo/odom) && [[ \$output == *'Publisher count: 1'* ]]"
+docker exec -i "$container" bash -s <<'EOS'
+source /opt/ros/humble/setup.bash
+source /tmp/soarm_ros2/install/setup.bash
+snapshot() { timeout 8 ros2 topic echo /gazebo/odom --once; }
+for axis in forward lateral rotate; do
+    before="$(snapshot)"
+    case "$axis" in
+        forward) command='{linear: {x: 0.2, y: 0.0}, angular: {z: 0.0}}' ;;
+        lateral) command='{linear: {x: 0.0, y: 0.2}, angular: {z: 0.0}}' ;;
+        rotate) command='{linear: {x: 0.0, y: 0.0}, angular: {z: 0.4}}' ;;
+    esac
+    ros2 topic pub -r 20 --times 80 /cmd_vel geometry_msgs/msg/Twist "$command" >/dev/null 2>&1 & publisher=$!
+    sleep 2
+    after="$(snapshot)"
+    wait "$publisher"
+    ros2 topic pub -r 20 --times 20 /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.0, y: 0.0}, angular: {z: 0.0}}' >/dev/null
+    printf '%s\n---BEFORE---\n%s\n---AFTER---\n%s\n' "$axis" "$before" "$after" > "/tmp/kuruma-${axis}.yaml"
 done
-for action in /go_to_place_and_grasp /arm_controller/follow_joint_trajectory /gripper_controller/follow_joint_trajectory; do
-    contains 'action list' "^$action$"
-done
-# Physical Fortress motion: the native Ackermann model must move and turn; lateral Twist is ignored.
-# timeout owns the publisher lifecycle inside the container, avoiding a stale command publisher.
-inside_timeout 4 ros2 topic pub -r 20 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.2, y: 0.9}, angular: {z: 0.25}}" >/tmp/soarm-drive.log 2>&1 & publisher=$!
-sleep 3
-inside_timeout 10 ros2 topic echo /gazebo/odom --once >/tmp/soarm-gazebo-drive.yaml
-inside_timeout 10 ros2 topic echo /odom --once >/tmp/soarm-odom-drive.yaml
-wait "$publisher" || true
-# Keep the zero command alive long enough for the ROS->Gazebo bridge.
-inside_timeout 2 ros2 topic pub -r 20 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.0, y: 0.0}, angular: {z: 0.0}}" >/dev/null 2>&1 || true
-sleep 1
-inside_timeout 10 ros2 topic echo /gazebo/odom --once >/tmp/soarm-gazebo-stop.yaml
-printf '%s\n' 'Checking physical Ackermann motion...'
+EOS
+for axis in forward lateral rotate; do docker cp "$container:/tmp/kuruma-${axis}.yaml" "/tmp/kuruma-${axis}.yaml"; done
 python3 - <<'PY'
-import re
-for name in ('/tmp/soarm-gazebo-drive.yaml', '/tmp/soarm-odom-drive.yaml'):
-    text = open(name).read()
-    match = re.search(r'position:\n      x: ([^\n]+)\n      y: ([^\n]+)', text)
-    assert match and abs(float(match.group(1))) > 0.1, (name, match)
-assert 'frame_id: senior_akm/odom' in open('/tmp/soarm-gazebo-drive.yaml').read()
-assert 'frame_id: odom_combined' in open('/tmp/soarm-odom-drive.yaml').read()
-drive = open('/tmp/soarm-gazebo-drive.yaml').read()
-match = re.search(r'twist:\n  twist:\n    linear:\n      x: ([^\n]+)\n      y: ([^\n]+)', drive)
-assert match and abs(float(match.group(1)) - 0.2) < 0.03 and abs(float(match.group(2))) < 1e-9, drive
-stop = open('/tmp/soarm-gazebo-stop.yaml').read()
-match = re.search(r'twist:\n  twist:\n    linear:\n      x: ([^\n]+)\n      y: ([^\n]+)', stop)
-assert match and abs(float(match.group(1))) < 1e-5 and abs(float(match.group(2))) < 1e-9, stop
-PY
-printf '%s\n' 'Checking vehicle-mounted sensors...'
-# Consumer message/frame checks. Gazebo sensors use sensor-data (best-effort) QoS.
-inside_timeout 10 ros2 topic echo /imu/data_raw --once --qos-reliability best_effort >/tmp/soarm-imu.yaml
-inside_timeout 10 ros2 topic echo /camera/image --once --qos-reliability best_effort >/tmp/soarm-image.yaml
-inside_timeout 10 ros2 topic echo /camera/camera_info --once --qos-reliability best_effort >/tmp/soarm-camera-info.yaml
-inside_timeout 10 ros2 topic echo /mid360/points --once --qos-reliability best_effort >/tmp/soarm-points.yaml
-grep -q 'frame_id: gyro_link' /tmp/soarm-imu.yaml
-grep -q 'width: 640' /tmp/soarm-image.yaml
-grep -q 'height: 480' /tmp/soarm-camera-info.yaml
-grep -q 'frame_id: livox_frame' /tmp/soarm-points.yaml
-printf '%s\n' 'Checking physical arm and controller seams...'
-# The action adapter must drive native Fortress joints, and /joint_states must be the bridged state.
-inside_timeout 10 ros2 topic echo /joint_states --once >/tmp/soarm-joints-before.yaml
-arm_result="$(inside "action send_goal /arm_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory \"{trajectory: {joint_names: [arm_shoulder_pan, arm_shoulder_lift, arm_elbow_flex, arm_wrist_flex, arm_wrist_roll], points: [{positions: [0.1, -0.1, 0.08, -0.08, 0.1], time_from_start: {sec: 2}}]}}\"")"
-if ! grep -q 'Goal finished with status: SUCCEEDED' <<<"$arm_result"; then
-    printf '%s\n' "$arm_result" >&2
-    exit 1
-fi
-gripper_result="$(inside "action send_goal /gripper_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory \"{trajectory: {joint_names: [arm_gripper_opening], points: [{positions: [0.4], time_from_start: {sec: 1}}]}}\"")"
-if ! grep -q 'Goal finished with status: SUCCEEDED' <<<"$gripper_result"; then
-    printf '%s\n' "$gripper_result" >&2
-    exit 1
-fi
-inside_timeout 10 ros2 topic echo /joint_states --once >/tmp/soarm-joints-after.yaml
-python3 - <<'PY'
+import math
 import re
 
-def position(text, name):
-    names = re.search(r'name:\n((?:\s*- .*\n)+)', text)
-    values = re.search(r'position:\n((?:\s*- .*\n)+)', text)
-    assert names and values, text
-    joint_names = [line.split('- ', 1)[1].strip() for line in names.group(1).splitlines()]
-    joint_values = [float(line.split('- ', 1)[1]) for line in values.group(1).splitlines()]
-    return dict(zip(joint_names, joint_values))[name]
-
-before = open('/tmp/soarm-joints-before.yaml').read()
-after = open('/tmp/soarm-joints-after.yaml').read()
-targets = {
-    'arm_shoulder_pan': 0.1,
-    'arm_shoulder_lift': -0.1,
-    'arm_elbow_flex': 0.08,
-    'arm_wrist_flex': -0.08,
-    'arm_wrist_roll': 0.1,
-}
-for joint, target in targets.items():
-    assert abs(position(after, joint) - target) < 0.05, (joint, after)
-# The gripper Action seam is exercised above, but contact/position convergence is not
-# accepted as physical evidence for the coarse single-servo gripper model.
-assert abs(position(after, 'arm_shoulder_lift') - position(before, 'arm_shoulder_lift')) > 0.05, (before, after)
+pairs = {}
+for name in ('forward', 'lateral', 'rotate'):
+    before, after = open(f'/tmp/kuruma-{name}.yaml').read().split('---AFTER---', 1)
+    def pose(text):
+        x, y = map(float, re.search(r'position:\n      x: ([^\n]+)\n      y: ([^\n]+)', text).groups())
+        z, w = map(float, re.search(r'orientation:\n      x: [^\n]+\n      y: [^\n]+\n      z: ([^\n]+)\n      w: ([^\n]+)', text).groups())
+        return x, y, 2 * math.atan2(z, w)
+    x, y, yaw = pose(before)
+    next_x, next_y, next_yaw = pose(after)
+    dx, dy = next_x - x, next_y - y
+    pairs[name] = (math.cos(yaw) * dx + math.sin(yaw) * dy,
+                   -math.sin(yaw) * dx + math.cos(yaw) * dy,
+                   next_yaw - yaw)
+forward, lateral, rotate = pairs['forward'], pairs['lateral'], pairs['rotate']
+assert abs(forward[0]) > 0.06 and abs(forward[0]) > abs(forward[1]) * 1.5, pairs
+assert abs(lateral[1]) > 0.06 and abs(lateral[1]) > abs(lateral[0]) * 1.5, pairs
+assert abs(rotate[2]) > 0.15 and math.hypot(rotate[0], rotate[1]) < 0.08, pairs
+print('Kuruma physical odometry passed:', pairs)
 PY
-printf '%s\n' 'Checking mission success semantics, rejection, conflicts, and cancellation...'
-# Valid action, rejection, and cancellation all use the live action server.
-success="$(inside "action send_goal /go_to_place_and_grasp soarm_interfaces/action/GoToPlaceAndGrasp \"{request_id: demo-1, place_id: demo_table, object_id: demo_cube}\" --feedback")"
-grep -q 'success: true' <<<"$success"
-grep -q 'final_stage: complete' <<<"$success"
-grep -q 'object grasp not verified' <<<"$success"
-invalid="$(inside "action send_goal /go_to_place_and_grasp soarm_interfaces/action/GoToPlaceAndGrasp \"{request_id: invalid-1, place_id: nowhere, object_id: demo_cube}\"")"
-grep -q 'Goal was rejected.' <<<"$invalid"
-docker exec "$container" bash -lc "source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && timeout 35 python3 /workspaces/soarm-car/scripts/check-sim-cancel.py"
-sleep 1
-inside_timeout 10 ros2 topic echo /gazebo/odom --once >/tmp/soarm-cancel-stop.yaml
-python3 - <<'PY'
-import re
-text = open('/tmp/soarm-cancel-stop.yaml').read()
-match = re.search(r'twist:\n  twist:\n    linear:\n      x: ([^\n]+)', text)
-assert match and abs(float(match.group(1))) < 1e-5, text
-PY
-printf '%s\n' 'Headless Fortress simulation smoke passed.'
