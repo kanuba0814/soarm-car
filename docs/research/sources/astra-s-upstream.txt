@@ -1,0 +1,19 @@
+Verified 2026-08-31
+
+Orbbec legacy ROS 2 driver
+URL: https://github.com/orbbec/ros2_astra_camera
+Default branch: master
+Commit: f7e71d9ce806e788cb48d8580aac2c778fba4214
+
+libuvc
+URL: https://github.com/libuvc/libuvc
+Tag: v0.0.7
+Commit: 68d07a00e11d1944e27b7295ee69673239c00b4b
+
+OrbbecSDK ROS2 device-family overview
+URL: https://orbbec.github.io/OrbbecSDK_ROS2/en/source/camera_devices/1_overview/introduction.html
+
+Gazebo / ROS integration
+URL: https://docs.ros.org/en/humble/p/ros_gz_sim_demos/
+URL: https://gazebosim.org/docs/latest/ros2_integration/
+URL: https://docs.ros.org/en/humble/p/depth_image_proc/

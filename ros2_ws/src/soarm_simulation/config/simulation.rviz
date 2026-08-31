@@ -108,7 +108,7 @@ Visualization Manager:
       Name: RGB camera
       Enabled: false
       Topic:
-        Value: /camera/image
+        Value: /camera/color/image_raw
       Normalize Range: true
   Tools:
     - Class: rviz_default_plugins/Interact

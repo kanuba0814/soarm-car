@@ -23,6 +23,7 @@ __pycache__/
 *.bag
 *.db3
 *.mcap
+bags/
 
 # Downloaded system/container images (manifest only goes in Git)
 artifacts/images/

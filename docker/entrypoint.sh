@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -e
 source /opt/ros/humble/setup.bash
+source /opt/astra_ros2/setup.bash
 workspace=/workspaces/soarm-car/ros2_ws
 local_build=/tmp/soarm_ros2
 # Keep generated root-owned files out of the host bind mount.

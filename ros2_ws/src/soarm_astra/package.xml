@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>soarm_astra</name>
+  <version>0.1.0</version>
+  <description>Hardware and Gazebo-compatible ROS interfaces for the Orbbec Astra S.</description>
+  <maintainer email="dev@example.invalid">soarm-car</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>astra_camera</exec_depend>
+  <exec_depend>depth_image_proc</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <export><build_type>ament_python</build_type></export>
+</package>
