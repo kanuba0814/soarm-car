@@ -25,13 +25,14 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        DeclareLaunchArgument('world', default_value='house_floorplan'),
         DeclareLaunchArgument('gz_args', default_value='-r -s'),
         DeclareLaunchArgument('rviz', default_value='false'),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution([simulation_share, 'launch', 'simulation.launch.py'])),
             launch_arguments={
-                'world': 'house_floorplan',
+                'world': LaunchConfiguration('world'),
                 'gz_args': LaunchConfiguration('gz_args'),
                 'rviz': LaunchConfiguration('rviz'),
                 'ground_truth_map_tf': 'true',

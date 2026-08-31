@@ -1,0 +1,8 @@
+{
+  "name": "aws_small_house_fortress_baseline",
+  "repository": "https://github.com/TeamSOBITS/aws_small_house_world.git",
+  "branch": "humble-devel",
+  "commit": "e2f90621f0fd1a0c496f4e7fcca06138808bc2ec",
+  "license": "MIT",
+  "purpose": "Independent Fortress pipeline baseline; not part of HM3D generation or semantics."
+}

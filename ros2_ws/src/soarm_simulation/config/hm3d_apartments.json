@@ -1,0 +1,7 @@
+{
+  "lighting_profile": "fixed_indoor_v2_low_exposure",
+  "apartments": [
+    {"name": "apartment_a", "scene": "00813-svBbv1Pavdk", "stem": "svBbv1Pavdk", "regression_yaw": 0.0},
+    {"name": "apartment_b", "scene": "00827-BAbdmeyTvMZ", "stem": "BAbdmeyTvMZ", "regression_yaw": 1.570796}
+  ]
+}

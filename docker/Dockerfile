@@ -5,6 +5,7 @@ FROM osrf/ros:humble-desktop-jammy
 ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-c"]
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    assimp-utils \
     libdrm2 \
     libegl1 \
     libelf1 \
