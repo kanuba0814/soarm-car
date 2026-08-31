@@ -5,6 +5,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
+from launch_ros.actions import Node
 from nav2_common.launch import RewrittenYaml
 
 
@@ -13,7 +14,8 @@ def generate_launch_description():
     simulation_share = get_package_share_directory('soarm_simulation')
     localization_share = get_package_share_directory('fast_lio_localization')
     nav2_share = get_package_share_directory('nav2_bringup')
-    params_file = os.path.join(navigation_share, 'config', 'house_nav2.yaml')
+    params_file = os.path.join(navigation_share, 'config', 'house_nav2_mppi.yaml')
+    map_file = os.path.join(simulation_share, 'maps', 'house_floorplan.yaml')
     configured_params = RewrittenYaml(
         source_file=params_file,
         param_rewrites={
@@ -26,14 +28,20 @@ def generate_launch_description():
         DeclareLaunchArgument('gz_args', default_value='-r -s'),
         DeclareLaunchArgument('rviz', default_value='false'),
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(PathJoinSubstitution([simulation_share, 'launch', 'simulation.launch.py'])),
+            PythonLaunchDescriptionSource(PathJoinSubstitution([simulation_share, 'launch', 'kuruma_ros2_control.launch.py'])),
             launch_arguments={
-                'world': 'house_floorplan',
+                'world': 'house_floorplan_ros2_control',
                 'gz_args': LaunchConfiguration('gz_args'),
                 'rviz': LaunchConfiguration('rviz'),
-                'ground_truth_map_tf': 'false',
-                'publish_sim_odometry': 'false',
             }.items()),
+        Node(
+            package='nav2_map_server', executable='map_server', name='map_server',
+            parameters=[{'yaml_filename': map_file, 'use_sim_time': True}],
+        ),
+        Node(
+            package='nav2_lifecycle_manager', executable='lifecycle_manager', name='lifecycle_manager_map',
+            parameters=[{'autostart': True, 'node_names': ['map_server'], 'use_sim_time': True}],
+        ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(PathJoinSubstitution([localization_share, 'launch', 'velodyne_localization.launch.py'])),
             launch_arguments={'use_sim_time': 'true', 'config_file': 'soarm_house_localization.yaml', 'rviz': 'false'}.items()),

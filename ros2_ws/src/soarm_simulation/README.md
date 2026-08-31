@@ -7,3 +7,9 @@ Fortress 6 `MecanumDrive` accepts `/cmd_vel` but its bundled official example do
 This is a chassis-first stage. The default URDF and SDF contain no arm geometry or active arm controller. `/arm_controller/follow_joint_trajectory`, `/gripper_controller/follow_joint_trajectory`, and `/go_to_place_and_grasp` remain discoverable only to fail closed: with `arm_enabled=false`, every goal is rejected and no grasp or mission success is fabricated. Arm mounting dimensions and position are the next mechanical study.
 
 `world:=navigation_room` and `world:=house_floorplan` include the same native `kuruma` model. The prior WHEELTEC chassis state is retained at `backup/wheeltec-chassis`.
+
+## Isolated ros2_control plant
+
+`ros2 launch soarm_simulation kuruma_ros2_control.launch.py` starts the separate real-time algorithm plant. It attaches Humble `gz_ros2_control` to the native SDF model through the matching published URDF and runs `joint_state_broadcaster` plus `mecanum_drive_controller`. The controller accepts the hardware-compatible `/cmd_vel` seam, stops after a 0.5 s stale-command timeout, and publishes wheel-derived `/wheel/odom_raw` with odometry TF disabled. Physical model-state truth is independently available as `/ground_truth/odom`; this plant-only profile intentionally has no operational `/odom` publisher.
+
+The default native Fortress model remains unchanged and is the rollback-safe preview. Validate the isolated plant with `./scripts/dev-kuruma-ros2-control-smoke.sh`.

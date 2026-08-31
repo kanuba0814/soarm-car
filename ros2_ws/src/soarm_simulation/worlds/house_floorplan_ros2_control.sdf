@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<sdf version="1.9">
+  <world name="house_floorplan_ros2_control">
+    <physics name="1ms" type="dart">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+    </physics>
+    <plugin filename="ignition-gazebo-physics-system" name="ignition::gazebo::systems::Physics"/>
+    <plugin filename="ignition-gazebo-user-commands-system" name="ignition::gazebo::systems::UserCommands"/>
+    <plugin filename="ignition-gazebo-scene-broadcaster-system" name="ignition::gazebo::systems::SceneBroadcaster"/>
+    <plugin filename="ignition-gazebo-sensors-system" name="ignition::gazebo::systems::Sensors">
+      <render_engine>ogre2</render_engine>
+    </plugin>
+    <plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu"/>
+    <light type="directional" name="sun">
+      <pose>0 0 10 0 0 0</pose>
+      <cast_shadows>true</cast_shadows>
+      <direction>-0.5 0.1 -0.9</direction>
+    </light>
+    <model name="ground">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>18 16</size></plane></geometry>
+          <material><diffuse>0.36 0.38 0.34 1</diffuse></material>
+        </visual>
+      </link>
+    </model>
+    <include><uri>model://house_floorplan</uri></include>
+    <include><uri>model://house_furniture</uri></include>
+    <include>
+      <uri>model://kuruma_ros2_control</uri>
+      <name>kuruma</name>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+  </world>
+</sdf>
