@@ -17,4 +17,12 @@
   <xacro:mecanum_wheel name="front_left_wheel" x="${wheelbase/2}" y="${track/2}" roller_sign="1"/><xacro:mecanum_wheel name="front_right_wheel" x="${wheelbase/2}" y="${-track/2}" roller_sign="-1"/><xacro:mecanum_wheel name="rear_left_wheel" x="${-wheelbase/2}" y="${track/2}" roller_sign="-1"/><xacro:mecanum_wheel name="rear_right_wheel" x="${-wheelbase/2}" y="${-track/2}" roller_sign="1"/>
   <!-- Provisional navigation mounts: preserved TF seams, not STEP-derived placements. -->
   <xacro:box name="gyro_link" mass="0.05" x="0.040" y="0.040" z="0.020" material="provisional"/><joint name="gyro_joint" type="fixed"><parent link="electronics_envelope"/><child link="gyro_link"/><origin xyz="0 0 0.060"/></joint><xacro:box name="camera_link" mass="0.12" x="0.085" y="0.035" z="0.032" material="provisional"/><joint name="camera_joint" type="fixed"><parent link="electronics_envelope"/><child link="camera_link"/><origin xyz="0.180 0 0.080"/></joint><link name="livox_frame"><visual><geometry><cylinder radius="0.036" length="0.060"/></geometry><material name="provisional"/></visual></link><joint name="livox_joint" type="fixed"><parent link="electronics_envelope"/><child link="livox_frame"/><origin xyz="0 0 0.100"/></joint>
+  <!-- Isolated gz_ros2_control profile consumes these standard wheel interfaces. -->
+  <ros2_control name="GazeboSimSystem" type="system">
+    <hardware><plugin>gz_ros2_control/GazeboSimSystem</plugin></hardware>
+    <joint name="front_left_wheel_joint"><command_interface name="velocity"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="front_right_wheel_joint"><command_interface name="velocity"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="rear_left_wheel_joint"><command_interface name="velocity"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+    <joint name="rear_right_wheel_joint"><command_interface name="velocity"/><state_interface name="position"/><state_interface name="velocity"/></joint>
+  </ros2_control>
 </robot>
