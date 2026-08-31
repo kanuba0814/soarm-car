@@ -16,7 +16,12 @@ assert localization['max_correspondence_distance'] == 0.5
 assert localization['max_correction_translation'] == 0.25
 assert localization['max_correction_rotation'] == 0.15
 assert localization['localization_rmse_th'] == 0.3
-nav = yaml.safe_load(Path('ros2_ws/src/soarm_navigation/config/house_nav2.yaml').read_text())
+nav = yaml.safe_load(Path('ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml').read_text())
+controller = nav['controller_server']['ros__parameters']['FollowPath']
+assert controller['plugin'] == 'nav2_mppi_controller::MPPIController'
+assert controller['motion_model'] == 'Omni'
+assert controller['vx_min'] == -0.4 and controller['vx_max'] == 0.4
+assert controller['vy_max'] == 0.4 and controller['wz_max'] == 1.0
 assert nav['local_costmap']['local_costmap']['ros__parameters']['voxel_layer']['mid360']['topic'] == '/mid360/points'
 PY
 
@@ -54,6 +59,35 @@ wait_for_topic() {
     done
     return 1
 }
+controllers_ready=false
+for _ in {1..90}; do
+    controllers="$(inside 'control list_controllers' 2>/dev/null || true)"
+    if grep -q 'joint_state_broadcaster.*active' <<<"$controllers" && grep -q 'mecanum_drive_controller.*active' <<<"$controllers"; then
+        controllers_ready=true
+        break
+    fi
+    sleep 1
+done
+$controllers_ready
+for topic_and_type in \
+    '/ground_truth/odom nav_msgs/msg/Odometry' \
+    '/wheel/odom_raw nav_msgs/msg/Odometry' \
+    '/imu/data_raw sensor_msgs/msg/Imu' \
+    '/livox/imu sensor_msgs/msg/Imu' \
+    '/livox/lidar livox_ros_driver2/msg/CustomMsg' \
+    '/mid360/points sensor_msgs/msg/PointCloud2' \
+    '/camera/image sensor_msgs/msg/Image' \
+    '/camera/camera_info sensor_msgs/msg/CameraInfo' \
+    '/camera/depth_image sensor_msgs/msg/Image'; do
+    read -r topic message_type <<<"$topic_and_type"
+    wait_for_topic "$topic" "$message_type"
+done
+for diagnostic_topic in /ground_truth/odom /wheel/odom_raw; do
+    inside "topic info $diagnostic_topic --verbose" >"$logs/${diagnostic_topic//\//_}_info.txt"
+    grep -q 'Publisher count: 1' "$logs/${diagnostic_topic//\//_}_info.txt"
+done
+inside 'topic info /ground_truth/odom --verbose' >"$logs/ground_truth_odom_info.txt"
+! grep -Eq 'Node name: (global_localization|transform_fusion|controller_server|planner_server|bt_navigator)' "$logs/ground_truth_odom_info.txt"
 for topic_and_type in \
     '/global_map sensor_msgs/msg/PointCloud2' \
     '/cloud_registered sensor_msgs/msg/PointCloud2' \
@@ -78,35 +112,63 @@ grep -q 'frame_id: map' "$logs/map_to_odom.yaml"
 inside 'topic info /odom --verbose' >"$logs/odom_info.txt"
 grep -q 'Publisher count: 1' "$logs/odom_info.txt"
 grep -q 'Node name: transform_fusion' "$logs/odom_info.txt"
+inside 'topic info /tf --verbose' >"$logs/tf_info.txt"
+grep -q 'Node name: transform_fusion' "$logs/tf_info.txt"
+docker exec "$container" bash -lc \
+    "source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && timeout 5 ros2 run tf2_ros tf2_echo odom_combined base_footprint" \
+    >"$logs/odom_base_tf.log" 2>&1 || [[ $? -eq 124 ]]
+grep -q 'Translation:' "$logs/odom_base_tf.log"
+docker exec "$container" bash -lc \
+    "source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && timeout 5 ros2 run tf2_ros tf2_echo map odom_combined" \
+    >"$logs/map_odom_tf.log" 2>&1 || [[ $? -eq 124 ]]
+grep -q 'Translation:' "$logs/map_odom_tf.log"
 inside 'node info /kuruma_sim_adapter' >"$logs/sim_adapter_info.txt"
 ! grep -q '/gazebo/odom' "$logs/sim_adapter_info.txt"
+nav_active=false
+for _ in {1..120}; do
+    planner_state="$(inside 'lifecycle get /planner_server' 2>/dev/null || true)"
+    controller_state="$(inside 'lifecycle get /controller_server' 2>/dev/null || true)"
+    navigator_state="$(inside 'lifecycle get /bt_navigator' 2>/dev/null || true)"
+    if [[ "$planner_state" == *active* && "$controller_state" == *active* && "$navigator_state" == *active* ]]; then
+        nav_active=true
+        break
+    fi
+    sleep 1
+done
+$nav_active
 
 docker exec -i "$container" bash -lc "source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && python3 -" >"$logs/metrics.json" <<'PY'
 import json, math, subprocess, time
 import rclpy
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Twist
 from nav2_msgs.action import NavigateToPose
 from nav_msgs.msg import Odometry
 from nav2_msgs.msg import Costmap
 from rclpy.action import ActionClient
+from rosgraph_msgs.msg import Clock
 
 def yaw(q): return math.atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z))
 rclpy.init(); n=rclpy.create_node('fastlio_house_acceptance')
-state={'odom':None, 'localization':None, 'occupied':0, 'samples':[]}
+state={'odom':None, 'localization':None, 'truth':None, 'clock':None, 'occupied':0, 'samples':[], 'commands':[]}
 def odom(msg):
     state['odom']=msg; state['samples'].append((msg.header.stamp.sec+msg.header.stamp.nanosec/1e9, msg.pose.pose.position.x, msg.pose.pose.position.y, yaw(msg.pose.pose.orientation), msg.twist.twist.linear.x, msg.twist.twist.angular.z))
 def localization(msg): state['localization']=msg
+def truth(msg): state['truth']=msg
+def command(msg): state['commands'].append((time.monotonic(),msg.linear.x,msg.linear.y,msg.angular.z))
+def clock(msg): state['clock']=msg.clock.sec+msg.clock.nanosec/1e9
 def cost(msg): state['occupied']=max(state['occupied'], sum(cell >= 100 for cell in msg.data))
-n.create_subscription(Odometry, '/odom', odom, 30); n.create_subscription(Odometry, '/localization', localization, 30); n.create_subscription(Costmap, '/local_costmap/costmap_raw', cost, 10)
+n.create_subscription(Odometry, '/odom', odom, 30); n.create_subscription(Odometry, '/localization', localization, 30)
+n.create_subscription(Odometry, '/ground_truth/odom', truth, 30); n.create_subscription(Twist, '/cmd_vel', command, 30)
+n.create_subscription(Clock, '/clock', clock, 30); n.create_subscription(Costmap, '/local_costmap/costmap_raw', cost, 10)
 c=ActionClient(n, NavigateToPose, '/navigate_to_pose'); assert c.wait_for_server(timeout_sec=45)
 end=time.monotonic()+30
-while (state['odom'] is None or state['localization'] is None) and time.monotonic()<end:rclpy.spin_once(n,timeout_sec=.2)
-assert state['odom'] is not None and state['localization'] is not None
-start=state['odom']
+while (state['odom'] is None or state['localization'] is None or state['clock'] is None) and time.monotonic()<end:rclpy.spin_once(n,timeout_sec=.2)
+assert state['odom'] is not None and state['localization'] is not None and state['clock'] is not None
+start=state['odom']; start_sim=state['clock']; start_wall=time.monotonic()
 
 def fortress_pose():
     raw=subprocess.check_output(
-        ['ign','topic','-e','-t','/world/house_floorplan/dynamic_pose/info','-n','1','--json-output'],
+        ['ign','topic','-e','-t','/world/house_floorplan_ros2_control/dynamic_pose/info','-n','1','--json-output'],
         text=True,timeout=10)
     truth=next(pose for pose in json.loads(raw)['pose'] if pose.get('name')=='kuruma')
     position=truth.get('position',{}); orientation=truth.get('orientation',{})
@@ -148,14 +210,16 @@ o=state['localization']
 turn=max(abs(math.atan2(math.sin(s[3]-yaw(start.pose.pose.orientation)),math.cos(s[3]-yaw(start.pose.pose.orientation)))) for s in state['samples'])
 lateral=max(abs(s[2]-start.pose.pose.position.y) for s in state['samples'])
 active=[s for s in state['samples'] if abs(s[4])>.02 or abs(s[5])>.02]
-metrics={'checkpoints':checkpoints,'max_turn_rad':turn,'max_lateral_m':lateral,'occupied_cells':state['occupied'],'active_twist_samples':len(active),'final_twist':[o.twist.twist.linear.x,o.twist.twist.angular.z]}; print(json.dumps(metrics,sort_keys=True))
+command_tail=state['commands'][-240:]
+rtf=(state['clock']-start_sim)/(time.monotonic()-start_wall)
+metrics={'checkpoints':checkpoints,'max_turn_rad':turn,'max_lateral_m':lateral,'occupied_cells':state['occupied'],'active_twist_samples':len(active),'final_twist':[o.twist.twist.linear.x,o.twist.twist.angular.z], 'rtf':rtf, 'command_tail':command_tail[::max(1,len(command_tail)//40)]}; print(json.dumps(metrics,sort_keys=True))
 assert len(checkpoints)==len(goals)
-assert all(point['status']==4 for point in checkpoints[:3])
-assert checkpoints[-1]['status'] in (4,6)
-assert all(point['goal_error_m']<=.35 for point in checkpoints[:3])
+assert all(point['status']==4 for point in checkpoints)
+assert all(point['goal_error_m']<=.35 for point in checkpoints)
 assert all(point['truth_xy_error_m']<=.20 and point['truth_yaw_error_rad']<=.10 for point in checkpoints)
 assert turn>=.35 and lateral>=.5 and state['occupied']>0 and active
 assert abs(o.twist.twist.linear.x)<=.05 and abs(o.twist.twist.angular.z)<=.10
+assert rtf>=.8
 PY
 cat "$logs/metrics.json"
 printf 'FAST-LIO house Nav2 acceptance smoke passed.\n'
