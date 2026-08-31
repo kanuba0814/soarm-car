@@ -1,6 +1,31 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+python3 - <<'PY'
+import xml.etree.ElementTree as ET
+
+model = ET.parse('ros2_ws/src/soarm_simulation/models/kuruma_ros2_control/model.sdf').getroot().find('model')
+axes = {
+    'front_left': ('0.70710678 0.70710678 0', '0.70710678 -0.70710678 0'),
+    'front_right': ('-0.70710678 0.70710678 0', '0.70710678 0.70710678 0'),
+    'rear_left': ('-0.70710678 0.70710678 0', '0.70710678 0.70710678 0'),
+    'rear_right': ('0.70710678 0.70710678 0', '0.70710678 -0.70710678 0'),
+}
+for wheel, (axis, friction_direction) in axes.items():
+    link = model.find(f"link[@name='{wheel}_wheel']")
+    assert link.find('visual/geometry/sphere/radius').text == '0.0763'
+    assert link.find('collision/geometry/sphere/radius').text == '0.0763'
+    friction = link.find('collision/surface/friction/ode')
+    assert friction.find('mu2').text == '0.0'
+    assert friction.find('fdir1').text == friction_direction
+    assert friction.find('fdir1').get('{http://ignitionrobotics.org/schema}expressed_in') == 'base_link'
+    assert link.find('visual/geometry/cylinder') is None
+    assert link.find('collision/geometry/cylinder') is None
+    joint_axis = model.find(f"joint[@name='{wheel}_wheel_joint']/axis/xyz")
+    assert joint_axis.text == axis
+    assert joint_axis.get('expressed_in') == 'base_link'
+PY
+
 ros_domain_id="${ROS_DOMAIN_ID:-149}"
 partition="kuruma_ros2_control_smoke_$$"
 container="$(docker compose run -d --rm -e ROS_DOMAIN_ID="$ros_domain_id" -e IGN_PARTITION="$partition" ros2-dev bash -lc 'ros2 launch soarm_simulation kuruma_ros2_control.launch.py')"
