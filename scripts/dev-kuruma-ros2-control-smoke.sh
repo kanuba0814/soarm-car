@@ -69,7 +69,7 @@ import math
 import time
 
 import rclpy
-from geometry_msgs.msg import TwistStamped
+from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import JointState
 
@@ -134,7 +134,7 @@ def on_joints(message):
 node.create_subscription(Odometry, '/ground_truth/odom', on_truth, 50)
 node.create_subscription(Odometry, '/wheel/odom_raw', on_wheel_odom, 50)
 node.create_subscription(JointState, '/joint_states', on_joints, 50)
-publisher = node.create_publisher(TwistStamped, '/cmd_vel', 10)
+publisher = node.create_publisher(Twist, '/cmd_vel', 10)
 
 
 def spin(duration=0.1):
@@ -158,10 +158,10 @@ def joint_positions():
 
 
 def publish_command(x=0.0, y=0.0, z=0.0, duration=0.0):
-    message = TwistStamped()
-    message.twist.linear.x = x
-    message.twist.linear.y = y
-    message.twist.angular.z = z
+    message = Twist()
+    message.linear.x = x
+    message.linear.y = y
+    message.angular.z = z
     if duration <= 0.0:
         publisher.publish(message)
         spin(0.05)
