@@ -7,6 +7,11 @@ setup(name='soarm_simulation', version='0.1.0', packages=['soarm_simulation'], d
     (os.path.join('share', 'soarm_simulation', 'launch'), glob('soarm_simulation/launch/*.launch.py')),
     (os.path.join('share', 'soarm_simulation', 'worlds'), glob('worlds/*')),
     (os.path.join('share', 'soarm_simulation', 'models', 'kuruma'), glob('models/kuruma/*')),
+    (os.path.join('share', 'soarm_simulation', 'models', 'kuruma_rollers'), [
+        'models/kuruma_rollers/model.config', 'models/kuruma_rollers/model.sdf',
+        'models/kuruma_rollers/measurements.json', 'models/kuruma_rollers/PROVENANCE.md',
+    ]),
+    (os.path.join('share', 'soarm_simulation', 'models', 'kuruma_rollers', 'meshes'), glob('models/kuruma_rollers/meshes/*')),
     (os.path.join('share', 'soarm_simulation', 'models', 'navigation_room'), glob('models/navigation_room/*')),
     (os.path.join('share', 'soarm_simulation', 'models', 'house_floorplan'), glob('models/house_floorplan/*')),
     (os.path.join('share', 'soarm_simulation', 'models', 'house_furniture'), glob('models/house_furniture/*')),

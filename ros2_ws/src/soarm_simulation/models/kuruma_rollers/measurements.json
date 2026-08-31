@@ -1,0 +1,14 @@
+{
+  "axis_axle_component": 0.705615,
+  "axis_radial_residual": 0.005724,
+  "axis_tangent_component": 0.708572,
+  "center_ring_radius_m": 0.0668865,
+  "roller_length_m": 0.038,
+  "roller_max_radius_m": 0.0092268,
+  "roller_volume_m3": 4.27366e-06,
+  "rollers_per_wheel": 16,
+  "source": "artifacts/kuruma.STEP read with OCP 7.9.3.1",
+  "spacing_deg": 22.5,
+  "wheel_envelope_radius_m": 0.0763,
+  "wheel_width_m": 0.0481
+}
