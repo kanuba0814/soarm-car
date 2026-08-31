@@ -16,6 +16,7 @@ assert {node.tag: node.text for node in plugin}.items() >= {
     'front_left_joint': 'front_left_wheel_joint', 'front_right_joint': 'front_right_wheel_joint',
     'back_left_joint': 'rear_left_wheel_joint', 'back_right_joint': 'rear_right_wheel_joint',
     'wheel_separation': '0.4456', 'wheelbase': '0.3472', 'wheel_radius': '0.0763',
+    'topic': '/safe_cmd_vel',
 }.items()
 joints = {joint.attrib['name']: joint for joint in model.findall('joint')}
 assert set(name for name in joints if name.endswith('_wheel_joint')) == {
@@ -43,6 +44,8 @@ for value in ('name="kuruma"', 'value="0.0763"', 'value="0.3472"', 'value="0.445
 assert 'arm_mount' not in xacro and 'steering' not in xacro
 adapter = Path('ros2_ws/src/soarm_simulation/soarm_simulation/sim_adapter.py').read_text()
 assert "arm_enabled', False" in adapter and 'GoalResponse.REJECT' in adapter
+assert "'/ground_truth/odom'" in adapter and "'/safe_cmd_vel'" in adapter
+assert 'def on_joint_states' in adapter and 'cmd_vel timed out' in adapter
 PY
 
 docker compose run --rm ros2-dev bash -lc '
@@ -75,6 +78,7 @@ for _ in {1..120}; do
     sleep 1
 done
 docker exec "$container" bash -lc "test -f /tmp/soarm_ros2/install/setup.bash && output=\$($ros topic info /gazebo/odom) && [[ \$output == *'Publisher count: 1'* ]]"
+docker exec "$container" bash -lc "source /opt/ros/humble/setup.bash && source /tmp/soarm_ros2/install/setup.bash && encoder=\$(ros2 topic info /odom) && truth=\$(ros2 topic info /ground_truth/odom) && [[ \$encoder == *'Publisher count: 1'* && \$truth == *'Publisher count: 1'* ]]"
 docker exec -i "$container" bash -s <<'EOS'
 source /opt/ros/humble/setup.bash
 source /tmp/soarm_ros2/install/setup.bash
@@ -93,8 +97,18 @@ for axis in forward lateral rotate; do
     ros2 topic pub -r 20 --times 20 /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.0, y: 0.0}, angular: {z: 0.0}}' >/dev/null
     printf '%s\n---BEFORE---\n%s\n---AFTER---\n%s\n' "$axis" "$before" "$after" > "/tmp/kuruma-${axis}.yaml"
 done
+encoder_before="$(timeout 8 ros2 topic echo /odom --once)"
+truth_before="$(timeout 8 ros2 topic echo /ground_truth/odom --once)"
+ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 0.2}}' >/dev/null
+sleep 1
+encoder_moving="$(timeout 8 ros2 topic echo /odom --once)"
+truth_moving="$(timeout 8 ros2 topic echo /ground_truth/odom --once)"
+sleep 2
+truth_stopped="$(timeout 8 ros2 topic echo /ground_truth/odom --once)"
+printf '%s\n---MOVING---\n%s\n' "$encoder_before" "$encoder_moving" > /tmp/kuruma-encoder.yaml
+printf '%s\n---MOVING---\n%s\n---STOPPED---\n%s\n' "$truth_before" "$truth_moving" "$truth_stopped" > /tmp/kuruma-timeout.yaml
 EOS
-for axis in forward lateral rotate; do docker cp "$container:/tmp/kuruma-${axis}.yaml" "/tmp/kuruma-${axis}.yaml"; done
+for axis in forward lateral rotate encoder timeout; do docker cp "$container:/tmp/kuruma-${axis}.yaml" "/tmp/kuruma-${axis}.yaml"; done
 python3 - <<'PY'
 import math
 import re
@@ -116,5 +130,20 @@ forward, lateral, rotate = pairs['forward'], pairs['lateral'], pairs['rotate']
 assert abs(forward[0]) > 0.06 and abs(forward[0]) > abs(forward[1]) * 1.5, pairs
 assert abs(lateral[1]) > 0.06 and abs(lateral[1]) > abs(lateral[0]) * 1.5, pairs
 assert abs(rotate[2]) > 0.15 and math.hypot(rotate[0], rotate[1]) < 0.08, pairs
+
+def point(text):
+    return tuple(map(float, re.search(r'position:\n      x: ([^\n]+)\n      y: ([^\n]+)', text).groups()))
+def distance(before, after):
+    x, y = point(before); next_x, next_y = point(after)
+    return math.hypot(next_x - x, next_y - y)
+encoder_before, encoder_moving = open('/tmp/kuruma-encoder.yaml').read().split('---MOVING---', 1)
+truth_before, remainder = open('/tmp/kuruma-timeout.yaml').read().split('---MOVING---', 1)
+truth_moving, truth_stopped = remainder.split('---STOPPED---', 1)
+encoder_distance = distance(encoder_before, encoder_moving)
+truth_distance = distance(truth_before, truth_moving)
+post_timeout_drift = distance(truth_moving, truth_stopped)
+assert encoder_distance > 0.01 and truth_distance > 0.01, (encoder_distance, truth_distance)
+assert post_timeout_drift < 0.01, post_timeout_drift
 print('Kuruma physical odometry passed:', pairs)
+print('Encoder/ground-truth split and command timeout passed:', encoder_distance, truth_distance, post_timeout_drift)
 PY

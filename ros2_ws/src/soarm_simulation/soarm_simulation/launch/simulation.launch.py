@@ -34,14 +34,14 @@ def generate_launch_description():
         DeclareLaunchArgument('gz_args', default_value='-r -s', description='Gazebo arguments; use "-r" to open the GUI.'),
         DeclareLaunchArgument('spawn_robot', default_value='true'),
         DeclareLaunchArgument('ground_truth_map_tf', default_value='true', description='Publish identity map->odom_combined for room preview; disable when AMCL/localisation owns this transform.'),
-        DeclareLaunchArgument('publish_sim_odometry', default_value='true', description='Publish /odom and odom_combined TF from Gazebo; disable when FAST-LIO owns Nav2 odometry.'),
+        DeclareLaunchArgument('publish_sim_odometry', default_value='true', description='Publish wheel-encoder /odom, ground-truth odometry, and odom_combined TF; disable when FAST-LIO owns Nav2 odometry.'),
         DeclareLaunchArgument('rviz', default_value='false', description='Start RViz with robot, TF, odometry path, point cloud and camera displays.'),
         gazebo,
         Node(package='robot_state_publisher', executable='robot_state_publisher', parameters=[{'robot_description': robot}]),
         # Kuruma is native SDF so the Fortress mecanum system applies wheel forces; robot_state_publisher supplies matching sensor TF.
         Node(package='ros_gz_bridge', executable='parameter_bridge', condition=IfCondition(LaunchConfiguration('simulation')), arguments=[
             '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-            '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
+            '/safe_cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
             '/gazebo/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
             '/gazebo/imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
             '/gazebo/livox_imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
