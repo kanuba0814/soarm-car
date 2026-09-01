@@ -68,6 +68,21 @@ bool valid_profile(const SearchProfile& p) {
          std::isfinite(p.yaw_step) && std::isfinite(p.nms_radius) && p.xy_extent >= 0.0 &&
          p.yaw_extent >= 0.0 && p.xy_step > 0.0 && p.yaw_step > 0.0 && p.nms_radius >= 0.0 && p.peak_count > 0;
 }
+bool valid_refinement_profile(const RefinementProfile& p) {
+  return std::isfinite(p.max_relative_x) && std::isfinite(p.max_relative_y) &&
+         std::isfinite(p.max_relative_yaw) && p.max_relative_x >= 0.0 &&
+         p.max_relative_y >= 0.0 && p.max_relative_yaw >= 0.0;
+}
+bool within_refinement_profile(const Se2& relative, const RefinementProfile& p) {
+  return std::isfinite(relative.x) && std::isfinite(relative.y) && std::isfinite(relative.yaw) &&
+         std::abs(relative.x) <= p.max_relative_x && std::abs(relative.y) <= p.max_relative_y &&
+         std::abs(relative.yaw) <= p.max_relative_yaw;
+}
+Se2 compose_relative(const Se2& initial, const Se2& relative) {
+  const double c = std::cos(relative.yaw), s = std::sin(relative.yaw);
+  return {relative.x + c * initial.x - s * initial.y,
+          relative.y + s * initial.x + c * initial.y, relative.yaw + initial.yaw};
+}
 bool checked_lattice(const SearchProfile& profile, int* xy_steps, int* yaw_steps, std::size_t* evaluations) {
   const double xy_quotient = profile.xy_extent / profile.xy_step;
   const double yaw_quotient = profile.yaw_extent / profile.yaw_step;
@@ -223,6 +238,78 @@ std::vector<Result> FixedMapRegistration::refine_selected(const std::vector<Eige
   std::vector<Result> results; results.reserve(selected.size());
   for (const auto& peak : selected) results.push_back(refine(source, peak.pose));
   return results;
+}
+
+Result FixedMapRegistration::refine_bounded(const std::vector<Eigen::Vector3d>& scan, const Se2& initial,
+                                             const RefinementProfile& profile) const {
+  Result result; const auto start = std::chrono::steady_clock::now();
+  if (!map_tree_ || !valid_options(options_) || !valid_refinement_profile(profile) || !finite_points(scan) ||
+      scan.size() < static_cast<std::size_t>(options_.min_cells) || !std::isfinite(initial.x) ||
+      !std::isfinite(initial.y) || !std::isfinite(initial.yaw)) return result;
+  result.accepted_input = true; result.bounded_refinement_used = true; result.transform = initial;
+  struct Evaluation { double error = 0.0; int inliers = 0; Eigen::Matrix3d h = Eigen::Matrix3d::Zero(); Eigen::Vector3d b = Eigen::Vector3d::Zero(); };
+  const double max2 = options_.max_correspondence_distance * options_.max_correspondence_distance;
+  auto evaluate = [&](const Se2& relative, bool linearize, Evaluation* evaluation) -> bool {
+    // This guard is deliberately before the first transformed point/correspondence lookup.
+    if (!within_refinement_profile(relative, profile)) { result.trust_region_limited = true; return false; }
+    ++result.bounded_evaluations;
+    const double c0 = std::cos(initial.yaw), s0 = std::sin(initial.yaw);
+    const double cd = std::cos(relative.yaw), sd = std::sin(relative.yaw);
+    for (const auto& point : scan) {
+      const Eigen::Vector2d base(c0 * point.x() - s0 * point.y() + initial.x,
+                                 s0 * point.x() + c0 * point.y() + initial.y);
+      const Eigen::Vector2d transformed(cd * base.x() - sd * base.y() + relative.x,
+                                        sd * base.x() + cd * base.y() + relative.y);
+      double best = max2; std::size_t target = cells_.size();
+      for (std::size_t j = 0; j < cells_.size(); ++j) {
+        const double distance2 = (transformed - cells_[j].head<2>()).squaredNorm();
+        if (distance2 < best) { best = distance2; target = j; }
+      }
+      if (target == cells_.size()) continue;
+      const Eigen::Vector2d residual = transformed - cells_[target].head<2>();
+      evaluation->error += residual.squaredNorm(); ++evaluation->inliers;
+      if (linearize) {
+        Eigen::Matrix<double, 2, 3> jacobian;
+        jacobian << 1.0, 0.0, -sd * base.x() - cd * base.y(),
+                    0.0, 1.0,  cd * base.x() - sd * base.y();
+        evaluation->h.noalias() += jacobian.transpose() * jacobian;
+        evaluation->b.noalias() += jacobian.transpose() * residual;
+      }
+    }
+    evaluation->error = evaluation->inliers ? evaluation->error / evaluation->inliers : std::numeric_limits<double>::infinity();
+    return std::isfinite(evaluation->error);
+  };
+  Se2 relative; Evaluation current;
+  if (!evaluate(relative, true, &current)) { result.all_evaluations_within_bounds = false; return result; }
+  double damping = 1e-3;
+  for (int iteration = 0; iteration < options_.max_iterations; ++iteration) {
+    if (current.inliers < 3) break;
+    Eigen::Matrix3d system = current.h;
+    for (int axis = 0; axis < 3; ++axis) system(axis, axis) += damping * std::max(1.0, current.h(axis, axis));
+    const Eigen::Vector3d increment = -system.ldlt().solve(current.b);
+    if (!increment.allFinite()) break;
+    Se2 candidate{relative.x + increment.x(), relative.y + increment.y(), relative.yaw + increment.z()};
+    Evaluation trial;
+    if (!evaluate(candidate, false, &trial)) { damping *= 10.0; continue; }
+    if (trial.error < current.error) {
+      relative = candidate;
+      if (increment.norm() < 1e-6) { result.converged = true; current = trial; break; }
+      if (!evaluate(relative, true, &current)) { result.all_evaluations_within_bounds = false; break; }
+      damping = std::max(1e-9, damping * 0.5);
+    } else {
+      damping *= 10.0;
+    }
+  }
+  result.transform = compose_relative(initial, relative);
+  result.mean_squared_error = current.error;
+  result.inlier_fraction = current.inliers / static_cast<double>(scan.size());
+  // The same bounded final correspondence set supplies raw planar observability.
+  result.observability.information = current.h;
+  result.observability.valid_support = current.inliers;
+  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> solver(current.h); result.observability.eigenvalues = solver.eigenvalues();
+  const double trace = result.observability.eigenvalues.sum(), top = result.observability.eigenvalues.maxCoeff();
+  if (top > std::numeric_limits<double>::epsilon()) { result.observability.min_trace_ratio = result.observability.eigenvalues.minCoeff() / std::max(trace, std::numeric_limits<double>::epsilon()); result.observability.condition_number = top / std::max(result.observability.eigenvalues.minCoeff(), std::numeric_limits<double>::epsilon()); }
+  result.wall_seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - start).count(); return result;
 }
 
 Result FixedMapRegistration::refine(const std::vector<Eigen::Vector3d>& scan, const Se2& initial) const {

@@ -32,6 +32,13 @@ struct Options {
   double capped_squared_loss = 0.04;
 };
 
+// Bounds are inclusive.  A zero bound locks that relative SE(2) component.
+struct RefinementProfile {
+  double max_relative_x = 0.10;
+  double max_relative_y = 0.10;
+  double max_relative_yaw = 0.10;
+};
+
 struct Peak { Se2 pose; double score = std::numeric_limits<double>::infinity(); };
 struct SearchMetrics { std::size_t source_cells = 0, lattice_evaluations = 0; double wall_seconds = 0.0; };
 struct PreRefinementResult {
@@ -52,6 +59,11 @@ struct Observability {
 };
 struct Result {
   bool accepted_input = false, converged = false;
+  // True only for refine_bounded(); retained separately from convergence so caller policy stays external.
+  bool bounded_refinement_used = false, trust_region_limited = false;
+  // Diagnostic invariant for audited cache callers: all correspondence/error evaluations were bounded.
+  bool all_evaluations_within_bounds = true;
+  std::size_t bounded_evaluations = 0;
   Se2 transform;
   double mean_squared_error = 0.0, inlier_fraction = 0.0, wall_seconds = 0.0;
   Observability observability;
@@ -66,7 +78,11 @@ class FixedMapRegistration {
   PreRefinementResult search(const std::vector<Eigen::Vector3d>& source, const SearchProfile& profile) const;
   // Optional GICP refinement is deliberately separate from search: it cannot alter peak order/gaps.
   std::vector<Result> refine_selected(const std::vector<Eigen::Vector3d>& source, const std::vector<Peak>& selected) const;
+  // Legacy unbounded small_gicp refinement. It is unsuitable for finite-cache guarantees.
   Result refine(const std::vector<Eigen::Vector3d>& scan, const Se2& initial) const;
+  // Bounded planar refinement about initial. Every correspondence and LM trial is checked first.
+  Result refine_bounded(const std::vector<Eigen::Vector3d>& scan, const Se2& initial,
+                        const RefinementProfile& profile) const;
 
  private:
   double field_at(double x, double y) const;
