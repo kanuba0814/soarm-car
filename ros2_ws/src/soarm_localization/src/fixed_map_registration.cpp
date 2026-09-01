@@ -30,6 +30,14 @@ bool checked_round_to_int(double value, int* output) {
   *output = static_cast<int>(rounded);
   return true;
 }
+bool checked_ceil_to_int(double value, int* output) {
+  if (!std::isfinite(value)) return false;
+  const double ceiled = std::ceil(value);
+  if (ceiled < static_cast<double>(std::numeric_limits<int>::min()) ||
+      ceiled > static_cast<double>(std::numeric_limits<int>::max())) return false;
+  *output = static_cast<int>(ceiled);
+  return true;
+}
 bool checked_field_dimension(double span, double resolution, int* output) {
   const double quotient = span / resolution;
   if (!std::isfinite(quotient) || quotient < 0.0) return false;
@@ -143,11 +151,27 @@ bool FixedMapRegistration::set_map(const std::vector<Eigen::Vector3d>& points) {
       !checked_multiply(static_cast<std::size_t>(field_width_), static_cast<std::size_t>(field_height_), &field_cells) ||
       field_cells == 0 || field_cells > kMaxFieldCells) return false;
   field_.assign(field_cells, options_.capped_squared_loss);
-  for (int iy = 0; iy < field_height_; ++iy) for (int ix = 0; ix < field_width_; ++ix) {
-    const Eigen::Vector2d grid(field_min_x_ + ix * options_.distance_field_resolution, field_min_y_ + iy * options_.distance_field_resolution);
-    double best = options_.capped_squared_loss;
-    for (const auto& cell : cells_) best = std::min(best, (grid - cell.head<2>()).squaredNorm());
-    field_[static_cast<std::size_t>(iy) * static_cast<std::size_t>(field_width_) + static_cast<std::size_t>(ix)] = best;
+  // A point farther than sqrt(cap) cannot improve a field cell. Scatter each
+  // exact point distance only over that bounded window instead of scanning all
+  // map points for every grid cell.
+  const double influence_radius = std::sqrt(options_.capped_squared_loss);
+  for (const auto& cell : cells_) {
+    int min_ix = 0, max_ix = 0, min_iy = 0, max_iy = 0;
+    if (!checked_ceil_to_int((cell.x() - influence_radius - field_min_x_) / options_.distance_field_resolution, &min_ix) ||
+        !checked_floor_to_int((cell.x() + influence_radius - field_min_x_) / options_.distance_field_resolution, &max_ix) ||
+        !checked_ceil_to_int((cell.y() - influence_radius - field_min_y_) / options_.distance_field_resolution, &min_iy) ||
+        !checked_floor_to_int((cell.y() + influence_radius - field_min_y_) / options_.distance_field_resolution, &max_iy)) return false;
+    min_ix = std::clamp(min_ix, 0, field_width_ - 1);
+    max_ix = std::clamp(max_ix, 0, field_width_ - 1);
+    min_iy = std::clamp(min_iy, 0, field_height_ - 1);
+    max_iy = std::clamp(max_iy, 0, field_height_ - 1);
+    for (int iy = min_iy; iy <= max_iy; ++iy) for (int ix = min_ix; ix <= max_ix; ++ix) {
+      const Eigen::Vector2d grid(field_min_x_ + ix * options_.distance_field_resolution,
+                                 field_min_y_ + iy * options_.distance_field_resolution);
+      const std::size_t index = static_cast<std::size_t>(iy) * static_cast<std::size_t>(field_width_) +
+                                static_cast<std::size_t>(ix);
+      field_[index] = std::min(field_[index], (grid - cell.head<2>()).squaredNorm());
+    }
   }
   auto processed = small_gicp::preprocess_points(cells_, options_.voxel_resolution, 10, options_.threads);
   map_cloud_ = processed.first; map_tree_ = processed.second;
