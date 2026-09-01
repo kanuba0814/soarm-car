@@ -35,6 +35,9 @@ class GlobalLocalizationNode(Node):
         self.declare_parameter('max_correspondence_distance', 1.0)
         self.declare_parameter('max_correction_translation', 1.0e9)
         self.declare_parameter('max_correction_rotation', 1.0e9)
+        self.declare_parameter('planar_correction_gate', False)
+        self.declare_parameter('max_correction_z', 1.0e9)
+        self.declare_parameter('max_correction_roll_pitch', 1.0e9)
         self.declare_parameter('use_coarse_initialization', True)
         self.declare_parameter('coarse_scale', 5.0)
         self.declare_parameter('fov', 2 * np.pi)
@@ -50,6 +53,9 @@ class GlobalLocalizationNode(Node):
         self.max_correspondence_distance = self.get_parameter('max_correspondence_distance').value
         self.max_correction_translation = self.get_parameter('max_correction_translation').value
         self.max_correction_rotation = self.get_parameter('max_correction_rotation').value
+        self.planar_correction_gate = self.get_parameter('planar_correction_gate').value
+        self.max_correction_z = self.get_parameter('max_correction_z').value
+        self.max_correction_roll_pitch = self.get_parameter('max_correction_roll_pitch').value
         self.use_coarse_initialization = self.get_parameter('use_coarse_initialization').value
         self.coarse_scale = self.get_parameter('coarse_scale').value
         self.FOV               = self.get_parameter('fov').value
@@ -191,6 +197,22 @@ class GlobalLocalizationNode(Node):
             return True, ''
 
         correction_delta = np.linalg.inv(self.T_map_to_odom) @ candidate
+        if getattr(self, 'planar_correction_gate', False):
+            translation_xy = np.linalg.norm(correction_delta[:2, 3])
+            translation_z = abs(correction_delta[2, 3])
+            roll, pitch, yaw = tf_transformations.euler_from_matrix(correction_delta)
+            roll_pitch = max(abs(roll), abs(pitch))
+            yaw = abs(yaw)
+            if translation_xy >= self.max_correction_translation:
+                return False, f'correction XY jump={translation_xy:.3f} m'
+            if translation_z >= self.max_correction_z:
+                return False, f'correction Z jump={translation_z:.3f} m'
+            if roll_pitch >= self.max_correction_roll_pitch:
+                return False, f'correction roll/pitch jump={roll_pitch:.3f} rad'
+            if yaw >= self.max_correction_rotation:
+                return False, f'correction yaw jump={yaw:.3f} rad'
+            return True, ''
+
         translation_delta = np.linalg.norm(correction_delta[:3, 3])
         cosine = np.clip(
             (np.trace(correction_delta[:3, :3]) - 1.0) / 2.0,

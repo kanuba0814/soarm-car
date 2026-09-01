@@ -8,6 +8,7 @@ import unittest
 import numpy as np
 import open3d as o3d
 from builtin_interfaces.msg import Time
+import tf_transformations
 
 
 MODULE_PATH = Path(__file__).parents[1] / 'scripts' / 'global_localization.py'
@@ -85,6 +86,53 @@ class GlobalLocalizationRegistrationTest(unittest.TestCase):
         accepted, reason = GlobalLocalizationNode.registration_is_acceptable(
             node, np.eye(4), 0.8, 0.1)
         self.assertTrue(accepted, reason)
+
+    def test_planar_gate_accepts_independent_vertical_correction(self):
+        node = SimpleNamespace(
+            initialized=True,
+            localization_th=0.4,
+            localization_rmse_th=0.3,
+            max_correction_translation=0.25,
+            max_correction_rotation=0.15,
+            planar_correction_gate=True,
+            max_correction_z=0.5,
+            max_correction_roll_pitch=0.15,
+            T_map_to_odom=np.eye(4),
+        )
+        candidate = np.eye(4)
+        candidate[:3, 3] = [-0.034445, 0.0441, 0.389296]
+        yaw = 0.033568
+        candidate[:2, :2] = [[np.cos(yaw), -np.sin(yaw)],
+                             [np.sin(yaw), np.cos(yaw)]]
+
+        accepted, reason = GlobalLocalizationNode.registration_is_acceptable(
+            node, candidate, 0.988, 0.140)
+        self.assertTrue(accepted, reason)
+
+        candidate[2, 3] = 0.5
+        accepted, reason = GlobalLocalizationNode.registration_is_acceptable(
+            node, candidate, 0.988, 0.140)
+        self.assertFalse(accepted)
+        self.assertIn('Z jump=0.500 m', reason)
+
+        candidate = np.eye(4)
+        candidate[0, 3] = 0.25
+        accepted, reason = GlobalLocalizationNode.registration_is_acceptable(
+            node, candidate, 0.988, 0.140)
+        self.assertFalse(accepted)
+        self.assertIn('XY jump=0.250 m', reason)
+
+        candidate = tf_transformations.euler_matrix(0.15, 0.0, 0.0)
+        accepted, reason = GlobalLocalizationNode.registration_is_acceptable(
+            node, candidate, 0.988, 0.140)
+        self.assertFalse(accepted)
+        self.assertIn('roll/pitch jump=0.150 rad', reason)
+
+        candidate = tf_transformations.euler_matrix(0.0, 0.0, 0.15)
+        accepted, reason = GlobalLocalizationNode.registration_is_acceptable(
+            node, candidate, 0.988, 0.140)
+        self.assertFalse(accepted)
+        self.assertIn('yaw jump=0.150 rad', reason)
 
     def test_acceptance_threshold_boundaries_are_exclusive(self):
         node = SimpleNamespace(

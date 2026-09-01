@@ -15,6 +15,9 @@ assert localization['use_coarse_initialization'] is False
 assert localization['max_correspondence_distance'] == 0.5
 assert localization['max_correction_translation'] == 0.25
 assert localization['max_correction_rotation'] == 0.15
+assert localization['planar_correction_gate'] is True
+assert localization['max_correction_z'] == 0.5
+assert localization['max_correction_roll_pitch'] == 0.15
 assert localization['localization_rmse_th'] == 0.3
 nav = yaml.safe_load(Path('ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml').read_text())
 controller = nav['controller_server']['ros__parameters']['FollowPath']
