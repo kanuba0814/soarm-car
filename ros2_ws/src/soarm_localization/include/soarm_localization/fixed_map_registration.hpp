@@ -11,7 +11,6 @@ namespace soarm_localization {
 
 struct Se2 { double x = 0.0, y = 0.0, yaw = 0.0; };
 
-// Search settings are explicit caller/profile policy.  No acceptance cutoff is embedded here.
 struct SearchProfile {
   double xy_extent = 0.25;
   double yaw_extent = 0.15;
@@ -21,6 +20,8 @@ struct SearchProfile {
   std::size_t peak_count = 4;
 };
 
+// max_cells is the bounded per-source-cloud limit retained for API compatibility.
+// Map-model storage is independently limited by the fixed byte budgets below.
 struct Options {
   double voxel_resolution = 0.10;
   double max_correspondence_distance = 0.75;
@@ -30,9 +31,12 @@ struct Options {
   int threads = 1;
   double distance_field_resolution = 0.01;
   double capped_squared_loss = 0.04;
+  // Model-only resource limit; default is the core's conservative 128 MiB cell allowance.
+  std::size_t max_model_cells = 524288;
+  std::size_t max_model_bytes = 128U * 1024U * 1024U;
+  std::size_t max_field_payload_bytes = 64U * 1024U * 1024U;
 };
 
-// Bounds are inclusive.  A zero bound locks that relative SE(2) component.
 struct RefinementProfile {
   double max_relative_x = 0.10;
   double max_relative_y = 0.10;
@@ -41,14 +45,15 @@ struct RefinementProfile {
 
 struct Peak { Se2 pose; double score = std::numeric_limits<double>::infinity(); };
 struct SearchMetrics { std::size_t source_cells = 0, lattice_evaluations = 0; double wall_seconds = 0.0; };
-struct PreRefinementResult {
-  bool accepted_input = false;
-  std::vector<Peak> peaks;
-  double score_gap = std::numeric_limits<double>::infinity();
-  SearchMetrics metrics;
+struct PreRefinementResult { bool accepted_input = false; std::vector<Peak> peaks; double score_gap = std::numeric_limits<double>::infinity(); SearchMetrics metrics; };
+struct ModelStats {
+  std::size_t map_cells = 0;
+  std::size_t tiles = 0;
+  std::size_t field_payload_bytes = 0;
+  std::size_t build_count = 0;
+  double build_seconds = 0.0;
 };
 
-// Raw spectrum only; the caller supplies its own rank tolerance and policy.
 struct Observability {
   Eigen::Matrix3d information = Eigen::Matrix3d::Zero();
   Eigen::Vector3d eigenvalues = Eigen::Vector3d::Zero();
@@ -59,9 +64,7 @@ struct Observability {
 };
 struct Result {
   bool accepted_input = false, converged = false;
-  // True only for refine_bounded(); retained separately from convergence so caller policy stays external.
   bool bounded_refinement_used = false, trust_region_limited = false;
-  // Diagnostic invariant for audited cache callers: all correspondence/error evaluations were bounded.
   bool all_evaluations_within_bounds = true;
   std::size_t bounded_evaluations = 0;
   Se2 transform;
@@ -74,27 +77,29 @@ class FixedMapRegistration {
   explicit FixedMapRegistration(Options options = {});
   bool set_map(const std::vector<Eigen::Vector3d>& points);
   std::size_t cell_count() const;
-  // Scores the fixed map before any GICP invocation.  Output ordering is (score,x,y,yaw).
+  ModelStats model_stats() const;
+  // Testable model seams: exact cap semantics and canonical-index tie breaking.
+  double field_squared_distance(double x, double y) const;
+  std::size_t nearest_cell_index(double x, double y) const;
   PreRefinementResult search(const std::vector<Eigen::Vector3d>& source, const SearchProfile& profile) const;
-  // Optional GICP refinement is deliberately separate from search: it cannot alter peak order/gaps.
+  // Candidate lattice deltas are composed onto map_anchor; returned peak poses are map-frame poses.
+  PreRefinementResult search_around(const std::vector<Eigen::Vector3d>& source_local, const Se2& map_anchor,
+                                    const SearchProfile& profile) const;
   std::vector<Result> refine_selected(const std::vector<Eigen::Vector3d>& source, const std::vector<Peak>& selected) const;
-  // Legacy unbounded small_gicp refinement. It is unsuitable for finite-cache guarantees.
   Result refine(const std::vector<Eigen::Vector3d>& scan, const Se2& initial) const;
-  // Bounded planar refinement about initial. Every correspondence and LM trial is checked first.
   Result refine_bounded(const std::vector<Eigen::Vector3d>& scan, const Se2& initial,
                         const RefinementProfile& profile) const;
+  // initial_delta and every bounded correction are in map_anchor's local SE(2) frame.
+  // The returned transform is map-frame: map_anchor composed with the final local delta.
+  Result refine_bounded_around(const std::vector<Eigen::Vector3d>& source_local, const Se2& map_anchor,
+                               const Se2& initial_delta, const RefinementProfile& profile) const;
 
  private:
+  struct Model;
   double field_at(double x, double y) const;
   Options options_;
-  std::vector<Eigen::Vector3d> cells_;
-  std::vector<Eigen::Vector2d> normals_;
-  std::vector<bool> normal_valid_;
-  double field_min_x_ = 0.0, field_min_y_ = 0.0;
-  int field_width_ = 0, field_height_ = 0;
-  std::vector<double> field_;
-  std::shared_ptr<small_gicp::PointCloud> map_cloud_;
-  std::shared_ptr<small_gicp::KdTree<small_gicp::PointCloud>> map_tree_;
+  std::shared_ptr<const Model> model_;
+  std::size_t build_count_ = 0;
+  double last_build_seconds_ = 0.0;
 };
-
 }  // namespace soarm_localization
