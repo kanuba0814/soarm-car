@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 3.16)
+project(small_gicp_vendor VERSION 1.0.1 LANGUAGES CXX)
+find_package(ament_cmake REQUIRED)
+# All upstream sources are committed below upstream; no configure/build network path exists.
+set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(BUILD_BENCHMARKS OFF CACHE BOOL "" FORCE)
+set(BUILD_PYTHON_BINDINGS OFF CACHE BOOL "" FORCE)
+set(BUILD_WITH_TBB OFF CACHE BOOL "" FORCE)
+set(BUILD_WITH_OPENMP ON CACHE STRING "" FORCE)
+add_subdirectory(upstream)
+add_library(small_gicp_vendor INTERFACE)
+add_library(small_gicp_vendor::small_gicp ALIAS small_gicp_vendor)
+set_target_properties(small_gicp_vendor PROPERTIES EXPORT_NAME small_gicp)
+target_link_libraries(small_gicp_vendor INTERFACE small_gicp)
+ament_export_targets(export_small_gicp_vendor HAS_LIBRARY_TARGET)
+# The upstream install exports small_gicp::small_gicp in this package prefix.
+# Load that target before the installed wrapper target is imported by consumers.
+install(TARGETS small_gicp_vendor EXPORT export_small_gicp_vendor)
+ament_package(CONFIG_EXTRAS small_gicp_vendor-extras.cmake)
