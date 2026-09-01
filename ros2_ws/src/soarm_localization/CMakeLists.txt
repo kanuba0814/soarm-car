@@ -12,11 +12,19 @@ install(DIRECTORY include/ DESTINATION include)
 ament_export_targets(export_${PROJECT_NAME} HAS_LIBRARY_TARGET)
 ament_export_dependencies(Eigen3 small_gicp_vendor)
 if(BUILD_TESTING)
+  option(SOARM_LOCALIZATION_ENABLE_PERFORMANCE_TEST "Run wall-clock performance assertions" ON)
   enable_testing()
   add_executable(fixed_map_registration_test test/fixed_map_registration_test.cpp)
   target_link_libraries(fixed_map_registration_test ${PROJECT_NAME})
-  # Fixture assertions are the test oracle even in the optimized timing build.
+  # Fixture assertions are the test oracle even in optimized builds.
   target_compile_options(fixed_map_registration_test PRIVATE -UNDEBUG)
-  add_test(NAME fixed_map_registration_test COMMAND fixed_map_registration_test)
+  add_test(NAME fixed_map_registration_functional_test COMMAND fixed_map_registration_test)
+  set_tests_properties(
+    fixed_map_registration_functional_test
+    PROPERTIES ENVIRONMENT "SOARM_LOCALIZATION_SKIP_PERFORMANCE_ASSERT=1"
+  )
+  if(SOARM_LOCALIZATION_ENABLE_PERFORMANCE_TEST)
+    add_test(NAME fixed_map_registration_performance_test COMMAND fixed_map_registration_test)
+  endif()
 endif()
 ament_package()

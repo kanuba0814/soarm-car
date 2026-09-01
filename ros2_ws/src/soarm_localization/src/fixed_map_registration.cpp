@@ -96,7 +96,7 @@ FixedMapRegistration::FixedMapRegistration(Options options) : options_(options) 
 bool FixedMapRegistration::set_map(const std::vector<Eigen::Vector3d>& points) {
   cells_.clear(); field_.clear(); normals_.clear(); normal_valid_.clear(); map_cloud_.reset(); map_tree_.reset();
   if (!finite_points(points) || !valid_options(options_)) return false;
-  std::map<std::tuple<int, int, int>, std::pair<Eigen::Vector3d, int>> bins;
+  std::map<std::tuple<int, int, int>, std::pair<Eigen::Vector3d, std::size_t>> bins;
   for (const auto& point : points) {
     int x = 0, y = 0, z = 0;
     if (!checked_floor_to_int(point.x() / options_.voxel_resolution, &x) ||
@@ -106,9 +106,12 @@ bool FixedMapRegistration::set_map(const std::vector<Eigen::Vector3d>& points) {
     auto found = bins.find(key);
     if (found == bins.end()) {
       if (bins.size() >= static_cast<std::size_t>(options_.max_cells)) return false;
-      found = bins.emplace(key, std::make_pair(Eigen::Vector3d::Zero(), 0)).first;
+      found = bins.emplace(key, std::make_pair(Eigen::Vector3d::Zero(), std::size_t{0})).first;
     }
-    found->second.first += point;
+    if (found->second.second == std::numeric_limits<std::size_t>::max()) return false;
+    const Eigen::Vector3d accumulated = found->second.first + point;
+    if (!accumulated.allFinite()) return false;
+    found->second.first = accumulated;
     ++found->second.second;
   }
   if (bins.size() < static_cast<std::size_t>(options_.min_cells)) return false;
