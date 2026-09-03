@@ -59,6 +59,21 @@ class LocalizationHealthTest(unittest.TestCase):
         self.assertFalse(tracker.accepted(1, 0.9, float('inf')))
         self.assertEqual(tracker.reason_mask, MODULE.REASON_INTERNAL)
 
+    def test_unverified_quality_is_bounded_without_accepting_a_correction(self):
+        tracker = MODULE.LocalizationHealthTracker(max_consecutive_rejections=3)
+        self.assertTrue(tracker.accepted(100, fitness=0.9, rmse=0.1))
+
+        self.assertTrue(tracker.quality_unverified(
+            within_dead_reckoning_budget=True, fitness=0.25, rmse=0.2))
+        self.assertEqual(tracker.state, MODULE.HEALTHY)
+        self.assertEqual(tracker.last_accepted_stamp_ns, 100)
+        self.assertEqual(tracker.consecutive_rejections, 1)
+        self.assertAlmostEqual(tracker.last_fitness, 0.25)
+
+        self.assertFalse(tracker.quality_unverified(
+            within_dead_reckoning_budget=False, fitness=0.24, rmse=0.21))
+        self.assertEqual(tracker.state, MODULE.DEGRADED)
+
     def test_invalid_configuration_is_rejected(self):
         with self.assertRaises(ValueError):
             MODULE.LocalizationHealthTracker(max_consecutive_rejections=0)

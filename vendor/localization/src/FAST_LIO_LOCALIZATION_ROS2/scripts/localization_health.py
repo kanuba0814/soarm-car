@@ -61,6 +61,26 @@ class LocalizationHealthTracker:
             self.state = DEGRADED
         return self.state
 
+    def quality_unverified(self, within_dead_reckoning_budget, fitness, rmse):
+        """Record missing global evidence without accepting a correction."""
+        fitness = float(fitness)
+        rmse = float(rmse)
+        if (not isinstance(within_dead_reckoning_budget, bool) or
+                not math.isfinite(fitness) or not math.isfinite(rmse)):
+            self.rejected(REASON_INTERNAL)
+            return False
+        self.sequence += 1
+        self.reason_mask |= REASON_QUALITY
+        self.consecutive_rejections += 1
+        self.last_fitness = fitness
+        self.last_rmse = rmse
+        if self.state != HEALTHY:
+            return False
+        if not within_dead_reckoning_budget:
+            self.state = DEGRADED
+            return False
+        return True
+
     def reinitialize(self):
         self.sequence += 1
         self.state = INITIALIZING

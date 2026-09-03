@@ -18,6 +18,12 @@
         base_to_body_xyz: [0.0, 0.0, 0.232]
         base_to_body_rpy: [0.0, 0.0, 0.0]
         max_consecutive_rejections: 5
+        # Low overlap is absence of a correction, not proof that the last map
+        # alignment is wrong. Continue only inside this strict FAST-LIO motion/time budget.
+        quality_rejection_dead_reckoning: true
+        max_unverified_translation: 5.0
+        max_unverified_rotation: 3.0
+        max_unverified_seconds: 40.0
         health_heartbeat_rate: 10.0
         map_id: fastlio_house_floorplan.pcd
 

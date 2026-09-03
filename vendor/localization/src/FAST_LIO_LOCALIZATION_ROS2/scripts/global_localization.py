@@ -56,6 +56,10 @@ class GlobalLocalizationNode(Node):
         self.declare_parameter('base_to_body_xyz', [0.0, 0.0, 0.232])
         self.declare_parameter('base_to_body_rpy', [0.0, 0.0, 0.0])
         self.declare_parameter('max_consecutive_rejections', 5)
+        self.declare_parameter('quality_rejection_dead_reckoning', False)
+        self.declare_parameter('max_unverified_translation', 1.0)
+        self.declare_parameter('max_unverified_rotation', 0.5)
+        self.declare_parameter('max_unverified_seconds', 20.0)
         self.declare_parameter('health_heartbeat_rate', 10.0)
         self.declare_parameter('map_id', '')
 
@@ -78,6 +82,20 @@ class GlobalLocalizationNode(Node):
                              tf_transformations.euler_matrix(*self.get_parameter('base_to_body_rpy').value))
         self.health_tracker = LocalizationHealthTracker(
             self.get_parameter('max_consecutive_rejections').value)
+        self.quality_rejection_dead_reckoning = self.get_parameter(
+            'quality_rejection_dead_reckoning').value
+        self.max_unverified_translation = self.get_parameter(
+            'max_unverified_translation').value
+        self.max_unverified_rotation = self.get_parameter(
+            'max_unverified_rotation').value
+        self.max_unverified_seconds = self.get_parameter(
+            'max_unverified_seconds').value
+        if self.quality_rejection_dead_reckoning:
+            budgets = (self.max_unverified_translation,
+                       self.max_unverified_rotation,
+                       self.max_unverified_seconds)
+            if not all(np.isfinite(value) and value > 0.0 for value in budgets):
+                raise ValueError('dead-reckoning budgets must be finite and positive')
         self.health_heartbeat_rate = self.get_parameter('health_heartbeat_rate').value
         if self.health_heartbeat_rate <= 0.0:
             raise ValueError('health_heartbeat_rate must be positive')
@@ -90,6 +108,8 @@ class GlobalLocalizationNode(Node):
         self.cur_odom      = None
         self.cur_scan      = None
         self.localization_timer = None
+        self.last_verified_odom = None
+        self.last_verified_stamp_ns = 0
 
         # ─── Publishers ──────────────────────────────────────────
         self.pub_pc_in_map   = self.create_publisher(PointCloud2, '/cur_scan_in_map', 1)
@@ -205,6 +225,41 @@ class GlobalLocalizationNode(Node):
                 'map-frame output must stop until explicit reinitialization.')
         self.publish_health()
 
+    def dead_reckoning_budget_available(self):
+        if (not self.quality_rejection_dead_reckoning or
+                self.last_verified_odom is None or self.cur_odom is None or
+                self.last_verified_stamp_ns <= 0):
+            return False
+        current_stamp_ns = self.stamp_to_nanoseconds(self.cur_odom.header.stamp)
+        if current_stamp_ns < self.last_verified_stamp_ns:
+            return False
+        age_seconds = (current_stamp_ns - self.last_verified_stamp_ns) / 1.0e9
+        try:
+            current_odom = self.pose_to_mat(self.cur_odom)
+            delta = np.linalg.inv(self.last_verified_odom) @ current_odom
+            _, _, yaw = tf_transformations.euler_from_matrix(delta)
+        except (ValueError, np.linalg.LinAlgError):
+            return False
+        translation = np.linalg.norm(delta[:2, 3])
+        return bool(
+            np.isfinite(delta).all() and np.isfinite(yaw) and
+            translation < self.max_unverified_translation and
+            abs(yaw) < self.max_unverified_rotation and
+            age_seconds < self.max_unverified_seconds)
+
+    def record_unverified_quality(self, fitness, rmse):
+        within_budget = self.dead_reckoning_budget_available()
+        previous_state = self.health_tracker.state
+        remains_healthy = self.health_tracker.quality_unverified(
+            within_budget, fitness, rmse)
+        if not remains_healthy and previous_state == HEALTHY:
+            self.initialized = False
+            self.get_logger().error(
+                'Localization DEGRADED after exhausting the bounded '
+                'dead-reckoning budget; explicit reinitialization is required.')
+        self.publish_health()
+        return remains_healthy
+
     def global_localization(self, pose_est):
         self.get_logger().info('Performing global localization via ICP...')
         if self.cur_scan is None or self.cur_odom is None:
@@ -234,6 +289,8 @@ class GlobalLocalizationNode(Node):
                 self.publish_health()
                 return False
             self.T_map_to_odom = T
+            self.last_verified_odom = self.pose_to_mat(self.cur_odom)
+            self.last_verified_stamp_ns = stamp_ns
             odom = Odometry()
             xyz  = tf_transformations.translation_from_matrix(T)
             quat = tf_transformations.quaternion_from_matrix(T)
@@ -245,6 +302,15 @@ class GlobalLocalizationNode(Node):
             self.pub_map_to_odom.publish(odom)
             self.publish_health()
             return True
+
+        if (self.initialized and rejection_reason.startswith('fitness=') and
+                self.quality_rejection_dead_reckoning):
+            remains_healthy = self.record_unverified_quality(fitness, rmse)
+            suffix = ('; continuing within bounded dead reckoning'
+                      if remains_healthy else '; dead-reckoning budget exhausted')
+            self.get_logger().warn(
+                f'Global localization unverified ({rejection_reason}){suffix}.')
+            return False
 
         reason_mask = (REASON_INTERNAL if rejection_reason.startswith('non-finite')
                        else REASON_QUALITY)
@@ -266,11 +332,14 @@ class GlobalLocalizationNode(Node):
         if (not np.isfinite(candidate).all() or
                 not np.isfinite(fitness) or not np.isfinite(rmse)):
             return False, 'non-finite registration result'
-        if fitness <= self.localization_th:
-            return False, f'fitness={fitness:.3f}'
+        # Low overlap may use the bounded dead-reckoning path, but poor
+        # residuals and implausible correction jumps are hard failures. Check
+        # them first so a low fitness score cannot mask either condition.
         if rmse >= self.localization_rmse_th:
             return False, f'RMSE={rmse:.3f} m'
         if not self.initialized:
+            if fitness <= self.localization_th:
+                return False, f'fitness={fitness:.3f}'
             return True, ''
 
         correction_delta = np.linalg.inv(self.T_map_to_odom) @ candidate
@@ -288,6 +357,8 @@ class GlobalLocalizationNode(Node):
                 return False, f'correction roll/pitch jump={roll_pitch:.3f} rad'
             if yaw >= self.max_correction_rotation:
                 return False, f'correction yaw jump={yaw:.3f} rad'
+            if fitness <= self.localization_th:
+                return False, f'fitness={fitness:.3f}'
             return True, ''
 
         translation_delta = np.linalg.norm(correction_delta[:3, 3])
@@ -300,6 +371,8 @@ class GlobalLocalizationNode(Node):
             return False, f'correction jump={translation_delta:.3f} m'
         if rotation_delta >= self.max_correction_rotation:
             return False, f'correction jump={rotation_delta:.3f} rad'
+        if fitness <= self.localization_th:
+            return False, f'fitness={fitness:.3f}'
         return True, ''
 
     def crop_global_map_in_FOV(self, scan, pose_est, odom):

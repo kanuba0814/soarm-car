@@ -90,6 +90,35 @@ class GlobalLocalizationRegistrationTest(unittest.TestCase):
             node, np.eye(4), 0.8, 0.1)
         self.assertTrue(accepted, reason)
 
+    def test_low_fitness_cannot_mask_hard_registration_failures(self):
+        node = SimpleNamespace(
+            initialized=True,
+            localization_th=0.4,
+            localization_rmse_th=0.3,
+            max_correction_translation=0.25,
+            max_correction_rotation=0.15,
+            planar_correction_gate=True,
+            max_correction_z=0.5,
+            max_correction_roll_pitch=0.15,
+            T_map_to_odom=np.eye(4),
+        )
+        accepted, reason = GlobalLocalizationNode.registration_is_acceptable(
+            node, np.eye(4), 0.2, 0.31)
+        self.assertFalse(accepted)
+        self.assertIn('RMSE', reason)
+
+        translated = np.eye(4)
+        translated[0, 3] = 0.3
+        accepted, reason = GlobalLocalizationNode.registration_is_acceptable(
+            node, translated, 0.2, 0.1)
+        self.assertFalse(accepted)
+        self.assertIn('XY jump', reason)
+
+        accepted, reason = GlobalLocalizationNode.registration_is_acceptable(
+            node, np.eye(4), 0.2, 0.1)
+        self.assertFalse(accepted)
+        self.assertTrue(reason.startswith('fitness='), reason)
+
     def test_planar_gate_accepts_independent_vertical_correction(self):
         node = SimpleNamespace(
             initialized=True,
@@ -192,6 +221,40 @@ class GlobalLocalizationRegistrationTest(unittest.TestCase):
             node, candidate, 0.8, 0.1)
         self.assertFalse(accepted)
         self.assertIn('non-finite', reason)
+
+    def test_dead_reckoning_grace_has_strict_motion_and_time_bounds(self):
+        reference = np.eye(4)
+        current = np.eye(4)
+        converted_messages = []
+
+        def convert_odometry(message):
+            converted_messages.append(message)
+            return current
+        current[0, 3] = 0.999
+        angle = 0.499
+        current[:2, :2] = [[np.cos(angle), -np.sin(angle)],
+                           [np.sin(angle), np.cos(angle)]]
+        node = SimpleNamespace(
+            quality_rejection_dead_reckoning=True,
+            max_unverified_translation=1.0,
+            max_unverified_rotation=0.5,
+            max_unverified_seconds=20.0,
+            last_verified_odom=reference,
+            last_verified_stamp_ns=1_000_000_000,
+            cur_odom=SimpleNamespace(
+                header=SimpleNamespace(stamp=Time(sec=20, nanosec=999_000_000)),
+                pose=SimpleNamespace(pose=None)),
+            pose_to_mat=convert_odometry,
+            stamp_to_nanoseconds=GlobalLocalizationNode.stamp_to_nanoseconds,
+        )
+        self.assertTrue(GlobalLocalizationNode.dead_reckoning_budget_available(node))
+        self.assertIs(converted_messages[-1], node.cur_odom)
+
+        current[0, 3] = 1.0
+        self.assertFalse(GlobalLocalizationNode.dead_reckoning_budget_available(node))
+        current[0, 3] = 0.999
+        node.cur_odom.header.stamp = Time(sec=21, nanosec=0)
+        self.assertFalse(GlobalLocalizationNode.dead_reckoning_budget_available(node))
 
     def test_full_fov_uses_radial_distance_around_pose_estimate(self):
         global_map = o3d.geometry.PointCloud()
