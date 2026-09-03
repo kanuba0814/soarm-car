@@ -21,10 +21,12 @@ assert localization['max_correction_roll_pitch'] == 0.15
 assert localization['localization_rmse_th'] == 0.3
 nav = yaml.safe_load(Path('ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml').read_text())
 controller = nav['controller_server']['ros__parameters']['FollowPath']
-assert controller['plugin'] == 'nav2_mppi_controller::MPPIController'
+assert controller['plugin'] == 'nav2_rotation_shim_controller::RotationShimController'
+assert controller['primary_controller'] == 'nav2_mppi_controller::MPPIController'
 assert controller['motion_model'] == 'Omni'
 assert controller['vx_min'] == -0.4 and controller['vx_max'] == 0.4
 assert controller['vy_max'] == 0.4 and controller['wz_max'] == 1.0
+assert nav['controller_server']['ros__parameters']['goal_checker']['stateful'] is False
 assert nav['local_costmap']['local_costmap']['ros__parameters']['voxel_layer']['mid360']['topic'] == '/mid360/points'
 PY
 

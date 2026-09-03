@@ -66,6 +66,12 @@ Failure chain:
 
 This directly demonstrates that the apparent navigation blockage is downstream of map-frame localization error: once the estimated footprint is inside lethal cost, neither planning nor collision-safe recovery is legally allowed to move it.
 
+## Goal-completion semantics regression
+
+The four-goal consumer smoke exposed a separate false-arrival case at `map (-1.70, 1.84, pi)`. With `SimpleGoalChecker.stateful=true`, the robot entered the 0.20 m position tolerance, drifted while completing its heading, and still returned `SUCCEEDED` at 0.470 m final position error. This is Nav2 goal-checker state memory, not localization error: localization-to-truth error was only 0.028 m.
+
+With the upstream `stateful=false` behavior, the same four goals all completed while simultaneously satisfying position and heading. Final goal errors were `0.117, 0.027, 0.057, 0.129 m`; localization-to-truth XY errors were `0.036–0.067 m`; RTF was `0.954`. Evidence: failed `/tmp/soarm-fastlio-house.ZnwFKX/`, passing `/tmp/soarm-fastlio-house.hCwhPe/`.
+
 ## Next solution seam
 
 Keep FAST-LIO as local odometry and the rotation/recovery path as a fallback. The fixed-map matcher needs temporal/multi-scan structural evidence and a separate bounded relocalization/place-recognition path for degenerate corridors; it must continue rejecting rank-zero or ambiguous candidates. Before promotion, optimize deterministic search below the Pi callback budget and prove repeatable route arrival, bounded localization error, no ground-truth dependency, and acceptable CPU latency. Do not relax ICP gates, alter the simulated plant, or tune around the error with smaller footprints/inflation.
