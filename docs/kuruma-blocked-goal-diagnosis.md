@@ -45,6 +45,27 @@ The earlier parameter experiments were rejected and reverted. The low-speed valu
 6. The full-map shadow matcher correctly fails closed in the corridor: a representative candidate used 152 source cells and 1629 map cells, but had observability rank `0` and a best/second score gap of only `0.000877`. Search took `0.249 s`, refinement `0.025 s`, total `0.274 s`. The scene is locally ambiguous/degenerate, so accepting this candidate would be unsafe.
 7. Halving translation speed can remove recoveries in one fresh run, but the effect is not repeatable and localization truth error remains worse (`0.335–0.385 m`). The apparent localization lag is therefore not primarily caused by vehicle speed.
 
+## Second blocked goal captured during low-speed validation
+
+- Goal: `map (6.09, -2.95)`
+- Reported start: approximately `(3.64, -5.14)`
+- Failure status: `ABORTED (6)`
+- Final localization: approximately `(5.018, -4.491)`
+- Scoring-only truth: approximately `(5.367, -4.337)`
+- Localization-vs-truth XY error: `0.381 m`
+- Remaining localization-to-goal distance: `1.878 m`
+
+Failure chain:
+
+1. Controller reported `Failed to make progress`.
+2. ICP fitness fell to `0.323` and corrections were repeatedly rejected.
+3. SmacPlanner2D rejected replanning with `Starting point in lethal space`.
+4. Costmap clearing did not change the static collision state.
+5. Both Spin and BackUp failed their collision-ahead checks.
+6. Recovery retries were exhausted and Nav2 aborted the goal.
+
+This directly demonstrates that the apparent navigation blockage is downstream of map-frame localization error: once the estimated footprint is inside lethal cost, neither planning nor collision-safe recovery is legally allowed to move it.
+
 ## Next solution seam
 
 Keep FAST-LIO as local odometry and the rotation/recovery path as a fallback. The fixed-map matcher needs temporal/multi-scan structural evidence and a separate bounded relocalization/place-recognition path for degenerate corridors; it must continue rejecting rank-zero or ambiguous candidates. Before promotion, optimize deterministic search below the Pi callback budget and prove repeatable route arrival, bounded localization error, no ground-truth dependency, and acceptable CPU latency. Do not relax ICP gates, alter the simulated plant, or tune around the error with smaller footprints/inflation.
@@ -63,3 +84,4 @@ Raw run evidence:
 - `/tmp/kuruma-low-speed-goal.json`
 - `/tmp/kuruma-low-speed-repeat.json`
 - `/tmp/kuruma-low-speed-repeat-events.log`
+- Live container log for the second goal: `kuruma-low-speed` (captured before restart)
