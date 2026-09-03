@@ -24,6 +24,9 @@ for wheel, (axis, friction_direction) in axes.items():
     joint_axis = model.find(f"joint[@name='{wheel}_wheel_joint']/axis/xyz")
     assert joint_axis.text == axis
     assert joint_axis.get('expressed_in') == 'base_link'
+plugin = model.find("plugin[@name='gz_ros2_control::GazeboSimROS2ControlPlugin']")
+remappings = [entry.text for entry in plugin.findall('ros/remapping')]
+assert '/mecanum_drive_controller/reference_unstamped:=/safe_cmd_vel' in remappings
 PY
 
 ros_domain_id="${ROS_DOMAIN_ID:-149}"
@@ -159,7 +162,7 @@ def on_joints(message):
 node.create_subscription(Odometry, '/ground_truth/odom', on_truth, 50)
 node.create_subscription(Odometry, '/wheel/odom_raw', on_wheel_odom, 50)
 node.create_subscription(JointState, '/joint_states', on_joints, 50)
-publisher = node.create_publisher(Twist, '/cmd_vel', 10)
+publisher = node.create_publisher(Twist, '/safe_cmd_vel', 10)
 
 
 def spin(duration=0.1):

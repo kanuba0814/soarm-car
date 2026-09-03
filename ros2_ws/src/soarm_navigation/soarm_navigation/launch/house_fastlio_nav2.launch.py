@@ -45,6 +45,15 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(PathJoinSubstitution([localization_share, 'launch', 'velodyne_localization.launch.py'])),
             launch_arguments={'use_sim_time': 'true', 'config_file': 'soarm_house_localization.yaml', 'rviz': 'false'}.items()),
+        Node(
+            package='soarm_navigation', executable='localization_cmd_gate',
+            name='localization_cmd_gate',
+            parameters=[{
+                'health_timeout': 0.5,
+                'command_timeout': 0.5,
+                'publish_rate': 20.0,
+            }],
+        ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(PathJoinSubstitution([nav2_share, 'launch', 'navigation_launch.py'])),
             launch_arguments={
