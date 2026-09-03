@@ -20,6 +20,17 @@ from geometry_msgs.msg import (
     Quaternion,
 )
 from std_msgs.msg import Header
+from soarm_interfaces.msg import LocalizationHealth
+
+from localization_health import (
+    DEGRADED,
+    HEALTHY,
+    LOST,
+    REASON_INTERNAL,
+    REASON_QUALITY,
+    REASON_STALE_INPUT,
+    LocalizationHealthTracker,
+)
 
 
 class GlobalLocalizationNode(Node):
@@ -44,6 +55,9 @@ class GlobalLocalizationNode(Node):
         self.declare_parameter('fov_far', 100.0)
         self.declare_parameter('base_to_body_xyz', [0.0, 0.0, 0.232])
         self.declare_parameter('base_to_body_rpy', [0.0, 0.0, 0.0])
+        self.declare_parameter('max_consecutive_rejections', 5)
+        self.declare_parameter('health_heartbeat_rate', 10.0)
+        self.declare_parameter('map_id', '')
 
         self.map_voxel_size    = self.get_parameter('map_voxel_size').value
         self.scan_voxel_size   = self.get_parameter('scan_voxel_size').value
@@ -62,6 +76,12 @@ class GlobalLocalizationNode(Node):
         self.FOV_FAR           = self.get_parameter('fov_far').value
         self.base_to_body = (tf_transformations.translation_matrix(self.get_parameter('base_to_body_xyz').value) @
                              tf_transformations.euler_matrix(*self.get_parameter('base_to_body_rpy').value))
+        self.health_tracker = LocalizationHealthTracker(
+            self.get_parameter('max_consecutive_rejections').value)
+        self.health_heartbeat_rate = self.get_parameter('health_heartbeat_rate').value
+        if self.health_heartbeat_rate <= 0.0:
+            raise ValueError('health_heartbeat_rate must be positive')
+        self.map_id = self.get_parameter('map_id').value
 
         # ─── State Variables ─────────────────────────────────────
         self.global_map    = None
@@ -69,11 +89,14 @@ class GlobalLocalizationNode(Node):
         self.T_map_to_odom = np.eye(4)
         self.cur_odom      = None
         self.cur_scan      = None
+        self.localization_timer = None
 
         # ─── Publishers ──────────────────────────────────────────
         self.pub_pc_in_map   = self.create_publisher(PointCloud2, '/cur_scan_in_map', 1)
         self.pub_submap      = self.create_publisher(PointCloud2, '/submap', 1)
         self.pub_map_to_odom = self.create_publisher(Odometry,     '/map_to_odom', 1)
+        self.pub_health = self.create_publisher(
+            LocalizationHealth, '/localization/health', 1)
 
         # ─── Subscriptions ───────────────────────────────────────
         self.create_subscription(PointCloud2,                  '/cloud_registered', self.cb_save_cur_scan, 1)
@@ -86,6 +109,7 @@ class GlobalLocalizationNode(Node):
             1
         )
 
+        self.create_timer(1.0 / self.health_heartbeat_rate, self.publish_health)
         self.get_logger().info('GlobalLocalizationNode initialized.')
 
     def pc2_to_array(self, pc_msg: PointCloud2) -> np.ndarray:
@@ -111,7 +135,10 @@ class GlobalLocalizationNode(Node):
         if self.global_map is None:
             self.get_logger().warn('Waiting for global map before initial localization.')
             return
-        if self.initialized:
+        if self.health_tracker.state in (DEGRADED, LOST):
+            self.initialized = False
+            self.health_tracker.reinitialize()
+        elif self.initialized:
             return
         if self.cur_scan is None:
             self.get_logger().warn('Waiting for first scan before initial localization.')
@@ -126,8 +153,10 @@ class GlobalLocalizationNode(Node):
         success = self.global_localization(initial)
         if success:
             self.initialized = True
-            period = 1.0 / self.freq_localization
-            self.create_timer(period, self.timer_callback)
+            if self.localization_timer is None:
+                period = 1.0 / self.freq_localization
+                self.localization_timer = self.create_timer(
+                    period, self.timer_callback)
             self.get_logger().info('Initial global localization succeeded.')
 
     def cb_save_cur_odom(self, msg: Odometry):
@@ -144,11 +173,42 @@ class GlobalLocalizationNode(Node):
         self.cur_scan = pcd
 
     def timer_callback(self):
-        self.global_localization(self.T_map_to_odom)
+        if self.initialized:
+            self.global_localization(self.T_map_to_odom)
+
+    @staticmethod
+    def stamp_to_nanoseconds(stamp):
+        return int(stamp.sec) * 1_000_000_000 + int(stamp.nanosec)
+
+    def publish_health(self):
+        message = LocalizationHealth()
+        message.stamp = self.get_clock().now().to_msg()
+        message.sequence = self.health_tracker.sequence
+        message.state = self.health_tracker.state
+        message.reason_mask = self.health_tracker.reason_mask
+        accepted_ns = self.health_tracker.last_accepted_stamp_ns
+        message.last_accepted_correction_stamp.sec = accepted_ns // 1_000_000_000
+        message.last_accepted_correction_stamp.nanosec = accepted_ns % 1_000_000_000
+        message.consecutive_rejections = self.health_tracker.consecutive_rejections
+        message.fitness = self.health_tracker.last_fitness
+        message.rmse = self.health_tracker.last_rmse
+        message.map_id = self.map_id
+        self.pub_health.publish(message)
+
+    def record_rejection(self, reason_mask):
+        previous_state = self.health_tracker.state
+        state = self.health_tracker.rejected(reason_mask)
+        if state == DEGRADED and previous_state != DEGRADED:
+            self.initialized = False
+            self.get_logger().error(
+                'Localization DEGRADED after consecutive registration failures; '
+                'map-frame output must stop until explicit reinitialization.')
+        self.publish_health()
 
     def global_localization(self, pose_est):
         self.get_logger().info('Performing global localization via ICP...')
         if self.cur_scan is None or self.cur_odom is None:
+            self.record_rejection(REASON_STALE_INPUT)
             return False
         scan_copy = copy.deepcopy(self.cur_scan)
 
@@ -156,6 +216,7 @@ class GlobalLocalizationNode(Node):
 
         if len(submap.points) == 0:
             self.get_logger().warn('ICP submap is empty.')
+            self.record_rejection(REASON_QUALITY)
             return False
         T, fitness, rmse = self.registration_candidate(scan_copy, submap, pose_est)
         self.get_logger().info(
@@ -163,6 +224,15 @@ class GlobalLocalizationNode(Node):
 
         accepted, rejection_reason = self.registration_is_acceptable(T, fitness, rmse)
         if accepted:
+            stamp_ns = self.stamp_to_nanoseconds(self.cur_odom.header.stamp)
+            if stamp_ns <= 0:
+                stamp_ns = self.get_clock().now().nanoseconds
+            if not self.health_tracker.accepted(stamp_ns, fitness, rmse):
+                self.get_logger().warn(
+                    'Registration candidate ignored while localization is not healthy; '
+                    'publish a new initial pose to reinitialize.')
+                self.publish_health()
+                return False
             self.T_map_to_odom = T
             odom = Odometry()
             xyz  = tf_transformations.translation_from_matrix(T)
@@ -173,8 +243,12 @@ class GlobalLocalizationNode(Node):
             odom.header.stamp          = self.cur_odom.header.stamp
             odom.header.frame_id       = 'map'
             self.pub_map_to_odom.publish(odom)
+            self.publish_health()
             return True
 
+        reason_mask = (REASON_INTERNAL if rejection_reason.startswith('non-finite')
+                       else REASON_QUALITY)
+        self.record_rejection(reason_mask)
         self.get_logger().warn(f'Global localization rejected ({rejection_reason}).')
         return False
 
@@ -189,6 +263,9 @@ class GlobalLocalizationNode(Node):
         return self.registration_at_scale(scan, submap, initial=T, scale=1.0)
 
     def registration_is_acceptable(self, candidate, fitness, rmse):
+        if (not np.isfinite(candidate).all() or
+                not np.isfinite(fitness) or not np.isfinite(rmse)):
+            return False, 'non-finite registration result'
         if fitness <= self.localization_th:
             return False, f'fitness={fitness:.3f}'
         if rmse >= self.localization_rmse_th:

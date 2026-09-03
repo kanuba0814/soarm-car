@@ -17,6 +17,9 @@
         fov_far: 50.0
         base_to_body_xyz: [0.0, 0.0, 0.232]
         base_to_body_rpy: [0.0, 0.0, 0.0]
+        max_consecutive_rejections: 5
+        health_heartbeat_rate: 10.0
+        map_id: fastlio_house_floorplan.pcd
 
 /transform_fusion:
     ros__parameters:
@@ -27,6 +30,9 @@
         body_frame: body
         base_to_body_xyz: [0.0, 0.0, 0.232]
         base_to_body_rpy: [0.0, 0.0, 0.0]
+        require_localization_health: true
+        localization_health_timeout: 0.5
+        localization_map_id: fastlio_house_floorplan.pcd
 
 /global_map_publisher:
     ros__parameters:

@@ -2,6 +2,7 @@
 
 import copy
 import threading
+import time
 
 import numpy as np
 import rclpy
@@ -13,6 +14,9 @@ except ImportError:
 from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import Odometry
 from rclpy.node import Node
+from soarm_interfaces.msg import LocalizationHealth
+
+from localization_health import map_output_allowed
 
 
 class TransformFusionNode(Node):
@@ -27,18 +31,33 @@ class TransformFusionNode(Node):
         self.declare_parameter('body_frame', 'body')
         self.declare_parameter('base_to_body_xyz', [0.0, 0.0, 0.232])
         self.declare_parameter('base_to_body_rpy', [0.0, 0.0, 0.0])
+        self.declare_parameter('require_localization_health', False)
+        self.declare_parameter('localization_health_timeout', 0.5)
+        self.declare_parameter('localization_map_id', '')
         self.map_frame = self.get_parameter('map_frame').value
         self.odom_frame = self.get_parameter('odom_frame').value
         self.base_frame = self.get_parameter('base_frame').value
         self.body_frame = self.get_parameter('body_frame').value
+        self.require_localization_health = self.get_parameter(
+            'require_localization_health').value
+        self.localization_health_timeout = self.get_parameter(
+            'localization_health_timeout').value
+        self.localization_map_id = self.get_parameter('localization_map_id').value
+        if self.localization_health_timeout <= 0.0:
+            raise ValueError('localization_health_timeout must be positive')
         xyz = self.get_parameter('base_to_body_xyz').value
         rpy = self.get_parameter('base_to_body_rpy').value
         self.base_to_body = tf_transformations.translation_matrix(xyz) @ tf_transformations.euler_matrix(*rpy)
         self.lock = threading.Lock()
         self.current_odom = None
         self.map_to_camera_init = None
+        self.health_state = None
+        self.health_map_id = ''
+        self.health_receipt_monotonic = None
         self.create_subscription(Odometry, '/Odometry', self.save_odom, 10)
         self.create_subscription(Odometry, '/map_to_odom', self.save_correction, 10)
+        self.create_subscription(
+            LocalizationHealth, '/localization/health', self.save_health, 1)
         self.odom_pub = self.create_publisher(Odometry, '/odom', 20)
         self.localization_pub = self.create_publisher(Odometry, '/localization', 20)
         self.tf_broadcaster = tf2_ros.TransformBroadcaster(self)
@@ -51,6 +70,12 @@ class TransformFusionNode(Node):
     def save_correction(self, message):
         with self.lock:
             self.map_to_camera_init = message
+
+    def save_health(self, message):
+        with self.lock:
+            self.health_state = message.state
+            self.health_map_id = message.map_id
+            self.health_receipt_monotonic = time.monotonic()
 
     @staticmethod
     def pose_matrix(message):
@@ -114,6 +139,9 @@ class TransformFusionNode(Node):
         with self.lock:
             raw_odom = copy.deepcopy(self.current_odom)
             correction = copy.deepcopy(self.map_to_camera_init)
+            health_state = self.health_state
+            health_map_id = self.health_map_id
+            health_receipt = self.health_receipt_monotonic
         if raw_odom is None:
             return
 
@@ -136,7 +164,14 @@ class TransformFusionNode(Node):
         # measurement timestamp above.
         self.send_tf(self.odom_frame, self.base_frame, odom_to_base, tf_stamp)
 
-        if correction is None:
+        if correction is None or not map_output_allowed(
+                self.require_localization_health,
+                health_state,
+                health_receipt,
+                time.monotonic(),
+                self.localization_health_timeout,
+                self.localization_map_id,
+                health_map_id):
             return
         # M=T_map_cameraInit and T_cameraInit_odom=inv(A), hence
         # T_map_odom=M*inv(A). The complete map pose is M*O*inv(A).

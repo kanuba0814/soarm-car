@@ -2,6 +2,7 @@
 
 import importlib.util
 from pathlib import Path
+import sys
 from types import SimpleNamespace
 import unittest
 
@@ -11,7 +12,9 @@ from builtin_interfaces.msg import Time
 import tf_transformations
 
 
-MODULE_PATH = Path(__file__).parents[1] / 'scripts' / 'global_localization.py'
+SCRIPTS_PATH = Path(__file__).parents[1] / 'scripts'
+sys.path.insert(0, str(SCRIPTS_PATH))
+MODULE_PATH = SCRIPTS_PATH / 'global_localization.py'
 SPEC = importlib.util.spec_from_file_location('global_localization', MODULE_PATH)
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
@@ -171,6 +174,24 @@ class GlobalLocalizationRegistrationTest(unittest.TestCase):
         accepted, reason = GlobalLocalizationNode.registration_is_acceptable(
             node, candidate, 0.401, 0.299)
         self.assertTrue(accepted, reason)
+
+    def test_non_finite_registration_results_are_rejected(self):
+        node = SimpleNamespace(
+            initialized=False,
+            localization_th=0.4,
+            localization_rmse_th=0.3,
+        )
+        for fitness, rmse in [(np.nan, 0.1), (np.inf, 0.1), (0.8, np.nan), (0.8, np.inf)]:
+            accepted, reason = GlobalLocalizationNode.registration_is_acceptable(
+                node, np.eye(4), fitness, rmse)
+            self.assertFalse(accepted)
+            self.assertIn('non-finite', reason)
+        candidate = np.eye(4)
+        candidate[0, 3] = np.nan
+        accepted, reason = GlobalLocalizationNode.registration_is_acceptable(
+            node, candidate, 0.8, 0.1)
+        self.assertFalse(accepted)
+        self.assertIn('non-finite', reason)
 
     def test_full_fov_uses_radial_distance_around_pose_estimate(self):
         global_map = o3d.geometry.PointCloud()
