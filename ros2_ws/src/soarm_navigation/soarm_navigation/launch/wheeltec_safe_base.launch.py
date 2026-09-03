@@ -40,6 +40,9 @@ def generate_launch_description():
                 'odom_z_scale_positive': 1.0,
                 'odom_z_scale_negative': 1.0,
             }],
-            remappings=[('cmd_vel', 'safe_cmd_vel')],
+            remappings=[
+                ('cmd_vel', 'safe_cmd_vel'),
+                ('odom', 'wheel/odom_raw'),
+            ],
         ),
     ])
