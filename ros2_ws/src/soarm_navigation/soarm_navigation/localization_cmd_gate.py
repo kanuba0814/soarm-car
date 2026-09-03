@@ -4,6 +4,7 @@ import math
 import time
 
 import rclpy
+from action_msgs.msg import GoalStatus, GoalStatusArray
 from action_msgs.srv import CancelGoal
 from geometry_msgs.msg import Twist
 from rclpy.node import Node
@@ -98,6 +99,13 @@ class LocalizationCommandGate(Node):
         ]
         self.cancel_futures = [None for _ in self.cancel_clients]
         self.cancel_confirmed = [False for _ in self.cancel_clients]
+        self.last_cancel_sweep = 0.0
+        self.create_subscription(
+            GoalStatusArray, '/navigate_to_pose/_action/status',
+            self.save_navigation_status, 10)
+        self.create_subscription(
+            GoalStatusArray, '/navigate_through_poses/_action/status',
+            self.save_navigation_status, 10)
         self.create_timer(1.0 / publish_rate, self.publish_command)
 
     def save_command(self, message):
@@ -109,9 +117,21 @@ class LocalizationCommandGate(Node):
     def save_health(self, message):
         self.policy.update_health(message.state, time.monotonic())
 
-    def begin_cancellation(self):
+    def save_navigation_status(self, message):
+        active = any(status.status in (
+            GoalStatus.STATUS_ACCEPTED,
+            GoalStatus.STATUS_EXECUTING,
+        ) for status in message.status_list)
+        now = time.monotonic()
+        if (active and self.policy.latched and self.policy.cancellation_complete and
+                now - self.last_cancel_sweep >= 0.25):
+            self.begin_cancellation(now)
+
+    def begin_cancellation(self, now=None):
+        self.policy.cancellation_complete = False
         self.cancel_futures = [None for _ in self.cancel_clients]
         self.cancel_confirmed = [False for _ in self.cancel_clients]
+        self.last_cancel_sweep = time.monotonic() if now is None else now
 
     def advance_cancellation(self):
         request = CancelGoal.Request()

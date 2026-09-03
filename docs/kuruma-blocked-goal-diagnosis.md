@@ -72,6 +72,12 @@ The four-goal consumer smoke exposed a separate false-arrival case at `map (-1.7
 
 With the upstream `stateful=false` behavior, the same four goals all completed while simultaneously satisfying position and heading. Final goal errors were `0.117, 0.027, 0.057, 0.129 m`; localization-to-truth XY errors were `0.036–0.067 m`; RTF was `0.954`. Evidence: failed `/tmp/soarm-fastlio-house.ZnwFKX/`, passing `/tmp/soarm-fastlio-house.hCwhPe/`.
 
+## Degraded-state goal retry incident
+
+In the interactive visual run, goal `(6.00, -3.14)` drove ICP fitness down to `0.306–0.371`. After five rejected corrections, localization entered `DEGRADED`, the command gate stopped the base, and Nav2 reported the goal canceled. Two later goals, `(2.20, 5.23)` and `(5.33, 1.05)`, were nevertheless accepted while localization remained degraded. With map TF intentionally suppressed, their old goal timestamp (`962.34 s`) fell behind the live TF buffer (`1216+ s`), causing continuous extrapolation errors, about 780% container CPU, and an apparently frozen UI.
+
+The gate now watches both Nav2 action-status streams while latched. Any newly accepted or executing goal starts another confirmed cancel-all sweep. The focused safety smoke verifies that an active goal and a second goal submitted after degradation both reach `CANCELED`, `/safe_cmd_vel` remains zero, and re-arm still requires fresh health, completed cancellation, and a new command. Captured events: `/tmp/kuruma-visual-deadlock-events.log`.
+
 ## Next solution seam
 
 Keep FAST-LIO as local odometry and the rotation/recovery path as a fallback. The fixed-map matcher needs temporal/multi-scan structural evidence and a separate bounded relocalization/place-recognition path for degenerate corridors; it must continue rejecting rank-zero or ambiguous candidates. Before promotion, optimize deterministic search below the Pi callback budget and prove repeatable route arrival, bounded localization error, no ground-truth dependency, and acceptable CPU latency. Do not relax ICP gates, alter the simulated plant, or tune around the error with smaller footprints/inflation.

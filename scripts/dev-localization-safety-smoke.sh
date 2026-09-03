@@ -106,12 +106,32 @@ try:
     time.sleep(0.1)
     assert safe_commands and abs(safe_commands[-1][1]) < 1e-9
 
-    publish_health(LocalizationHealth.HEALTHY)
-    arm_future = arm.call_async(Trigger.Request())
+    # New goals submitted while degraded must also be canceled.
+    blocked_send = navigate.send_goal_async(NavigateToPose.Goal())
     deadline = time.monotonic() + 3.0
-    while not arm_future.done() and time.monotonic() < deadline:
+    while not blocked_send.done() and time.monotonic() < deadline:
         time.sleep(0.01)
-    assert arm_future.done() and arm_future.result().success, arm_future.result()
+    blocked_handle = blocked_send.result()
+    assert blocked_handle is not None and blocked_handle.accepted
+    blocked_result = blocked_handle.get_result_async()
+    deadline = time.monotonic() + 3.0
+    while not blocked_result.done() and time.monotonic() < deadline:
+        time.sleep(0.01)
+    assert blocked_result.done(), "goal submitted while degraded was not canceled"
+    assert blocked_result.result().status == GoalStatus.STATUS_CANCELED
+
+    publish_health(LocalizationHealth.HEALTHY)
+    arm_response = None
+    deadline = time.monotonic() + 3.0
+    while time.monotonic() < deadline:
+        arm_future = arm.call_async(Trigger.Request())
+        while not arm_future.done() and time.monotonic() < deadline:
+            time.sleep(0.01)
+        if arm_future.done() and arm_future.result().success:
+            arm_response = arm_future.result()
+            break
+        time.sleep(0.05)
+    assert arm_response is not None
     time.sleep(0.1)
     assert abs(safe_commands[-1][1]) < 1e-9
     publish_command(0.33)
