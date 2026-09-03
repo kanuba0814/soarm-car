@@ -30,8 +30,10 @@ All rows used the same goal and a fresh simulation/initial pose. Ground truth wa
 | MPPI batch `2000 -> 1000` | arrived | 85.2 s | 3 | 0 | 7 | 0.336 m |
 | Controller/model step `20 Hz/0.05 s -> 10 Hz/0.1 s` | arrived | 98.7 s | 1 | 1 | 0 | 0.260 m |
 | Persistent full-map matcher in non-authoritative shadow mode | arrived | 132.6 s | 4 | 2 | 7 | old 0.268 m / shadow 0.261 m |
+| Translation limit `0.4 -> 0.2 m/s`, fresh run | arrived | 42.7 s | 0 | 0 | 0 | 0.385 m |
+| Translation limit `0.4 -> 0.2 m/s`, return + repeat | both arrived | 101.2 + 53.2 s | 4 total | 0 | 3 total | return 0.055 m / repeat 0.335 m |
 
-The parameter experiments were rejected and reverted. Shadow matching remains disabled by default and non-authoritative.
+The earlier parameter experiments were rejected and reverted. The low-speed value remains an uncommitted visual experiment. Shadow matching remains disabled by default and non-authoritative.
 
 ## Current conclusion
 
@@ -41,6 +43,7 @@ The parameter experiments were rejected and reverted. Shadow matching remains di
 4. The recovery tree is a portable safety/resilience improvement, not a complete fix.
 5. During the route, ICP fitness fell from about `0.99` to `0.50`; RMSE rose as high as about `0.25 m`, and map-frame localization drift remained about `0.26–0.34 m`. This consumes a large fraction of narrow-passage clearance and is the leading remaining cause of unstable local planning.
 6. The full-map shadow matcher correctly fails closed in the corridor: a representative candidate used 152 source cells and 1629 map cells, but had observability rank `0` and a best/second score gap of only `0.000877`. Search took `0.249 s`, refinement `0.025 s`, total `0.274 s`. The scene is locally ambiguous/degenerate, so accepting this candidate would be unsafe.
+7. Halving translation speed can remove recoveries in one fresh run, but the effect is not repeatable and localization truth error remains worse (`0.335–0.385 m`). The apparent localization lag is therefore not primarily caused by vehicle speed.
 
 ## Next solution seam
 
@@ -57,3 +60,6 @@ Raw run evidence:
 - `/tmp/kuruma-10hz-goal.json`
 - `/tmp/kuruma-shadow-compare-goal.json`
 - `/tmp/kuruma-shadow-compare-events.log`
+- `/tmp/kuruma-low-speed-goal.json`
+- `/tmp/kuruma-low-speed-repeat.json`
+- `/tmp/kuruma-low-speed-repeat-events.log`
