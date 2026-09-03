@@ -19,15 +19,27 @@ assert localization['planar_correction_gate'] is True
 assert localization['max_correction_z'] == 0.5
 assert localization['max_correction_roll_pitch'] == 0.15
 assert localization['localization_rmse_th'] == 0.3
+assert localization['quality_rejection_dead_reckoning'] is True
+assert localization['max_unverified_translation'] == 5.0
+assert localization['max_unverified_rotation'] == 3.0
+assert localization['max_unverified_seconds'] == 40.0
 nav = yaml.safe_load(Path('ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml').read_text())
 controller = nav['controller_server']['ros__parameters']['FollowPath']
 assert controller['plugin'] == 'nav2_rotation_shim_controller::RotationShimController'
 assert controller['primary_controller'] == 'nav2_mppi_controller::MPPIController'
 assert controller['motion_model'] == 'Omni'
-assert controller['vx_min'] == -0.4 and controller['vx_max'] == 0.4
-assert controller['vy_max'] == 0.4 and controller['wz_max'] == 1.0
-assert nav['controller_server']['ros__parameters']['goal_checker']['stateful'] is False
-assert nav['local_costmap']['local_costmap']['ros__parameters']['voxel_layer']['mid360']['topic'] == '/mid360/points'
+assert controller['vx_min'] == -0.25 and controller['vx_max'] == 0.25
+assert controller['vy_max'] == 0.25 and controller['wz_max'] == 1.0
+controller_server = nav['controller_server']['ros__parameters']
+assert controller_server['progress_checker']['movement_time_allowance'] == 20.0
+assert controller_server['goal_checker']['stateful'] is False
+expected_footprint = '[[-0.30, -0.30], [-0.30, 0.30], [0.30, 0.30], [0.30, -0.30]]'
+assert nav['global_costmap']['global_costmap']['ros__parameters']['footprint'] == expected_footprint
+local_costmap = nav['local_costmap']['local_costmap']['ros__parameters']
+assert local_costmap['footprint'] == expected_footprint
+assert local_costmap['plugins'] == ['voxel_layer', 'inflation_layer']
+assert local_costmap['voxel_layer']['mid360']['topic'] == '/mid360/points'
+assert local_costmap['voxel_layer']['mid360']['obstacle_min_range'] == 0.20
 PY
 
 name="soarm-fastlio-house-$$"; domain="${ROS_DOMAIN_ID:-92}"; partition="${IGN_PARTITION:-$name}"
