@@ -1,11 +1,26 @@
 import os
+import xml.etree.ElementTree as ET
+
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, SetEnvironmentVariable
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution, PythonExpression
 from launch_ros.actions import Node
+
+
+def ground_truth_transform(context, simulation_share):
+    world = LaunchConfiguration('world').perform(context)
+    root = ET.parse(os.path.join(simulation_share, 'worlds', world + '.sdf')).getroot()
+    pose_element = root.find(".//include[name='kuruma']/pose")
+    if pose_element is None:
+        raise RuntimeError('world has no kuruma pose for ground-truth map transform: ' + world)
+    x, y, z, roll, pitch, yaw = pose_element.text.split()[:6]
+    return [Node(
+        package='tf2_ros', executable='static_transform_publisher', name='ground_truth_map_tf',
+        arguments=[x, y, z, yaw, pitch, roll, 'map', 'odom_combined'],
+    )]
 
 
 def generate_launch_description():
@@ -16,10 +31,11 @@ def generate_launch_description():
     world_path = PathJoinSubstitution([sim_share, 'worlds', PythonExpression(["'", LaunchConfiguration('world'), ".sdf'"])])
     map_path = PathJoinSubstitution([sim_share, 'maps', PythonExpression(["'", LaunchConfiguration('world'), ".yaml'"])])
     localisation_world = IfCondition(PythonExpression([
-        "'", LaunchConfiguration('world'), "' in ['navigation_room', 'house_floorplan']",
+        "'", LaunchConfiguration('world'), "' in ['navigation_room', 'house_floorplan', 'apartment_a', 'apartment_b'] and '",
+        LaunchConfiguration('publish_static_map'), "' == 'true'",
     ]))
     ground_truth_map_tf = IfCondition(PythonExpression([
-        "'", LaunchConfiguration('world'), "' in ['navigation_room', 'house_floorplan'] and '",
+        "'", LaunchConfiguration('world'), "' in ['navigation_room', 'house_floorplan', 'apartment_a', 'apartment_b'] and '",
         LaunchConfiguration('ground_truth_map_tf'), "' == 'true'",
     ]))
     gazebo = IncludeLaunchDescription(
@@ -34,10 +50,11 @@ def generate_launch_description():
     return LaunchDescription([
         SetEnvironmentVariable('IGN_GAZEBO_RESOURCE_PATH', models_path),
         SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', models_path),
-        DeclareLaunchArgument('world', default_value='kuruma', description='World basename from share/soarm_simulation/worlds; use navigation_room or house_floorplan for localisation.'),
+        DeclareLaunchArgument('world', default_value='kuruma', description='World basename from share/soarm_simulation/worlds; navigation_room, house_floorplan and apartment_a/apartment_b provide localisation maps.'),
         DeclareLaunchArgument('simulation', default_value='true', description='true starts Fortress; false keeps the hardware-compatible ROS seam only.'),
         DeclareLaunchArgument('gz_args', default_value='-r -s', description='Gazebo arguments; use "-r" to open the GUI.'),
         DeclareLaunchArgument('spawn_robot', default_value='true'),
+        DeclareLaunchArgument('publish_static_map', default_value='true', description='Start map_server for worlds with a packaged occupancy map; disable while SLAM owns /map.'),
         DeclareLaunchArgument('ground_truth_map_tf', default_value='true', description='Publish identity map->odom_combined for room preview; disable when AMCL/localisation owns this transform.'),
         DeclareLaunchArgument('publish_sim_odometry', default_value='true', description='Publish wheel-encoder /odom, ground-truth odometry, and odom_combined TF; disable when FAST-LIO owns Nav2 odometry.'),
         DeclareLaunchArgument('rviz', default_value='false', description='Start RViz with robot, TF, odometry path, point cloud and camera displays.'),
@@ -56,7 +73,8 @@ def generate_launch_description():
                 '/camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
                 '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
                 '/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
-                '/mid360/scan/points/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+                '/mid360/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
+                '/mid360/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
                 '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
             ],
             remappings=[
@@ -77,10 +95,10 @@ def generate_launch_description():
             condition=localisation_world,
             parameters=[{'yaml_filename': map_path}],
         ),
-        Node(
-            package='tf2_ros', executable='static_transform_publisher', name='ground_truth_map_tf',
+        OpaqueFunction(
+            function=ground_truth_transform,
+            args=[sim_share],
             condition=ground_truth_map_tf,
-            arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom_combined'],
         ),
         Node(
             package='nav2_lifecycle_manager', executable='lifecycle_manager', name='lifecycle_manager_map',

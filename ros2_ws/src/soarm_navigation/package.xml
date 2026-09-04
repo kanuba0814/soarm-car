@@ -15,6 +15,7 @@
   <exec_depend>nav2_lifecycle_manager</exec_depend>
   <exec_depend>nav2_map_server</exec_depend>
   <exec_depend>nav2_rotation_shim_controller</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
   <exec_depend>soarm_interfaces</exec_depend>
   <exec_depend>soarm_simulation</exec_depend>
   <exec_depend>soarm_fixed_map_localization</exec_depend>

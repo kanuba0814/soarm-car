@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<sdf version="1.9"><world name="apartment_b">
+  <physics name="1ms" type="dart"><max_step_size>0.001</max_step_size><real_time_factor>1</real_time_factor></physics>
+  <plugin filename="ignition-gazebo-physics-system" name="ignition::gazebo::systems::Physics"/>
+  <plugin filename="ignition-gazebo-user-commands-system" name="ignition::gazebo::systems::UserCommands"/>
+  <plugin filename="ignition-gazebo-scene-broadcaster-system" name="ignition::gazebo::systems::SceneBroadcaster"/>
+  <plugin filename="ignition-gazebo-sensors-system" name="ignition::gazebo::systems::Sensors"><render_engine>ogre2</render_engine></plugin>
+  <plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu"/>
+  <scene><ambient>0.12 0.12 0.12 1</ambient><background>0.18 0.18 0.18 1</background><shadows>true</shadows></scene>
+  <light type="directional" name="sun"><pose>0 0 10 0 0 0</pose><cast_shadows>true</cast_shadows><direction>-0.5 0.1 -0.9</direction><diffuse>0.22 0.22 0.22 1</diffuse><specular>0.05 0.05 0.05 1</specular></light>
+  <light type="point" name="fill"><pose>0 0 4 0 0 0</pose><diffuse>0.3 0.3 0.3 1</diffuse><specular>0.02 0.02 0.02 1</specular><intensity>1.5</intensity><attenuation><range>30</range><linear>0.05</linear><quadratic>0.01</quadratic></attenuation></light>
+  <include><uri>model://apartment_b</uri></include>
+  <include><uri>model://kuruma</uri><name>kuruma</name><pose>3.150838 -9.291486 -0.137763 0 0 1.570796</pose></include>
+</world></sdf>

@@ -29,6 +29,7 @@ bags/
 artifacts/images/
 artifacts/*.pcd
 artifacts/*.json
+artifacts/baselines/
 *.img
 *.img.xz
 *.iso
@@ -36,3 +37,12 @@ artifacts/*.json
 
 # Original third-party workspace archives (source manifests/snapshots are tracked separately)
 temple/*.zip
+
+# Local-only HM3D runtime payloads. The generator, manifests and model SDFs
+# remain tracked; these licensed source-derived files must stay local.
+ros2_ws/src/soarm_simulation/models/apartment_*/meshes/*
+ros2_ws/src/soarm_simulation/maps/apartment_*.pgm
+ros2_ws/src/soarm_simulation/semantics/apartment_*.json
+ros2_ws/src/soarm_simulation/semantics/apartment_*.png
+regression/apartment_*.png
+regression/apartment_*.ppm

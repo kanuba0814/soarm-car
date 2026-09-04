@@ -1,8 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Consumer smoke: installed Nav2 drives the native Fortress mecanum model to a house goal.
-container_name="${SOARM_TEST_CONTAINER:-soarm-nav2-house-test-$$}"
+# Consumer smoke: installed Nav2 drives the native Fortress mecanum model in a packaged world.
+world="${SOARM_WORLD:-house_floorplan}"
+case "$world" in
+    house_floorplan) goal_x=1.0; goal_y=1.0; goal_yaw=0.785398; goal_odom_x=1.0; goal_odom_y=1.0; minimum_distance=1.0; require_turn=true ;;
+    apartment_a) goal_x=6.497551; goal_y=-1.173927; goal_yaw=0.0; goal_odom_x=1.2; goal_odom_y=0.0; minimum_distance=0.8; require_turn=false ;;
+    apartment_b) goal_x=3.150838; goal_y=-8.491486; goal_yaw=1.570796; goal_odom_x=0.8; goal_odom_y=0.0; minimum_distance=0.4; require_turn=false ;;
+    *) printf 'unsupported SOARM_WORLD: %s\n' "$world" >&2; exit 2 ;;
+esac
+container_name="${SOARM_TEST_CONTAINER:-soarm-nav2-${world}-test-$$}"
 test_image="${SOARM_TEST_IMAGE:-soarm-car-nav2-ros2-dev:latest}"
 ros_domain_id="${ROS_DOMAIN_ID:-97}"
 ign_partition="${IGN_PARTITION:-${container_name}-ign}"
@@ -22,7 +29,8 @@ cleanup() {
 }
 trap cleanup EXIT
 
-python3 - <<'PY'
+SOARM_WORLD="$world" python3 - <<'PY'
+import os
 from pathlib import Path
 
 import yaml
@@ -39,15 +47,15 @@ assert local_source['topic'] == '/mid360/points' and local_source['marking'] and
 assert local_source['obstacle_min_range'] == 0.60
 assert 0.45 < local_source['obstacle_min_range'] < local_source['obstacle_max_range']
 assert local_source['observation_persistence'] == 0.5 and local_source['max_obstacle_height'] == 1.5
-# The smoke target is map-free with one metre of static-wall clearance, leaving
-# room for the 0.31 m square footprint.
-pgm = Path('ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm').read_bytes().split(b'\n255\n', 1)[1]
-width, height, resolution, origin_x, origin_y = 320, 290, 0.05, -8.0, -7.25
-def cell_value(x, y):
-    column = int((x - origin_x) / resolution)
-    row = height - 1 - int((y - origin_y) / resolution)
-    return pgm[row * width + column]
-assert cell_value(1.0, 1.0) == 254
+if os.environ['SOARM_WORLD'] == 'house_floorplan':
+    # The House target is map-free with one metre of static-wall clearance.
+    pgm = Path('ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm').read_bytes().split(b'\n255\n', 1)[1]
+    width, height, resolution, origin_x, origin_y = 320, 290, 0.05, -8.0, -7.25
+    def cell_value(x, y):
+        column = int((x - origin_x) / resolution)
+        row = height - 1 - int((y - origin_y) / resolution)
+        return pgm[row * width + column]
+    assert cell_value(1.0, 1.0) == 254
 assert '<Spin' not in tree and '<Rotate' not in tree
 assert '<Spin' not in through_poses_tree and '<Rotate' not in through_poses_tree
 PY
@@ -77,7 +85,7 @@ container="$(docker run -d \
             --install-base /tmp/nav2_house/install \
             --symlink-install
         source /tmp/nav2_house/install/setup.bash
-        ros2 launch soarm_navigation house_nav2.launch.py
+        ros2 launch soarm_navigation house_nav2.launch.py world:='"$world"'
     ')"
 
 ros_setup='source /opt/ros/humble/setup.bash && source /workspaces/soarm-car/install/setup.bash && source /tmp/nav2_house/install/setup.bash &&'
@@ -90,6 +98,9 @@ for _ in {1..150}; do
         && grep -qx '/behavior_server' "$output_dir/nodes.txt" \
         && grep -qx '/velocity_smoother' "$output_dir/nodes.txt" \
         && ! grep -q amcl "$output_dir/nodes.txt" \
+        && docker exec "$container_name" bash -lc "$ros_setup ros2 lifecycle get /bt_navigator" | grep -q 'active' \
+        && docker exec "$container_name" bash -lc "$ros_setup ros2 lifecycle get /planner_server" | grep -q 'active' \
+        && docker exec "$container_name" bash -lc "$ros_setup ros2 lifecycle get /controller_server" | grep -q 'active' \
         && docker exec "$container_name" bash -lc "$ros_setup ros2 param get /local_costmap/local_costmap voxel_layer.mid360.obstacle_min_range" | grep -q '0.6'; then
         ready=true
         break
@@ -98,9 +109,15 @@ for _ in {1..150}; do
 done
 $ready || { cat "$output_dir/nodes.txt" >&2; exit 1; }
 
-docker exec -i "$container_name" bash -lc "$ros_setup python3 -" >"$output_dir/action.txt" <<'PY'
+docker exec -i \
+    -e SOARM_WORLD="$world" -e SOARM_GOAL_X="$goal_x" -e SOARM_GOAL_Y="$goal_y" \
+    -e SOARM_GOAL_YAW="$goal_yaw" -e SOARM_GOAL_ODOM_X="$goal_odom_x" -e SOARM_GOAL_ODOM_Y="$goal_odom_y" \
+    -e SOARM_MINIMUM_DISTANCE="$minimum_distance" \
+    -e SOARM_REQUIRE_TURN="$require_turn" \
+    "$container_name" bash -lc "$ros_setup python3 -" >"$output_dir/action.txt" <<'PY'
 import json
 import math
+import os
 import time
 
 import rclpy
@@ -212,13 +229,15 @@ goal = NavigateToPose.Goal()
 goal.pose = PoseStamped()
 goal.pose.header.frame_id = 'map'
 goal.pose.header.stamp = node.get_clock().now().to_msg()
-# This map-free diagonal goal is 1.41 m away and needs a holonomic approach;
-# its pi/4 final heading exercises position and final-yaw tracking in the open map area.
-goal.pose.pose.position.x = 1.0
-goal.pose.pose.position.y = 1.0
-goal.pose.pose.orientation.z = math.sin(math.pi / 8.0)
-goal.pose.pose.orientation.w = math.cos(math.pi / 8.0)
-assert math.hypot(goal.pose.pose.position.x - start.x, goal.pose.pose.position.y - start.y) > 1.0
+goal.pose.pose.position.x = float(os.environ['SOARM_GOAL_X'])
+goal.pose.pose.position.y = float(os.environ['SOARM_GOAL_Y'])
+goal_yaw = float(os.environ['SOARM_GOAL_YAW'])
+goal.pose.pose.orientation.z = math.sin(goal_yaw / 2.0)
+goal.pose.pose.orientation.w = math.cos(goal_yaw / 2.0)
+minimum_distance = float(os.environ['SOARM_MINIMUM_DISTANCE'])
+goal_odom_x = float(os.environ['SOARM_GOAL_ODOM_X'])
+goal_odom_y = float(os.environ['SOARM_GOAL_ODOM_Y'])
+assert math.hypot(goal_odom_x - start.x, goal_odom_y - start.y) > minimum_distance
 send_future = client.send_goal_async(goal, feedback_callback=on_feedback)
 rclpy.spin_until_future_complete(node, send_future, timeout_sec=15.0)
 goal_handle = send_future.result()
@@ -232,7 +251,7 @@ settle_end = time.monotonic() + 1.5
 while time.monotonic() < settle_end:
     rclpy.spin_once(node, timeout_sec=0.1)
 final = latest_odom.pose.pose.position
-error = math.hypot(final.x - goal.pose.pose.position.x, final.y - goal.pose.pose.position.y)
+error = math.hypot(final.x - goal_odom_x, final.y - goal_odom_y)
 linear_speed = math.hypot(latest_odom.twist.twist.linear.x, latest_odom.twist.twist.linear.y)
 angular_speed = abs(latest_odom.twist.twist.angular.z)
 yaw_changes = [abs(math.atan2(math.sin(sample['yaw'] - start_yaw), math.cos(sample['yaw'] - start_yaw)))
@@ -240,6 +259,7 @@ yaw_changes = [abs(math.atan2(math.sin(sample['yaw'] - start_yaw), math.cos(samp
 max_yaw_change = max(yaw_changes, default=0.0)
 max_lateral_displacement = max((abs(sample['y'] - start.y) for sample in odom_samples), default=0.0)
 print(json.dumps({
+    'world': os.environ['SOARM_WORLD'],
     'result_status': result.status,
     'start': [round(start.x, 3), round(start.y, 3)],
     'final': [round(final.x, 3), round(final.y, 3)],
@@ -256,8 +276,12 @@ print(json.dumps({
 }, sort_keys=True))
 assert result.status == 4, f'NavigateToPose status {result.status}, expected SUCCEEDED (4)'
 assert error <= 0.35, f'final position error {error:.3f} m'
-assert max_yaw_change >= 0.35, f'path did not exercise a material turn: {max_yaw_change:.3f} rad'
-assert max_lateral_displacement >= 0.5, f'path lateral displacement too small: {max_lateral_displacement:.3f} m'
+if os.environ['SOARM_REQUIRE_TURN'] == 'true':
+    assert max_yaw_change >= 0.35, f'path did not exercise a material turn: {max_yaw_change:.3f} rad'
+    assert max_lateral_displacement >= 0.5, f'path lateral displacement too small: {max_lateral_displacement:.3f} m'
+else:
+    distance_travelled = math.hypot(final.x - start.x, final.y - start.y)
+    assert distance_travelled >= minimum_distance, f'path displacement too small: {distance_travelled:.3f} m'
 assert latest_costmap is not None, 'no local costmap received'
 assert max_occupied_cells > 0, 'local VoxelLayer never retained an occupied obstacle cell'
 assert linear_speed <= 0.05 and angular_speed <= 0.10, (linear_speed, angular_speed)
@@ -266,4 +290,4 @@ rclpy.shutdown()
 PY
 
 succeeded=true
-printf '%s\n' "Nav2 house consumer smoke passed in isolated container $container_name."
+printf '%s\n' "Nav2 $world consumer smoke passed in isolated container $container_name."
