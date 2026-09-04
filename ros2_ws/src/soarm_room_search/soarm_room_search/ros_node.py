@@ -52,6 +52,7 @@ class RoomSearchNode(Node if rclpy else object):
         self.verifier = ComputePathVerifier(self); self.controller = SearchController(Workflow(), self, self.verifier, False)
         self.commands = queue.Queue()
         self.active_handle = None
+        self.transport_pending = False
         self.transport_generation = 0
         self.last_health = 0.0
         self.healthy = False
@@ -172,7 +173,7 @@ class RoomSearchNode(Node if rclpy else object):
                     self.controller.cancel()
                     continue
                 if action == 'draw_save_room':
-                    if self.active_handle is not None or self.controller.goal_pending or self.controller.accepted_goal is not None:
+                    if self.motion_active():
                         raise WorkflowError('GOAL_ACTIVE', 'cannot edit rooms during navigation')
                     self.app.call(action, data)
                     continue
@@ -192,10 +193,19 @@ class RoomSearchNode(Node if rclpy else object):
                 self.controller.workflow.reason = error.code + ': ' + error.message
             except Exception as error:
                 self.block(str(error))
+    def motion_active(self):
+        return (
+            self.transport_pending
+            or self.active_handle is not None
+            or self.controller.goal_pending
+            or self.controller.accepted_goal is not None
+        )
+
     def send(self, pose, accepted, completed):
-        if self.active_handle is not None:
+        if self.transport_pending or self.active_handle is not None:
             accepted(None)
             return
+        self.transport_pending = True
         self.transport_generation += 1
         generation = self.transport_generation
         goal = NavigateToPose.Goal()
@@ -212,6 +222,7 @@ class RoomSearchNode(Node if rclpy else object):
                 if handle.accepted:
                     handle.cancel_goal_async()
                 return
+            self.transport_pending = False
             self.active_handle = handle if handle.accepted else None
             accepted(self.active_handle)
             if handle.accepted:
@@ -224,10 +235,12 @@ class RoomSearchNode(Node if rclpy else object):
         if generation != self.transport_generation:
             return
         self.active_handle = None
+        self.transport_pending = False
         completed(future.result().status == GoalStatus.STATUS_SUCCEEDED)
 
     def cancel_pending(self):
         self.transport_generation += 1
+        self.transport_pending = False
         if self.active_handle is not None:
             self.active_handle.cancel_goal_async()
             self.active_handle = None

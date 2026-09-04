@@ -88,6 +88,18 @@ class RosMathTests(unittest.TestCase):
         self.assertAlmostEqual(transformed[0][1], 3.0)
         self.assertAlmostEqual(transformed[0][2], 3.0)
 
+    def test_pending_scan_transport_blocks_room_edits(self):
+        from types import SimpleNamespace
+        from soarm_room_search.ros_node import RoomSearchNode
+
+        node = RoomSearchNode.__new__(RoomSearchNode)
+        node.transport_pending = True
+        node.active_handle = None
+        node.controller = SimpleNamespace(goal_pending=False, accepted_goal=None)
+        self.assertTrue(node.motion_active())
+        node.transport_pending = False
+        self.assertFalse(node.motion_active())
+
 
 class TabletopTests(unittest.TestCase):
     def test_synthetic_table_and_noise(self):
