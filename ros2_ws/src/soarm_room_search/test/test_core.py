@@ -49,3 +49,16 @@ class FreshnessTests(unittest.TestCase):
         gate.camera_info(10.02, 'camera'); gate.transform(False); self.assertFalse(gate.ready(10.))
         gate.transform(True); self.assertTrue(gate.ready(gate.cloud[2]))
         self.assertFalse(gate.ready(gate.cloud[2] + 2.))
+
+from soarm_room_search.tabletop import decode_xyz, detect_tabletops
+class TabletopTests(unittest.TestCase):
+    def test_synthetic_table_and_noise(self):
+        points = [(x / 20, y / 20, .75) for x in range(20, 41) for y in range(20, 37)]
+        points += [(8., 8., .1), (float('nan'), 1., .7)]
+        desks = detect_tabletops(points)
+        self.assertEqual(len(desks), 1)
+        self.assertEqual(len(desks[0]['docks']), 2)
+        self.assertEqual(detect_tabletops([(1., 1., .2)]), [])
+    def test_decode_xyz(self):
+        import struct
+        self.assertEqual(decode_xyz(struct.pack('<fff', 1., 2., 3.)), [(1., 2., 3.)])

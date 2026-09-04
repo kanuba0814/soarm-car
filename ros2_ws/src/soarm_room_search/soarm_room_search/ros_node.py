@@ -1,6 +1,9 @@
 """ROS thin adapter; all transitions belong to SearchController, never Twist."""
 import math
 import time
+import queue
+import threading
+from .http_gui import App, server
 from .controller import SearchController
 from .core import State, Workflow, scan_complete
 from .freshness import SensorFreshness
@@ -26,6 +29,8 @@ class RoomSearchNode(Node if rclpy else object):
     def __init__(self):
         super().__init__('room_search')
         self.declare_parameter('expected_map_id', '')
+        self.declare_parameter('occupancy_yaml', '')
+        self.declare_parameter('rooms_json', '')
         self.declare_parameter('health_timeout', .5)
         self.declare_parameter('sensor_timeout', 1.)
         self.declare_parameter('rgb_topic', '/camera/color/image_raw')
@@ -33,6 +38,8 @@ class RoomSearchNode(Node if rclpy else object):
         self.declare_parameter('camera_frame', 'camera_link')
         self.declare_parameter('pointcloud_topic', '/camera/depth/points')
         self.declare_parameter('gui_port', 8088)
+        self.commands = queue.Queue()
+        self.http = None
         self.client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
         self.controller = SearchController(Workflow(), self, Nav2PathVerifier(), False)
         self.last_health = 0.; self.healthy = False; self.map_id = ''
@@ -43,6 +50,24 @@ class RoomSearchNode(Node if rclpy else object):
         self.create_subscription(PointCloud2, self.get_parameter('pointcloud_topic').value, self._cloud, 10)
         self.create_subscription(CameraInfo, self.get_parameter('camera_info_topic').value if self.has_parameter('camera_info_topic') else '/camera/camera_info', self._info, 10)
         self.create_timer(.2, self._safety_tick)
+        self.create_timer(.05, self._consume_commands)
+        self.http_app = App(self.get_parameter('rooms_json').value if self.has_parameter('rooms_json') else '/tmp/soarm-room-search-rooms.json', controller=self.controller, enqueue=self.commands.put)
+        self.http = ThreadingHTTPServer(('127.0.0.1', int(self.get_parameter('gui_port').value)), server(self.http_app))
+        threading.Thread(target=self.http.serve_forever, daemon=True).start()
+    def _consume_commands(self):
+        while not self.commands.empty():
+            action, data = self.commands.get_nowait()
+            try:
+                if action == 'scan_goal': self.controller.navigate_scan(next(room for room in self.controller.workflow.rooms if room.id == self.controller.workflow.proposal['room_id']).scan_pose)
+                elif action == 'start_scan': self.start_scan()
+                elif action == 'finish_scan': self.finish_scan()
+                elif action == 'analyze': self.controller.workflow.analyze([])
+                elif action == 'preview': self.controller.preview()
+                elif action == 'dock_goal': self.controller.navigate_dock(self.controller.workflow.selected['dock'] + (0.,))
+                elif action == 'cancel': self.controller.cancel()
+            except Exception as error:
+                self.controller.workflow.state = State.BLOCKED
+                self.controller.workflow.reason = str(error)
     def _health(self, message):
         self.last_health = time.monotonic()
         self.healthy = message.state == LocalizationHealth.HEALTHY
@@ -99,4 +124,6 @@ def main():
     if rclpy is None: raise RuntimeError('ROS 2 Humble unavailable; use simulation GUI')
     rclpy.init(); node = RoomSearchNode()
     try: rclpy.spin(node)
-    finally: node.destroy_node(); rclpy.shutdown()
+    finally:
+        if node.http: node.http.shutdown()
+        node.destroy_node(); rclpy.shutdown()

@@ -10,8 +10,16 @@ class ImmediateHandle:
 class SimulationNavigation:
     def send(self, pose, accepted, completed): accepted(ImmediateHandle()); completed(True)
 class App:
-    def __init__(self, room_path, asr_argv=None):
-        self.room_path = room_path; self.asr = CommandASR(asr_argv); self.controller = SearchController(Workflow(), SimulationNavigation(), SimulationPathVerifier(), True)
+    def __init__(self, room_path, asr_argv=None, controller=None, enqueue=None):
+        self.room_path = room_path
+        self.asr = CommandASR(asr_argv)
+        self.controller = controller or SearchController(Workflow(), SimulationNavigation(), SimulationPathVerifier(), True)
+        self.enqueue = enqueue
+    def dispatch(self, action, data):
+        if self.enqueue is not None and action in ('scan_goal', 'start_scan', 'finish_scan', 'analyze', 'preview', 'dock_goal', 'cancel'):
+            self.enqueue(action, data)
+            return dict(self.controller.status(), pending=True, accepted=True)
+        return self.call(action, data)
     def call(self, action, data):
         controller, workflow = self.controller, self.controller.workflow
         with controller.lock:
@@ -43,7 +51,7 @@ def server(app):
             if not self.path.startswith('/api/'): return self.reply(404, {'error':'NOT_FOUND'})
             size = int(self.headers.get('Content-Length', '0'))
             if size > 16384: return self.reply(413, {'error':'REQUEST_TOO_LARGE'})
-            try: self.reply(200, app.call(self.path.rsplit('/', 1)[-1], json.loads(self.rfile.read(size) or b'{}')))
+            try: self.reply(200, app.dispatch(self.path.rsplit('/', 1)[-1], json.loads(self.rfile.read(size) or b'{}')))
             except WorkflowError as error: self.reply(409, {'error':error.code, 'reason':error.message, 'state':app.controller.workflow.state.value})
             except Exception as error: self.reply(400, {'error':'BAD_REQUEST', 'reason':str(error)})
     return Handler
