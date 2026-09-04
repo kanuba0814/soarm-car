@@ -21,6 +21,13 @@ assert sum(name.startswith('door_frame_') for name in names) == 20
 assert sum(name.startswith('door_header_') for name in names) == 10
 assert not any('leaf' in name or 'swing' in name for name in names)
 assert len(model.findall('.//visual')) == len(collisions) == 60
+door_widths = [
+    float(element.findtext('geometry/box/size').split()[0])
+    for element in collisions
+    if element.get('name', '').startswith('door_header_')
+]
+assert min(door_widths) == 1.2, door_widths
+assert door_widths.count(1.371) == 7, door_widths
 furniture = ET.parse(root / 'models/house_furniture/model.sdf').getroot()
 assert [link.get('name') for link in furniture.findall('.//link')] == ['furniture']
 collision_names = [collision.get('name') for collision in furniture.findall('.//collision')]
@@ -40,34 +47,38 @@ for collision in furniture.findall('.//collision'):
 
 pgm = (root / 'maps/house_floorplan.pgm').read_bytes()
 header, body = pgm.split(b'\n255\n', 1)
-assert header == b'P5\n320 290'
-assert len(body) == 320 * 290
+assert header == b'P5\n480 435'
+assert len(body) == 480 * 435
 assert {0, 205, 254}.issubset(set(body))
 yaml = (root / 'maps/house_floorplan.yaml').read_text()
 assert 'resolution: 0.05' in yaml
-assert 'origin: [-8.0, -7.25, 0.0]' in yaml
+assert 'origin: [-12.0, -10.875, 0.0]' in yaml
 
-width, height = 320, 290
+width, height = 480, 435
 def map_value(world_x, world_y):
-    column = int((world_x - -8.0) / 0.05)
-    row = height - 1 - int((world_y - -7.25) / 0.05)
+    column = int((world_x - -12.0) / 0.05)
+    row = height - 1 - int((world_y - -10.875) / 0.05)
     return body[row * width + column]
-for centre in ((-5.4971536, 0.632396), (-2.3218194, -0.204202), (5.360581, -0.768342)):
+for centre in ((-8.2457304, 0.948594), (-3.4827291, -0.306303), (8.0408715, -1.152513)):
     assert map_value(*centre) == 0, centre
 
 occupied = {index for index, value in enumerate(body) if value == 0}
 free = {index for index, value in enumerate(body) if value == 254}
-# Inflate by 0.20 m, slightly over half the robot width.
+# Conservatively reserve the 0.31 m footprint half-width plus 0.16 m of
+# documented localization error without changing the navigation configuration.
+clearance_radius = 0.47
+clearance_cells = math.ceil(clearance_radius / 0.05)
 inflated = set(occupied)
 for index in occupied:
     row, column = divmod(index, width)
-    for dr in range(-4, 5):
-        for dc in range(-4, 5):
-            if dr * dr + dc * dc <= 16 and 0 <= row + dr < height and 0 <= column + dc < width:
+    for dr in range(-clearance_cells, clearance_cells + 1):
+        for dc in range(-clearance_cells, clearance_cells + 1):
+            if (math.hypot(dr, dc) * 0.05 <= clearance_radius
+                    and 0 <= row + dr < height and 0 <= column + dc < width):
                 inflated.add((row + dr) * width + column + dc)
 traversable = free - inflated
-spawn_column = int((0.0 - -8.0) / 0.05)
-spawn_row = height - 1 - int((0.0 - -7.25) / 0.05)
+spawn_column = int((0.0 - -12.0) / 0.05)
+spawn_row = height - 1 - int((0.0 - -10.875) / 0.05)
 spawn = spawn_row * width + spawn_column
 assert spawn in traversable
 spawn_distance = min(math.hypot(spawn_row - row, spawn_column - column) * 0.05
@@ -88,13 +99,14 @@ while queue:
             queue.append(candidate)
 assert len(seen) / len(traversable) > 0.97, (len(seen), len(traversable))
 def grid_index(world_x, world_y):
-    column = int((world_x - -8.0) / 0.05)
-    row = height - 1 - int((world_y - -7.25) / 0.05)
+    column = int((world_x - -12.0) / 0.05)
+    row = height - 1 - int((world_y - -10.875) / 0.05)
     return row * width + column
 # Representative goals cover the living room, central routes, right rooms,
 # diagonal corridor, and furniture-adjacent free space.
-for goal in ((-5.0, 2.0), (-3.0, 0.8), (-1.0, -1.0), (0.0, 2.0),
-             (4.0, 2.0), (5.0, -2.0), (5.0, -5.0), (4.0, -4.0)):
+for goal in ((-7.5, 3.0), (-4.5, 1.2), (-1.5, -1.5), (0.0, 3.0),
+             (6.0, 3.0), (6.13227, 0.84215), (7.5, -3.0), (7.5, -7.5),
+             (5.5, -6.0)):
     assert grid_index(*goal) in seen, goal
 PY
 python3 -m py_compile \
@@ -172,7 +184,7 @@ import re
 import sys
 root = Path(sys.argv[1])
 map_text = (root / 'map.yaml').read_text()
-assert 'width: 320' in map_text and 'height: 290' in map_text
+assert 'width: 480' in map_text and 'height: 435' in map_text
 points = (root / 'points.yaml').read_text()
 width = re.search(r'width: (\d+)', points)
 assert width and int(width.group(1)) > 100, points[:1000]

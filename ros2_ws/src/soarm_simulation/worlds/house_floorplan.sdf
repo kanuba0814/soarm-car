@@ -24,7 +24,7 @@
           <geometry><plane><normal>0 0 1</normal></plane></geometry>
         </collision>
         <visual name="visual">
-          <geometry><plane><normal>0 0 1</normal><size>18 16</size></plane></geometry>
+          <geometry><plane><normal>0 0 1</normal><size>27 24</size></plane></geometry>
           <material><diffuse>0.36 0.38 0.34 1</diffuse></material>
         </visual>
       </link>

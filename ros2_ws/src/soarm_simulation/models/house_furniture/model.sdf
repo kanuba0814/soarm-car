@@ -4,18 +4,18 @@
     <static>true</static>
     <link name="furniture">
       <collision name="coffee_table_top_collision">
-        <pose>-5.49715 0.63240 0.40000 0 0 -1.5707964</pose>
+        <pose>-8.24573 0.94859 0.40000 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>1.17000 0.49000 0.08000</size>
+            <size>1.75500 0.73500 0.08000</size>
           </box>
         </geometry>
       </collision>
       <visual name="coffee_table_top_visual">
-        <pose>-5.49715 0.63240 0.40000 0 0 -1.5707964</pose>
+        <pose>-8.24573 0.94859 0.40000 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>1.17000 0.49000 0.08000</size>
+            <size>1.75500 0.73500 0.08000</size>
           </box>
         </geometry>
         <material>
@@ -24,18 +24,18 @@
         </material>
       </visual>
       <collision name="coffee_table_leg_collision_0">
-        <pose>-5.66153 1.13677 0.18000 0 0 -1.5707964</pose>
+        <pose>-8.52323 1.73609 0.18000 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>0.06125 0.06125 0.36000</size>
+            <size>0.08000 0.08000 0.36000</size>
           </box>
         </geometry>
       </collision>
       <visual name="coffee_table_leg_visual_0">
-        <pose>-5.66153 1.13677 0.18000 0 0 -1.5707964</pose>
+        <pose>-8.52323 1.73609 0.18000 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>0.06125 0.06125 0.36000</size>
+            <size>0.08000 0.08000 0.36000</size>
           </box>
         </geometry>
         <material>
@@ -44,18 +44,18 @@
         </material>
       </visual>
       <collision name="coffee_table_leg_collision_1">
-        <pose>-5.33278 1.13677 0.18000 0 0 -1.5707964</pose>
+        <pose>-7.96823 1.73609 0.18000 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>0.06125 0.06125 0.36000</size>
+            <size>0.08000 0.08000 0.36000</size>
           </box>
         </geometry>
       </collision>
       <visual name="coffee_table_leg_visual_1">
-        <pose>-5.33278 1.13677 0.18000 0 0 -1.5707964</pose>
+        <pose>-7.96823 1.73609 0.18000 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>0.06125 0.06125 0.36000</size>
+            <size>0.08000 0.08000 0.36000</size>
           </box>
         </geometry>
         <material>
@@ -64,18 +64,18 @@
         </material>
       </visual>
       <collision name="coffee_table_leg_collision_2">
-        <pose>-5.66153 0.12802 0.18000 0 0 -1.5707964</pose>
+        <pose>-8.52323 0.16109 0.18000 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>0.06125 0.06125 0.36000</size>
+            <size>0.08000 0.08000 0.36000</size>
           </box>
         </geometry>
       </collision>
       <visual name="coffee_table_leg_visual_2">
-        <pose>-5.66153 0.12802 0.18000 0 0 -1.5707964</pose>
+        <pose>-8.52323 0.16109 0.18000 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>0.06125 0.06125 0.36000</size>
+            <size>0.08000 0.08000 0.36000</size>
           </box>
         </geometry>
         <material>
@@ -84,18 +84,18 @@
         </material>
       </visual>
       <collision name="coffee_table_leg_collision_3">
-        <pose>-5.33278 0.12802 0.18000 0 0 -1.5707964</pose>
+        <pose>-7.96823 0.16109 0.18000 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>0.06125 0.06125 0.36000</size>
+            <size>0.08000 0.08000 0.36000</size>
           </box>
         </geometry>
       </collision>
       <visual name="coffee_table_leg_visual_3">
-        <pose>-5.33278 0.12802 0.18000 0 0 -1.5707964</pose>
+        <pose>-7.96823 0.16109 0.18000 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>0.06125 0.06125 0.36000</size>
+            <size>0.08000 0.08000 0.36000</size>
           </box>
         </geometry>
         <material>
@@ -104,18 +104,18 @@
         </material>
       </visual>
       <collision name="small_table_top_collision">
-        <pose>-2.32182 -0.20420 0.66000 0 0 -0.0000000</pose>
+        <pose>-3.48273 -0.30630 0.66000 0 0 -0.0000000</pose>
         <geometry>
           <box>
-            <size>1.20000 1.20000 0.08000</size>
+            <size>1.80000 1.80000 0.08000</size>
           </box>
         </geometry>
       </collision>
       <visual name="small_table_top_visual">
-        <pose>-2.32182 -0.20420 0.66000 0 0 -0.0000000</pose>
+        <pose>-3.48273 -0.30630 0.66000 0 0 -0.0000000</pose>
         <geometry>
           <box>
-            <size>1.20000 1.20000 0.08000</size>
+            <size>1.80000 1.80000 0.08000</size>
           </box>
         </geometry>
         <material>
@@ -124,7 +124,7 @@
         </material>
       </visual>
       <collision name="small_table_leg_collision_0">
-        <pose>-2.83182 -0.71420 0.31000 0 0 -0.0000000</pose>
+        <pose>-4.29273 -1.11630 0.31000 0 0 -0.0000000</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.62000</size>
@@ -132,7 +132,7 @@
         </geometry>
       </collision>
       <visual name="small_table_leg_visual_0">
-        <pose>-2.83182 -0.71420 0.31000 0 0 -0.0000000</pose>
+        <pose>-4.29273 -1.11630 0.31000 0 0 -0.0000000</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.62000</size>
@@ -144,7 +144,7 @@
         </material>
       </visual>
       <collision name="small_table_leg_collision_1">
-        <pose>-2.83182 0.30580 0.31000 0 0 -0.0000000</pose>
+        <pose>-4.29273 0.50370 0.31000 0 0 -0.0000000</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.62000</size>
@@ -152,7 +152,7 @@
         </geometry>
       </collision>
       <visual name="small_table_leg_visual_1">
-        <pose>-2.83182 0.30580 0.31000 0 0 -0.0000000</pose>
+        <pose>-4.29273 0.50370 0.31000 0 0 -0.0000000</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.62000</size>
@@ -164,7 +164,7 @@
         </material>
       </visual>
       <collision name="small_table_leg_collision_2">
-        <pose>-1.81182 -0.71420 0.31000 0 0 -0.0000000</pose>
+        <pose>-2.67273 -1.11630 0.31000 0 0 -0.0000000</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.62000</size>
@@ -172,7 +172,7 @@
         </geometry>
       </collision>
       <visual name="small_table_leg_visual_2">
-        <pose>-1.81182 -0.71420 0.31000 0 0 -0.0000000</pose>
+        <pose>-2.67273 -1.11630 0.31000 0 0 -0.0000000</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.62000</size>
@@ -184,7 +184,7 @@
         </material>
       </visual>
       <collision name="small_table_leg_collision_3">
-        <pose>-1.81182 0.30580 0.31000 0 0 -0.0000000</pose>
+        <pose>-2.67273 0.50370 0.31000 0 0 -0.0000000</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.62000</size>
@@ -192,7 +192,7 @@
         </geometry>
       </collision>
       <visual name="small_table_leg_visual_3">
-        <pose>-1.81182 0.30580 0.31000 0 0 -0.0000000</pose>
+        <pose>-2.67273 0.50370 0.31000 0 0 -0.0000000</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.62000</size>
@@ -204,18 +204,18 @@
         </material>
       </visual>
       <collision name="desk_top_collision">
-        <pose>5.36058 -0.76834 0.68000 0 0 -3.1415927</pose>
+        <pose>8.04087 -1.15251 0.68000 0 0 -3.1415927</pose>
         <geometry>
           <box>
-            <size>1.60000 0.80000 0.08000</size>
+            <size>2.40000 1.20000 0.08000</size>
           </box>
         </geometry>
       </collision>
       <visual name="desk_top_visual">
-        <pose>5.36058 -0.76834 0.68000 0 0 -3.1415927</pose>
+        <pose>8.04087 -1.15251 0.68000 0 0 -3.1415927</pose>
         <geometry>
           <box>
-            <size>1.60000 0.80000 0.08000</size>
+            <size>2.40000 1.20000 0.08000</size>
           </box>
         </geometry>
         <material>
@@ -224,7 +224,7 @@
         </material>
       </visual>
       <collision name="desk_leg_collision_0">
-        <pose>6.07058 -0.45834 0.32000 0 0 -3.1415927</pose>
+        <pose>9.15087 -0.64251 0.32000 0 0 -3.1415927</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.64000</size>
@@ -232,7 +232,7 @@
         </geometry>
       </collision>
       <visual name="desk_leg_visual_0">
-        <pose>6.07058 -0.45834 0.32000 0 0 -3.1415927</pose>
+        <pose>9.15087 -0.64251 0.32000 0 0 -3.1415927</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.64000</size>
@@ -244,7 +244,7 @@
         </material>
       </visual>
       <collision name="desk_leg_collision_1">
-        <pose>6.07058 -1.07834 0.32000 0 0 -3.1415927</pose>
+        <pose>9.15087 -1.66251 0.32000 0 0 -3.1415927</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.64000</size>
@@ -252,7 +252,7 @@
         </geometry>
       </collision>
       <visual name="desk_leg_visual_1">
-        <pose>6.07058 -1.07834 0.32000 0 0 -3.1415927</pose>
+        <pose>9.15087 -1.66251 0.32000 0 0 -3.1415927</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.64000</size>
@@ -264,7 +264,7 @@
         </material>
       </visual>
       <collision name="desk_leg_collision_2">
-        <pose>4.65058 -0.45834 0.32000 0 0 -3.1415927</pose>
+        <pose>6.93087 -0.64251 0.32000 0 0 -3.1415927</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.64000</size>
@@ -272,7 +272,7 @@
         </geometry>
       </collision>
       <visual name="desk_leg_visual_2">
-        <pose>4.65058 -0.45834 0.32000 0 0 -3.1415927</pose>
+        <pose>6.93087 -0.64251 0.32000 0 0 -3.1415927</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.64000</size>
@@ -284,7 +284,7 @@
         </material>
       </visual>
       <collision name="desk_leg_collision_3">
-        <pose>4.65058 -1.07834 0.32000 0 0 -3.1415927</pose>
+        <pose>6.93087 -1.66251 0.32000 0 0 -3.1415927</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.64000</size>
@@ -292,7 +292,7 @@
         </geometry>
       </collision>
       <visual name="desk_leg_visual_3">
-        <pose>4.65058 -1.07834 0.32000 0 0 -3.1415927</pose>
+        <pose>6.93087 -1.66251 0.32000 0 0 -3.1415927</pose>
         <geometry>
           <box>
             <size>0.08000 0.08000 0.64000</size>

@@ -4,7 +4,7 @@ set -euo pipefail
 # Consumer smoke: installed Nav2 drives the native Fortress mecanum model in a packaged world.
 world="${SOARM_WORLD:-house_floorplan}"
 case "$world" in
-    house_floorplan) goal_x=1.0; goal_y=1.0; goal_yaw=0.785398; goal_odom_x=1.0; goal_odom_y=1.0; minimum_distance=1.0; require_turn=true ;;
+    house_floorplan) goal_x=1.5; goal_y=1.5; goal_yaw=0.785398; goal_odom_x=1.5; goal_odom_y=1.5; minimum_distance=1.0; require_turn=true ;;
     apartment_a) goal_x=6.497551; goal_y=-1.173927; goal_yaw=0.0; goal_odom_x=1.2; goal_odom_y=0.0; minimum_distance=0.8; require_turn=false ;;
     apartment_b) goal_x=3.150838; goal_y=-8.491486; goal_yaw=1.570796; goal_odom_x=0.8; goal_odom_y=0.0; minimum_distance=0.4; require_turn=false ;;
     *) printf 'unsupported SOARM_WORLD: %s\n' "$world" >&2; exit 2 ;;
@@ -48,14 +48,14 @@ assert local_source['obstacle_min_range'] == 0.60
 assert 0.45 < local_source['obstacle_min_range'] < local_source['obstacle_max_range']
 assert local_source['observation_persistence'] == 0.5 and local_source['max_obstacle_height'] == 1.5
 if os.environ['SOARM_WORLD'] == 'house_floorplan':
-    # The House target is map-free with one metre of static-wall clearance.
+    # The smoke target is map-free with one metre of static-wall clearance.
     pgm = Path('ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm').read_bytes().split(b'\n255\n', 1)[1]
-    width, height, resolution, origin_x, origin_y = 320, 290, 0.05, -8.0, -7.25
+    width, height, resolution, origin_x, origin_y = 480, 435, 0.05, -12.0, -10.875
     def cell_value(x, y):
         column = int((x - origin_x) / resolution)
         row = height - 1 - int((y - origin_y) / resolution)
         return pgm[row * width + column]
-    assert cell_value(1.0, 1.0) == 254
+    assert cell_value(1.5, 1.5) == 254
 assert '<Spin' not in tree and '<Rotate' not in tree
 assert '<Spin' not in through_poses_tree and '<Rotate' not in through_poses_tree
 PY
