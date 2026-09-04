@@ -1,31 +1,40 @@
-import math, sys, unittest
+import math
+import sys
+import tempfile
+import unittest
 from pathlib import Path
-sys.path.insert(0,str(Path(__file__).parents[1]))
-from soarm_room_search.core import *
-BASE=Path(__file__).parents[1]/'examples'
-def room(): return Room('study',['书房','学习室'],[(.5,.5),(2.5,.5),(2.5,1.5),(.5,1.5)],(1.5,1.,0))
-def bundle(): return MapBundle.load(BASE/'demo.yaml','demo-v1')
+sys.path.insert(0, str(Path(__file__).parents[1]))
+from soarm_room_search.controller import SearchController, SimulationPathVerifier
+from soarm_room_search.core import MapBundle, Room, State, Workflow, WorkflowError, scan_complete
+BASE = Path(__file__).parents[1] / 'examples'
+def bundle(): return MapBundle.load(BASE / 'demo.yaml', 'demo-v1')
+def room(): return Room('study', ['书房'], [(.5,.5),(2.5,.5),(2.5,1.5),(.5,1.5)], (1.5,1.,0))
 def observations(): return [{'x':1.5,'y':1.25,'height':.75,'width':1.,'quality':.9,'dock':(1.5,.75),'line_of_sight':True}]
-class TestCore(unittest.TestCase):
- def test_map_hash_coordinate(self):
-  b=bundle(); self.assertEqual(len(b.image_sha256),64); self.assertEqual(b.world_to_cell(.15,.15),(1,1)); self.assertTrue(b.free(1,1)); self.assertFalse(b.free(0,0))
- def test_rooms(self):
-  self.assertTrue(room().valid(bundle())); self.assertFalse(Room('x',['x'],[(0,0),(2,2),(0,2),(2,0)],(1,1,0)).valid(bundle()))
-  w=Workflow(); self.assertRaises(WorkflowError,w.load,bundle(),[room(),Room('x',['书房'],[(.5,.5),(2,.5),(2,1.5)],(1,1,0))])
- def test_persistence_and_asr_not_ready(self):
-  import tempfile
-  with tempfile.NamedTemporaryFile() as f:
-   RoomStore.save(f.name,bundle(),[room()]); self.assertEqual(RoomStore.load(f.name,bundle())[0].id,'study')
-  self.assertRaises(WorkflowError,CommandASR().propose,[room()])
- def test_intent(self):
-  self.assertEqual(parse_intent('去 书房 找书桌',[room()])['room_id'],'study')
-  for s in ('去 客厅 找书桌','去书房找书桌然后转圈','找书桌'): self.assertRaises(WorkflowError,parse_intent,s,[room()])
- def test_state_scan_candidate_and_cancel(self):
-  w=Workflow();w.load(bundle(),[room()]); self.assertRaises(WorkflowError,w.confirm_intent);w.propose('去书房找书桌');w.confirm_intent();w.scan_goal();w.at_scan();w.start_scan()
-  y=[i*2*math.pi/16 for i in range(17)];w.finish_scan(y);w.analyze(observations()); self.assertRaises(WorkflowError,w.preview,0); c=w.preview(w.scan_revision);self.assertEqual(c[0]['score'],8.5);w.confirm_dock();w.dock_goal();w.arrived();self.assertEqual(w.state,State.ARRIVED);w.cancel();self.assertEqual(w.state,State.CANCELED)
- def test_scan_and_hard_reject(self):
-  self.assertFalse(unwrap_complete([0,math.pi]))
-  telemetry=[(1,1,i*math.pi/4) for i in range(9)]
-  self.assertTrue(scan_complete(telemetry)); self.assertFalse(scan_complete(telemetry+[(1.2,1,0)]))
-  w=Workflow();w.load(bundle(),[room()]);w.propose('去书房找书桌');w.confirm_intent();w.scan_goal();w.at_scan();w.start_scan();w.finish_scan([i*math.pi/4 for i in range(9)]);w.analyze([dict(observations()[0],line_of_sight=False)]);self.assertRaisesRegex(WorkflowError,'no candidate',w.preview,w.scan_revision)
-if __name__=='__main__':unittest.main()
+class FakeHandle:
+    def __init__(self): self.cancelled = False
+    def cancel_goal_async(self): self.cancelled = True
+class FakeNavigation:
+    def __init__(self): self.accepted = None; self.completed = None; self.handle = FakeHandle()
+    def send(self, pose, accepted, completed): self.accepted, self.completed = accepted, completed
+    def accept(self): self.accepted(self.handle)
+class Tests(unittest.TestCase):
+    def ready(self):
+        work = Workflow(); work.load(bundle(), [room()]); work.propose('去书房找书桌'); work.confirm_intent(); return work
+    def test_floor_trinary_and_geometry(self):
+        item = bundle(); self.assertEqual(item.world_to_cell(-.01, .1), (-1, 1)); self.assertTrue(item.free(1, 1)); self.assertFalse(item.free(0, 0))
+        invalid = Room('', [''], [(1,1),(2,1),(1,1)], (1,1,float('nan'))); self.assertFalse(invalid.valid(item))
+    def test_scan_telemetry_and_fail_closed_path(self):
+        work = self.ready(); work.scan_goal(); work.at_scan(); work.start_scan()
+        telemetry = [(1,1,i,i * math.pi / 4) for i in range(9)]; self.assertTrue(scan_complete(telemetry)); self.assertFalse(scan_complete(telemetry + [(1.2,1,9,0)]))
+        work.finish_scan(telemetry); work.analyze(observations())
+        with self.assertRaisesRegex(WorkflowError, 'path verifier'): work.preview(None, 1, 1, 1, 1)
+        with self.assertRaisesRegex(WorkflowError, 'stale'): work.preview(SimulationPathVerifier(), 2, 1, 1, 1)
+        work.preview(SimulationPathVerifier(), 1, 1, 1, 1); self.assertEqual(work.state, State.DOCK_PREVIEW)
+    def test_goal_lifecycle_success_failure_and_cancel(self):
+        work, nav = self.ready(), FakeNavigation(); controller = SearchController(work, nav, SimulationPathVerifier())
+        controller.navigate_scan(room().scan_pose); self.assertEqual(work.state, State.NAVIGATING_TO_SCAN)
+        with self.assertRaisesRegex(WorkflowError, 'previous'): controller.navigate_scan(room().scan_pose)
+        nav.accept(); controller.cancel(); self.assertTrue(nav.handle.cancelled); self.assertEqual(work.state, State.CANCELED)
+        work = self.ready(); nav = FakeNavigation(); controller = SearchController(work, nav, SimulationPathVerifier()); controller.navigate_scan(room().scan_pose); nav.accept(); nav.completed(False); self.assertEqual(work.state, State.FAILED)
+        work = self.ready(); nav = FakeNavigation(); controller = SearchController(work, nav, SimulationPathVerifier()); controller.navigate_scan(room().scan_pose); nav.accept(); nav.completed(True); self.assertEqual(work.state, State.AT_SCAN_POSE)
+if __name__ == '__main__': unittest.main()

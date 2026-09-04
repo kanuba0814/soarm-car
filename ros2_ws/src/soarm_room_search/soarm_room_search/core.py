@@ -1,146 +1,153 @@
-"""Dependency-free domain core for the room desk search workflow."""
-import hashlib, json, math, re
+"""Fail-closed domain model and transport-neutral room-search controller."""
+import hashlib
+import json
+import math
+import re
+import shutil
+import subprocess
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 
 class State(str, Enum):
-    EMPTY='EMPTY'; INTENT_PROPOSED='INTENT_PROPOSED'; INTENT_CONFIRMED='INTENT_CONFIRMED'; NAVIGATING_TO_SCAN='NAVIGATING_TO_SCAN'; AT_SCAN_POSE='AT_SCAN_POSE'; SCANNING='SCANNING'; SCAN_READY='SCAN_READY'; ANALYZING='ANALYZING'; DESK_READY='DESK_READY'; DOCK_PREVIEW='DOCK_PREVIEW'; DOCK_CONFIRMED='DOCK_CONFIRMED'; NAVIGATING_TO_DOCK='NAVIGATING_TO_DOCK'; ARRIVED='ARRIVED'; FAILED='FAILED'; CANCELED='CANCELED'; BLOCKED='BLOCKED'
+    EMPTY = 'EMPTY'; INTENT_PROPOSED = 'INTENT_PROPOSED'; INTENT_CONFIRMED = 'INTENT_CONFIRMED'
+    NAVIGATING_TO_SCAN = 'NAVIGATING_TO_SCAN'; AT_SCAN_POSE = 'AT_SCAN_POSE'; SCANNING = 'SCANNING'
+    SCAN_READY = 'SCAN_READY'; ANALYZING = 'ANALYZING'; DESK_READY = 'DESK_READY'; DOCK_PREVIEW = 'DOCK_PREVIEW'
+    DOCK_CONFIRMED = 'DOCK_CONFIRMED'; NAVIGATING_TO_DOCK = 'NAVIGATING_TO_DOCK'; ARRIVED = 'ARRIVED'
+    FAILED = 'FAILED'; CANCELED = 'CANCELED'; BLOCKED = 'BLOCKED'
 
 class WorkflowError(Exception):
-    def __init__(self, code, message): self.code, self.message=code,message; super().__init__(message)
+    def __init__(self, code, message):
+        self.code = code
+        self.message = message
+        super().__init__(message)
 
-def sha256(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+def sha256(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
 def load_pgm(path):
-    raw=Path(path).read_bytes(); parts=raw.split(b'\n'); header=[]; index=0
-    while len(header)<3:
-        line=parts[index].strip(); index+=1
-        if line and not line.startswith(b'#'): header.append(line)
-    if header[0] != b'P5': raise ValueError('only binary P5 PGM is supported')
-    w,h=map(int,header[1].split()); maximum=int(header[2]);
-    if maximum != 255: raise ValueError('PGM max value must be 255')
-    data=b'\n'.join(parts[index:])
-    if len(data) != w*h: raise ValueError('invalid PGM dimensions')
-    return w,h,data
+    raw = Path(path).read_bytes()
+    tokens, offset = [], 0
+    while len(tokens) < 4:
+        while offset < len(raw) and raw[offset:offset + 1].isspace(): offset += 1
+        if raw[offset:offset + 1] == b'#':
+            offset = raw.find(b'\n', offset) + 1
+            continue
+        end = offset
+        while end < len(raw) and not raw[end:end + 1].isspace(): end += 1
+        tokens.append(raw[offset:end]); offset = end
+    if tokens[0] != b'P5' or int(tokens[3]) != 255: raise ValueError('expected P5 max 255 PGM')
+    if offset < len(raw) and raw[offset:offset + 1].isspace(): offset += 1
+    width, height = int(tokens[1]), int(tokens[2]); pixels = raw[offset:]
+    if len(pixels) != width * height: raise ValueError('invalid PGM dimensions')
+    return width, height, pixels
+
 @dataclass
 class MapBundle:
     yaml_path: str; image_path: str; map_id: str; resolution: float; origin: tuple; width: int; height: int; pixels: bytes; yaml_sha256: str; image_sha256: str
+    negate: int = 0; occupied_thresh: float = .65; free_thresh: float = .25; revision: int = 1
     @classmethod
     def load(cls, yaml_path, map_id):
-        text=Path(yaml_path).read_text(); values={}
-        for line in text.splitlines():
-            if ':' in line:
-                key,value=line.split(':',1); values[key.strip()]=value.strip().strip('"\'')
-        image=Path(yaml_path).parent / values['image']; w,h,pixels=load_pgm(image)
-        origin=tuple(float(x.strip()) for x in values['origin'].strip('[]').split(','))
-        return cls(str(yaml_path),str(image),map_id,float(values['resolution']),origin,w,h,pixels,sha256(yaml_path),sha256(image))
-    def world_to_cell(self,x,y): return int((x-self.origin[0])/self.resolution), int((y-self.origin[1])/self.resolution)
-    def free(self,x,y):
-        cx,cy=self.world_to_cell(x,y)
-        if not (0<=cx<self.width and 0<=cy<self.height): return False
-        return self.pixels[(self.height-1-cy)*self.width+cx] >= 250
-    def footprint_free(self,x,y,radius=0.30,margin=0.05):
-        step=self.resolution/2; r=radius+margin
-        for ix in range(math.ceil(-r/step),math.floor(r/step)+1):
-            for iy in range(math.ceil(-r/step),math.floor(r/step)+1):
-                if ix*ix+iy*iy <= (r/step)**2 and not self.free(x+ix*step,y+iy*step): return False
+        values = {}
+        for line in Path(yaml_path).read_text().splitlines():
+            if ':' in line and not line.lstrip().startswith('#'):
+                key, value = line.split(':', 1); values[key.strip()] = value.strip().strip('"\'')
+        image = Path(yaml_path).parent / values['image']; width, height, pixels = load_pgm(image)
+        origin = tuple(float(v.strip()) for v in values['origin'].strip('[]').split(','))
+        return cls(str(yaml_path), str(image), map_id, float(values['resolution']), origin, width, height, pixels, sha256(yaml_path), sha256(image), int(values.get('negate', '0')), float(values.get('occupied_thresh', '.65')), float(values.get('free_thresh', '.25')))
+    def world_to_cell(self, x, y):
+        return math.floor((x - self.origin[0]) / self.resolution), math.floor((y - self.origin[1]) / self.resolution)
+    def free(self, x, y):
+        cell_x, cell_y = self.world_to_cell(x, y)
+        if not (0 <= cell_x < self.width and 0 <= cell_y < self.height): return False
+        pixel = self.pixels[(self.height - 1 - cell_y) * self.width + cell_x]
+        occupied = (pixel if self.negate else 255 - pixel) / 255.0
+        return occupied <= self.free_thresh
+    def footprint_free(self, x, y, radius=.30, margin=.05):
+        step, extent = self.resolution / 2, radius + margin
+        for ix in range(math.ceil(-extent / step), math.floor(extent / step) + 1):
+            for iy in range(math.ceil(-extent / step), math.floor(extent / step) + 1):
+                if ix * ix + iy * iy <= (extent / step) ** 2 and not self.free(x + ix * step, y + iy * step): return False
         return True
+
 @dataclass
 class Room:
     id: str; aliases: list; polygon: list; scan_pose: tuple
-    def contains(self,p):
-        x,y=p[:2]; inside=False
-        for a,b in zip(self.polygon,self.polygon[1:]+self.polygon[:1]):
-            if (a[1]>y)!=(b[1]>y) and x < (b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0]: inside=not inside
+    def contains(self, point):
+        x, y = point[:2]; inside = False
+        for first, second in zip(self.polygon, self.polygon[1:] + self.polygon[:1]):
+            if (first[1] > y) != (second[1] > y) and x < (second[0] - first[0]) * (y - first[1]) / (second[1] - first[1]) + first[0]: inside = not inside
         return inside
-    def valid(self,bundle):
-        if len(self.polygon)<3 or len(set(self.aliases)) != len(self.aliases): return False
-        edges=list(zip(self.polygon,self.polygon[1:]+self.polygon[:1]))
-        def cross(a,b,c): return (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0])
-        for i,(a,b) in enumerate(edges):
-            for j,(c,d) in enumerate(edges):
-                if abs(i-j) in (0,1,len(edges)-1): continue
-                if cross(a,b,c)*cross(a,b,d)<0 and cross(c,d,a)*cross(c,d,b)<0:return False
+    def valid(self, bundle):
+        if not self.id.strip() or not self.aliases or any(not alias.strip() for alias in self.aliases): return False
+        if len(self.polygon) < 3 or len(set(map(tuple, self.polygon))) != len(self.polygon): return False
+        area = sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(self.polygon, self.polygon[1:] + self.polygon[:1]))
+        if abs(area) < 1e-9 or not math.isfinite(self.scan_pose[2]): return False
+        if not all(bundle.free(x, y) for x, y in self.polygon): return False
         return self.contains(self.scan_pose) and bundle.footprint_free(*self.scan_pose[:2])
 
 def parse_intent(text, rooms):
-    m=re.fullmatch(r'\s*去\s*(.+?)\s*找书桌\s*',text)
-    if not m: raise WorkflowError('INTENT_REJECTED','only “去 <房间> 找书桌” is permitted')
-    name=m.group(1); found=[r for r in rooms if name in r.aliases]
-    if len(found)!=1: raise WorkflowError('INTENT_REJECTED','unknown or ambiguous room alias')
-    return {'room_id':found[0].id,'text':text}
+    match = re.fullmatch(r'\s*去\s*(.+?)\s*找书桌\s*', text)
+    if not match: raise WorkflowError('INTENT_REJECTED', 'only 去 <房间> 找书桌 is permitted')
+    matched = [room for room in rooms if match.group(1) in room.aliases]
+    if len(matched) != 1: raise WorkflowError('INTENT_REJECTED', 'unknown or ambiguous room alias')
+    return {'room_id': matched[0].id, 'text': text}
 
-def unwrap_complete(yaws, sectors=8):
-    if len(yaws)<2:return False
-    total=0.; seen=set(); last=yaws[0]
-    for value in yaws:
-        d=(value-last+math.pi)%(2*math.pi)-math.pi; total+=d; last=value; seen.add(int((value%(2*math.pi))/(2*math.pi/sectors)))
-    return abs(total)>=2*math.pi-0.25 and len(seen)==sectors
-
-def scan_complete(samples, max_center_drift=0.10):
-    """Validate actual (x, y, yaw) scan telemetry, not commanded headings."""
-    if not samples or len(samples[0]) != 3:
-        return False
-    x0, y0, _ = samples[0]
-    if any(math.hypot(x-x0, y-y0) > max_center_drift for x, y, _ in samples):
-        return False
-    return unwrap_complete([yaw for _, _, yaw in samples])
+def scan_complete(samples, max_center_drift=.10, sectors=8):
+    if len(samples) < 2 or any(len(sample) != 4 for sample in samples): return False
+    origin_x, origin_y, _, previous = samples[0]; total, seen = 0., set()
+    for x, y, _, yaw in samples:
+        if math.hypot(x - origin_x, y - origin_y) > max_center_drift: return False
+        total += (yaw - previous + math.pi) % (2 * math.pi) - math.pi; previous = yaw
+        seen.add(int((yaw % (2 * math.pi)) / (2 * math.pi / sectors)))
+    return abs(total) >= 2 * math.pi - .25 and len(seen) == sectors
 
 def desk_hypotheses(observations):
-    """Structured RGB-D seam; observations are {x,y,z,width,quality}."""
-    return [o for o in observations if o.get('quality',0)>=.6 and .5<=o.get('height',o.get('z',0))<=1.2 and o.get('width',0)>=.5]
+    return [item for item in observations if item.get('quality', 0) >= .6 and .5 <= item.get('height', item.get('z', 0)) <= 1.2 and item.get('width', 0) >= .5]
 
 @dataclass
 class Workflow:
-    state: State=State.EMPTY; bundle: MapBundle=None; rooms: list=field(default_factory=list); proposal: dict=None; scan_revision: int=0; desks:list=field(default_factory=list); candidates:list=field(default_factory=list); reason:str=''; selected:dict=None
-    def _need(self,*states):
-        if self.state not in states: raise WorkflowError('INVALID_STATE','operation is not permitted in '+self.state.value)
-    def load(self,bundle,rooms):
-        if len({a for r in rooms for a in r.aliases}) != sum(len(r.aliases) for r in rooms) or not all(r.valid(bundle) for r in rooms): raise WorkflowError('INVALID_ROOM','rooms invalid or aliases conflict')
-        self.bundle,self.rooms,self.state=bundle,rooms,State.EMPTY
-    def propose(self,text): self._need(State.EMPTY,State.CANCELED,State.FAILED,State.BLOCKED); self.proposal=parse_intent(text,self.rooms); self.state=State.INTENT_PROPOSED; return self.proposal
-    def confirm_intent(self): self._need(State.INTENT_PROPOSED); self.state=State.INTENT_CONFIRMED
-    def scan_goal(self): self._need(State.INTENT_CONFIRMED); self.state=State.NAVIGATING_TO_SCAN
-    def at_scan(self): self._need(State.NAVIGATING_TO_SCAN); self.state=State.AT_SCAN_POSE
-    def start_scan(self): self._need(State.AT_SCAN_POSE); self.state=State.SCANNING
-    def finish_scan(self,yaws):
-        self._need(State.SCANNING)
-        if not unwrap_complete(yaws): raise WorkflowError('INCOMPLETE_SCAN','yaw or sector coverage incomplete')
-        self.scan_revision+=1; self.state=State.SCAN_READY
-    def analyze(self,observations): self._need(State.SCAN_READY); self.state=State.ANALYZING; self.desks=desk_hypotheses(observations); self.state=State.DESK_READY; return self.desks
-    def preview(self,revision=None,path_feasible=lambda x:True):
-        self._need(State.DESK_READY)
-        if revision is not None and revision!=self.scan_revision: raise WorkflowError('STALE_REVISION','scan revision stale')
-        room=next(r for r in self.rooms if r.id==self.proposal['room_id']); out=[]
-        for d in self.desks:
-            x,y=d['dock']; distance=math.hypot(x-d['x'],y-d['y'])
-            if room.contains((x,y)) and d.get('quality',0)>=.6 and self.bundle.footprint_free(x,y) and .45<=distance<=1.5 and d.get('line_of_sight',False) and path_feasible((x,y)):
-                out.append(dict(d,score=round(d['quality']*10-distance,6)))
-        if not out: raise WorkflowError('NO_SAFE_DOCK','no candidate passed safety filters')
-        self.candidates=sorted(out,key=lambda d:(-d['score'],d['x'],d['y'])); self.state=State.DOCK_PREVIEW; return self.candidates
-    def confirm_dock(self,index=0): self._need(State.DOCK_PREVIEW); self.selected=self.candidates[index]; self.state=State.DOCK_CONFIRMED
-    def dock_goal(self): self._need(State.DOCK_CONFIRMED); self.state=State.NAVIGATING_TO_DOCK
-    def arrived(self): self._need(State.NAVIGATING_TO_DOCK); self.state=State.ARRIVED
-    def cancel(self): self.state=State.CANCELED; self.reason='canceled'
+    state: State = State.EMPTY; bundle: MapBundle = None; rooms: list = field(default_factory=list); proposal: dict = None
+    scan_revision: int = 0; detection_revision: int = 0; candidates: list = field(default_factory=list); desks: list = field(default_factory=list); selected: dict = None; reason: str = ''
+    def need(self, *states):
+        if self.state not in states: raise WorkflowError('INVALID_STATE', 'operation is not permitted in ' + self.state.value)
+    def load(self, bundle, rooms):
+        aliases = [alias for room in rooms for alias in room.aliases]
+        if len({room.id for room in rooms}) != len(rooms) or len(set(aliases)) != len(aliases) or not all(room.valid(bundle) for room in rooms): raise WorkflowError('INVALID_ROOM', 'invalid room geometry, scan pose, id, or alias')
+        self.bundle, self.rooms, self.state = bundle, rooms, State.EMPTY
+    def propose(self, text): self.need(State.EMPTY, State.CANCELED, State.FAILED, State.BLOCKED); self.proposal = parse_intent(text, self.rooms); self.state = State.INTENT_PROPOSED
+    def confirm_intent(self): self.need(State.INTENT_PROPOSED); self.state = State.INTENT_CONFIRMED
+    def scan_goal(self): self.need(State.INTENT_CONFIRMED); self.state = State.NAVIGATING_TO_SCAN
+    def at_scan(self): self.need(State.NAVIGATING_TO_SCAN); self.state = State.AT_SCAN_POSE
+    def start_scan(self): self.need(State.AT_SCAN_POSE); self.state = State.SCANNING
+    def finish_scan(self, telemetry):
+        self.need(State.SCANNING)
+        if not scan_complete(telemetry): raise WorkflowError('INCOMPLETE_SCAN', 'actual telemetry lacks full safe coverage')
+        self.scan_revision += 1; self.state = State.SCAN_READY
+    def analyze(self, observations): self.need(State.SCAN_READY); self.desks = desk_hypotheses(observations); self.detection_revision += 1; self.state = State.DESK_READY
+    def preview(self, verifier, map_revision, room_revision, scan_revision, detection_revision):
+        self.need(State.DESK_READY)
+        if verifier is None: raise WorkflowError('NO_SAFE_DOCK', 'path verifier is required')
+        if (map_revision, room_revision, scan_revision, detection_revision) != (self.bundle.revision, 1, self.scan_revision, self.detection_revision): raise WorkflowError('STALE_REVISION', 'candidate inputs are stale')
+        room = next(item for item in self.rooms if item.id == self.proposal['room_id']); safe = []
+        for desk in self.desks:
+            x, y = desk['dock']; distance = math.hypot(x - desk['x'], y - desk['y'])
+            if room.contains((x, y)) and desk.get('quality', 0) >= .6 and self.bundle.footprint_free(x, y) and .45 <= distance <= 1.5 and desk.get('line_of_sight') and verifier.verify((x, y), self.bundle.revision): safe.append(dict(desk, score=round(desk['quality'] * 10 - distance, 6)))
+        if not safe: raise WorkflowError('NO_SAFE_DOCK', 'no candidate passed hard safety filters')
+        self.candidates = sorted(safe, key=lambda item: (-item['score'], item['x'], item['y'])); self.state = State.DOCK_PREVIEW
+    def confirm_dock(self, index=0): self.need(State.DOCK_PREVIEW); self.selected = self.candidates[index]; self.state = State.DOCK_CONFIRMED
+    def dock_goal(self): self.need(State.DOCK_CONFIRMED); self.state = State.NAVIGATING_TO_DOCK
+    def arrived(self): self.need(State.NAVIGATING_TO_DOCK); self.state = State.ARRIVED
+    def cancel(self): self.state = State.CANCELED; self.reason = 'operator canceled'
 
 class CommandASR:
-    """Replaceable command-line ASR adapter; no executable means explicit NOT_READY."""
-    def __init__(self, command=None): self.command=command
+    def __init__(self, argv=None): self.argv = argv
     def propose(self, rooms):
-        import shutil, subprocess
-        if not self.command or not shutil.which(self.command[0]):
-            raise WorkflowError('NOT_READY','ASR command engine is not configured or unavailable')
-        result=subprocess.run(self.command,check=False,capture_output=True,text=True,timeout=30)
-        if result.returncode: raise WorkflowError('ASR_FAILED','ASR command failed')
-        return parse_intent(result.stdout.strip(),rooms)
+        if not self.argv or not shutil.which(self.argv[0]): raise WorkflowError('NOT_READY', 'configured ASR command is unavailable')
+        result = subprocess.run(self.argv, check=False, capture_output=True, text=True, timeout=30)
+        if result.returncode: raise WorkflowError('ASR_FAILED', 'configured ASR command failed')
+        return parse_intent(result.stdout.strip(), rooms)
 
 class RoomStore:
-    """JSON persistence tied to the active map hashes and localization map_id."""
     @staticmethod
-    def save(path,bundle,rooms):
-        Path(path).write_text(json.dumps({'map_id':bundle.map_id,'yaml_sha256':bundle.yaml_sha256,'image_sha256':bundle.image_sha256,'rooms':[{'id':r.id,'aliases':r.aliases,'polygon':r.polygon,'scan_pose':r.scan_pose} for r in rooms]},ensure_ascii=False))
-    @staticmethod
-    def load(path,bundle):
-        data=json.loads(Path(path).read_text())
-        if (data['map_id'],data['yaml_sha256'],data['image_sha256']) != (bundle.map_id,bundle.yaml_sha256,bundle.image_sha256): raise WorkflowError('MAP_MISMATCH','persisted rooms do not match active map bundle')
-        return [Room(x['id'],x['aliases'],[tuple(p) for p in x['polygon']],tuple(x['scan_pose'])) for x in data['rooms']]
+    def save(path, bundle, rooms): Path(path).write_text(json.dumps({'map_id': bundle.map_id, 'yaml_sha256': bundle.yaml_sha256, 'image_sha256': bundle.image_sha256, 'rooms': [room.__dict__ for room in rooms]}, ensure_ascii=False))
