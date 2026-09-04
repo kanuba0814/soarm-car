@@ -27,9 +27,11 @@ PY
 
 ros_domain_id="${ROS_DOMAIN_ID:-$((100 + RANDOM % 100))}"
 ign_partition="${IGN_PARTITION:-astra_sim_smoke_$$}"
-container="$(docker compose run -d -e ROS_DOMAIN_ID="$ros_domain_id" \
-    -e ROS_LOCALHOST_ONLY=1 -e IGN_PARTITION="$ign_partition" ros2-dev bash -lc \
-    'ros2 launch soarm_simulation simulation.launch.py')"
+container="soarm-astra-sim-smoke-$$"
+docker compose run -d --name "$container" --quiet \
+    -e ROS_DOMAIN_ID="$ros_domain_id" -e ROS_LOCALHOST_ONLY=1 \
+    -e IGN_PARTITION="$ign_partition" ros2-dev bash -lc \
+    'ros2 launch soarm_simulation simulation.launch.py'
 cleanup() { docker rm -f "$container" >/dev/null 2>&1 || true; }
 trap cleanup EXIT
 setup='source /opt/ros/humble/setup.bash && source /opt/astra_ros2/setup.bash && source /tmp/soarm_ros2/install/setup.bash'
