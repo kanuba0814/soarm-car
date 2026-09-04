@@ -25,5 +25,7 @@ class TestCore(unittest.TestCase):
   y=[i*2*math.pi/16 for i in range(17)];w.finish_scan(y);w.analyze(observations()); self.assertRaises(WorkflowError,w.preview,0); c=w.preview(w.scan_revision);self.assertEqual(c[0]['score'],8.5);w.confirm_dock();w.dock_goal();w.arrived();self.assertEqual(w.state,State.ARRIVED);w.cancel();self.assertEqual(w.state,State.CANCELED)
  def test_scan_and_hard_reject(self):
   self.assertFalse(unwrap_complete([0,math.pi]))
+  telemetry=[(1,1,i*math.pi/4) for i in range(9)]
+  self.assertTrue(scan_complete(telemetry)); self.assertFalse(scan_complete(telemetry+[(1.2,1,0)]))
   w=Workflow();w.load(bundle(),[room()]);w.propose('去书房找书桌');w.confirm_intent();w.scan_goal();w.at_scan();w.start_scan();w.finish_scan([i*math.pi/4 for i in range(9)]);w.analyze([dict(observations()[0],line_of_sight=False)]);self.assertRaisesRegex(WorkflowError,'no candidate',w.preview,w.scan_revision)
 if __name__=='__main__':unittest.main()

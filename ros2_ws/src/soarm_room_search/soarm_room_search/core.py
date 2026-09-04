@@ -77,6 +77,15 @@ def unwrap_complete(yaws, sectors=8):
         d=(value-last+math.pi)%(2*math.pi)-math.pi; total+=d; last=value; seen.add(int((value%(2*math.pi))/(2*math.pi/sectors)))
     return abs(total)>=2*math.pi-0.25 and len(seen)==sectors
 
+def scan_complete(samples, max_center_drift=0.10):
+    """Validate actual (x, y, yaw) scan telemetry, not commanded headings."""
+    if not samples or len(samples[0]) != 3:
+        return False
+    x0, y0, _ = samples[0]
+    if any(math.hypot(x-x0, y-y0) > max_center_drift for x, y, _ in samples):
+        return False
+    return unwrap_complete([yaw for _, _, yaw in samples])
+
 def desk_hypotheses(observations):
     """Structured RGB-D seam; observations are {x,y,z,width,quality}."""
     return [o for o in observations if o.get('quality',0)>=.6 and .5<=o.get('height',o.get('z',0))<=1.2 and o.get('width',0)>=.5]
