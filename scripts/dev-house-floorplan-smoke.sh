@@ -144,7 +144,7 @@ container="$(docker run -d --rm \
         source /opt/ros/humble/setup.bash
         source /workspaces/soarm-car/install/setup.bash
         colcon --log-base /tmp/house_floorplan/log build \
-            --base-paths /feature/ros2_ws/src/soarm_simulation \
+            --base-paths /feature/ros2_ws/src/soarm_astra /feature/ros2_ws/src/soarm_simulation \
             --build-base /tmp/house_floorplan/build \
             --install-base /tmp/house_floorplan/install \
             --symlink-install
