@@ -113,3 +113,25 @@ class Workflow:
     def dock_goal(self): self._need(State.DOCK_CONFIRMED); self.state=State.NAVIGATING_TO_DOCK
     def arrived(self): self._need(State.NAVIGATING_TO_DOCK); self.state=State.ARRIVED
     def cancel(self): self.state=State.CANCELED; self.reason='canceled'
+
+class CommandASR:
+    """Replaceable command-line ASR adapter; no executable means explicit NOT_READY."""
+    def __init__(self, command=None): self.command=command
+    def propose(self, rooms):
+        import shutil, subprocess
+        if not self.command or not shutil.which(self.command[0]):
+            raise WorkflowError('NOT_READY','ASR command engine is not configured or unavailable')
+        result=subprocess.run(self.command,check=False,capture_output=True,text=True,timeout=30)
+        if result.returncode: raise WorkflowError('ASR_FAILED','ASR command failed')
+        return parse_intent(result.stdout.strip(),rooms)
+
+class RoomStore:
+    """JSON persistence tied to the active map hashes and localization map_id."""
+    @staticmethod
+    def save(path,bundle,rooms):
+        Path(path).write_text(json.dumps({'map_id':bundle.map_id,'yaml_sha256':bundle.yaml_sha256,'image_sha256':bundle.image_sha256,'rooms':[{'id':r.id,'aliases':r.aliases,'polygon':r.polygon,'scan_pose':r.scan_pose} for r in rooms]},ensure_ascii=False))
+    @staticmethod
+    def load(path,bundle):
+        data=json.loads(Path(path).read_text())
+        if (data['map_id'],data['yaml_sha256'],data['image_sha256']) != (bundle.map_id,bundle.yaml_sha256,bundle.image_sha256): raise WorkflowError('MAP_MISMATCH','persisted rooms do not match active map bundle')
+        return [Room(x['id'],x['aliases'],[tuple(p) for p in x['polygon']],tuple(x['scan_pose'])) for x in data['rooms']]

@@ -12,6 +12,11 @@ class TestCore(unittest.TestCase):
  def test_rooms(self):
   self.assertTrue(room().valid(bundle())); self.assertFalse(Room('x',['x'],[(0,0),(2,2),(0,2),(2,0)],(1,1,0)).valid(bundle()))
   w=Workflow(); self.assertRaises(WorkflowError,w.load,bundle(),[room(),Room('x',['书房'],[(.5,.5),(2,.5),(2,1.5)],(1,1,0))])
+ def test_persistence_and_asr_not_ready(self):
+  import tempfile
+  with tempfile.NamedTemporaryFile() as f:
+   RoomStore.save(f.name,bundle(),[room()]); self.assertEqual(RoomStore.load(f.name,bundle())[0].id,'study')
+  self.assertRaises(WorkflowError,CommandASR().propose,[room()])
  def test_intent(self):
   self.assertEqual(parse_intent('去 书房 找书桌',[room()])['room_id'],'study')
   for s in ('去 客厅 找书桌','去书房找书桌然后转圈','找书桌'): self.assertRaises(WorkflowError,parse_intent,s,[room()])
