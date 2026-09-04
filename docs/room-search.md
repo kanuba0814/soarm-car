@@ -1,43 +1,76 @@
 # 找书桌并停靠观察
 
-## 演示（无 ROS / 无硬件）
+本模块实现以下受限任务：在已验证的预建地图上，由操作员定义命名房间；离线 ASR 或文本生成白名单意图；Nav2 到房间扫描点；原地分四段旋转一周采集 RGB-D 点云；自动提取保守桌面候选；结合占据地图和 Nav2 路径结果选择停靠观察点；经操作员确认后导航到达。
+
+它只报告“到达书桌观察停靠位”，不报告抓取或操作成功。
+
+## 无硬件演示
 
 ```bash
 scripts/dev-room-search.sh --port 8088
-# 浏览器 http://127.0.0.1:8088 ，或 scripts/dev-room-search-smoke.sh
+# 打开 http://127.0.0.1:8088
+scripts/dev-room-search-smoke.sh
 ```
 
-页面顶部始终显示 **SIMULATION**。其 RGB-D observation 是 mock；不会移动机器人，更不代表相机、ASR 或定位成功。按钮依次调用 HTTP core API：载入地图、保存房间、proposal、确认、扫描导航/扫描、分析、候选确认、停靠导航、到达、取消/重置。非法阶段返回 JSON `409`。
+演示页醒目标记 **SIMULATION**，点云和路径验证均为 mock，不会移动机器人。非法阶段返回 HTTP 409。
 
-## 真机启动
+## 房间 GUI
 
-先启动已有安全导航链（它是唯一的 `/cmd_vel -> localization_cmd_gate -> /safe_cmd_vel` 链）：
+1. 载入地图（真机由 ROS 参数载入，GUI 不能替换已验证地图）。
+2. 在画布点击至少三个点，输入唯一 `room_id`、逗号分隔别名和扫描位姿。
+3. 保存时验证：ID/别名唯一、简单非自交多边形、顶点在地图自由区、扫描点在房间内且整车 footprint 位于已知自由区。
+4. 每个 ID 单独新增或更新；JSON 同时保存地图 YAML/PGM 哈希和定位 `map_id`，地图变化后拒绝载入旧房间。
+
+## ROS2 Humble 真机入口
+
+先启动现有 FAST-LIO/Nav2 安全链，再启动本节点：
 
 ```bash
 source /opt/ros/humble/setup.bash
+cd ros2_ws
 colcon build --packages-select soarm_room_search
 source install/setup.bash
+
 ros2 launch soarm_navigation house_fastlio_nav2.launch.py
-ros2 launch soarm_room_search room_search.launch.py
+ros2 launch soarm_room_search room_search.launch.py \
+  occupancy_yaml:=/absolute/path/to/map.yaml \
+  expected_map_id:=/absolute/path/to/localization-map.pcd \
+  rooms_json:=/absolute/path/to/rooms.json \
+  pointcloud_topic:=/camera/depth/points \
+  camera_info_topic:=/camera/depth/camera_info \
+  camera_frame:=camera_depth_optical_frame \
+  gui_port:=8088
 ```
 
-`room_search_node` 仅创建 Nav2 `navigate_to_pose` action client，绝不发布 `Twist` 或写 `/cmd_vel`。真实接入必须将经验证的 `localization_healthy=true` 和当前 localization `map_id` 传入；健康、map_id 缺失或传感器超时会取消 action 并转为 `BLOCKED`。扫描是在固定 XY 的四个 `NavigateToPose` 航向（每段 pi/2）完成，core 以解缠 yaw 与八扇区覆盖验证一周。
+首次没有 `rooms_json` 时仍可打开 GUI 定义并保存房间；完成前 readiness 为 `NOT_READY`。服务只绑定 `127.0.0.1`。
 
-## 地图、房间和 ASR
+### 真实执行边界
 
-MapBundle 记录 occupancy YAML/PGM SHA256、resolution/origin 和 localization map_id。房间编辑 API 使用简单非自交多边形、唯一 ID/别名；scan pose 必须在房间内且 footprint+margin 位于已知自由区。示例为 package `examples/demo.yaml`。
+- 唯一运动路径：`room_search_node → NavigateToPose → /cmd_vel → localization_cmd_gate → /safe_cmd_vel`。本包不发布 `Twist`。
+- 订阅 `/localization/health`；状态必须新鲜、为 `HEALTHY`，且 `map_id` 精确匹配。
+- Nav2 goal 接受后保存真实 goal handle。定位、地图、RGB-D 或 TF 失效会调用 `cancel_goal_async()`；同一时刻禁止第二个运动 goal。
+- 扫描固定初始 XY，串行发送四个不超过 `π/2` 的航向目标；每段仅在 Nav2 成功后继续。实际 `map→base_footprint` telemetry 必须满足累计 `2π`、八扇区覆盖和中心漂移限制。
+- PointCloud2 根据字段偏移解码并经 TF 变换到 `map`。保守 baseline 按高度、体素连通、尺寸、平面高度方差和支持点数提取桌面；不读取 Gazebo 家具真值。
+- 候选必须通过房间、质量、整车 footprint、距离、占据地图视线和 `ComputePathToPose` 成功/非空路径检查。路径结果尚未返回时保持待规划，失败时 `NO_SAFE_DOCK`，评分不能覆盖硬拒绝。
+- 最终停靠必须再次由 GUI 确认；Nav2 只有返回 `SUCCEEDED` 才进入 `ARRIVED`。
 
-ASR 引擎是外部可替换的命令行适配点（例如 `whisper.cpp -m model.bin -f input.wav`）；缺少引擎必须报告 `NOT_READY`，不得把音频当成功意图。首版只接受 `去 <唯一房间别名> 找书桌`，未知、歧义或附加运动命令拒绝，并且 GUI 确认前不得调用 Nav2。
+## ASR
 
-RGB-D 适配器应只向 `desk_hypotheses()` 输入结构化观测（位置、height、width、quality、dock、line_of_sight），不能读取 Gazebo 桌子真值。停靠候选要求当前 revision、房间内、质量、footprint+margin 已知自由、桌距、视线和可插拔路径可达性全部通过；否则 `NO_SAFE_DOCK`，评分无权覆盖拒绝。
+`CommandASR` 是本地命令行引擎适配点（例如 whisper.cpp）。可执行程序及参数只能在服务启动配置中提供，HTTP 请求不能提供命令。引擎缺失、超时或非零退出均 `NOT_READY/ASR_FAILED`。首版只接受：
 
-## 真机前不可伪造的标定清单
+```text
+去 <唯一房间别名> 找书桌
+```
 
-* occupancy YAML/图像 SHA256 与 localization map_id 一致；map→base_link 坐标和机器人 footprint/margin 实测。
-* 相机内外参、RGB-D 时间同步、书桌高度/宽度阈值及 observation freshness。
-* Nav2 到扫描/停靠 pose 的真实 action 成功、取消传播到 localization gate、急停与失定位/失传感器 BLOCKED。
-* ASR 麦克风、模型、语言和命令退出码；没有引擎时 UI 必须显示 NOT_READY。
+ASR 仅产生 proposal，必须由 GUI 确认后才允许运动。
 
-## 当前视觉能力边界
+## 真机启用前必须实测
 
-当前实现订阅 PointCloud2 与 CameraInfo 并对 frame、时间同步、TF 与 freshness fail-closed；桌面检测仍是**结构化 RGB-D observation baseline/适配 seam**，不是已验证的自动点云桌面识别算法。硬件环境没有合格的上游 observation 时，分析和停靠必须保持 `BLOCKED`。
+- 占据地图与定位 PCD 身份、现场一致性及定位恢复；
+- `map/base_footprint/camera_*` 外参、点云 frame、深度 scale、同步与延迟；
+- 实车 footprint、安全余量、制动距离、原地旋转漂移和轮胎打滑；
+- 各类桌面材质、光照、遮挡和多桌场景的误检/漏检；
+- 麦克风、中文 ASR 模型、底盘噪声下识别率和机载性能；
+- 物理急停与独立安全装置。GUI“停止”不能替代物理急停。
+
+仿真、单元测试和容器构建均不能替代上述实测。

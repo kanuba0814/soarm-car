@@ -1,5 +1,5 @@
 """Hardware ROS adapter: serialized HTTP commands, Nav2 actions, TF and RGB-D gates."""
-import math, queue, threading, time
+import math, queue, shlex, threading, time
 from http.server import ThreadingHTTPServer
 from .controller import SearchController
 from .core import MapBundle, RoomStore, State, Workflow, WorkflowError
@@ -32,8 +32,22 @@ class ComputePathVerifier:
 class RoomSearchNode(Node if rclpy else object):
     def __init__(self):
         super().__init__('room_search')
-        for name, default in [('occupancy_yaml',''), ('expected_map_id',''), ('rooms_json',''), ('rooms_store_path','/tmp/soarm-rooms.json'), ('camera_info_topic','/camera/camera_info'), ('pointcloud_topic','/camera/depth/points'), ('camera_frame','camera_link'), ('gui_port',8088), ('health_timeout',.5), ('sensor_timeout',1.)]: self.declare_parameter(name, default)
-        self.ready_reason = 'NOT_READY: occupancy_yaml, expected_map_id and rooms_json required'
+        parameters = [
+            ('occupancy_yaml', ''),
+            ('expected_map_id', ''),
+            ('rooms_json', ''),
+            ('rooms_store_path', '/tmp/soarm-rooms.json'),
+            ('asr_command', ''),
+            ('camera_info_topic', '/camera/camera_info'),
+            ('pointcloud_topic', '/camera/depth/points'),
+            ('camera_frame', 'camera_link'),
+            ('gui_port', 8088),
+            ('health_timeout', .5),
+            ('sensor_timeout', 1.),
+        ]
+        for name, default in parameters:
+            self.declare_parameter(name, default)
+        self.ready_reason = 'NOT_READY: occupancy_yaml and expected_map_id required'
         self.client = ActionClient(self, NavigateToPose, 'navigate_to_pose'); self.path_client = ActionClient(self, ComputePathToPose, 'compute_path_to_pose')
         self.verifier = ComputePathVerifier(self); self.controller = SearchController(Workflow(), self, self.verifier, False)
         self.commands = queue.Queue()
@@ -52,21 +66,42 @@ class RoomSearchNode(Node if rclpy else object):
         self.create_timer(.05, self._consume)
         self.create_timer(.1, self._sample_scan_pose)
         self.create_timer(.2, self._safety)
+        asr_command = self.get_parameter('asr_command').value
         self.app = App(
             self.get_parameter('rooms_store_path').value,
+            asr_argv=shlex.split(asr_command) if asr_command else None,
             controller=self.controller,
             enqueue=lambda action, data: self.commands.put((action, data)),
             status_provider=self.status,
         )
         self.http = ThreadingHTTPServer(('127.0.0.1', int(self.get_parameter('gui_port').value)), server(self.app)); threading.Thread(target=self.http.serve_forever, daemon=True).start()
     def _load_configuration(self):
-        yaml_path = self.get_parameter('occupancy_yaml').value; expected = self.get_parameter('expected_map_id').value; rooms = self.get_parameter('rooms_json').value
-        if not yaml_path or not expected or not rooms: return
+        yaml_path = self.get_parameter('occupancy_yaml').value
+        expected = self.get_parameter('expected_map_id').value
+        rooms_path = self.get_parameter('rooms_json').value
+        if not yaml_path or not expected:
+            return
         try:
-            bundle = MapBundle.load(yaml_path, expected); self.controller.workflow.load(bundle, RoomStore.load(rooms, bundle)); self.ready_reason = 'READY'
-        except Exception as error: self.ready_reason = 'NOT_READY: ' + str(error)
+            bundle = MapBundle.load(yaml_path, expected)
+            self.controller.workflow.bundle = bundle
+            if rooms_path:
+                self.controller.workflow.load(bundle, RoomStore.load(rooms_path, bundle))
+                self.ready_reason = 'READY'
+            else:
+                self.ready_reason = 'NOT_READY: define and save at least one room in the GUI'
+        except Exception as error:
+            self.ready_reason = 'NOT_READY: ' + str(error)
+
+    def _configuration_ready(self):
+        workflow = self.controller.workflow
+        return workflow.bundle is not None and bool(workflow.rooms)
+
     def status(self):
-        result = self.controller.status(); result['readiness'] = self.ready_reason; return result
+        if self._configuration_ready() and self.ready_reason.startswith('NOT_READY: define'):
+            self.ready_reason = 'READY'
+        result = self.controller.status()
+        result['readiness'] = self.ready_reason
+        return result
     def _health(self, message): self.last_health = time.monotonic(); self.healthy = message.state == LocalizationHealth.HEALTHY; self.map_id = getattr(message, 'map_id', '')
     def _info(self, message): self.sensor_gate.camera_info(message.header.stamp.sec + message.header.stamp.nanosec / 1e9, message.header.frame_id)
     def _cloud(self, message):
@@ -114,7 +149,17 @@ class RoomSearchNode(Node if rclpy else object):
                 2 * (xz - wy) * x + 2 * (yz + wx) * y + (1 - 2 * (xx + yy)) * z + tz,
             ))
         return rotated
-    def _ready(self): return self.ready_reason == 'READY' and self.healthy and self.map_id == self.get_parameter('expected_map_id').value and time.monotonic()-self.last_health < float(self.get_parameter('health_timeout').value)
+    def _ready(self):
+        if self._configuration_ready() and self.ready_reason.startswith('NOT_READY: define'):
+            self.ready_reason = 'READY'
+        return (
+            self._configuration_ready()
+            and self.ready_reason == 'READY'
+            and self.healthy
+            and self.map_id == self.get_parameter('expected_map_id').value
+            and time.monotonic() - self.last_health
+            < float(self.get_parameter('health_timeout').value)
+        )
     def _consume(self):
         while not self.commands.empty():
             action, data = self.commands.get_nowait()
