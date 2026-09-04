@@ -4,7 +4,19 @@ cd "$(dirname "$0")/.."
 [[ -s artifacts/fastlio_house_floorplan.pcd ]] || ./scripts/dev-generate-house-pcd.sh
 python3 - <<'PY'
 from pathlib import Path
+import re
+import struct
 import yaml
+
+pcd = Path('artifacts/fastlio_house_floorplan.pcd').read_bytes()
+header, payload = pcd.split(b'DATA binary\n', 1)
+point_count = int(re.search(rb'POINTS (\d+)', header).group(1))
+assert point_count > 10_000, point_count
+assert len(payload) == point_count * 32, (len(payload), point_count)
+points = [struct.unpack_from('<fff', payload, index * 32) for index in range(point_count)]
+extent = [max(point[axis] for point in points) - min(point[axis] for point in points) for axis in range(3)]
+assert extent[0] > 20.0 and extent[1] > 18.0 and extent[2] > 2.0, extent
+
 config = yaml.safe_load(Path('vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/config/soarm_house_localization.yaml').read_text())
 assert config['/**']['ros__parameters']['common'] == {'lid_topic': '/livox/lidar', 'imu_topic': '/livox/imu', 'time_sync_en': False, 'time_offset_lidar_to_imu': 0.0}
 assert config['/**']['ros__parameters']['pcd_save']['pcd_save_en'] is False
@@ -163,24 +175,30 @@ from nav_msgs.msg import Odometry
 from nav2_msgs.msg import Costmap
 from rclpy.action import ActionClient
 from rosgraph_msgs.msg import Clock
+from soarm_interfaces.msg import LocalizationHealth
 
 def yaw(q): return math.atan2(2*(q.w*q.z+q.x*q.y), 1-2*(q.y*q.y+q.z*q.z))
 rclpy.init(); n=rclpy.create_node('fastlio_house_acceptance')
-state={'odom':None, 'localization':None, 'truth':None, 'clock':None, 'occupied':0, 'samples':[], 'commands':[]}
+state={'odom':None, 'localization':None, 'truth':None, 'clock':None, 'health':None, 'health_states':[], 'occupied':0, 'samples':[], 'commands':[]}
 def odom(msg):
     state['odom']=msg; state['samples'].append((msg.header.stamp.sec+msg.header.stamp.nanosec/1e9, msg.pose.pose.position.x, msg.pose.pose.position.y, yaw(msg.pose.pose.orientation), msg.twist.twist.linear.x, msg.twist.twist.angular.z))
 def localization(msg): state['localization']=msg
 def truth(msg): state['truth']=msg
 def command(msg): state['commands'].append((time.monotonic(),msg.linear.x,msg.linear.y,msg.angular.z))
 def clock(msg): state['clock']=msg.clock.sec+msg.clock.nanosec/1e9
+def health(msg):
+    state['health']=msg
+    state['health_states'].append(msg.state)
 def cost(msg): state['occupied']=max(state['occupied'], sum(cell >= 100 for cell in msg.data))
 n.create_subscription(Odometry, '/odom', odom, 30); n.create_subscription(Odometry, '/localization', localization, 30)
 n.create_subscription(Odometry, '/ground_truth/odom', truth, 30); n.create_subscription(Twist, '/cmd_vel', command, 30)
-n.create_subscription(Clock, '/clock', clock, 30); n.create_subscription(Costmap, '/local_costmap/costmap_raw', cost, 10)
+n.create_subscription(Clock, '/clock', clock, 30); n.create_subscription(LocalizationHealth, '/localization/health', health, 30)
+n.create_subscription(Costmap, '/local_costmap/costmap_raw', cost, 10)
 c=ActionClient(n, NavigateToPose, '/navigate_to_pose'); assert c.wait_for_server(timeout_sec=45)
 end=time.monotonic()+30
-while (state['odom'] is None or state['localization'] is None or state['clock'] is None) and time.monotonic()<end:rclpy.spin_once(n,timeout_sec=.2)
+while (state['odom'] is None or state['localization'] is None or state['clock'] is None or state['health'] is None) and time.monotonic()<end:rclpy.spin_once(n,timeout_sec=.2)
 assert state['odom'] is not None and state['localization'] is not None and state['clock'] is not None
+assert state['health'] is not None and state['health'].state == LocalizationHealth.HEALTHY
 start=state['odom']; start_sim=state['clock']; start_wall=time.monotonic()
 
 def fortress_pose():
@@ -194,11 +212,10 @@ def fortress_pose():
     q.z=orientation.get('z',0.0); q.w=orientation.get('w',1.0)
     return position.get('x',0.0),position.get('y',0.0),yaw(q)
 
+# Exact two-goal route captured from the RViz reproduction on 2026-09-04.
 goals=[
-    (1.5,1.5,math.pi/4),
-    (0.45,2.76,math.pi),
-    (-2.55,2.76,math.pi),
-    (0.45,2.76,0.0),
+    (-7.06478,6.83428,2.82854),
+    (8.95212,-4.69473,2.63699),
 ]
 checkpoints=[]
 for index,(goal_x,goal_y,goal_yaw) in enumerate(goals):
@@ -219,6 +236,10 @@ for index,(goal_x,goal_y,goal_yaw) in enumerate(goals):
         'goal_error_m':math.hypot(o.pose.pose.position.x-goal_x,o.pose.pose.position.y-goal_y),
         'truth_xy_error_m':math.hypot(o.pose.pose.position.x-truth_x,o.pose.pose.position.y-truth_y),
         'truth_yaw_error_rad':abs(math.atan2(math.sin(yaw(o.pose.pose.orientation)-truth_yaw),math.cos(yaw(o.pose.pose.orientation)-truth_yaw))),
+        'health_state':state['health'].state,
+        'health_reason_mask':state['health'].reason_mask,
+        'health_fitness':state['health'].fitness,
+        'health_rmse':state['health'].rmse,
     }
     checkpoints.append(checkpoint)
     if status != 4: break
@@ -232,6 +253,9 @@ rtf=(state['clock']-start_sim)/(time.monotonic()-start_wall)
 metrics={'checkpoints':checkpoints,'max_turn_rad':turn,'max_lateral_m':lateral,'occupied_cells':state['occupied'],'active_twist_samples':len(active),'final_twist':[o.twist.twist.linear.x,o.twist.twist.angular.z], 'rtf':rtf, 'command_tail':command_tail[::max(1,len(command_tail)//40)]}; print(json.dumps(metrics,sort_keys=True))
 assert len(checkpoints)==len(goals)
 assert all(point['status']==4 for point in checkpoints)
+assert all(point['health_state']==LocalizationHealth.HEALTHY for point in checkpoints)
+assert LocalizationHealth.DEGRADED not in state['health_states']
+assert LocalizationHealth.LOST not in state['health_states']
 assert all(point['goal_error_m']<=.35 for point in checkpoints)
 assert all(point['truth_xy_error_m']<=.20 and point['truth_yaw_error_rad']<=.10 for point in checkpoints)
 assert turn>=.35 and lateral>=.5 and state['occupied']>0 and active

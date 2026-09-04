@@ -28,6 +28,7 @@ bags/
 # Downloaded system/container images (manifest only goes in Git)
 artifacts/images/
 artifacts/*.pcd
+!artifacts/fastlio_house_floorplan.pcd
 artifacts/*.json
 artifacts/baselines/
 *.img
