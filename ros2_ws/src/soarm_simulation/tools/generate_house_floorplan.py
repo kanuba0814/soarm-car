@@ -28,12 +28,15 @@ FURNITURE_SELECTORS = (
 WALL_HEIGHT = 2.4384
 CENTER_X = 7.454154
 CENTER_Y = 6.672447
+PLAN_SCALE = 1.5
+MIN_DOOR_WIDTH = 1.8
+EXTRA_WIDE_DOORS = {2: 2.4}
 MAP_RESOLUTION = 0.05
-MAP_WIDTH = 320
-MAP_HEIGHT = 290
-MAP_ORIGIN_X = -8.0
-MAP_ORIGIN_Y = -7.25
-FRAME_WIDTH = 0.05
+MAP_WIDTH = 480
+MAP_HEIGHT = 435
+MAP_ORIGIN_X = -12.0
+MAP_ORIGIN_Y = -10.875
+FRAME_WIDTH = 0.05 * PLAN_SCALE
 
 Wall = tuple[float, float, float, float, float]
 Door = tuple[float, float, float, float, float]
@@ -43,8 +46,12 @@ DOORS: list[Door] = []
 FURNITURE: list[Furniture] = []
 
 
+def scale_coordinate(value: float, center: float) -> float:
+    return center + (value - center) * PLAN_SCALE
+
+
 def load_geometry(source_path: Path) -> None:
-    """Load the metric ground-floor structure directly from a Sweet Home 3D file."""
+    """Load and horizontally scale the ground-floor Sweet Home 3D structure."""
     global WALLS, DOORS, FURNITURE
     source_digest = hashlib.sha256(source_path.read_bytes()).hexdigest()
     if source_digest != SOURCE_SHA256:
@@ -60,26 +67,32 @@ def load_geometry(source_path: Path) -> None:
     )
     WALLS = [
         (
-            float(element.get("xStart")) / 100,
-            float(element.get("yStart")) / 100,
-            float(element.get("xEnd")) / 100,
-            float(element.get("yEnd")) / 100,
-            float(element.get("thickness")) / 100,
+            scale_coordinate(float(element.get("xStart")) / 100, CENTER_X),
+            scale_coordinate(float(element.get("yStart")) / 100, CENTER_Y),
+            scale_coordinate(float(element.get("xEnd")) / 100, CENTER_X),
+            scale_coordinate(float(element.get("yEnd")) / 100, CENTER_Y),
+            float(element.get("thickness")) / 100 * PLAN_SCALE,
         )
         for element in root.findall("wall")
         if element.get("level") == level
     ]
+    door_elements = [
+        element for element in root.findall("doorOrWindow")
+        if element.get("level") == level
+        and "door" in element.get("name", "").lower()
+    ]
     DOORS = [
         (
-            float(element.get("x")) / 100,
-            float(element.get("y")) / 100,
-            float(element.get("width")) / 100,
+            scale_coordinate(float(element.get("x")) / 100, CENTER_X),
+            scale_coordinate(float(element.get("y")) / 100, CENTER_Y),
+            max(
+                float(element.get("width")) / 100 * PLAN_SCALE,
+                EXTRA_WIDE_DOORS.get(index, MIN_DOOR_WIDTH),
+            ),
             float(element.get("height")) / 100,
             float(element.get("angle", "0")),
         )
-        for element in root.findall("doorOrWindow")
-        if element.get("level") == level
-        and "door" in element.get("name", "").lower()
+        for index, element in enumerate(door_elements)
     ]
     source_furniture = [element for element in root.findall("pieceOfFurniture")
                         if element.get("level") == level]
@@ -96,10 +109,10 @@ def load_geometry(source_path: Path) -> None:
         element = matches[0]
         FURNITURE.append((
             model_name,
-            float(element.get("x")) / 100,
-            float(element.get("y")) / 100,
-            float(element.get("width")) / 100,
-            float(element.get("depth")) / 100,
+            scale_coordinate(float(element.get("x")) / 100, CENTER_X),
+            scale_coordinate(float(element.get("y")) / 100, CENTER_Y),
+            float(element.get("width")) / 100 * PLAN_SCALE,
+            float(element.get("depth")) / 100 * PLAN_SCALE,
             float(element.get("height")) / 100,
             float(element.get("angle", "0")),
         ))

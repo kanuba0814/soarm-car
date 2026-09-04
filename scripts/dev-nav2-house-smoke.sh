@@ -42,12 +42,12 @@ assert local_source['observation_persistence'] == 0.5 and local_source['max_obst
 # The smoke target is map-free with one metre of static-wall clearance, leaving
 # room for the 0.31 m square footprint.
 pgm = Path('ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm').read_bytes().split(b'\n255\n', 1)[1]
-width, height, resolution, origin_x, origin_y = 320, 290, 0.05, -8.0, -7.25
+width, height, resolution, origin_x, origin_y = 480, 435, 0.05, -12.0, -10.875
 def cell_value(x, y):
     column = int((x - origin_x) / resolution)
     row = height - 1 - int((y - origin_y) / resolution)
     return pgm[row * width + column]
-assert cell_value(1.0, 1.0) == 254
+assert cell_value(1.5, 1.5) == 254
 assert '<Spin' not in tree and '<Rotate' not in tree
 assert '<Spin' not in through_poses_tree and '<Rotate' not in through_poses_tree
 PY
@@ -212,10 +212,10 @@ goal = NavigateToPose.Goal()
 goal.pose = PoseStamped()
 goal.pose.header.frame_id = 'map'
 goal.pose.header.stamp = node.get_clock().now().to_msg()
-# This map-free diagonal goal is 1.41 m away and needs a holonomic approach;
+# This map-free diagonal goal is 2.12 m away and needs a holonomic approach;
 # its pi/4 final heading exercises position and final-yaw tracking in the open map area.
-goal.pose.pose.position.x = 1.0
-goal.pose.pose.position.y = 1.0
+goal.pose.pose.position.x = 1.5
+goal.pose.pose.position.y = 1.5
 goal.pose.pose.orientation.z = math.sin(math.pi / 8.0)
 goal.pose.pose.orientation.w = math.cos(math.pi / 8.0)
 assert math.hypot(goal.pose.pose.position.x - start.x, goal.pose.pose.position.y - start.y) > 1.0

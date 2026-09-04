@@ -195,10 +195,10 @@ def fortress_pose():
     return position.get('x',0.0),position.get('y',0.0),yaw(q)
 
 goals=[
-    (1.0,1.0,math.pi/4),
-    (0.3,1.84,math.pi),
-    (-1.7,1.84,math.pi),
-    (0.3,1.84,0.0),
+    (1.5,1.5,math.pi/4),
+    (0.45,2.76,math.pi),
+    (-2.55,2.76,math.pi),
+    (0.45,2.76,0.0),
 ]
 checkpoints=[]
 for index,(goal_x,goal_y,goal_yaw) in enumerate(goals):

@@ -11,8 +11,12 @@ The generated Gazebo structure is based on the `Ground floor` level in:
 The upstream repository does not declare a license, so its 34 MB archive,
 images, furniture meshes, and textures are not redistributed here. The checked-in
 SDF and occupancy map are generated metric structure data. The generator first
-verifies the exact upstream archive SHA-256, then reads the model directly and
-verifies the expected 21 walls, 10 door-like openings, and 2.4384 m wall height.
+verifies the exact upstream archive SHA-256, then reads the model directly,
+scales all horizontal plan geometry by 1.5 about the source-plan center, widens
+smaller door openings to a 1.80 m minimum clear width, widens the east-route
+opening to 2.40 m, and verifies the
+expected 21 walls, 10 door-like openings, and 2.4384 m wall height. The vertical
+dimensions and 0.05 m occupancy-grid resolution remain unchanged.
 
 All source objects whose names contain `door` are converted to open door frames.
 Door leaves, swing arcs, roof, and ceiling are omitted. Three selected table
