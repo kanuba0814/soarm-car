@@ -3,6 +3,7 @@ import math
 import time
 import queue
 import threading
+from http.server import ThreadingHTTPServer
 from .http_gui import App, server
 from .controller import SearchController
 from .core import State, Workflow, scan_complete
