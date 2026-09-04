@@ -32,7 +32,7 @@ def generate_launch_description():
             package='tf2_ros', executable='static_transform_publisher',
             name='mid360_scan_frame_tf',
             arguments=['0', '0', '0', '0', '0', '0', 'livox_frame',
-                       'kuruma/livox_frame/mid360_approx'],
+                       'kuruma/livox_frame/mid360'],
         ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(

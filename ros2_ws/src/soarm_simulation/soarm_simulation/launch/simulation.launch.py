@@ -38,6 +38,14 @@ def generate_launch_description():
         "'", LaunchConfiguration('world'), "' in ['navigation_room', 'house_floorplan', 'apartment_a', 'apartment_b'] and '",
         LaunchConfiguration('ground_truth_map_tf'), "' == 'true'",
     ]))
+    simulation_with_astra = IfCondition(PythonExpression([
+        "'", LaunchConfiguration('simulation'), "' == 'true' and '",
+        LaunchConfiguration('astra_compat'), "' == 'true'",
+    ]))
+    simulation_without_astra = IfCondition(PythonExpression([
+        "'", LaunchConfiguration('simulation'), "' == 'true' and '",
+        LaunchConfiguration('astra_compat'), "' != 'true'",
+    ]))
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
         condition=IfCondition(LaunchConfiguration('simulation')),
@@ -45,13 +53,14 @@ def generate_launch_description():
     astra_simulation = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(PathJoinSubstitution([
             get_package_share_directory('soarm_astra'), 'launch', 'simulation.launch.py'])),
-        condition=IfCondition(LaunchConfiguration('simulation')),
+        condition=simulation_with_astra,
     )
     return LaunchDescription([
         SetEnvironmentVariable('IGN_GAZEBO_RESOURCE_PATH', models_path),
         SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', models_path),
         DeclareLaunchArgument('world', default_value='kuruma', description='World basename from share/soarm_simulation/worlds; navigation_room, house_floorplan and apartment_a/apartment_b provide localisation maps.'),
         DeclareLaunchArgument('simulation', default_value='true', description='true starts Fortress; false keeps the hardware-compatible ROS seam only.'),
+        DeclareLaunchArgument('astra_compat', default_value='true', description='Expose simulated RGB-D through Astra-compatible ROS topics.'),
         DeclareLaunchArgument('gz_args', default_value='-r -s', description='Gazebo arguments; use "-r" to open the GUI.'),
         DeclareLaunchArgument('spawn_robot', default_value='true'),
         DeclareLaunchArgument('publish_static_map', default_value='true', description='Start map_server for worlds with a packaged occupancy map; disable while SLAM owns /map.'),
@@ -70,12 +79,18 @@ def generate_launch_description():
                 '/gazebo/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
                 '/gazebo/imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
                 '/gazebo/livox_imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
-                '/camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
-                '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
-                '/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
                 '/mid360/scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan',
                 '/mid360/scan/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
                 '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
+            ],
+        ),
+        Node(
+            package='ros_gz_bridge', executable='parameter_bridge',
+            condition=simulation_with_astra,
+            arguments=[
+                '/camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
+                '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+                '/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
             ],
             remappings=[
                 ('/camera/image', '/simulation/astra/color/image'),
@@ -83,11 +98,21 @@ def generate_launch_description():
                 ('/camera/depth_image', '/simulation/astra/depth/image'),
             ],
         ),
+        Node(
+            package='ros_gz_bridge', executable='parameter_bridge',
+            condition=simulation_without_astra,
+            arguments=[
+                '/camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
+                '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+                '/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
+            ],
+        ),
         astra_simulation,
         Node(package='soarm_simulation', executable='sim_adapter', parameters=[
             {'policy_file': os.path.join(sim_share, 'config', 'mission_policy.yaml')},
             {'publish_odometry': LaunchConfiguration('publish_sim_odometry')},
             {'arm_enabled': False},
+            {'points_input_topic': '/mid360/scan/points'},
         ]),
         Node(package='soarm_simulation', executable='odom_path'),
         Node(

@@ -23,6 +23,7 @@ class SimAdapter(Node):
         self.declare_parameter('publish_odometry', True)
         self.declare_parameter('arm_enabled', False)
         self.declare_parameter('command_timeout', 0.5)
+        self.declare_parameter('points_input_topic', '/mid360/scan/points/points')
         self.publish_odometry = self.get_parameter('publish_odometry').value
         self.arm_enabled = self.get_parameter('arm_enabled').value
         self.command_timeout = self.get_parameter('command_timeout').value
@@ -55,7 +56,9 @@ class SimAdapter(Node):
             self.create_subscription(JointState, '/joint_states', self.on_joint_states, 50)
         self.create_subscription(Imu, '/gazebo/imu', self.on_imu, 50)
         self.create_subscription(Imu, '/gazebo/livox_imu', self.on_livox_imu, 50)
-        self.create_subscription(PointCloud2, '/mid360/scan/points/points', self.on_points, 10)
+        self.create_subscription(
+            PointCloud2, self.get_parameter('points_input_topic').value,
+            self.on_points, 10)
         self.create_timer(1.0, lambda: self.power_pub.publish(Float32(data=24.0)))
         # Interfaces remain discoverable, but chassis-first simulation never fabricates arm success.
         self.arm_server = ActionServer(self, FollowJointTrajectory, '/arm_controller/follow_joint_trajectory', self.unavailable_trajectory, goal_callback=self.arm_goal, cancel_callback=lambda _: CancelResponse.ACCEPT)

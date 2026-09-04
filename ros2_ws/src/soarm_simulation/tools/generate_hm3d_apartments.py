@@ -443,7 +443,7 @@ def generate(apartment, dataset_root, metadata_root):
     output = {"source_scene": apartment["scene"], "coordinate_frame": "HM3D metric Z-up", "rooms": rooms, "objects": records,
               "collision": {"structural_source_triangles": original_triangles, "structural_triangles": collision_triangles, "box_count": len(boxes)},
               "navigation": {"spawn": spawn, "spawn_clearance_m": round(clearance, 6), "spawn_cell": [spawn_cell[1], spawn_cell[0]], "map_counts": map_data["counts"],
-                             "regression_camera": {"robot_pose": [spawn[0], spawn[1], spawn[2] - 0.08, 0.0, 0.0, apartment["regression_yaw"]], "topic": "/camera/color/image_raw", "lighting_profile": load_config()["lighting_profile"]}},
+                             "regression_camera": {"robot_pose": [spawn[0], spawn[1], spawn[2] - 0.08, 0.0, 0.0, apartment["regression_yaw"]], "topic": "/camera/image", "lighting_profile": load_config()["lighting_profile"]}},
               "provenance": {"sha256": {
                   "source_visual_glb": sha256_file(visual),
                   "source_semantic_glb": sha256_file(semantic),
@@ -549,7 +549,7 @@ def validate(apartment, dataset_root, metadata_root):
     expected_pose = [spawn[0], spawn[1], spawn[2] - 0.08,
                      0.0, 0.0, apartment["regression_yaw"]]
     regression_camera = navigation.get("regression_camera", {})
-    if regression_camera.get("robot_pose") != expected_pose or regression_camera.get("topic") != "/camera/color/image_raw" or regression_camera.get("lighting_profile") != load_config().get("lighting_profile"):
+    if regression_camera.get("robot_pose") != expected_pose or regression_camera.get("topic") != "/camera/image" or regression_camera.get("lighting_profile") != load_config().get("lighting_profile"):
         raise RuntimeError("regression camera checkpoint mismatch for " + apartment["name"])
     if robot_pose is None or not np.allclose([float(value) for value in robot_pose.text.split()[:6]], expected_pose, atol=1e-6):
         raise RuntimeError("world spawn does not match validated regression pose for " + apartment["name"])

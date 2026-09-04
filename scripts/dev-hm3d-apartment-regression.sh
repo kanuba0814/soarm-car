@@ -32,14 +32,14 @@ for index in 0 1; do
                 --base-paths ros2_ws/src/soarm_description ros2_ws/src/soarm_astra ros2_ws/src/soarm_simulation \\
                 --build-base /tmp/hm3d_regression/build --install-base /tmp/hm3d_regression/install --symlink-install
             source /tmp/hm3d_regression/install/setup.bash
-            ros2 launch soarm_simulation simulation.launch.py world:=$world
+            ros2 launch soarm_simulation simulation.launch.py world:=$world astra_compat:=false
         " >/dev/null
 
     ready=false
     for _ in {1..180}; do
         if docker exec "$container" bash -lc "source /opt/ros/humble/setup.bash; source /workspaces/soarm-car/install/setup.bash; source /tmp/hm3d_regression/install/setup.bash; ROS_DOMAIN_ID=$domain_id ros2 topic list" >"$temporary/topics" 2>/dev/null \
-            && grep -qx /camera/color/image_raw "$temporary/topics" \
-            && grep -qx /camera/depth/image_raw "$temporary/topics" \
+            && grep -qx /camera/image "$temporary/topics" \
+            && grep -qx /camera/depth_image "$temporary/topics" \
             && grep -qx /mid360/points "$temporary/topics"; then
             ready=true
             break
@@ -58,12 +58,18 @@ from sensor_msgs.msg import Image, PointCloud2
 latest = {}
 rclpy.init()
 node = rclpy.create_node('${world}_regression_probe')
-for topic, message_type, key in [('/camera/color/image_raw', Image, 'rgb'), ('/camera/depth/image_raw', Image, 'depth'), ('/mid360/points', PointCloud2, 'cloud')]:
+topics = [
+    ('/camera/image', Image, 'rgb'),
+    ('/camera/depth_image', Image, 'depth'),
+    ('/mid360/points', PointCloud2, 'cloud'),
+]
+for topic, message_type, key in topics:
     node.create_subscription(message_type, topic, lambda message, key=key: latest.__setitem__(key, message), 10)
+required = {'rgb', 'depth', 'cloud'}
 end = time.monotonic() + 35
-while len(latest) < 3 and time.monotonic() < end:
+while not required.issubset(latest) and time.monotonic() < end:
     rclpy.spin_once(node, timeout_sec=0.2)
-assert len(latest) == 3, 'sensor messages incomplete'
+assert required.issubset(latest), f'sensor messages incomplete: received {sorted(latest)}'
 rgb, depth, cloud = (latest[key] for key in ('rgb', 'depth', 'cloud'))
 image = np.frombuffer(bytes(rgb.data), np.uint8).reshape(rgb.height, rgb.step)[:, :rgb.width * 3].reshape(rgb.height, rgb.width, 3)
 if rgb.encoding.lower() == 'bgr8':
