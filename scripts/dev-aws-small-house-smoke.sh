@@ -59,7 +59,7 @@ docker run -d --rm --name "$container_name" --network host --ipc host \
         source /opt/ros/humble/setup.bash
         source /workspaces/soarm-car/install/setup.bash
         colcon --log-base /tmp/aws_baseline/log build \
-            --base-paths ros2_ws/src/soarm_description ros2_ws/src/soarm_simulation \
+            --base-paths ros2_ws/src/soarm_description ros2_ws/src/soarm_astra ros2_ws/src/soarm_simulation \
             --build-base /tmp/aws_baseline/build --install-base /tmp/aws_baseline/install --symlink-install
         source /tmp/aws_baseline/install/setup.bash
         export IGN_GAZEBO_RESOURCE_PATH=/baseline/models:/tmp/aws_baseline/install/soarm_simulation/share/soarm_simulation/models

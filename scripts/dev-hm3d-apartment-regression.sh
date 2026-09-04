@@ -29,7 +29,7 @@ for index in 0 1; do
             source /opt/ros/humble/setup.bash
             source /workspaces/soarm-car/install/setup.bash
             colcon --log-base /tmp/hm3d_regression/log build \\
-                --base-paths ros2_ws/src/soarm_description ros2_ws/src/soarm_simulation \\
+                --base-paths ros2_ws/src/soarm_description ros2_ws/src/soarm_astra ros2_ws/src/soarm_simulation \\
                 --build-base /tmp/hm3d_regression/build --install-base /tmp/hm3d_regression/install --symlink-install
             source /tmp/hm3d_regression/install/setup.bash
             ros2 launch soarm_simulation simulation.launch.py world:=$world

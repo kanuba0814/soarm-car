@@ -80,7 +80,7 @@ container="$(docker run -d \
         source /opt/ros/humble/setup.bash
         source /workspaces/soarm-car/install/setup.bash
         colcon --log-base /tmp/nav2_house/log build \
-            --base-paths /feature/ros2_ws/src/soarm_simulation /feature/ros2_ws/src/soarm_navigation \
+            --base-paths /feature/ros2_ws/src/soarm_astra /feature/ros2_ws/src/soarm_simulation /feature/ros2_ws/src/soarm_navigation \
             --build-base /tmp/nav2_house/build \
             --install-base /tmp/nav2_house/install \
             --symlink-install
