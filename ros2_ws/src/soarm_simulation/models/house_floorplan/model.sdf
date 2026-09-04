@@ -4,18 +4,18 @@
     <static>true</static>
     <link name="structure">
       <collision name="wall_0">
-        <pose>9.11153 -10.00374 1.21920 0 0 3.1415927</pose>
+        <pose>9.08153 -10.00374 1.21920 0 0 3.1415927</pose>
         <geometry>
           <box>
-            <size>4.13940 0.34500 2.43840</size>
+            <size>4.19940 0.34500 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_0">
-        <pose>9.11153 -10.00374 1.21920 0 0 3.1415927</pose>
+        <pose>9.08153 -10.00374 1.21920 0 0 3.1415927</pose>
         <geometry>
           <box>
-            <size>4.13940 0.34500 2.43840</size>
+            <size>4.19940 0.34500 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -24,18 +24,18 @@
         </material>
       </visual>
       <collision name="wall_1">
-        <pose>4.16513 -10.00374 1.21920 0 0 3.1415927</pose>
+        <pose>4.19513 -10.00374 1.21920 0 0 3.1415927</pose>
         <geometry>
           <box>
-            <size>2.15341 0.34500 2.43840</size>
+            <size>2.21341 0.34500 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_1">
-        <pose>4.16513 -10.00374 1.21920 0 0 3.1415927</pose>
+        <pose>4.19513 -10.00374 1.21920 0 0 3.1415927</pose>
         <geometry>
           <box>
-            <size>2.15341 0.34500 2.43840</size>
+            <size>2.21341 0.34500 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -84,18 +84,18 @@
         </material>
       </visual>
       <collision name="wall_4">
-        <pose>-3.66979 -2.58995 1.21920 0 0 3.1415926</pose>
+        <pose>-3.81979 -2.58995 1.21920 0 0 3.1415926</pose>
         <geometry>
           <box>
-            <size>6.04182 0.34500 2.43840</size>
+            <size>6.34182 0.34500 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_4">
-        <pose>-3.66979 -2.58995 1.21920 0 0 3.1415926</pose>
+        <pose>-3.81979 -2.58995 1.21920 0 0 3.1415926</pose>
         <geometry>
           <box>
-            <size>6.04182 0.34500 2.43840</size>
+            <size>6.34182 0.34500 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -104,18 +104,18 @@
         </material>
       </visual>
       <collision name="wall_5">
-        <pose>-9.83596 -2.58995 1.21920 0 0 3.1415926</pose>
+        <pose>-9.68596 -2.58995 1.21920 0 0 3.1415926</pose>
         <geometry>
           <box>
-            <size>2.69053 0.34500 2.43840</size>
+            <size>2.99053 0.34500 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_5">
-        <pose>-9.83596 -2.58995 1.21920 0 0 3.1415926</pose>
+        <pose>-9.68596 -2.58995 1.21920 0 0 3.1415926</pose>
         <geometry>
           <box>
-            <size>2.69053 0.34500 2.43840</size>
+            <size>2.99053 0.34500 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -324,18 +324,18 @@
         </material>
       </visual>
       <collision name="wall_16">
-        <pose>5.03369 0.10291 1.21920 0 0 -1.5707963</pose>
+        <pose>5.03369 4.21522 1.21920 0 0 -1.5707963</pose>
         <geometry>
           <box>
-            <size>3.89085 0.18000 2.43840</size>
+            <size>0.56276 0.18000 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_16">
-        <pose>5.03369 0.10291 1.21920 0 0 -1.5707963</pose>
+        <pose>5.03369 4.21522 1.21920 0 0 -1.5707963</pose>
         <geometry>
           <box>
-            <size>3.89085 0.18000 2.43840</size>
+            <size>0.56276 0.18000 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -344,18 +344,18 @@
         </material>
       </visual>
       <collision name="wall_17">
-        <pose>0.00000 10.00374 1.21920 0 0 3.1415927</pose>
+        <pose>5.03369 0.36016 1.21920 0 0 -1.5707963</pose>
         <geometry>
           <box>
-            <size>22.36246 0.34500 2.43840</size>
+            <size>4.40535 0.18000 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_17">
-        <pose>0.00000 10.00374 1.21920 0 0 3.1415927</pose>
+        <pose>5.03369 0.36016 1.21920 0 0 -1.5707963</pose>
         <geometry>
           <box>
-            <size>22.36246 0.34500 2.43840</size>
+            <size>4.40535 0.18000 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -364,18 +364,18 @@
         </material>
       </visual>
       <collision name="wall_18">
-        <pose>5.03369 8.03338 1.21920 0 0 1.5707963</pose>
+        <pose>0.00000 10.00374 1.21920 0 0 3.1415927</pose>
         <geometry>
           <box>
-            <size>3.90256 0.18000 2.43840</size>
+            <size>22.36246 0.34500 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_18">
-        <pose>5.03369 8.03338 1.21920 0 0 1.5707963</pose>
+        <pose>0.00000 10.00374 1.21920 0 0 3.1415927</pose>
         <geometry>
           <box>
-            <size>3.90256 0.18000 2.43840</size>
+            <size>22.36246 0.34500 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -384,18 +384,18 @@
         </material>
       </visual>
       <collision name="wall_19">
-        <pose>-4.58556 8.10649 1.21920 0 0 -1.5707963</pose>
+        <pose>5.03369 7.92613 1.21920 0 0 1.5707963</pose>
         <geometry>
           <box>
-            <size>3.52949 0.18000 2.43840</size>
+            <size>4.11706 0.18000 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_19">
-        <pose>-4.58556 8.10649 1.21920 0 0 -1.5707963</pose>
+        <pose>5.03369 7.92613 1.21920 0 0 1.5707963</pose>
         <geometry>
           <box>
-            <size>3.52949 0.18000 2.43840</size>
+            <size>4.11706 0.18000 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -404,18 +404,18 @@
         </material>
       </visual>
       <collision name="wall_20">
-        <pose>-4.51708 6.37046 1.21920 0 0 0.0000000</pose>
+        <pose>-4.58556 7.99924 1.21920 0 0 -1.5707963</pose>
         <geometry>
           <box>
-            <size>0.17114 0.18000 2.43840</size>
+            <size>3.74399 0.18000 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_20">
-        <pose>-4.51708 6.37046 1.21920 0 0 0.0000000</pose>
+        <pose>-4.58556 7.99924 1.21920 0 0 -1.5707963</pose>
         <geometry>
           <box>
-            <size>0.17114 0.18000 2.43840</size>
+            <size>3.74399 0.18000 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -424,18 +424,18 @@
         </material>
       </visual>
       <collision name="wall_21">
-        <pose>-0.75946 6.37046 1.21920 0 0 0.0000000</pose>
+        <pose>-4.58556 4.67514 1.21920 0 0 -1.5707963</pose>
         <geometry>
           <box>
-            <size>3.74410 0.18000 2.43840</size>
+            <size>0.16219 0.18000 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_21">
-        <pose>-0.75946 6.37046 1.21920 0 0 0.0000000</pose>
+        <pose>-4.58556 4.67514 1.21920 0 0 -1.5707963</pose>
         <geometry>
           <box>
-            <size>3.74410 0.18000 2.43840</size>
+            <size>0.16219 0.18000 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -444,18 +444,18 @@
         </material>
       </visual>
       <collision name="wall_22">
-        <pose>3.96459 6.37046 1.21920 0 0 0.0000000</pose>
+        <pose>-4.40983 6.37046 1.21920 0 0 0.0000000</pose>
         <geometry>
           <box>
-            <size>2.10400 0.18000 2.43840</size>
+            <size>0.38564 0.18000 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_22">
-        <pose>3.96459 6.37046 1.21920 0 0 0.0000000</pose>
+        <pose>-4.40983 6.37046 1.21920 0 0 0.0000000</pose>
         <geometry>
           <box>
-            <size>2.10400 0.18000 2.43840</size>
+            <size>0.38564 0.18000 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -464,18 +464,18 @@
         </material>
       </visual>
       <collision name="wall_23">
-        <pose>8.40703 -7.90980 1.21920 0 0 -1.5707963</pose>
+        <pose>-0.75946 6.37046 1.21920 0 0 0.0000000</pose>
         <geometry>
           <box>
-            <size>0.16947 0.18000 2.43840</size>
+            <size>4.17310 0.18000 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_23">
-        <pose>8.40703 -7.90980 1.21920 0 0 -1.5707963</pose>
+        <pose>-0.75946 6.37046 1.21920 0 0 0.0000000</pose>
         <geometry>
           <box>
-            <size>0.16947 0.18000 2.43840</size>
+            <size>4.17310 0.18000 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -484,18 +484,18 @@
         </material>
       </visual>
       <collision name="wall_24">
-        <pose>8.40703 -9.87860 1.21920 0 0 -1.5707963</pose>
+        <pose>3.85734 6.37046 1.21920 0 0 0.0000000</pose>
         <geometry>
           <box>
-            <size>0.16813 0.18000 2.43840</size>
+            <size>2.31850 0.18000 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_24">
-        <pose>8.40703 -9.87860 1.21920 0 0 -1.5707963</pose>
+        <pose>3.85734 6.37046 1.21920 0 0 0.0000000</pose>
         <geometry>
           <box>
-            <size>0.16813 0.18000 2.43840</size>
+            <size>2.31850 0.18000 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -504,18 +504,18 @@
         </material>
       </visual>
       <collision name="wall_25">
-        <pose>8.31531 -7.73335 1.21920 0 0 2.3561942</pose>
+        <pose>8.40703 -8.01705 1.21920 0 0 -1.5707963</pose>
         <geometry>
           <box>
-            <size>0.25942 0.18000 2.43840</size>
+            <size>0.38397 0.18000 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_25">
-        <pose>8.31531 -7.73335 1.21920 0 0 2.3561942</pose>
+        <pose>8.40703 -8.01705 1.21920 0 0 -1.5707963</pose>
         <geometry>
           <box>
-            <size>0.25942 0.18000 2.43840</size>
+            <size>0.38397 0.18000 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -524,18 +524,18 @@
         </material>
       </visual>
       <collision name="wall_26">
-        <pose>6.53699 -5.95503 1.21920 0 0 2.3561942</pose>
+        <pose>8.40703 -9.77135 1.21920 0 0 -1.5707963</pose>
         <geometry>
           <box>
-            <size>1.17043 0.18000 2.43840</size>
+            <size>0.38263 0.18000 2.43840</size>
           </box>
         </geometry>
       </collision>
       <visual name="wall_visual_26">
-        <pose>6.53699 -5.95503 1.21920 0 0 2.3561942</pose>
+        <pose>8.40703 -9.77135 1.21920 0 0 -1.5707963</pose>
         <geometry>
           <box>
-            <size>1.17043 0.18000 2.43840</size>
+            <size>0.38263 0.18000 2.43840</size>
           </box>
         </geometry>
         <material>
@@ -544,6 +544,46 @@
         </material>
       </visual>
       <collision name="wall_27">
+        <pose>8.23947 -7.65751 1.21920 0 0 2.3561942</pose>
+        <geometry>
+          <box>
+            <size>0.47392 0.18000 2.43840</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="wall_visual_27">
+        <pose>8.23947 -7.65751 1.21920 0 0 2.3561942</pose>
+        <geometry>
+          <box>
+            <size>0.47392 0.18000 2.43840</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>0.82 0.83 0.80 1</diffuse>
+          <ambient>0.82 0.83 0.80 1</ambient>
+        </material>
+      </visual>
+      <collision name="wall_28">
+        <pose>6.61283 -6.03087 1.21920 0 0 2.3561942</pose>
+        <geometry>
+          <box>
+            <size>1.38493 0.18000 2.43840</size>
+          </box>
+        </geometry>
+      </collision>
+      <visual name="wall_visual_28">
+        <pose>6.61283 -6.03087 1.21920 0 0 2.3561942</pose>
+        <geometry>
+          <box>
+            <size>1.38493 0.18000 2.43840</size>
+          </box>
+        </geometry>
+        <material>
+          <diffuse>0.82 0.83 0.80 1</diffuse>
+          <ambient>0.82 0.83 0.80 1</ambient>
+        </material>
+      </visual>
+      <collision name="wall_29">
         <pose>9.79413 -7.82507 1.21920 0 0 0.0000000</pose>
         <geometry>
           <box>
@@ -551,7 +591,7 @@
           </box>
         </geometry>
       </collision>
-      <visual name="wall_visual_27">
+      <visual name="wall_visual_29">
         <pose>9.79413 -7.82507 1.21920 0 0 0.0000000</pose>
         <geometry>
           <box>
@@ -564,7 +604,7 @@
         </material>
       </visual>
       <collision name="door_frame_0_a">
-        <pose>-4.62730 6.37924 1.04150 0 0 -1.5707964</pose>
+        <pose>-4.62730 6.16474 1.04150 0 0 -1.5707964</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -572,7 +612,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_0_a">
-        <pose>-4.62730 6.37924 1.04150 0 0 -1.5707964</pose>
+        <pose>-4.62730 6.16474 1.04150 0 0 -1.5707964</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -584,7 +624,7 @@
         </material>
       </visual>
       <collision name="door_frame_0_b">
-        <pose>-4.62730 4.50424 1.04150 0 0 -1.5707964</pose>
+        <pose>-4.62730 4.71874 1.04150 0 0 -1.5707964</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -592,7 +632,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_0_b">
-        <pose>-4.62730 4.50424 1.04150 0 0 -1.5707964</pose>
+        <pose>-4.62730 4.71874 1.04150 0 0 -1.5707964</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -607,7 +647,7 @@
         <pose>-4.62730 5.44174 2.26070 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>1.80000 0.20000 0.35540</size>
+            <size>1.37100 0.20000 0.35540</size>
           </box>
         </geometry>
       </collision>
@@ -615,7 +655,7 @@
         <pose>-4.62730 5.44174 2.26070 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>1.80000 0.20000 0.35540</size>
+            <size>1.37100 0.20000 0.35540</size>
           </box>
         </geometry>
         <material>
@@ -624,7 +664,7 @@
         </material>
       </visual>
       <collision name="door_frame_1_a">
-        <pose>8.29342 -7.62483 1.04150 0 0 2.3561946</pose>
+        <pose>8.14175 -7.47316 1.04150 0 0 2.3561946</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -632,7 +672,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_1_a">
-        <pose>8.29342 -7.62483 1.04150 0 0 2.3561946</pose>
+        <pose>8.14175 -7.47316 1.04150 0 0 2.3561946</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -644,7 +684,7 @@
         </material>
       </visual>
       <collision name="door_frame_1_b">
-        <pose>6.96760 -6.29901 1.04150 0 0 2.3561946</pose>
+        <pose>7.11927 -6.45068 1.04150 0 0 2.3561946</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -652,7 +692,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_1_b">
-        <pose>6.96760 -6.29901 1.04150 0 0 2.3561946</pose>
+        <pose>7.11927 -6.45068 1.04150 0 0 2.3561946</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -667,7 +707,7 @@
         <pose>7.63051 -6.96192 2.26070 0 0 2.3561946</pose>
         <geometry>
           <box>
-            <size>1.80000 0.20000 0.35540</size>
+            <size>1.37100 0.20000 0.35540</size>
           </box>
         </geometry>
       </collision>
@@ -675,7 +715,7 @@
         <pose>7.63051 -6.96192 2.26070 0 0 2.3561946</pose>
         <geometry>
           <box>
-            <size>1.80000 0.20000 0.35540</size>
+            <size>1.37100 0.20000 0.35540</size>
           </box>
         </geometry>
         <material>
@@ -684,7 +724,7 @@
         </material>
       </visual>
       <collision name="door_frame_2_a">
-        <pose>5.08967 2.01084 1.04150 0 0 1.5707963</pose>
+        <pose>5.08967 2.52534 1.04150 0 0 1.5707963</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -692,7 +732,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_2_a">
-        <pose>5.08967 2.01084 1.04150 0 0 1.5707963</pose>
+        <pose>5.08967 2.52534 1.04150 0 0 1.5707963</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -704,7 +744,7 @@
         </material>
       </visual>
       <collision name="door_frame_2_b">
-        <pose>5.08967 4.48584 1.04150 0 0 1.5707963</pose>
+        <pose>5.08967 3.97134 1.04150 0 0 1.5707963</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -712,7 +752,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_2_b">
-        <pose>5.08967 4.48584 1.04150 0 0 1.5707963</pose>
+        <pose>5.08967 3.97134 1.04150 0 0 1.5707963</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -727,7 +767,7 @@
         <pose>5.08967 3.24834 2.26070 0 0 1.5707963</pose>
         <geometry>
           <box>
-            <size>2.40000 0.20000 0.35540</size>
+            <size>1.37100 0.20000 0.35540</size>
           </box>
         </geometry>
       </collision>
@@ -735,7 +775,7 @@
         <pose>5.08967 3.24834 2.26070 0 0 1.5707963</pose>
         <geometry>
           <box>
-            <size>2.40000 0.20000 0.35540</size>
+            <size>1.37100 0.20000 0.35540</size>
           </box>
         </geometry>
         <material>
@@ -744,7 +784,7 @@
         </material>
       </visual>
       <collision name="door_frame_3_a">
-        <pose>5.09495 4.24460 1.04150 0 0 1.5707963</pose>
+        <pose>5.09495 4.45910 1.04150 0 0 1.5707963</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -752,7 +792,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_3_a">
-        <pose>5.09495 4.24460 1.04150 0 0 1.5707963</pose>
+        <pose>5.09495 4.45910 1.04150 0 0 1.5707963</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -764,7 +804,7 @@
         </material>
       </visual>
       <collision name="door_frame_3_b">
-        <pose>5.09495 6.11960 1.04150 0 0 1.5707963</pose>
+        <pose>5.09495 5.90510 1.04150 0 0 1.5707963</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -772,7 +812,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_3_b">
-        <pose>5.09495 6.11960 1.04150 0 0 1.5707963</pose>
+        <pose>5.09495 5.90510 1.04150 0 0 1.5707963</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -787,7 +827,7 @@
         <pose>5.09495 5.18210 2.26070 0 0 1.5707963</pose>
         <geometry>
           <box>
-            <size>1.80000 0.20000 0.35540</size>
+            <size>1.37100 0.20000 0.35540</size>
           </box>
         </geometry>
       </collision>
@@ -795,7 +835,7 @@
         <pose>5.09495 5.18210 2.26070 0 0 1.5707963</pose>
         <geometry>
           <box>
-            <size>1.80000 0.20000 0.35540</size>
+            <size>1.37100 0.20000 0.35540</size>
           </box>
         </geometry>
         <material>
@@ -804,7 +844,7 @@
         </material>
       </visual>
       <collision name="door_frame_4_a">
-        <pose>-2.59401 6.40936 1.04150 0 0 3.1415926</pose>
+        <pose>-2.80851 6.40936 1.04150 0 0 3.1415926</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -812,7 +852,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_4_a">
-        <pose>-2.59401 6.40936 1.04150 0 0 3.1415926</pose>
+        <pose>-2.80851 6.40936 1.04150 0 0 3.1415926</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -824,7 +864,7 @@
         </material>
       </visual>
       <collision name="door_frame_4_b">
-        <pose>-4.46901 6.40936 1.04150 0 0 3.1415926</pose>
+        <pose>-4.25451 6.40936 1.04150 0 0 3.1415926</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -832,7 +872,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_4_b">
-        <pose>-4.46901 6.40936 1.04150 0 0 3.1415926</pose>
+        <pose>-4.25451 6.40936 1.04150 0 0 3.1415926</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -847,7 +887,7 @@
         <pose>-3.53151 6.40936 2.26070 0 0 3.1415926</pose>
         <geometry>
           <box>
-            <size>1.80000 0.20000 0.35540</size>
+            <size>1.37100 0.20000 0.35540</size>
           </box>
         </geometry>
       </collision>
@@ -855,7 +895,7 @@
         <pose>-3.53151 6.40936 2.26070 0 0 3.1415926</pose>
         <geometry>
           <box>
-            <size>1.80000 0.20000 0.35540</size>
+            <size>1.37100 0.20000 0.35540</size>
           </box>
         </geometry>
         <material>
@@ -864,7 +904,7 @@
         </material>
       </visual>
       <collision name="door_frame_5_a">
-        <pose>2.95008 6.40936 1.04150 0 0 3.1415926</pose>
+        <pose>2.73558 6.40936 1.04150 0 0 3.1415926</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -872,7 +912,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_5_a">
-        <pose>2.95008 6.40936 1.04150 0 0 3.1415926</pose>
+        <pose>2.73558 6.40936 1.04150 0 0 3.1415926</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -884,7 +924,7 @@
         </material>
       </visual>
       <collision name="door_frame_5_b">
-        <pose>1.07508 6.40936 1.04150 0 0 3.1415926</pose>
+        <pose>1.28958 6.40936 1.04150 0 0 3.1415926</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -892,7 +932,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_5_b">
-        <pose>1.07508 6.40936 1.04150 0 0 3.1415926</pose>
+        <pose>1.28958 6.40936 1.04150 0 0 3.1415926</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.08300</size>
@@ -907,7 +947,7 @@
         <pose>2.01258 6.40936 2.26070 0 0 3.1415926</pose>
         <geometry>
           <box>
-            <size>1.80000 0.20000 0.35540</size>
+            <size>1.37100 0.20000 0.35540</size>
           </box>
         </geometry>
       </collision>
@@ -915,7 +955,7 @@
         <pose>2.01258 6.40936 2.26070 0 0 3.1415926</pose>
         <geometry>
           <box>
-            <size>1.80000 0.20000 0.35540</size>
+            <size>1.37100 0.20000 0.35540</size>
           </box>
         </geometry>
         <material>
@@ -984,7 +1024,7 @@
         </material>
       </visual>
       <collision name="door_frame_7_a">
-        <pose>5.20433 -9.97811 1.08000 0 0 -0.0000002</pose>
+        <pose>5.26433 -9.97811 1.08000 0 0 -0.0000002</pose>
         <geometry>
           <box>
             <size>0.07500 0.36500 2.16000</size>
@@ -992,7 +1032,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_7_a">
-        <pose>5.20433 -9.97811 1.08000 0 0 -0.0000002</pose>
+        <pose>5.26433 -9.97811 1.08000 0 0 -0.0000002</pose>
         <geometry>
           <box>
             <size>0.07500 0.36500 2.16000</size>
@@ -1004,7 +1044,7 @@
         </material>
       </visual>
       <collision name="door_frame_7_b">
-        <pose>7.07933 -9.97811 1.08000 0 0 -0.0000002</pose>
+        <pose>7.01933 -9.97811 1.08000 0 0 -0.0000002</pose>
         <geometry>
           <box>
             <size>0.07500 0.36500 2.16000</size>
@@ -1012,7 +1052,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_7_b">
-        <pose>7.07933 -9.97811 1.08000 0 0 -0.0000002</pose>
+        <pose>7.01933 -9.97811 1.08000 0 0 -0.0000002</pose>
         <geometry>
           <box>
             <size>0.07500 0.36500 2.16000</size>
@@ -1027,7 +1067,7 @@
         <pose>6.14183 -9.97811 2.29920 0 0 -0.0000002</pose>
         <geometry>
           <box>
-            <size>1.80000 0.36500 0.27840</size>
+            <size>1.68000 0.36500 0.27840</size>
           </box>
         </geometry>
       </collision>
@@ -1035,7 +1075,7 @@
         <pose>6.14183 -9.97811 2.29920 0 0 -0.0000002</pose>
         <geometry>
           <box>
-            <size>1.80000 0.36500 0.27840</size>
+            <size>1.68000 0.36500 0.27840</size>
           </box>
         </geometry>
         <material>
@@ -1044,7 +1084,7 @@
         </material>
       </visual>
       <collision name="door_frame_8_a">
-        <pose>8.37984 -7.95704 1.06850 0 0 -1.5707964</pose>
+        <pose>8.37984 -8.17154 1.06850 0 0 -1.5707964</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.13700</size>
@@ -1052,7 +1092,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_8_a">
-        <pose>8.37984 -7.95704 1.06850 0 0 -1.5707964</pose>
+        <pose>8.37984 -8.17154 1.06850 0 0 -1.5707964</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.13700</size>
@@ -1064,7 +1104,7 @@
         </material>
       </visual>
       <collision name="door_frame_8_b">
-        <pose>8.37984 -9.83204 1.06850 0 0 -1.5707964</pose>
+        <pose>8.37984 -9.61754 1.06850 0 0 -1.5707964</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.13700</size>
@@ -1072,7 +1112,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_8_b">
-        <pose>8.37984 -9.83204 1.06850 0 0 -1.5707964</pose>
+        <pose>8.37984 -9.61754 1.06850 0 0 -1.5707964</pose>
         <geometry>
           <box>
             <size>0.07500 0.20000 2.13700</size>
@@ -1087,7 +1127,7 @@
         <pose>8.37984 -8.89454 2.28770 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>1.80000 0.20000 0.30140</size>
+            <size>1.37100 0.20000 0.30140</size>
           </box>
         </geometry>
       </collision>
@@ -1095,7 +1135,7 @@
         <pose>8.37984 -8.89454 2.28770 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>1.80000 0.20000 0.30140</size>
+            <size>1.37100 0.20000 0.30140</size>
           </box>
         </geometry>
         <material>
@@ -1104,7 +1144,7 @@
         </material>
       </visual>
       <collision name="door_frame_9_a">
-        <pose>-6.65320 -2.55899 1.05000 0 0 3.1415926</pose>
+        <pose>-6.95320 -2.55899 1.05000 0 0 3.1415926</pose>
         <geometry>
           <box>
             <size>0.07500 0.36500 2.10000</size>
@@ -1112,7 +1152,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_9_a">
-        <pose>-6.65320 -2.55899 1.05000 0 0 3.1415926</pose>
+        <pose>-6.95320 -2.55899 1.05000 0 0 3.1415926</pose>
         <geometry>
           <box>
             <size>0.07500 0.36500 2.10000</size>
@@ -1124,7 +1164,7 @@
         </material>
       </visual>
       <collision name="door_frame_9_b">
-        <pose>-8.52820 -2.55898 1.05000 0 0 3.1415926</pose>
+        <pose>-8.22820 -2.55898 1.05000 0 0 3.1415926</pose>
         <geometry>
           <box>
             <size>0.07500 0.36500 2.10000</size>
@@ -1132,7 +1172,7 @@
         </geometry>
       </collision>
       <visual name="door_frame_visual_9_b">
-        <pose>-8.52820 -2.55898 1.05000 0 0 3.1415926</pose>
+        <pose>-8.22820 -2.55898 1.05000 0 0 3.1415926</pose>
         <geometry>
           <box>
             <size>0.07500 0.36500 2.10000</size>
@@ -1147,7 +1187,7 @@
         <pose>-7.59070 -2.55898 2.26920 0 0 3.1415926</pose>
         <geometry>
           <box>
-            <size>1.80000 0.36500 0.33840</size>
+            <size>1.20000 0.36500 0.33840</size>
           </box>
         </geometry>
       </collision>
@@ -1155,7 +1195,7 @@
         <pose>-7.59070 -2.55898 2.26920 0 0 3.1415926</pose>
         <geometry>
           <box>
-            <size>1.80000 0.36500 0.33840</size>
+            <size>1.20000 0.36500 0.33840</size>
           </box>
         </geometry>
         <material>

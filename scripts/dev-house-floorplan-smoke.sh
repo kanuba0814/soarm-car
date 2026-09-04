@@ -16,19 +16,18 @@ assert world.find("./world/include/uri[.='model://kuruma']") is not None
 model = ET.parse(root / 'models/house_floorplan/model.sdf').getroot()
 collisions = model.findall('.//collision')
 names = [element.get('name', '') for element in collisions]
-assert sum(name.startswith('wall_') for name in names) == 28
+assert sum(name.startswith('wall_') for name in names) == 30
 assert sum(name.startswith('door_frame_') for name in names) == 20
 assert sum(name.startswith('door_header_') for name in names) == 10
 assert not any('leaf' in name or 'swing' in name for name in names)
-assert len(model.findall('.//visual')) == len(collisions) == 58
+assert len(model.findall('.//visual')) == len(collisions) == 60
 door_widths = [
     float(element.findtext('geometry/box/size').split()[0])
     for element in collisions
     if element.get('name', '').startswith('door_header_')
 ]
-assert min(door_widths) == 1.8, door_widths
-assert door_widths.count(1.8) == 8, door_widths
-assert door_widths.count(2.4) == 2, door_widths
+assert min(door_widths) == 1.2, door_widths
+assert door_widths.count(1.371) == 7, door_widths
 furniture = ET.parse(root / 'models/house_furniture/model.sdf').getroot()
 assert [link.get('name') for link in furniture.findall('.//link')] == ['furniture']
 collision_names = [collision.get('name') for collision in furniture.findall('.//collision')]

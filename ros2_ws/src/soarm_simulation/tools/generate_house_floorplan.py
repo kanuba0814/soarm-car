@@ -29,8 +29,6 @@ WALL_HEIGHT = 2.4384
 CENTER_X = 7.454154
 CENTER_Y = 6.672447
 PLAN_SCALE = 1.5
-MIN_DOOR_WIDTH = 1.8
-EXTRA_WIDE_DOORS = {2: 2.4}
 MAP_RESOLUTION = 0.05
 MAP_WIDTH = 480
 MAP_HEIGHT = 435
@@ -76,23 +74,17 @@ def load_geometry(source_path: Path) -> None:
         for element in root.findall("wall")
         if element.get("level") == level
     ]
-    door_elements = [
-        element for element in root.findall("doorOrWindow")
-        if element.get("level") == level
-        and "door" in element.get("name", "").lower()
-    ]
     DOORS = [
         (
             scale_coordinate(float(element.get("x")) / 100, CENTER_X),
             scale_coordinate(float(element.get("y")) / 100, CENTER_Y),
-            max(
-                float(element.get("width")) / 100 * PLAN_SCALE,
-                EXTRA_WIDE_DOORS.get(index, MIN_DOOR_WIDTH),
-            ),
+            float(element.get("width")) / 100 * PLAN_SCALE,
             float(element.get("height")) / 100,
             float(element.get("angle", "0")),
         )
-        for index, element in enumerate(door_elements)
+        for element in root.findall("doorOrWindow")
+        if element.get("level") == level
+        and "door" in element.get("name", "").lower()
     ]
     source_furniture = [element for element in root.findall("pieceOfFurniture")
                         if element.get("level") == level]
