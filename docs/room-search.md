@@ -37,3 +37,7 @@ RGB-D 适配器应只向 `desk_hypotheses()` 输入结构化观测（位置、he
 * 相机内外参、RGB-D 时间同步、书桌高度/宽度阈值及 observation freshness。
 * Nav2 到扫描/停靠 pose 的真实 action 成功、取消传播到 localization gate、急停与失定位/失传感器 BLOCKED。
 * ASR 麦克风、模型、语言和命令退出码；没有引擎时 UI 必须显示 NOT_READY。
+
+## 当前视觉能力边界
+
+当前实现订阅 PointCloud2 与 CameraInfo 并对 frame、时间同步、TF 与 freshness fail-closed；桌面检测仍是**结构化 RGB-D observation baseline/适配 seam**，不是已验证的自动点云桌面识别算法。硬件环境没有合格的上游 observation 时，分析和停靠必须保持 `BLOCKED`。

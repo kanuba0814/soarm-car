@@ -38,3 +38,14 @@ class Tests(unittest.TestCase):
         work = self.ready(); nav = FakeNavigation(); controller = SearchController(work, nav, SimulationPathVerifier()); controller.navigate_scan(room().scan_pose); nav.accept(); nav.completed(False); self.assertEqual(work.state, State.FAILED)
         work = self.ready(); nav = FakeNavigation(); controller = SearchController(work, nav, SimulationPathVerifier()); controller.navigate_scan(room().scan_pose); nav.accept(); nav.completed(True); self.assertEqual(work.state, State.AT_SCAN_POSE)
 if __name__ == '__main__': unittest.main()
+
+from soarm_room_search.freshness import SensorFreshness
+class FreshnessTests(unittest.TestCase):
+    def test_missing_unsynced_stale_and_ready(self):
+        gate = SensorFreshness(1., .05, 'camera')
+        self.assertFalse(gate.ready(10.))
+        gate.pointcloud(10., 'camera'); gate.camera_info(10.2, 'camera'); gate.transform(True)
+        self.assertFalse(gate.ready(10.))
+        gate.camera_info(10.02, 'camera'); gate.transform(False); self.assertFalse(gate.ready(10.))
+        gate.transform(True); self.assertTrue(gate.ready(gate.cloud[2]))
+        self.assertFalse(gate.ready(gate.cloud[2] + 2.))
