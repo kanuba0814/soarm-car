@@ -10,11 +10,13 @@ class ImmediateHandle:
 class SimulationNavigation:
     def send(self, pose, accepted, completed): accepted(ImmediateHandle()); completed(True)
 class App:
-    def __init__(self, room_path, asr_argv=None, controller=None, enqueue=None):
+    def __init__(self, room_path, asr_argv=None, controller=None, enqueue=None, status_provider=None):
         self.room_path = room_path
         self.asr = CommandASR(asr_argv)
-        self.controller = controller or SearchController(Workflow(), SimulationNavigation(), SimulationPathVerifier(), True)
+        self.controller = controller or SearchController(
+            Workflow(), SimulationNavigation(), SimulationPathVerifier(), True)
         self.enqueue = enqueue
+        self.status_provider = status_provider or self.controller.status
     def dispatch(self, action, data):
         if self.enqueue is not None and action in ('scan_goal', 'start_scan', 'finish_scan', 'analyze', 'preview', 'dock_goal', 'cancel'):
             self.enqueue(action, data)
@@ -23,7 +25,19 @@ class App:
     def call(self, action, data):
         controller, workflow = self.controller, self.controller.workflow
         with controller.lock:
-            if action == 'load': workflow.load(MapBundle.load(ROOT / 'examples/demo.yaml', 'demo-v1'), [Room('study', ['书房', '学习室'], [(.5,.5),(2.5,.5),(2.5,1.5),(.5,1.5)], (1.5,1.,0))])
+            if action == 'load':
+                if not controller.simulation:
+                    raise WorkflowError(
+                        'HARDWARE_CONFIG_LOCKED',
+                        'hardware map bundle is loaded from verified ROS parameters')
+                workflow.load(
+                    MapBundle.load(ROOT / 'examples/demo.yaml', 'demo-v1'),
+                    [Room(
+                        'study', ['书房', '学习室'],
+                        [(.5, .5), (2.5, .5), (2.5, 1.5), (.5, 1.5)],
+                        (1.5, 1., 0),
+                    )],
+                )
             elif action == 'draw_save_room':
                 room = Room('study', ['书房', '学习室'], [tuple(point) for point in data['polygon']], tuple(data.get('scan_pose', (1.5,1.,0))))
                 workflow.load(workflow.bundle, [room]); RoomStore.save(self.room_path, workflow.bundle, [room])
@@ -46,7 +60,14 @@ def server(app):
         def log_message(self, *args): pass
         def reply(self, status, payload, content_type='application/json'):
             raw = payload.encode() if isinstance(payload, str) else json.dumps(payload, ensure_ascii=False).encode(); self.send_response(status); self.send_header('Content-Type', content_type + '; charset=utf-8'); self.send_header('Content-Length', str(len(raw))); self.end_headers(); self.wfile.write(raw)
-        def do_GET(self): self.reply(200, PAGE, 'text/html') if self.path == '/' else self.reply(200, app.controller.status()) if self.path == '/api/health' else self.reply(404, {'error':'NOT_FOUND'})
+        def do_GET(self):
+            if self.path == '/':
+                mode = 'SIMULATION · MOCK PATH/RGB-D' if app.controller.simulation else 'HARDWARE · FAIL-CLOSED'
+                self.reply(200, PAGE.replace('SIMULATION · MOCK PATH/RGB-D', mode), 'text/html')
+            elif self.path == '/api/health':
+                self.reply(200, app.status_provider())
+            else:
+                self.reply(404, {'error': 'NOT_FOUND'})
         def do_POST(self):
             if not self.path.startswith('/api/'): return self.reply(404, {'error':'NOT_FOUND'})
             size = int(self.headers.get('Content-Length', '0'))

@@ -22,7 +22,14 @@ class Tests(unittest.TestCase):
         work = Workflow(); work.load(bundle(), [room()]); work.propose('去书房找书桌'); work.confirm_intent(); return work
     def test_floor_trinary_and_geometry(self):
         item = bundle(); self.assertEqual(item.world_to_cell(-.01, .1), (-1, 1)); self.assertTrue(item.free(1, 1)); self.assertFalse(item.free(0, 0))
-        invalid = Room('', [''], [(1,1),(2,1),(1,1)], (1,1,float('nan'))); self.assertFalse(invalid.valid(item))
+        invalid = Room('', [''], [(1,1),(2,1),(1,1)], (1,1,float('nan')))
+        self.assertFalse(invalid.valid(item))
+        crossing = Room(
+            'crossing', ['交叉房间'],
+            [(0.5, 0.5), (2.5, 1.5), (0.5, 1.5), (2.5, 0.5)],
+            (1.5, 1.0, 0.0),
+        )
+        self.assertFalse(crossing.valid(item))
     def test_scan_telemetry_and_fail_closed_path(self):
         work = self.ready(); work.scan_goal(); work.at_scan(); work.start_scan()
         telemetry = [(1,1,i,i * math.pi / 4) for i in range(9)]; self.assertTrue(scan_complete(telemetry)); self.assertFalse(scan_complete(telemetry + [(1.2,1,9,0)]))
@@ -51,6 +58,22 @@ class FreshnessTests(unittest.TestCase):
         self.assertFalse(gate.ready(gate.cloud[2] + 2.))
 
 from soarm_room_search.tabletop import decode_xyz, detect_tabletops
+class RosMathTests(unittest.TestCase):
+    def test_point_transform(self):
+        from types import SimpleNamespace
+        from soarm_room_search.ros_node import RoomSearchNode
+
+        vector = lambda x, y, z: SimpleNamespace(x=x, y=y, z=z)
+        transform = SimpleNamespace(
+            translation=vector(1.0, 2.0, 3.0),
+            rotation=SimpleNamespace(x=0.0, y=0.0, z=math.sqrt(0.5), w=math.sqrt(0.5)),
+        )
+        transformed = RoomSearchNode._transform_points([(1.0, 0.0, 0.0)], transform)
+        self.assertAlmostEqual(transformed[0][0], 1.0)
+        self.assertAlmostEqual(transformed[0][1], 3.0)
+        self.assertAlmostEqual(transformed[0][2], 3.0)
+
+
 class TabletopTests(unittest.TestCase):
     def test_synthetic_table_and_noise(self):
         points = [(x / 20, y / 20, .75) for x in range(20, 41) for y in range(20, 37)]

@@ -67,8 +67,26 @@ class MapBundle:
         step, extent = self.resolution / 2, radius + margin
         for ix in range(math.ceil(-extent / step), math.floor(extent / step) + 1):
             for iy in range(math.ceil(-extent / step), math.floor(extent / step) + 1):
-                if ix * ix + iy * iy <= (extent / step) ** 2 and not self.free(x + ix * step, y + iy * step): return False
+                if ix * ix + iy * iy <= (extent / step) ** 2 and not self.free(x + ix * step, y + iy * step):
+                    return False
         return True
+
+    def line_free(self, start, end, ignore_end=0.0):
+        distance = math.hypot(end[0] - start[0], end[1] - start[1])
+        visible_distance = max(0.0, distance - ignore_end)
+        steps = max(1, math.ceil(visible_distance / (self.resolution / 2)))
+        fraction = 0.0 if distance == 0 else visible_distance / distance
+        visible_end = (
+            start[0] + (end[0] - start[0]) * fraction,
+            start[1] + (end[1] - start[1]) * fraction,
+        )
+        return all(
+            self.free(
+                start[0] + (visible_end[0] - start[0]) * index / steps,
+                start[1] + (visible_end[1] - start[1]) * index / steps,
+            )
+            for index in range(steps + 1)
+        )
 
 @dataclass
 class Room:
@@ -79,11 +97,29 @@ class Room:
             if (first[1] > y) != (second[1] > y) and x < (second[0] - first[0]) * (y - first[1]) / (second[1] - first[1]) + first[0]: inside = not inside
         return inside
     def valid(self, bundle):
-        if not self.id.strip() or not self.aliases or any(not alias.strip() for alias in self.aliases): return False
-        if len(self.polygon) < 3 or len(set(map(tuple, self.polygon))) != len(self.polygon): return False
-        area = sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(self.polygon, self.polygon[1:] + self.polygon[:1]))
-        if abs(area) < 1e-9 or not math.isfinite(self.scan_pose[2]): return False
-        if not all(bundle.free(x, y) for x, y in self.polygon): return False
+        if not self.id.strip() or not self.aliases or any(not alias.strip() for alias in self.aliases):
+            return False
+        if len(self.polygon) < 3 or len(set(map(tuple, self.polygon))) != len(self.polygon):
+            return False
+        edges = list(zip(self.polygon, self.polygon[1:] + self.polygon[:1]))
+        area = sum(a[0] * b[1] - b[0] * a[1] for a, b in edges)
+        if abs(area) < 1e-9 or not math.isfinite(self.scan_pose[2]):
+            return False
+
+        def orientation(first, second, third):
+            return ((second[0] - first[0]) * (third[1] - first[1])
+                    - (second[1] - first[1]) * (third[0] - first[0]))
+
+        for first_index, (first, second) in enumerate(edges):
+            for second_index, (third, fourth) in enumerate(edges):
+                adjacent = abs(first_index - second_index) in (0, 1, len(edges) - 1)
+                if adjacent:
+                    continue
+                if (orientation(first, second, third) * orientation(first, second, fourth) <= 0
+                        and orientation(third, fourth, first) * orientation(third, fourth, second) <= 0):
+                    return False
+        if not all(bundle.free(x, y) for x, y in self.polygon):
+            return False
         return self.contains(self.scan_pose) and bundle.footprint_free(*self.scan_pose[:2])
 
 def parse_intent(text, rooms):
@@ -132,7 +168,20 @@ class Workflow:
         room = next(item for item in self.rooms if item.id == self.proposal['room_id']); safe = []
         for desk in self.desks:
             x, y = desk['dock']; distance = math.hypot(x - desk['x'], y - desk['y'])
-            if room.contains((x, y)) and desk.get('quality', 0) >= .6 and self.bundle.footprint_free(x, y) and .45 <= distance <= 1.5 and desk.get('line_of_sight') and verifier.verify((x, y), self.bundle.revision): safe.append(dict(desk, score=round(desk['quality'] * 10 - distance, 6)))
+            if (
+                room.contains((x, y))
+                and desk.get('quality', 0) >= .6
+                and self.bundle.footprint_free(x, y)
+                and .45 <= distance <= 1.5
+                and desk.get('line_of_sight')
+                and self.bundle.line_free(
+                    (x, y),
+                    (desk['x'], desk['y']),
+                    ignore_end=max(desk.get('width', 0), desk.get('depth', 0)) / 2,
+                )
+                and verifier.verify((x, y), self.bundle.revision)
+            ):
+                safe.append(dict(desk, score=round(desk['quality'] * 10 - distance, 6)))
         if not safe: raise WorkflowError('NO_SAFE_DOCK', 'no candidate passed hard safety filters')
         self.candidates = sorted(safe, key=lambda item: (-item['score'], item['x'], item['y'])); self.state = State.DOCK_PREVIEW
     def confirm_dock(self, index=0): self.need(State.DOCK_PREVIEW); self.selected = self.candidates[index]; self.state = State.DOCK_CONFIRMED
