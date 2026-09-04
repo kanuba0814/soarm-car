@@ -43,7 +43,22 @@ class Tests(unittest.TestCase):
         with self.assertRaisesRegex(WorkflowError, 'previous'): controller.navigate_scan(room().scan_pose)
         nav.accept(); controller.cancel(); self.assertTrue(nav.handle.cancelled); self.assertEqual(work.state, State.CANCELED)
         work = self.ready(); nav = FakeNavigation(); controller = SearchController(work, nav, SimulationPathVerifier()); controller.navigate_scan(room().scan_pose); nav.accept(); nav.completed(False); self.assertEqual(work.state, State.FAILED)
-        work = self.ready(); nav = FakeNavigation(); controller = SearchController(work, nav, SimulationPathVerifier()); controller.navigate_scan(room().scan_pose); nav.accept(); nav.completed(True); self.assertEqual(work.state, State.AT_SCAN_POSE)
+        work = self.ready()
+        nav = FakeNavigation()
+        controller = SearchController(work, nav, SimulationPathVerifier())
+        controller.navigate_scan(room().scan_pose)
+        controller.cancel()
+        nav.accept()
+        self.assertTrue(nav.handle.cancelled)
+        self.assertEqual(work.state, State.CANCELED)
+
+        work = self.ready()
+        nav = FakeNavigation()
+        controller = SearchController(work, nav, SimulationPathVerifier())
+        controller.navigate_scan(room().scan_pose)
+        nav.accept()
+        nav.completed(True)
+        self.assertEqual(work.state, State.AT_SCAN_POSE)
 if __name__ == '__main__': unittest.main()
 
 from soarm_room_search.freshness import SensorFreshness

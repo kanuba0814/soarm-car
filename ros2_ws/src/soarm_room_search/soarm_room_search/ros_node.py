@@ -52,6 +52,7 @@ class RoomSearchNode(Node if rclpy else object):
         self.verifier = ComputePathVerifier(self); self.controller = SearchController(Workflow(), self, self.verifier, False)
         self.commands = queue.Queue()
         self.active_handle = None
+        self.transport_generation = 0
         self.last_health = 0.0
         self.healthy = False
         self.map_id = ''
@@ -109,7 +110,10 @@ class RoomSearchNode(Node if rclpy else object):
         self.sensor_gate.pointcloud(stamp, message.header.frame_id)
         try:
             transform = self.tf_buffer.lookup_transform(
-                'map', message.header.frame_id, rclpy.time.Time())
+                'map',
+                message.header.frame_id,
+                rclpy.time.Time.from_msg(message.header.stamp),
+            )
             self.sensor_gate.transform(True)
         except Exception:
             self.sensor_gate.transform(False)
@@ -167,6 +171,11 @@ class RoomSearchNode(Node if rclpy else object):
                 if action == 'cancel':
                     self.controller.cancel()
                     continue
+                if action == 'draw_save_room':
+                    if self.active_handle is not None or self.controller.goal_pending or self.controller.accepted_goal is not None:
+                        raise WorkflowError('GOAL_ACTIVE', 'cannot edit rooms during navigation')
+                    self.app.call(action, data)
+                    continue
                 if not self._ready():
                     raise WorkflowError('NOT_READY', self.ready_reason)
                 work = self.controller.workflow
@@ -184,18 +193,52 @@ class RoomSearchNode(Node if rclpy else object):
             except Exception as error:
                 self.block(str(error))
     def send(self, pose, accepted, completed):
-        if self.active_handle is not None: accepted(None); return
-        goal = NavigateToPose.Goal(); goal.pose = PoseStamped(); goal.pose.header.frame_id = 'map'; goal.pose.header.stamp = self.get_clock().now().to_msg(); goal.pose.pose.position.x, goal.pose.pose.position.y = pose[:2]; goal.pose.pose.orientation.z = math.sin(pose[2]/2); goal.pose.pose.orientation.w = math.cos(pose[2]/2)
+        if self.active_handle is not None:
+            accepted(None)
+            return
+        self.transport_generation += 1
+        generation = self.transport_generation
+        goal = NavigateToPose.Goal()
+        goal.pose = PoseStamped()
+        goal.pose.header.frame_id = 'map'
+        goal.pose.header.stamp = self.get_clock().now().to_msg()
+        goal.pose.pose.position.x, goal.pose.pose.position.y = pose[:2]
+        goal.pose.pose.orientation.z = math.sin(pose[2] / 2)
+        goal.pose.pose.orientation.w = math.cos(pose[2] / 2)
+
         def response(done):
-            handle = done.result(); self.active_handle = handle if handle.accepted else None; accepted(self.active_handle)
-            if handle.accepted: handle.get_result_async().add_done_callback(lambda future: self._result(future, completed))
+            handle = done.result()
+            if generation != self.transport_generation:
+                if handle.accepted:
+                    handle.cancel_goal_async()
+                return
+            self.active_handle = handle if handle.accepted else None
+            accepted(self.active_handle)
+            if handle.accepted:
+                handle.get_result_async().add_done_callback(
+                    lambda future: self._result(future, completed, generation))
+
         self.client.send_goal_async(goal).add_done_callback(response)
-    def _result(self, future, completed):
+
+    def _result(self, future, completed, generation):
+        if generation != self.transport_generation:
+            return
         self.active_handle = None
         completed(future.result().status == GoalStatus.STATUS_SUCCEEDED)
+
+    def cancel_pending(self):
+        self.transport_generation += 1
+        if self.active_handle is not None:
+            self.active_handle.cancel_goal_async()
+            self.active_handle = None
     def compute_path(self, pose, revision, key):
         if revision != self.controller.workflow.bundle.revision: self.verifier.result(key, False); return
-        goal = ComputePathToPose.Goal(); goal.goal = PoseStamped(); goal.goal.header.frame_id = 'map'; goal.goal.pose.position.x, goal.goal.pose.position.y = pose
+        goal = ComputePathToPose.Goal()
+        goal.goal = PoseStamped()
+        goal.goal.header.frame_id = 'map'
+        goal.goal.header.stamp = self.get_clock().now().to_msg()
+        goal.goal.pose.position.x, goal.goal.pose.position.y = pose
+        goal.goal.pose.orientation.w = 1.0
         self.path_client.send_goal_async(goal).add_done_callback(lambda future: self._path_goal(future, key))
     def _path_goal(self, future, key):
         handle = future.result()
@@ -286,9 +329,7 @@ class RoomSearchNode(Node if rclpy else object):
         if not observations: raise WorkflowError('NO_DESK', 'no quality tabletop clusters')
         self.controller.workflow.analyze(observations)
     def block(self, reason):
-        if self.active_handle is not None:
-            self.active_handle.cancel_goal_async()
-            self.active_handle = None
+        self.cancel_pending()
         self.controller.cancel()
         self.controller.workflow.state = State.BLOCKED
         self.controller.workflow.reason = reason

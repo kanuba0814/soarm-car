@@ -18,7 +18,10 @@ class App:
         self.enqueue = enqueue
         self.status_provider = status_provider or self.controller.status
     def dispatch(self, action, data):
-        if self.enqueue is not None and action in ('scan_goal', 'start_scan', 'finish_scan', 'analyze', 'preview', 'dock_goal', 'cancel'):
+        if self.enqueue is not None and action in (
+            'draw_save_room', 'scan_goal', 'start_scan', 'finish_scan',
+            'analyze', 'preview', 'dock_goal', 'cancel',
+        ):
             self.enqueue(action, data)
             return dict(self.controller.status(), pending=True, accepted=True)
         return self.call(action, data)
