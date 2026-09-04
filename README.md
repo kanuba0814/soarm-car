@@ -1,14 +1,14 @@
 # soarm-car
 
-在 WHEELTEC 四轮移动底盘上安装 SO-ARM101，以树莓派 5 为主控，完成一个明确的产品任务：**机器人移动到指定地点，停稳后抓取指定物体**。
+以树莓派 5 为主控的 Kuruma 四轮麦克纳姆底盘项目。
 
-> 当前阶段：资产保全与端到端闭环准备。底盘车型、3D 雷达型号、相机准确型号和整机电气预算仍需实机确认，未通过分阶段安全验收前不得整机自主运行。
+> 当前阶段：Kuruma chassis-first。活动模型来自 `artifacts/kuruma.STEP`，默认描述/仿真/导航不安装机械臂，不能报告抓取或任务成功。机械臂安装尺寸和位置是下一项机械 study；传感器安装仍是 provisional。旧 WHEELTEC 底盘状态保留在 `backup/wheeltec-chassis`。
 
 ## 已确定
 
 - 主控：树莓派 5。
-- 底盘：图片所示 WHEELTEC 四轮金属底盘，实际运动学型号待铭牌/下位机配置确认。
-- 机械臂：SO-ARM101 follower（从臂），安装在底盘上层。
+- 底盘：`kuruma.STEP` 派生四轮麦克纳姆。外滚子包络半径 `0.0763 m`、宽 `0.0481 m`、轴距 `0.3472 m`、轮距 `0.4456 m`、3030 外框 `0.600 m` 方形。
+- 机械臂：当前未安装且默认模型不包含臂；下一阶段研究安装孔位、位置和重心。
 - 感知：已有深度相机；定位雷达确定为 Livox MID-360，已有 FAST-LIO Localization 调试工作区和官方 Livox driver 快照。
 - 产品任务：`到指定地点抓取指定物体`；首版地点和物体均使用白名单。
 - 交互：离线语音、Agent 和操作界面调用同一个 provisional MHS 任务。
@@ -94,6 +94,6 @@ FOXGLOVE=false ./scripts/dev-start.sh
 ./scripts/dev-smoke.sh
 ```
 
-唯一预留 Agent seam 是 ROS 2 Action `go_to_place_and_grasp`，不暴露 `cmd_vel`、关节轨迹、ROS graph 或任意 shell。当前只接受 `demo_table` / `demo_cube`，用于在 RViz/Foxglove 标出请求目标；实机执行后续由成熟 Nav2/MoveIt 接口替换，不在此阶段提前编排。
+ROS 2 Action `go_to_place_and_grasp` 和臂轨迹接口仅为发现兼容保留。`arm_enabled=false` 时它们拒绝所有目标，绝不伪造导航、抓取或任务成功；底盘控制使用支持 `linear.x`、`linear.y` 和旋转的 mecanum `/cmd_vel`。
 
 镜像固定为 `osrf/ros:humble-desktop-jammy` 的 `linux/amd64` 开发环境。树莓派 5 是 arm64；此环境不构成 Pi 真机部署验证。

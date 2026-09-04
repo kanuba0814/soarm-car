@@ -1,0 +1,1 @@
+<root main_tree_to_execute="NavigateThroughPoses"><BehaviorTree ID="NavigateThroughPoses"><PipelineSequence name="NavigateThroughPosesHolonomic"><ComputePathThroughPoses goals="{goals}" path="{path}" planner_id="{planner_id}"/><FollowPath path="{path}" controller_id="{controller_id}"/></PipelineSequence></BehaviorTree></root>

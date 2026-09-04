@@ -1,0 +1,50 @@
+/fixed_map_shadow:
+  ros__parameters:
+    # Candidate payload is T_map_cameraInit. This profile intentionally never affects TF/odom.
+    use_sim_time: true
+    map_file_path: "/workspaces/soarm-car/artifacts/fastlio_house_floorplan.pcd"
+    base_to_body_z: 0.2463
+    structural_min_height: 0.15
+    structural_max_height: 1.80
+    floor_bin: 0.05
+    min_floor_points: 20
+    voxel_resolution: 0.10
+    core_min_cells: 20
+    min_cells: 20
+    max_source_cells: 1200
+    max_correspondence_distance: 0.75
+    max_iterations: 30
+    distance_field_resolution: 0.01
+    capped_squared_loss: 0.04
+    odom_buffer_capacity: 200
+    max_odom_interpolation_span: 0.20
+    motion_odom_topic: "/wheel/odom_raw"
+    search_xy_extent: 0.25
+    search_yaw_extent: 0.15
+    search_xy_step: 0.02
+    search_yaw_step: 0.02
+    peak_nms_radius: 0.08
+    peak_count: 4
+    refine_max_relative_x: 0.10
+    refine_max_relative_y: 0.10
+    refine_max_relative_yaw: 0.10
+    observability_rank_tolerance: 0.01
+    # No live-PCD uniqueness evidence is committed here: remain fail-closed by default.
+    accept_enabled: false
+    min_score_gap: 0.0
+    min_inlier_fraction: 0.0
+    max_mse: 0.0
+    min_observability_rank: 3
+    confirmation_scans: 3
+    consensus_max_translation: 0.125
+    consensus_max_yaw: 0.075
+    recovery_enabled: false
+    max_tracking_rejections: 5
+    max_recovery_attempts: 30
+    stationary_settle_seconds: 1.0
+    stationary_linear_speed: 0.02
+    stationary_angular_speed: 0.05
+    recovery_xy_extent: 0.75
+    recovery_yaw_extent: 0.35
+    recovery_xy_step: 0.05
+    recovery_yaw_step: 0.05

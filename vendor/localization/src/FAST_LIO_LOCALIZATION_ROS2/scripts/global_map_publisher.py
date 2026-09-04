@@ -17,15 +17,13 @@ class MapPublisherNode(Node):
         path = self.get_parameter('map_file_path').value
         interval = self.get_parameter('interval').value
         
-        self.global_map = None
-        if path:
-            try:
-                self.global_map = o3d.io.read_point_cloud(path)
-                self.get_logger().info(f'Loaded map from: {path}')
-            except Exception as e:
-                self.get_logger().error(f'Failed to load PCD: {e}')
-        else:
-            self.get_logger().warn('No map_file_path provided; map not loaded')
+        if not path:
+            raise RuntimeError('map_file_path is required for FAST-LIO localization')
+        self.global_map = o3d.io.read_point_cloud(path)
+        points = np.asarray(self.global_map.points)
+        if points.size == 0 or points.ndim != 2 or points.shape[1] != 3 or not np.isfinite(points).all():
+            raise RuntimeError(f'PCD is missing, empty, or non-finite: {path}')
+        self.get_logger().info(f'Loaded {len(points)} finite map points from: {path}')
 
         self.pub_map = self.create_publisher(PointCloud2, '/global_map', 1)
         self.create_timer(interval, self.publish_map)

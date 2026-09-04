@@ -33,12 +33,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-humble-joint-state-publisher-gui \
     ros-humble-nav2-map-server \
     ros-humble-nav2-lifecycle-manager \
+    ros-humble-navigation2 \
+    ros-humble-nav2-bringup \
     ros-humble-robot-state-publisher \
     ros-humble-pcl-ros \
     ros-humble-ros-gz-sim \
     ros-humble-ros-gz-bridge \
     ros-humble-ros2-control \
     ros-humble-ros2-controllers \
+    ros-humble-gz-ros2-control \
     ros-humble-rviz2 \
     ros-humble-tf-transformations \
     ros-humble-xacro \

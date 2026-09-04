@@ -1,0 +1,94 @@
+/global_localization:
+    ros__parameters:
+        map_voxel_size: 0.2
+        scan_voxel_size: 0.2
+        freq_localization: 1.0
+        localization_th: 0.4
+        localization_rmse_th: 0.3
+        max_correspondence_distance: 0.5
+        max_correction_translation: 0.25
+        max_correction_rotation: 0.15
+        planar_correction_gate: true
+        max_correction_z: 0.5
+        max_correction_roll_pitch: 0.15
+        use_coarse_initialization: false
+        coarse_scale: 5.0
+        fov: 6.283185307179586
+        fov_far: 50.0
+        base_to_body_xyz: [0.0, 0.0, 0.232]
+        base_to_body_rpy: [0.0, 0.0, 0.0]
+        max_consecutive_rejections: 5
+        # Low overlap is absence of a correction, not proof that the last map
+        # alignment is wrong. Continue only inside this strict FAST-LIO motion/time budget.
+        quality_rejection_dead_reckoning: true
+        max_unverified_translation: 5.0
+        max_unverified_rotation: 3.0
+        max_unverified_seconds: 40.0
+        health_heartbeat_rate: 10.0
+        map_id: fastlio_house_floorplan.pcd
+
+/transform_fusion:
+    ros__parameters:
+        freq_pub_localization: 50.0
+        map_frame: map
+        odom_frame: odom_combined
+        base_frame: base_footprint
+        body_frame: body
+        base_to_body_xyz: [0.0, 0.0, 0.232]
+        base_to_body_rpy: [0.0, 0.0, 0.0]
+        require_localization_health: true
+        localization_health_timeout: 0.5
+        localization_map_id: fastlio_house_floorplan.pcd
+
+/global_map_publisher:
+    ros__parameters:
+        map_file_path: "/workspaces/soarm-car/artifacts/fastlio_house_floorplan.pcd"
+        interval: 1
+
+/**:
+    ros__parameters:
+        feature_extract_enable: false
+        point_filter_num: 3
+        max_iteration: 3
+        filter_size_surf: 0.5
+        filter_size_map: 0.5
+        cube_side_length: 1000.0
+        runtime_pos_log_enable: false
+        map_file_path: "/workspaces/soarm-car/artifacts/fastlio_house_floorplan.pcd"
+
+        common:
+            lid_topic: "/livox/lidar"
+            imu_topic: "/livox/imu"
+            time_sync_en: false
+            time_offset_lidar_to_imu: 0.0
+
+        preprocess:
+            lidar_type: 1
+            scan_line: 4
+            blind: 0.5
+            timestamp_unit: 3
+            scan_rate: 10
+
+        mapping:
+            acc_cov: 0.1
+            gyr_cov: 0.1
+            b_acc_cov: 0.0001
+            b_gyr_cov: 0.0001
+            fov_degree: 360.0
+            det_range: 50.0
+            extrinsic_est_en: false
+            extrinsic_T: [0.0, 0.0, 0.0]
+            extrinsic_R: [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+
+        publish:
+            path_en: true
+            effect_map_en: false
+            map_en: true
+            scan_publish_en: true
+            dense_publish_en: false
+            scan_bodyframe_pub_en: true
+            odom_tf_en: false
+
+        pcd_save:
+            pcd_save_en: false
+            interval: -1

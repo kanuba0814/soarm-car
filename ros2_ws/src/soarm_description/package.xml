@@ -2,7 +2,7 @@
 <package format="3">
   <name>soarm_description</name>
   <version>0.1.0</version>
-  <description>Visualization-only composite description for the WHEELTEC mini mecanum chassis and SO-101.</description>
+  <description>STEP-derived Kuruma four-wheel mecanum chassis description with provisional navigation sensor mounts.</description>
   <maintainer email="dev@example.invalid">soarm-car</maintainer>
   <license>Apache-2.0 and restricted vendor assets; see SOURCE.md</license>
   <buildtool_depend>ament_cmake</buildtool_depend>

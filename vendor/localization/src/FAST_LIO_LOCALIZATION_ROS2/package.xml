@@ -23,6 +23,7 @@
   <depend>rclcpp</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
+  <depend>soarm_interfaces</depend>
   <depend>common_interfaces</depend>
   <depend>tf2</depend>
   <depend>pcl_ros</depend>
@@ -30,6 +31,7 @@
   <depend>livox_ros_driver2</depend>
 
   <exec_depend>rosidl_default_runtime</exec_depend>
+  <test_depend>ament_cmake_pytest</test_depend>
   <member_of_group>rosidl_interface_packages</member_of_group>
 
   <export>

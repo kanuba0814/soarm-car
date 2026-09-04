@@ -6,7 +6,7 @@ python3 - <<'PY'
 from pathlib import Path
 import xml.etree.ElementTree as ET
 import yaml
-model = ET.parse('ros2_ws/src/soarm_simulation/models/senior_akm/model.sdf').getroot()
+model = ET.parse('ros2_ws/src/soarm_simulation/models/kuruma/model.sdf').getroot()
 livox = model.find("./model/link[@name='livox_frame']")
 assert livox is not None and livox.find("sensor[@name='livox_imu']") is not None
 launch = Path('ros2_ws/src/soarm_simulation/soarm_simulation/launch/simulation.launch.py').read_text()

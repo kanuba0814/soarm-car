@@ -3,11 +3,11 @@
   <model name="house_furniture">
     <static>true</static>
     <link name="furniture">
-      <collision name="coffee_table_navigation_footprint">
-        <pose>-5.49715 0.63240 0.22000 0 0 -1.5707964</pose>
+      <collision name="coffee_table_top_collision">
+        <pose>-5.49715 0.63240 0.40000 0 0 -1.5707964</pose>
         <geometry>
           <box>
-            <size>1.17000 0.49000 0.44000</size>
+            <size>1.17000 0.49000 0.08000</size>
           </box>
         </geometry>
       </collision>
@@ -23,6 +23,14 @@
           <ambient>0.25 0.12 0.06 1</ambient>
         </material>
       </visual>
+      <collision name="coffee_table_leg_collision_0">
+        <pose>-5.66153 1.13677 0.18000 0 0 -1.5707964</pose>
+        <geometry>
+          <box>
+            <size>0.06125 0.06125 0.36000</size>
+          </box>
+        </geometry>
+      </collision>
       <visual name="coffee_table_leg_visual_0">
         <pose>-5.66153 1.13677 0.18000 0 0 -1.5707964</pose>
         <geometry>
@@ -35,6 +43,14 @@
           <ambient>0.25 0.12 0.06 1</ambient>
         </material>
       </visual>
+      <collision name="coffee_table_leg_collision_1">
+        <pose>-5.33278 1.13677 0.18000 0 0 -1.5707964</pose>
+        <geometry>
+          <box>
+            <size>0.06125 0.06125 0.36000</size>
+          </box>
+        </geometry>
+      </collision>
       <visual name="coffee_table_leg_visual_1">
         <pose>-5.33278 1.13677 0.18000 0 0 -1.5707964</pose>
         <geometry>
@@ -47,6 +63,14 @@
           <ambient>0.25 0.12 0.06 1</ambient>
         </material>
       </visual>
+      <collision name="coffee_table_leg_collision_2">
+        <pose>-5.66153 0.12802 0.18000 0 0 -1.5707964</pose>
+        <geometry>
+          <box>
+            <size>0.06125 0.06125 0.36000</size>
+          </box>
+        </geometry>
+      </collision>
       <visual name="coffee_table_leg_visual_2">
         <pose>-5.66153 0.12802 0.18000 0 0 -1.5707964</pose>
         <geometry>
@@ -59,6 +83,14 @@
           <ambient>0.25 0.12 0.06 1</ambient>
         </material>
       </visual>
+      <collision name="coffee_table_leg_collision_3">
+        <pose>-5.33278 0.12802 0.18000 0 0 -1.5707964</pose>
+        <geometry>
+          <box>
+            <size>0.06125 0.06125 0.36000</size>
+          </box>
+        </geometry>
+      </collision>
       <visual name="coffee_table_leg_visual_3">
         <pose>-5.33278 0.12802 0.18000 0 0 -1.5707964</pose>
         <geometry>
@@ -71,11 +103,11 @@
           <ambient>0.25 0.12 0.06 1</ambient>
         </material>
       </visual>
-      <collision name="small_table_navigation_footprint">
-        <pose>-2.32182 -0.20420 0.35000 0 0 -0.0000000</pose>
+      <collision name="small_table_top_collision">
+        <pose>-2.32182 -0.20420 0.66000 0 0 -0.0000000</pose>
         <geometry>
           <box>
-            <size>1.20000 1.20000 0.70000</size>
+            <size>1.20000 1.20000 0.08000</size>
           </box>
         </geometry>
       </collision>
@@ -91,6 +123,14 @@
           <ambient>0.62 0.64 0.61 1</ambient>
         </material>
       </visual>
+      <collision name="small_table_leg_collision_0">
+        <pose>-2.83182 -0.71420 0.31000 0 0 -0.0000000</pose>
+        <geometry>
+          <box>
+            <size>0.08000 0.08000 0.62000</size>
+          </box>
+        </geometry>
+      </collision>
       <visual name="small_table_leg_visual_0">
         <pose>-2.83182 -0.71420 0.31000 0 0 -0.0000000</pose>
         <geometry>
@@ -103,6 +143,14 @@
           <ambient>0.62 0.64 0.61 1</ambient>
         </material>
       </visual>
+      <collision name="small_table_leg_collision_1">
+        <pose>-2.83182 0.30580 0.31000 0 0 -0.0000000</pose>
+        <geometry>
+          <box>
+            <size>0.08000 0.08000 0.62000</size>
+          </box>
+        </geometry>
+      </collision>
       <visual name="small_table_leg_visual_1">
         <pose>-2.83182 0.30580 0.31000 0 0 -0.0000000</pose>
         <geometry>
@@ -115,6 +163,14 @@
           <ambient>0.62 0.64 0.61 1</ambient>
         </material>
       </visual>
+      <collision name="small_table_leg_collision_2">
+        <pose>-1.81182 -0.71420 0.31000 0 0 -0.0000000</pose>
+        <geometry>
+          <box>
+            <size>0.08000 0.08000 0.62000</size>
+          </box>
+        </geometry>
+      </collision>
       <visual name="small_table_leg_visual_2">
         <pose>-1.81182 -0.71420 0.31000 0 0 -0.0000000</pose>
         <geometry>
@@ -127,6 +183,14 @@
           <ambient>0.62 0.64 0.61 1</ambient>
         </material>
       </visual>
+      <collision name="small_table_leg_collision_3">
+        <pose>-1.81182 0.30580 0.31000 0 0 -0.0000000</pose>
+        <geometry>
+          <box>
+            <size>0.08000 0.08000 0.62000</size>
+          </box>
+        </geometry>
+      </collision>
       <visual name="small_table_leg_visual_3">
         <pose>-1.81182 0.30580 0.31000 0 0 -0.0000000</pose>
         <geometry>
@@ -139,11 +203,11 @@
           <ambient>0.62 0.64 0.61 1</ambient>
         </material>
       </visual>
-      <collision name="desk_navigation_footprint">
-        <pose>5.36058 -0.76834 0.36000 0 0 -3.1415927</pose>
+      <collision name="desk_top_collision">
+        <pose>5.36058 -0.76834 0.68000 0 0 -3.1415927</pose>
         <geometry>
           <box>
-            <size>1.60000 0.80000 0.72000</size>
+            <size>1.60000 0.80000 0.08000</size>
           </box>
         </geometry>
       </collision>
@@ -159,6 +223,14 @@
           <ambient>0.58 0.34 0.14 1</ambient>
         </material>
       </visual>
+      <collision name="desk_leg_collision_0">
+        <pose>6.07058 -0.45834 0.32000 0 0 -3.1415927</pose>
+        <geometry>
+          <box>
+            <size>0.08000 0.08000 0.64000</size>
+          </box>
+        </geometry>
+      </collision>
       <visual name="desk_leg_visual_0">
         <pose>6.07058 -0.45834 0.32000 0 0 -3.1415927</pose>
         <geometry>
@@ -171,6 +243,14 @@
           <ambient>0.58 0.34 0.14 1</ambient>
         </material>
       </visual>
+      <collision name="desk_leg_collision_1">
+        <pose>6.07058 -1.07834 0.32000 0 0 -3.1415927</pose>
+        <geometry>
+          <box>
+            <size>0.08000 0.08000 0.64000</size>
+          </box>
+        </geometry>
+      </collision>
       <visual name="desk_leg_visual_1">
         <pose>6.07058 -1.07834 0.32000 0 0 -3.1415927</pose>
         <geometry>
@@ -183,6 +263,14 @@
           <ambient>0.58 0.34 0.14 1</ambient>
         </material>
       </visual>
+      <collision name="desk_leg_collision_2">
+        <pose>4.65058 -0.45834 0.32000 0 0 -3.1415927</pose>
+        <geometry>
+          <box>
+            <size>0.08000 0.08000 0.64000</size>
+          </box>
+        </geometry>
+      </collision>
       <visual name="desk_leg_visual_2">
         <pose>4.65058 -0.45834 0.32000 0 0 -3.1415927</pose>
         <geometry>
@@ -195,6 +283,14 @@
           <ambient>0.58 0.34 0.14 1</ambient>
         </material>
       </visual>
+      <collision name="desk_leg_collision_3">
+        <pose>4.65058 -1.07834 0.32000 0 0 -3.1415927</pose>
+        <geometry>
+          <box>
+            <size>0.08000 0.08000 0.64000</size>
+          </box>
+        </geometry>
+      </collision>
       <visual name="desk_leg_visual_3">
         <pose>4.65058 -1.07834 0.32000 0 0 -3.1415927</pose>
         <geometry>

@@ -129,10 +129,22 @@ install(
 install(PROGRAMS
   scripts/transform_fusion.py
   scripts/global_localization.py
+  scripts/localization_health.py
   scripts/publish_initial_pose.py
   scripts/global_map_publisher.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
+if(BUILD_TESTING)
+  find_package(ament_cmake_pytest REQUIRED)
+  ament_add_pytest_test(global_localization_test
+    test/test_global_localization.py
+    TIMEOUT 60
+  )
+  ament_add_pytest_test(localization_health_test
+    test/test_localization_health.py
+    TIMEOUT 60
+  )
+endif()
 
 ament_package()

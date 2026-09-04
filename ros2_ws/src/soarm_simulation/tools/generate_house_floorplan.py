@@ -270,8 +270,8 @@ def generate_furniture_sdf() -> None:
         top_thickness = 0.08
         top_pose = (world_x, world_y, height - top_thickness / 2)
         top_size = (width, depth, top_thickness)
-        local_box(link, "collision", f"{model_name}_navigation_footprint",
-                  (world_x, world_y, height / 2), (width, depth, height), yaw=world_yaw)
+        local_box(link, "collision", f"{model_name}_top_collision", top_pose, top_size,
+                  yaw=world_yaw)
         local_box(link, "visual", f"{model_name}_top_visual", top_pose, top_size,
                   colors[model_name], world_yaw)
         leg_height = height - top_thickness
@@ -287,6 +287,8 @@ def generate_furniture_sdf() -> None:
             rotated_y = -math.sin(angle) * leg_x + math.cos(angle) * leg_y
             pose = (world_x + rotated_x, world_y + rotated_y, leg_height / 2)
             size = (leg_size, leg_size, leg_height)
+            local_box(link, "collision", f"{model_name}_leg_collision_{index}", pose, size,
+                      yaw=world_yaw)
             local_box(link, "visual", f"{model_name}_leg_visual_{index}", pose, size,
                       colors[model_name], world_yaw)
 

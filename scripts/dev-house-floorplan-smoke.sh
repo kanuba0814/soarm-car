@@ -12,7 +12,7 @@ root = Path('ros2_ws/src/soarm_simulation')
 world = ET.parse(root / 'worlds/house_floorplan.sdf').getroot()
 assert world.find("./world/include/uri[.='model://house_floorplan']") is not None
 assert world.find("./world/include/uri[.='model://house_furniture']") is not None
-assert world.find("./world/include/uri[.='model://senior_akm']") is not None
+assert world.find("./world/include/uri[.='model://kuruma']") is not None
 model = ET.parse(root / 'models/house_floorplan/model.sdf').getroot()
 collisions = model.findall('.//collision')
 names = [element.get('name', '') for element in collisions]
@@ -23,12 +23,20 @@ assert not any('leaf' in name or 'swing' in name for name in names)
 assert len(model.findall('.//visual')) == len(collisions) == 60
 furniture = ET.parse(root / 'models/house_furniture/model.sdf').getroot()
 assert [link.get('name') for link in furniture.findall('.//link')] == ['furniture']
-assert [collision.get('name') for collision in furniture.findall('.//collision')] == [
-    'coffee_table_navigation_footprint',
-    'small_table_navigation_footprint',
-    'desk_navigation_footprint',
+collision_names = [collision.get('name') for collision in furniture.findall('.//collision')]
+expected_collisions = [
+    f'{table}_{part}_collision{suffix}'
+    for table in ('coffee_table', 'small_table', 'desk')
+    for part, suffix in [('top', '')] + [('leg', f'_{index}') for index in range(4)]
 ]
-assert len(furniture.findall('.//visual')) == 15
+assert collision_names == expected_collisions
+assert len(furniture.findall('.//visual')) == len(collision_names) == 15
+for collision in furniture.findall('.//collision'):
+    visual_name = collision.get('name').replace('_collision', '_visual')
+    visual = furniture.find(f".//visual[@name='{visual_name}']")
+    assert visual is not None
+    assert collision.findtext('pose') == visual.findtext('pose')
+    assert collision.findtext('geometry/box/size') == visual.findtext('geometry/box/size')
 
 pgm = (root / 'maps/house_floorplan.pgm').read_bytes()
 header, body = pgm.split(b'\n255\n', 1)
