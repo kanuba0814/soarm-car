@@ -151,3 +151,10 @@ class CommandASR:
 class RoomStore:
     @staticmethod
     def save(path, bundle, rooms): Path(path).write_text(json.dumps({'map_id': bundle.map_id, 'yaml_sha256': bundle.yaml_sha256, 'image_sha256': bundle.image_sha256, 'rooms': [room.__dict__ for room in rooms]}, ensure_ascii=False))
+    @staticmethod
+    def load(path, bundle):
+        data = json.loads(Path(path).read_text())
+        identity = (data['map_id'], data['yaml_sha256'], data['image_sha256'])
+        if identity != (bundle.map_id, bundle.yaml_sha256, bundle.image_sha256):
+            raise WorkflowError('MAP_MISMATCH', 'saved rooms do not match occupancy map bundle')
+        return [Room(item['id'], item['aliases'], [tuple(point) for point in item['polygon']], tuple(item['scan_pose'])) for item in data['rooms']]
