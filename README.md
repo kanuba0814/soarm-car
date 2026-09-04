@@ -94,6 +94,22 @@ FOXGLOVE=false ./scripts/dev-start.sh
 ./scripts/dev-smoke.sh
 ```
 
+## Orbbec Astra S 实体与仿真
+
+开发机已验证的实体相机为 Orbbec Astra S `2bc5:0402`。ROS 2 Humble 容器从固定提交构建官方 legacy OpenNI 驱动；USB 仅在相机专用 Compose override 中透传，不给普通仿真容器 `--privileged`：
+
+```bash
+sudo ./scripts/install-astra-udev.sh  # 每台宿主只需一次
+./scripts/dev-astra-start.sh          # 启动实体相机
+./scripts/dev-astra-preview.sh        # RViz RGB/depth/点云预览
+./scripts/dev-astra-check-running.sh  # 检查正在运行的有效 payload
+./scripts/dev-astra-record.sh NAME    # 录制算法输入 rosbag
+./scripts/dev-astra-smoke.sh          # 独占式实体完整验证
+./scripts/dev-astra-sim-smoke.sh      # 无硬件 Gazebo 接口验证
+```
+
+以上多终端命令必须使用相同 `ROS_DOMAIN_ID`。`bags/` 是本地大文件目录，不纳入 Git。实体和 Gazebo backend 的算法公共接口为 `/camera/color/image_raw`、`/camera/depth/image_raw`、对应 CameraInfo 和 `/camera/depth/points`。仿真用于 Agent 自动接口/算法回归，不代表真实内参、噪声、IR、USB 断线或曝光行为；设计与来源见 [`docs/research/astra-s.md`](docs/research/astra-s.md)。
+
 ROS 2 Action `go_to_place_and_grasp` 和臂轨迹接口仅为发现兼容保留。`arm_enabled=false` 时它们拒绝所有目标，绝不伪造导航、抓取或任务成功；底盘控制使用支持 `linear.x`、`linear.y` 和旋转的 mecanum `/cmd_vel`。
 
 镜像固定为 `osrf/ros:humble-desktop-jammy` 的 `linux/amd64` 开发环境。树莓派 5 是 arm64；此环境不构成 Pi 真机部署验证。

@@ -5,14 +5,21 @@ FROM osrf/ros:humble-desktop-jammy
 ENV DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-c"]
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    cmake \
+    git \
     libdrm2 \
     libegl1 \
     libelf1 \
     libexpat1 \
     libgbm1 \
+    libgflags-dev \
     libgl1 \
     libglvnd0 \
+    libgoogle-glog-dev \
+    libjpeg-dev \
     libunwind8 \
+    libusb-1.0-0-dev \
     libx11-xcb1 \
     libxcb-dri2-0 \
     libxcb-dri3-0 \
@@ -29,7 +36,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpcl-dev \
     python3-numpy \
     python3-open3d \
+    ros-humble-camera-info-manager \
+    ros-humble-depth-image-proc \
     ros-humble-foxglove-bridge \
+    ros-humble-image-geometry \
+    ros-humble-image-publisher \
+    ros-humble-image-transport \
     ros-humble-joint-state-publisher-gui \
     ros-humble-nav2-map-server \
     ros-humble-nav2-lifecycle-manager \
@@ -70,12 +82,33 @@ RUN mkdir -p /opt/mesa/share/glvnd/egl_vendor.d \
        > /etc/ld.so.conf.d/arc140t-mesa.conf \
     && ldconfig
 
+# Astra S (2bc5:0402) is an OpenNI-generation device. Build the official
+# legacy ROS 2 driver and libuvc from immutable upstream commits.
+ARG LIBUVC_COMMIT=68d07a00e11d1944e27b7295ee69673239c00b4b
+ARG ASTRA_ROS2_COMMIT=f7e71d9ce806e788cb48d8580aac2c778fba4214
+RUN git clone https://github.com/libuvc/libuvc.git /tmp/libuvc \
+    && git -C /tmp/libuvc checkout "${LIBUVC_COMMIT}" \
+    && cmake -S /tmp/libuvc -B /tmp/libuvc/build -DBUILD_TESTING=OFF \
+    && cmake --build /tmp/libuvc/build --parallel \
+    && cmake --install /tmp/libuvc/build \
+    && ldconfig \
+    && mkdir -p /tmp/astra_ws/src \
+    && git clone https://github.com/orbbec/ros2_astra_camera.git /tmp/astra_ws/src/ros2_astra_camera \
+    && git -C /tmp/astra_ws/src/ros2_astra_camera checkout "${ASTRA_ROS2_COMMIT}" \
+    && source /opt/ros/humble/setup.bash \
+    && colcon build --base-paths /tmp/astra_ws/src/ros2_astra_camera \
+        --install-base /opt/astra_ros2 \
+        --cmake-args -DCMAKE_BUILD_TYPE=Release \
+    && rm -rf /tmp/libuvc /tmp/astra_ws
+
 WORKDIR /workspaces/soarm-car
 COPY ros2_ws/src /workspaces/soarm-car/ros2_ws/src
 COPY vendor/localization/src /workspaces/soarm-car/vendor/localization/src
-RUN source /opt/ros/humble/setup.bash && colcon build --symlink-install \
-    --base-paths ros2_ws/src vendor/localization/src \
-    --cmake-args -DLIVOX_ROS_DRIVER2_MESSAGES_ONLY=ON
+RUN source /opt/ros/humble/setup.bash \
+    && source /opt/astra_ros2/setup.bash \
+    && colcon build --symlink-install \
+        --base-paths ros2_ws/src vendor/localization/src \
+        --cmake-args -DLIVOX_ROS_DRIVER2_MESSAGES_ONLY=ON
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]

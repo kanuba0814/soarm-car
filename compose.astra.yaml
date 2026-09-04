@@ -1,0 +1,4 @@
+services:
+  ros2-dev:
+    devices:
+      - "${ASTRA_USB_DEVICE:?Set ASTRA_USB_DEVICE with scripts/astra-usb-device.sh}:${ASTRA_USB_DEVICE:?Set ASTRA_USB_DEVICE with scripts/astra-usb-device.sh}:rwm"

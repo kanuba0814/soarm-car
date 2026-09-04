@@ -26,6 +26,11 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(PathJoinSubstitution([get_package_share_directory('ros_gz_sim'), 'launch', 'gz_sim.launch.py'])),
         condition=IfCondition(LaunchConfiguration('simulation')),
         launch_arguments={'gz_args': [LaunchConfiguration('gz_args'), ' ', world_path]}.items())
+    astra_simulation = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(PathJoinSubstitution([
+            get_package_share_directory('soarm_astra'), 'launch', 'simulation.launch.py'])),
+        condition=IfCondition(LaunchConfiguration('simulation')),
+    )
     return LaunchDescription([
         SetEnvironmentVariable('IGN_GAZEBO_RESOURCE_PATH', models_path),
         SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', models_path),
@@ -34,23 +39,33 @@ def generate_launch_description():
         DeclareLaunchArgument('gz_args', default_value='-r -s', description='Gazebo arguments; use "-r" to open the GUI.'),
         DeclareLaunchArgument('spawn_robot', default_value='true'),
         DeclareLaunchArgument('ground_truth_map_tf', default_value='true', description='Publish identity map->odom_combined for room preview; disable when AMCL/localisation owns this transform.'),
-        DeclareLaunchArgument('publish_sim_odometry', default_value='true', description='Publish /odom and odom_combined TF from Gazebo; disable when FAST-LIO owns Nav2 odometry.'),
+        DeclareLaunchArgument('publish_sim_odometry', default_value='true', description='Publish wheel-encoder /odom, ground-truth odometry, and odom_combined TF; disable when FAST-LIO owns Nav2 odometry.'),
         DeclareLaunchArgument('rviz', default_value='false', description='Start RViz with robot, TF, odometry path, point cloud and camera displays.'),
         gazebo,
         Node(package='robot_state_publisher', executable='robot_state_publisher', parameters=[{'robot_description': robot}]),
         # Kuruma is native SDF so the Fortress mecanum system applies wheel forces; robot_state_publisher supplies matching sensor TF.
-        Node(package='ros_gz_bridge', executable='parameter_bridge', condition=IfCondition(LaunchConfiguration('simulation')), arguments=[
-            '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
-            '/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
-            '/gazebo/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
-            '/gazebo/imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
-            '/gazebo/livox_imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
-            '/camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
-            '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
-            '/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
-            '/mid360/scan/points/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
-            '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
-        ]),
+        Node(
+            package='ros_gz_bridge', executable='parameter_bridge',
+            condition=IfCondition(LaunchConfiguration('simulation')),
+            arguments=[
+                '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
+                '/safe_cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist',
+                '/gazebo/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
+                '/gazebo/imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
+                '/gazebo/livox_imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
+                '/camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
+                '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+                '/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
+                '/mid360/scan/points/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+                '/joint_states@sensor_msgs/msg/JointState[gz.msgs.Model',
+            ],
+            remappings=[
+                ('/camera/image', '/simulation/astra/color/image'),
+                ('/camera/camera_info', '/simulation/astra/camera_info'),
+                ('/camera/depth_image', '/simulation/astra/depth/image'),
+            ],
+        ),
+        astra_simulation,
         Node(package='soarm_simulation', executable='sim_adapter', parameters=[
             {'policy_file': os.path.join(sim_share, 'config', 'mission_policy.yaml')},
             {'publish_odometry': LaunchConfiguration('publish_sim_odometry')},
