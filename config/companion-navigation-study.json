@@ -1,0 +1,33 @@
+{
+  "study_id": "companion-navigation-pilot-v1",
+  "recommended_focus": "grounding+viewpoint",
+  "planned_only_note": "Scene IDs are hypothetical pilot slots only, not verified assets or evidence of an executed experiment.",
+  "proposed_directions": [
+    {
+      "id": "relation_multiview_grounding_viewpoint",
+      "description": "Recommended: relation and multiview grounding paired with reachable existing viewpoint selection; unresolved references remain abstentions and never become arbitrary navigation coordinates."
+    },
+    {
+      "id": "temporal_memory_recheck",
+      "description": "Temporal memory and conservative moved-object rechecks represent observed change, absence, and unknown states without claiming physical-instance certainty."
+    },
+    {
+      "id": "uncertainty_clarification",
+      "description": "Uncertainty-driven clarification requests disambiguating human input when relation, identity, or observation evidence remains insufficient."
+    }
+  ],
+  "scene_splits": {
+    "train": ["pilot-kitchen-a"],
+    "dev": ["pilot-living-a"],
+    "test": ["pilot-bedroom-a"]
+  },
+  "seeds": [17, 29],
+  "matrix_limit": 1000,
+  "geometry_prerequisites": {
+    "rgb_depth_registration": "unknown",
+    "rgb_depth_synchronization": "unknown",
+    "pose_to_map_transform": "unknown",
+    "map_bundle_identity": "unknown",
+    "ground_truth": "draft_not_frozen"
+  }
+}
