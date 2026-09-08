@@ -1,0 +1,6 @@
+/camera/camera_info
+/camera/depth_image
+/camera/image
+/clock
+/parameter_events
+/rosout

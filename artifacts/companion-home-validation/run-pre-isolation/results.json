@@ -1,0 +1,133 @@
+{
+  "consumer_seam": "Gazebo rgbd_camera -> ros_gz_bridge -> rclpy Image/CameraInfo subscriber",
+  "viewpoints": [
+    {
+      "id": "diagnostic_a",
+      "diagnostic_teleport": true,
+      "requested_pose_world": [
+        -6.9,
+        0.9,
+        0.08,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "actual_pose_world": "NOT VERIFIED",
+      "post_pose_clock_fence_ns": 3000000,
+      "post_pose_accept_after_ns": 503000000,
+      "rgb_stamp_ns": 529000000,
+      "depth_stamp_ns": 529000000,
+      "camera_info_stamp_ns": 529000000,
+      "camera_info_post_pose_fence": true,
+      "camera_info_frame_matches_rgb": true,
+      "rgb_depth_sync_delta_ns": 0,
+      "stale_messages_discarded": {
+        "rgb": 8,
+        "depth": 8
+      },
+      "frames": [
+        "kuruma/camera_link/camera",
+        "kuruma/camera_link/camera",
+        "kuruma/camera_link/camera"
+      ],
+      "dimensions": [
+        640,
+        480
+      ],
+      "camera_info_fx_fy": [
+        554.3827128226441,
+        554.3827128226441
+      ],
+      "rgb_unique_colors": 6429,
+      "depth_finite_positive_ratio": 0.8356868489583333,
+      "depth_min_m": 0.2423027604818344,
+      "depth_max_m": 7.841282367706299
+    },
+    {
+      "id": "diagnostic_b",
+      "diagnostic_teleport": true,
+      "requested_pose_world": [
+        -1.7,
+        3.1,
+        0.08,
+        0.0,
+        0.0,
+        -1.57
+      ],
+      "actual_pose_world": "NOT VERIFIED",
+      "post_pose_clock_fence_ns": 1323000000,
+      "post_pose_accept_after_ns": 1823000000,
+      "rgb_stamp_ns": 1849000000,
+      "depth_stamp_ns": 1849000000,
+      "camera_info_stamp_ns": 1849000000,
+      "camera_info_post_pose_fence": true,
+      "camera_info_frame_matches_rgb": true,
+      "rgb_depth_sync_delta_ns": 0,
+      "stale_messages_discarded": {
+        "rgb": 8,
+        "depth": 8
+      },
+      "frames": [
+        "kuruma/camera_link/camera",
+        "kuruma/camera_link/camera",
+        "kuruma/camera_link/camera"
+      ],
+      "dimensions": [
+        640,
+        480
+      ],
+      "camera_info_fx_fy": [
+        554.3827128226441,
+        554.3827128226441
+      ],
+      "rgb_unique_colors": 6762,
+      "depth_finite_positive_ratio": 0.7094368489583334,
+      "depth_min_m": 0.5239570140838623,
+      "depth_max_m": 7.971898555755615
+    },
+    {
+      "id": "diagnostic_c",
+      "diagnostic_teleport": true,
+      "requested_pose_world": [
+        6.0,
+        2.5,
+        0.08,
+        0.0,
+        0.0,
+        3.14
+      ],
+      "actual_pose_world": "NOT VERIFIED",
+      "post_pose_clock_fence_ns": 2655000000,
+      "post_pose_accept_after_ns": 3155000000,
+      "rgb_stamp_ns": 3169000000,
+      "depth_stamp_ns": 3169000000,
+      "camera_info_stamp_ns": 3169000000,
+      "camera_info_post_pose_fence": true,
+      "camera_info_frame_matches_rgb": true,
+      "rgb_depth_sync_delta_ns": 0,
+      "stale_messages_discarded": {
+        "rgb": 8,
+        "depth": 8
+      },
+      "frames": [
+        "kuruma/camera_link/camera",
+        "kuruma/camera_link/camera",
+        "kuruma/camera_link/camera"
+      ],
+      "dimensions": [
+        640,
+        480
+      ],
+      "camera_info_fx_fy": [
+        554.3827128226441,
+        554.3827128226441
+      ],
+      "rgb_unique_colors": 7863,
+      "depth_finite_positive_ratio": 0.7001204427083333,
+      "depth_min_m": 0.5238440036773682,
+      "depth_max_m": 7.683730602264404
+    }
+  ],
+  "map_correspondence": "NOT VERIFIED; no occupancy map or PCD was consumed.",
+  "navigation_claim": "NONE; poses are diagnostic teleports only."
+}

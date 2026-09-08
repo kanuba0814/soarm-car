@@ -1,0 +1,289 @@
+{
+  "run_utc": "2026-09-08T13:30:04.511906Z",
+  "scope": "Boxes-only pretrained fixed-COCO-vocabulary smoke on saved RGB frames; not ground truth, accuracy, navigation, or task-success evidence.",
+  "model": {
+    "url": "https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8s-worldv2.pt",
+    "release_api": "https://api.github.com/repos/ultralytics/assets/releases/tags/v8.4.0",
+    "release_asset_id": 340060641,
+    "expected_bytes": 25923032,
+    "sha256": "9b2c17ab6124a913e9b3a5c170617920d91b0f01111a8479da69f00e2cf27792",
+    "local_path": "/home/gxxl/soarm-car/artifacts/perception-dev/models/yolov8s-worldv2.pt"
+  },
+  "runtime": {
+    "python": "3.10.20",
+    "torch": "2.12.0+cu130",
+    "cuda_available": true,
+    "cuda_device": "NVIDIA GeForce RTX 3070",
+    "ultralytics": "8.4.57",
+    "opencv": "4.13.0",
+    "numpy": "2.2.6",
+    "pillow": "12.2.0"
+  },
+  "inference": {
+    "confidence_threshold": 0.1,
+    "device": 0,
+    "custom_vocabulary": false
+  },
+  "household_reporting_classes": [
+    "bed",
+    "chair",
+    "clock",
+    "couch",
+    "dining table",
+    "laptop",
+    "microwave",
+    "oven",
+    "potted plant",
+    "refrigerator",
+    "sink",
+    "toaster",
+    "tv",
+    "vase"
+  ],
+  "frames": [
+    {
+      "input": {
+        "path": "artifacts/companion-home-validation/run-final/diagnostic_a_rgb.png",
+        "sha256": "dea96b5e72aa262b47447d88bcf92c13bc8f5bc594f3e272960a7c899a1a365f"
+      },
+      "overlay": {
+        "path": "artifacts/companion-home-validation/run-final/yolo-world-smoke/diagnostic_a_rgb_boxes.png",
+        "sha256": "8360a5c53a6ca26da14107dbf41613ad32a7195fdb9afb12c020924f9d95fb92"
+      },
+      "wall_latency_ms": 533.5223350002707,
+      "ultralytics_speed_ms": {
+        "preprocess": 0.9719929998937005,
+        "inference": 27.439864999905694,
+        "postprocess": 0.6619559999307967
+      },
+      "raw_boxes": [
+        {
+          "class_id": 72,
+          "label": "refrigerator",
+          "confidence": 0.34182727336883545,
+          "xyxy_pixels": [
+            0.133453369140625,
+            0.0,
+            259.5384826660156,
+            480.0
+          ],
+          "household_reporting_class": true
+        }
+      ],
+      "raw_box_count": 1,
+      "household_reporting_boxes": [
+        {
+          "class_id": 72,
+          "label": "refrigerator",
+          "confidence": 0.34182727336883545,
+          "xyxy_pixels": [
+            0.133453369140625,
+            0.0,
+            259.5384826660156,
+            480.0
+          ],
+          "household_reporting_class": true
+        }
+      ]
+    },
+    {
+      "input": {
+        "path": "artifacts/companion-home-validation/run-final/diagnostic_b_rgb.png",
+        "sha256": "43c8badaa38df6cd47127596addb6862c923cdfa781cdacdfec6bc6a07721b6f"
+      },
+      "overlay": {
+        "path": "artifacts/companion-home-validation/run-final/yolo-world-smoke/diagnostic_b_rgb_boxes.png",
+        "sha256": "be2bd7a7d2a48d66028aff4125565ef152a4f22404aebaf161600bb1b11b2cf9"
+      },
+      "wall_latency_ms": 8.168976999968436,
+      "ultralytics_speed_ms": {
+        "preprocess": 0.9583549999661045,
+        "inference": 4.436134000115999,
+        "postprocess": 0.5143399998814857
+      },
+      "raw_boxes": [
+        {
+          "class_id": 62,
+          "label": "tv",
+          "confidence": 0.3551100194454193,
+          "xyxy_pixels": [
+            490.95916748046875,
+            0.7967529296875,
+            639.9096069335938,
+            359.2314758300781
+          ],
+          "household_reporting_class": true
+        },
+        {
+          "class_id": 4,
+          "label": "airplane",
+          "confidence": 0.13910819590091705,
+          "xyxy_pixels": [
+            0.0040569305419921875,
+            4.643646240234375,
+            22.094045639038086,
+            72.74581909179688
+          ],
+          "household_reporting_class": false
+        }
+      ],
+      "raw_box_count": 2,
+      "household_reporting_boxes": [
+        {
+          "class_id": 62,
+          "label": "tv",
+          "confidence": 0.3551100194454193,
+          "xyxy_pixels": [
+            490.95916748046875,
+            0.7967529296875,
+            639.9096069335938,
+            359.2314758300781
+          ],
+          "household_reporting_class": true
+        }
+      ]
+    },
+    {
+      "input": {
+        "path": "artifacts/companion-home-validation/run-final/diagnostic_c_rgb.png",
+        "sha256": "f3bb3277d3fc0c19968b8fa4d30b5df22faf5856500eef081bf5befa093a41f2"
+      },
+      "overlay": {
+        "path": "artifacts/companion-home-validation/run-final/yolo-world-smoke/diagnostic_c_rgb_boxes.png",
+        "sha256": "e5c5e153365964716b3be0ec07d62a7bbd0e636dab1f5300356911aeabdaa247"
+      },
+      "wall_latency_ms": 7.911607999631087,
+      "ultralytics_speed_ms": {
+        "preprocess": 0.5797200001325109,
+        "inference": 4.425230999913765,
+        "postprocess": 0.6836319998910767
+      },
+      "raw_boxes": [
+        {
+          "class_id": 56,
+          "label": "chair",
+          "confidence": 0.36838752031326294,
+          "xyxy_pixels": [
+            450.0462646484375,
+            182.49703979492188,
+            511.108154296875,
+            280.3301696777344
+          ],
+          "household_reporting_class": true
+        },
+        {
+          "class_id": 56,
+          "label": "chair",
+          "confidence": 0.20268507301807404,
+          "xyxy_pixels": [
+            433.0460205078125,
+            180.86907958984375,
+            519.807373046875,
+            282.6780090332031
+          ],
+          "household_reporting_class": true
+        },
+        {
+          "class_id": 13,
+          "label": "bench",
+          "confidence": 0.17105253040790558,
+          "xyxy_pixels": [
+            0.0,
+            171.52304077148438,
+            38.55101776123047,
+            257.22637939453125
+          ],
+          "household_reporting_class": false
+        },
+        {
+          "class_id": 56,
+          "label": "chair",
+          "confidence": 0.119175486266613,
+          "xyxy_pixels": [
+            463.8205261230469,
+            182.36070251464844,
+            508.1611022949219,
+            193.95005798339844
+          ],
+          "household_reporting_class": true
+        },
+        {
+          "class_id": 56,
+          "label": "chair",
+          "confidence": 0.11598124355077744,
+          "xyxy_pixels": [
+            462.54949951171875,
+            182.3074951171875,
+            508.18359375,
+            256.4190673828125
+          ],
+          "household_reporting_class": true
+        },
+        {
+          "class_id": 0,
+          "label": "person",
+          "confidence": 0.10492726415395737,
+          "xyxy_pixels": [
+            557.8884887695312,
+            59.535980224609375,
+            569.9932250976562,
+            83.82878112792969
+          ],
+          "household_reporting_class": false
+        }
+      ],
+      "raw_box_count": 6,
+      "household_reporting_boxes": [
+        {
+          "class_id": 56,
+          "label": "chair",
+          "confidence": 0.36838752031326294,
+          "xyxy_pixels": [
+            450.0462646484375,
+            182.49703979492188,
+            511.108154296875,
+            280.3301696777344
+          ],
+          "household_reporting_class": true
+        },
+        {
+          "class_id": 56,
+          "label": "chair",
+          "confidence": 0.20268507301807404,
+          "xyxy_pixels": [
+            433.0460205078125,
+            180.86907958984375,
+            519.807373046875,
+            282.6780090332031
+          ],
+          "household_reporting_class": true
+        },
+        {
+          "class_id": 56,
+          "label": "chair",
+          "confidence": 0.119175486266613,
+          "xyxy_pixels": [
+            463.8205261230469,
+            182.36070251464844,
+            508.1611022949219,
+            193.95005798339844
+          ],
+          "household_reporting_class": true
+        },
+        {
+          "class_id": 56,
+          "label": "chair",
+          "confidence": 0.11598124355077744,
+          "xyxy_pixels": [
+            462.54949951171875,
+            182.3074951171875,
+            508.18359375,
+            256.4190673828125
+          ],
+          "household_reporting_class": true
+        }
+      ]
+    }
+  ],
+  "license_caveat": "Ultralytics is AGPL-3.0 unless separately commercially licensed; this local smoke makes no deployment claim."
+}

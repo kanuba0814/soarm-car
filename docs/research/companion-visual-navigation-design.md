@@ -142,3 +142,7 @@ python3 scripts/prepare_companion_navigation.py preflight --manifest /tmp/compan
 大范围改动现有系统或有明显破坏性风险时先建独立 worktree；worktree 不替代对删除、实物控制等高风险动作的授权。本轮仅新增文档和离线脚本，无需破坏性操作或额外 worktree。
 
 **交付本预案、来源与工具后停止。下一阶段必须等用户选择/确认方向以及授权开始验证；不能因为 GPU 可用就自动开跑。**
+
+### 验证授权增量（2026-09-08）
+
+上述停止线现对 `docs/research/companion-home-validation.md` 所定义的窄范围环境验证例外：用户已明确授权下载开放的、锁定版本的 TeamSOBITS AWS Small House 源码，并在本地 Docker/Gazebo Fortress 中执行有界 RGB-D 消费者链验证。该授权不涵盖实物机器人、上传、推送、FAST-LIO/Nav2/安全链/当前 Kuruma 模型变更，也不授权导航成功或方法有效性声明。

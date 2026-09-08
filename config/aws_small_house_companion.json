@@ -1,0 +1,23 @@
+{
+  "asset": {
+    "repository": "https://github.com/TeamSOBITS/aws_small_house_world.git",
+    "branch": "humble-devel",
+    "commit": "e2f90621f0fd1a0c496f4e7fcca06138808bc2ec",
+    "license_file": "LICENSE",
+    "license_sha256": "ddf9b5d9dd2fded18653e0ca4c5934008d4faea1161d754493b54a23c25eac14",
+    "content_manifest": "config/aws_small_house_companion_assets.json",
+    "content_manifest_sha256": "c8557b77a84f648803ffd2bab6e1ee1fb5ab052717b6fbfb2fe9f4654ad7d2cb",
+    "consumed_files": {
+      "worlds/small_house.world": "eb25db9b0a7ca10574fa6f908a10a47a6467c8f805785b54c8f3fa74980d6816"
+    }
+  },
+  "diagnostic_viewpoints": [
+    {"id": "diagnostic_a", "pose": [-6.9, 0.9, 0.08, 0.0, 0.0, 0.0]},
+    {"id": "diagnostic_b", "pose": [-1.7, 3.1, 0.08, 0.0, 0.0, -1.57]},
+    {"id": "diagnostic_c", "pose": [6.0, 2.5, 0.08, 0.0, 0.0, 3.14]}
+  ],
+  "notes": {
+    "teleport": "Diagnostic camera placement only; it is never navigation evidence.",
+    "map_correspondence": "NOT VERIFIED: existing occupancy maps and PCDs do not correspond to this source scene."
+  }
+}

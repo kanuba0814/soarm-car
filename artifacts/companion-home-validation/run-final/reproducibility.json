@@ -1,0 +1,24 @@
+{
+  "scope": "Retained source and evidence integrity check; not another simulation or method evaluation.",
+  "base_commit": "3490d7f43b6d0732c17bf9d830155119c5036707",
+  "source_sha256": {
+    "scripts/acquire-aws-small-house.sh": "65c0f577a59116cd1295b1663b8a4ce4fb948059416962652faa8ce4f01c3691",
+    "scripts/dev-companion-home-validation.sh": "cf601f574c35fa36d332b42f10b2a7b32274195ad84f752879c6586b5cc116c9",
+    "scripts/prepare_companion_home_world.py": "50e2549e5c9d731953a345cf485fc68ca6b145d2524ed79cf198b18f404e2d2f",
+    "scripts/run_companion_yoloworld_smoke.py": "4e6cd5a34f1266595c4a769d816c76f92e457d6e102ebf6e951053d4639fcac4",
+    "config/aws_small_house_companion.json": "dcd4d3271da9667fdbedcd31f3dd5db52d6dbe5996f49d2d24de417e406aaf50",
+    "config/aws_small_house_companion_assets.json": "c8557b77a84f648803ffd2bab6e1ee1fb5ab052717b6fbfb2fe9f4654ad7d2cb",
+    "ros2_ws/src/soarm_simulation/setup.py": "b26c5753b703a9018ef74b9c5715218e8bf820f498d5f1257fbe6820d70c3254",
+    "ros2_ws/src/soarm_simulation/models/kuruma/model.sdf": "143dd22a0047cdce511ac0b5c99dc5b96a7c3cc1a75116c585531f963de609fa"
+  },
+  "evidence_sha256": "f1223334737e65f394a88b8a86ea36cd4c912b88b523a17722f9461de49516c5",
+  "yolo_results_sha256": "19b80c370ec1668df945a4a38953ab6f189a7987a7f15f657c5c95dce36698ca",
+  "checked": [
+    "shell syntax",
+    "Python AST and baseline help",
+    "all 6 sensor PNG hashes",
+    "3 post-fence exactly synchronized RGB-depth pairs",
+    "all 3 baseline input/overlay hashes",
+    "9 raw boxes retained without accuracy claim"
+  ]
+}

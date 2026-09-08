@@ -1,0 +1,1488 @@
+{
+  "commit": "e2f90621f0fd1a0c496f4e7fcca06138808bc2ec",
+  "file_count": 370,
+  "files": {
+    "LICENSE": {
+      "bytes": 931,
+      "sha256": "ddf9b5d9dd2fded18653e0ca4c5934008d4faea1161d754493b54a23c25eac14"
+    },
+    "models/aws_robomaker_residential_AirconditionerA_01/materials/textures/aws_AirconditionerA_01.png": {
+      "bytes": 1132853,
+      "sha256": "d0064caa3cbdfbdb0a40a1e2d17a09c525ebe6744ecbb2b300b31d09fa2050f6"
+    },
+    "models/aws_robomaker_residential_AirconditionerA_01/meshes/aws_AirconditionerA_01_collision.DAE": {
+      "bytes": 8725,
+      "sha256": "368f5c40e819afb1d9ba5c87c805f5ac430cbfc18b5148eb50471ea55090283a"
+    },
+    "models/aws_robomaker_residential_AirconditionerA_01/meshes/aws_AirconditionerA_01_visual.DAE": {
+      "bytes": 55933,
+      "sha256": "7d7bc998891587bb641cd60f2a196f19264463d45d86541af025943f7836a3ef"
+    },
+    "models/aws_robomaker_residential_AirconditionerA_01/model.config": {
+      "bytes": 284,
+      "sha256": "fab94634a1ccbf01014b05d6c48d537376beb4b2de245fe19c1ec28e54805236"
+    },
+    "models/aws_robomaker_residential_AirconditionerA_01/model.sdf": {
+      "bytes": 1113,
+      "sha256": "8ae4a86b9d18ab83e9376a96bef45c3c3d7d6879e06d2c6fae8948b84f31e460"
+    },
+    "models/aws_robomaker_residential_AirconditionerB_01/materials/textures/aws_AirconditionerB_01.png": {
+      "bytes": 191994,
+      "sha256": "0aa9efcca8b70f1174a8a29ca3cd85d29fd6a7e050c52aa515b76182e72d9dee"
+    },
+    "models/aws_robomaker_residential_AirconditionerB_01/meshes/aws_AirconditionerB_01_collision.DAE": {
+      "bytes": 5231,
+      "sha256": "5011f5a17c9b23e1250d6e9a35d36c717bfe7f91ef2c09e700755e68bece4a7e"
+    },
+    "models/aws_robomaker_residential_AirconditionerB_01/meshes/aws_AirconditionerB_01_visual.DAE": {
+      "bytes": 86007,
+      "sha256": "f0e33471c078950a406fbc28eaf9b2542be56c2ce976db9b4dbc365af912414a"
+    },
+    "models/aws_robomaker_residential_AirconditionerB_01/model.config": {
+      "bytes": 284,
+      "sha256": "1dc1d2ea3794dde7e7bdcc99e743b42ed2305dcd0d0e9a788f90332114864ee3"
+    },
+    "models/aws_robomaker_residential_AirconditionerB_01/model.sdf": {
+      "bytes": 1081,
+      "sha256": "4cebd61a7da7298c530fc4340a9f68db38d203f22fd905b3ddaff4e608bb77ba"
+    },
+    "models/aws_robomaker_residential_BalconyTable_01/materials/textures/aws_BalconyTable_01.png": {
+      "bytes": 3300,
+      "sha256": "55ed2ccddfcdbf665d8328eb5b3ac7d5e0837c069be5e1f756d47586a80e3464"
+    },
+    "models/aws_robomaker_residential_BalconyTable_01/meshes/aws_BalconyTable_01_collision.DAE": {
+      "bytes": 8387,
+      "sha256": "c40aa457df15d22096cea4d6fc9ea226774ae0a833ca4294bb666f99ed454a3c"
+    },
+    "models/aws_robomaker_residential_BalconyTable_01/meshes/aws_BalconyTable_01_visual.DAE": {
+      "bytes": 54846,
+      "sha256": "cbd9d03518c88e2f3989a709a3766c261820797efbca2684a37a5086079d88b3"
+    },
+    "models/aws_robomaker_residential_BalconyTable_01/model.config": {
+      "bytes": 281,
+      "sha256": "a8c0cf2d1036fd8d55c31072dc9957038f462dab8694d206ec61810bce58adf6"
+    },
+    "models/aws_robomaker_residential_BalconyTable_01/model.sdf": {
+      "bytes": 1076,
+      "sha256": "9fa8545b5c3172f38f7ca720dac705f70fbfdbff10e33a7a4ba8c4a10cdc24af"
+    },
+    "models/aws_robomaker_residential_Ball_01/materials/textures/aws_Ball_01.png": {
+      "bytes": 61073,
+      "sha256": "7b8cc063ec768341e5613627d178d492e7a4c799837f47e9676f7ac07e041e30"
+    },
+    "models/aws_robomaker_residential_Ball_01/meshes/aws_Ball_01_collision.DAE": {
+      "bytes": 29064,
+      "sha256": "cde2c88aa7078ca7bad5a8b6552da4d377dd8478467be5437391ba728fabe50a"
+    },
+    "models/aws_robomaker_residential_Ball_01/meshes/aws_Ball_01_visual.DAE": {
+      "bytes": 108583,
+      "sha256": "2271589c0c1b54e6db912f8e25a333ea5c4d546956a5f9c3bbf8f2a94ada1716"
+    },
+    "models/aws_robomaker_residential_Ball_01/model.config": {
+      "bytes": 273,
+      "sha256": "464eb7fbdeeec5f2986ec8b1f1af83ad111959049667dd7899c0d038d1a16963"
+    },
+    "models/aws_robomaker_residential_Ball_01/model.sdf": {
+      "bytes": 2087,
+      "sha256": "3e150254e829ab05c07aeddc5f79fd443cc750289a2024886cdc3756c49e8f8e"
+    },
+    "models/aws_robomaker_residential_Bed_01/materials/textures/aws_BedA_01.png": {
+      "bytes": 379740,
+      "sha256": "cf36006479c6e960d79f8805991502ac86fbdba9d35f68866628928a38b90f6a"
+    },
+    "models/aws_robomaker_residential_Bed_01/materials/textures/aws_BedB_01.png": {
+      "bytes": 1689362,
+      "sha256": "b90a79e86dca100e3cb3375cf7185c4c9ce348e6de18871a7bdcadd1081da433"
+    },
+    "models/aws_robomaker_residential_Bed_01/materials/textures/aws_BedC_01.png": {
+      "bytes": 1104935,
+      "sha256": "d0843477390219389727a2cc9877ab1e6e92a687b5d97e926841aab0b1446669"
+    },
+    "models/aws_robomaker_residential_Bed_01/materials/textures/aws_Bed_01.png": {
+      "bytes": 565166,
+      "sha256": "1308da47d60b65c4d54794c0edd72526d3dcc9caab5771c77fd951817f0139a7"
+    },
+    "models/aws_robomaker_residential_Bed_01/meshes/aws_Bed_01_collision.DAE": {
+      "bytes": 13837,
+      "sha256": "a4b8e8c8fb129a0e3e984743f066254febf7492dbd11634b7ecd2e846263e464"
+    },
+    "models/aws_robomaker_residential_Bed_01/meshes/aws_Bed_01_visual.DAE": {
+      "bytes": 1426013,
+      "sha256": "7c48aa9044b30699020ae3a18c4780b1b16db4f4ecaf22510b2c6c2b8002c5e0"
+    },
+    "models/aws_robomaker_residential_Bed_01/model.config": {
+      "bytes": 272,
+      "sha256": "e43bb6d36400b4786de3e524218852fa580287f9d9c95700336f78ef5fa9a1c4"
+    },
+    "models/aws_robomaker_residential_Bed_01/model.sdf": {
+      "bytes": 1055,
+      "sha256": "cd6cbbfcd4a1ba604dfa502f8a7f9d9ff1220af135fef575798a4cccc8328f2b"
+    },
+    "models/aws_robomaker_residential_Board_01/materials/textures/aws_Board_01.png": {
+      "bytes": 290167,
+      "sha256": "795abd1e5bd2dad04dc1ac934b33f768db6a23eaeb6c1e5d4b1b77f3368d454f"
+    },
+    "models/aws_robomaker_residential_Board_01/meshes/aws_Board_01_collision.DAE": {
+      "bytes": 6402,
+      "sha256": "2e1d2bbfe35207b6aa59772f3bc5744c175bba4d1f6e29bfbab6ef073839312b"
+    },
+    "models/aws_robomaker_residential_Board_01/meshes/aws_Board_01_visual.DAE": {
+      "bytes": 17111,
+      "sha256": "45175114fb497e82c8fc62dd1037144666fa16a1f683ffbf0db8642adb50c5a6"
+    },
+    "models/aws_robomaker_residential_Board_01/model.config": {
+      "bytes": 274,
+      "sha256": "ff72d4c3334dc09a6e12b745587e926d488b650da9f09849688c273d62ff4c30"
+    },
+    "models/aws_robomaker_residential_Board_01/model.sdf": {
+      "bytes": 777,
+      "sha256": "3cfb5db6f0fe3a3d3448f3a3289a048d0a4693115cde7d0b51a03e4fca40c514"
+    },
+    "models/aws_robomaker_residential_Carpet_01/materials/textures/aws_Carpet_01.png": {
+      "bytes": 6664209,
+      "sha256": "bebfa3305fb60e141249299e256b33b021a018f0835d14bc172c3eee86036f75"
+    },
+    "models/aws_robomaker_residential_Carpet_01/meshes/aws_Carpet_01_collision.DAE": {
+      "bytes": 5435,
+      "sha256": "44f3ee9d4be182016f4e20a01cd18cd7f5e61c24d76e2e2ef181a281c5438d42"
+    },
+    "models/aws_robomaker_residential_Carpet_01/meshes/aws_Carpet_01_visual.DAE": {
+      "bytes": 9113,
+      "sha256": "2c12d1a52d8027a37803a6abb6bb0342b6f79ae1e853c27bde83b0dcd5651169"
+    },
+    "models/aws_robomaker_residential_Carpet_01/model.config": {
+      "bytes": 275,
+      "sha256": "7ee082738bf0c1b0e55b0ea4fb7216a411426dbb450f0bec548a95cb4e4ec7b3"
+    },
+    "models/aws_robomaker_residential_Carpet_01/model.sdf": {
+      "bytes": 1502,
+      "sha256": "a045f6638c094406789b99eb6fad8e828d809a936bea05569163263ad7c3870b"
+    },
+    "models/aws_robomaker_residential_ChairA_01/materials/textures/aws_ChairA_01.png": {
+      "bytes": 755526,
+      "sha256": "80369d365081b818f68adf7c4e5c514184cf6e9a8b8cfed4867ef10e5ebef168"
+    },
+    "models/aws_robomaker_residential_ChairA_01/meshes/aws_ChairA_01_collision.DAE": {
+      "bytes": 18377,
+      "sha256": "2763098ea4411dc89256ecde2b2df4646520b0b9a5f89a9101750648e09dcba4"
+    },
+    "models/aws_robomaker_residential_ChairA_01/meshes/aws_ChairA_01_visual.DAE": {
+      "bytes": 429441,
+      "sha256": "05ba09caca3176610ee215698d7c47993cee15d825f60eda6f128791ce926701"
+    },
+    "models/aws_robomaker_residential_ChairA_01/model.config": {
+      "bytes": 275,
+      "sha256": "cba9d0a18af8488fb120a2ec9719d066f9a908b41d27ff0356db161507d98185"
+    },
+    "models/aws_robomaker_residential_ChairA_01/model.sdf": {
+      "bytes": 1051,
+      "sha256": "b8b29c08ac88227b45d460ade2660fa7f0693c2b937cc8d52241016d73644ba6"
+    },
+    "models/aws_robomaker_residential_ChairD_01/materials/textures/aws_ChairD_01.png": {
+      "bytes": 3300,
+      "sha256": "55ed2ccddfcdbf665d8328eb5b3ac7d5e0837c069be5e1f756d47586a80e3464"
+    },
+    "models/aws_robomaker_residential_ChairD_01/meshes/aws_ChairD_01_collision.DAE": {
+      "bytes": 12461,
+      "sha256": "4cb613af05615762143bc21272cd75058ad7dc9ff9abd07269464c432e199434"
+    },
+    "models/aws_robomaker_residential_ChairD_01/meshes/aws_ChairD_01_visual.DAE": {
+      "bytes": 86853,
+      "sha256": "bd40cbe5daaeb4ae3304af255cd014d64f5c73021b11c96965b9e8e2e4b71eea"
+    },
+    "models/aws_robomaker_residential_ChairD_01/model.config": {
+      "bytes": 275,
+      "sha256": "a2ea9d23784a8ec91b0058cc366c740b83176e63de8152f92a31fc1ba47aefe3"
+    },
+    "models/aws_robomaker_residential_ChairD_01/model.sdf": {
+      "bytes": 1070,
+      "sha256": "e075b441d18142758628a92816c73a30636907e588dfdb15d7d04a42ebd71954"
+    },
+    "models/aws_robomaker_residential_Chandelier_01/materials/textures/aws_Chandelier_01.png": {
+      "bytes": 821769,
+      "sha256": "c032dfbdd5a2a7ed3dc741ccf21e3f44d95658e935f61867934e366e0c2679b1"
+    },
+    "models/aws_robomaker_residential_Chandelier_01/meshes/aws_Chandelier_01.DAE": {
+      "bytes": 396123,
+      "sha256": "f4ca0c48abadf21ee136bcfd25938971781c825e02eac56b7576d63c9c327411"
+    },
+    "models/aws_robomaker_residential_Chandelier_01/meshes/aws_Chandelier_01_collision.DAE": {
+      "bytes": 5750,
+      "sha256": "09bdf383d60196ef61cd495cf6e43a0ae7bd257473028f3776dea35c6b45581f"
+    },
+    "models/aws_robomaker_residential_Chandelier_01/meshes/aws_Chandelier_01_visual.DAE": {
+      "bytes": 391609,
+      "sha256": "a6ba4b70df288f8f37539034117d1fea9f8d5133d82c6f2dc530ed549fa53f85"
+    },
+    "models/aws_robomaker_residential_Chandelier_01/model.config": {
+      "bytes": 279,
+      "sha256": "e5f8ac74438e2cc2cd5c89e6d5ab35b0fafebb773b18ae7d45210138fcb8a889"
+    },
+    "models/aws_robomaker_residential_Chandelier_01/model.sdf": {
+      "bytes": 1086,
+      "sha256": "c7087aa44ccfd8b95136f3a5b290011bedaf4c75156686f609e3814a3748e8fc"
+    },
+    "models/aws_robomaker_residential_CoffeeTable_01/materials/textures/aws_CoffeeTable_01.png": {
+      "bytes": 834018,
+      "sha256": "fc720fe6a63ab4483e668e986e80bc095429ea497bfc3a6ca96b121e52f0dfb2"
+    },
+    "models/aws_robomaker_residential_CoffeeTable_01/meshes/aws_CoffeeTable_01_collision.DAE": {
+      "bytes": 10819,
+      "sha256": "96d855fbd04032b9eb55f38ad66cf4d8e989fccc9d889eaa43943a75b6f62385"
+    },
+    "models/aws_robomaker_residential_CoffeeTable_01/meshes/aws_CoffeeTable_01_visual.DAE": {
+      "bytes": 58790,
+      "sha256": "a0fe0d5086613cd02f8f5a4f7b4cea12717cae5beebca25e5c9af850789570b1"
+    },
+    "models/aws_robomaker_residential_CoffeeTable_01/model.config": {
+      "bytes": 280,
+      "sha256": "8fa34c1a0694fb89ec3f4c00e66ef395ef0a0151c82f2c16806084f59c69ad78"
+    },
+    "models/aws_robomaker_residential_CoffeeTable_01/model.sdf": {
+      "bytes": 1195,
+      "sha256": "9ca6d528195bed7dd29b07e3b92e6f4d2e9fd0c913038104c90ac2166528fbcc"
+    },
+    "models/aws_robomaker_residential_CookingBench_01/materials/textures/aws_CookingBench_01.png": {
+      "bytes": 318518,
+      "sha256": "bfde7283c1ce34d4f106acdc9fdd05fef9b3434ef97cb2ee8ec45f141b38d896"
+    },
+    "models/aws_robomaker_residential_CookingBench_01/meshes/aws_CookingBench_01.DAE": {
+      "bytes": 206985,
+      "sha256": "e4d9de79c4b5582a48633186b3b4704ae898c5701a378748f8cbfb298b696b22"
+    },
+    "models/aws_robomaker_residential_CookingBench_01/meshes/aws_CookingBench_01_collision.DAE": {
+      "bytes": 5161,
+      "sha256": "094106327ad818bf79f338ce9aa0b29df481664bdb4d717f491da414074739c0"
+    },
+    "models/aws_robomaker_residential_CookingBench_01/meshes/aws_CookingBench_01_visual.DAE": {
+      "bytes": 203006,
+      "sha256": "233ae0deffce4388639305be8611f5d4afeb68212a5b56120cca3b433520020a"
+    },
+    "models/aws_robomaker_residential_CookingBench_01/model.config": {
+      "bytes": 281,
+      "sha256": "99243c9dd7cab2ceec2fa851aec104a97658b5fe6f491cb750dda97fae0b1ebd"
+    },
+    "models/aws_robomaker_residential_CookingBench_01/model.sdf": {
+      "bytes": 1075,
+      "sha256": "d73f50f3397ffd481afecfd5a8b74349ce137fbd3b03535f4c0590f2998a9c64"
+    },
+    "models/aws_robomaker_residential_Curtain_01/materials/textures/aws_Curtain_01.png": {
+      "bytes": 231097,
+      "sha256": "ef9b28f9db3906b481206613b2c32fc636acc5ac21a95a42bc555eb7a947183b"
+    },
+    "models/aws_robomaker_residential_Curtain_01/meshes/aws_Curtain_01_collision.DAE": {
+      "bytes": 14822,
+      "sha256": "f67d458a949a4a95f0453f3e28fb5ec897eb5caa9cb2d9ebeb1a43f0b5efbf0b"
+    },
+    "models/aws_robomaker_residential_Curtain_01/meshes/aws_Curtain_01_visual.DAE": {
+      "bytes": 130031,
+      "sha256": "10ad9f31641eef2f048261a37556d5184b431c0de3b6ffe6ac92c10c82de1b2a"
+    },
+    "models/aws_robomaker_residential_Curtain_01/model.config": {
+      "bytes": 276,
+      "sha256": "fefb779b256a3c48e09d6af4774305eebd23f077dd7e2c9d9125961cdf619946"
+    },
+    "models/aws_robomaker_residential_Curtain_01/model.sdf": {
+      "bytes": 1071,
+      "sha256": "ea8be34159e0d46d3381a284bccde5da6af9870a1892ca4795851b66488e333b"
+    },
+    "models/aws_robomaker_residential_DeskPortraitA_01/materials/textures/aws_DeskPortraitA_01.png": {
+      "bytes": 8411,
+      "sha256": "9b1aca736c997f972a0ae396395581b6feebd145ba4b5209f1898c929f76b0a9"
+    },
+    "models/aws_robomaker_residential_DeskPortraitA_01/materials/textures/aws_DeskPortraitA_02.png": {
+      "bytes": 897928,
+      "sha256": "4e1084cee358e086994c239b3ad5d8fb2cc9090f3fe6806a7469ea8784163f47"
+    },
+    "models/aws_robomaker_residential_DeskPortraitA_01/meshes/aws_DeskPortraitA_01_collision.DAE": {
+      "bytes": 6053,
+      "sha256": "15623c054ecfc72a78bae6d2c219bcb196908e1671916472f6ec872348b42894"
+    },
+    "models/aws_robomaker_residential_DeskPortraitA_01/meshes/aws_DeskPortraitA_01_visual.DAE": {
+      "bytes": 161635,
+      "sha256": "3cd925e7351c5a86ef787d095198e583377b90bcd03057788869bbc248601250"
+    },
+    "models/aws_robomaker_residential_DeskPortraitA_01/model.config": {
+      "bytes": 282,
+      "sha256": "90ab9adf076a3605ff107b771d27474405a043d1385eed7d44cd7c9758a4b22c"
+    },
+    "models/aws_robomaker_residential_DeskPortraitA_01/model.sdf": {
+      "bytes": 1086,
+      "sha256": "835d89bd680faa68253c0e967ea38ab74db55b11ec2285bdb27b7a67ebf3a352"
+    },
+    "models/aws_robomaker_residential_DeskPortraitA_02/materials/textures/aws_DeskPortraitA_01.png": {
+      "bytes": 8411,
+      "sha256": "9b1aca736c997f972a0ae396395581b6feebd145ba4b5209f1898c929f76b0a9"
+    },
+    "models/aws_robomaker_residential_DeskPortraitA_02/materials/textures/aws_DeskPortraitA_02.png": {
+      "bytes": 941283,
+      "sha256": "9b3ea55d7956f719b11c9f0d1266ae47c3e2b8aab7282ae903e890af90feb018"
+    },
+    "models/aws_robomaker_residential_DeskPortraitA_02/meshes/aws_DeskPortraitA_01_collision.DAE": {
+      "bytes": 6053,
+      "sha256": "15623c054ecfc72a78bae6d2c219bcb196908e1671916472f6ec872348b42894"
+    },
+    "models/aws_robomaker_residential_DeskPortraitA_02/meshes/aws_DeskPortraitA_01_visual.DAE": {
+      "bytes": 161635,
+      "sha256": "fbd026de75f2f3a4792ac255c91524326cd7b8efe534d75d2fa7c6c70c1673e5"
+    },
+    "models/aws_robomaker_residential_DeskPortraitA_02/model.config": {
+      "bytes": 282,
+      "sha256": "ca4736f1cf9d6fcda64a7fbec8dde7d8b96ebbd6be3881eaefa8546c20a3e112"
+    },
+    "models/aws_robomaker_residential_DeskPortraitA_02/model.sdf": {
+      "bytes": 1086,
+      "sha256": "02fb2ba482cf73568fc210139043da787caaa06264f841f69d10b14aed7f5568"
+    },
+    "models/aws_robomaker_residential_DeskPortraitB_01/materials/textures/aws_DeskPortraitB_01.png": {
+      "bytes": 8408,
+      "sha256": "09a17ad153e7fbee563bf3a9f2272652b1363b6c4c265dc5037a690de74367ee"
+    },
+    "models/aws_robomaker_residential_DeskPortraitB_01/materials/textures/aws_DeskPortraitB_02.png": {
+      "bytes": 1276387,
+      "sha256": "4f14d29cf822efbc77feaf1b6d0d9415720d05f8b9daf5dd52db7db365b7b1bd"
+    },
+    "models/aws_robomaker_residential_DeskPortraitB_01/meshes/aws_DeskPortraitB_01_collision.DAE": {
+      "bytes": 9330,
+      "sha256": "12913e1bfa0272fc6aceccb36225e8a8e30733ca214f0158c6283b31f5768c3d"
+    },
+    "models/aws_robomaker_residential_DeskPortraitB_01/meshes/aws_DeskPortraitB_01_visual.DAE": {
+      "bytes": 157681,
+      "sha256": "c18241ba1c6a61f49536eeb6335ffd5525a50ae0e7eab21253e6b9fa0030df23"
+    },
+    "models/aws_robomaker_residential_DeskPortraitB_01/model.config": {
+      "bytes": 282,
+      "sha256": "bd60721759805afada8913cfaab78fe1a679d997e3086e026fd836747782c417"
+    },
+    "models/aws_robomaker_residential_DeskPortraitB_01/model.sdf": {
+      "bytes": 1090,
+      "sha256": "1d7023560f636c6cac6eea3f816e6ef41970f83ea96530c4f5a2c418fbf885c2"
+    },
+    "models/aws_robomaker_residential_DeskPortraitB_02/materials/textures/aws_DeskPortraitB_01.png": {
+      "bytes": 8408,
+      "sha256": "09a17ad153e7fbee563bf3a9f2272652b1363b6c4c265dc5037a690de74367ee"
+    },
+    "models/aws_robomaker_residential_DeskPortraitB_02/materials/textures/aws_DeskPortraitB_02.png": {
+      "bytes": 1257359,
+      "sha256": "2d6a8f146ef0b1c3430390a10029ee165946bde9afdba63b81db9b0ce2b798ec"
+    },
+    "models/aws_robomaker_residential_DeskPortraitB_02/meshes/aws_DeskPortraitB_01_collision.DAE": {
+      "bytes": 9330,
+      "sha256": "12913e1bfa0272fc6aceccb36225e8a8e30733ca214f0158c6283b31f5768c3d"
+    },
+    "models/aws_robomaker_residential_DeskPortraitB_02/meshes/aws_DeskPortraitB_01_visual.DAE": {
+      "bytes": 157681,
+      "sha256": "8b9def0c697c6ba7a87fb7702fccbd8a2776b119787dfc1cc7acf86b9e00b2d1"
+    },
+    "models/aws_robomaker_residential_DeskPortraitB_02/model.config": {
+      "bytes": 282,
+      "sha256": "f5c8dff23a0e2a285ed48a90fdab668eae4f0153a1cba1ce5278e4dc55ed99d5"
+    },
+    "models/aws_robomaker_residential_DeskPortraitB_02/model.sdf": {
+      "bytes": 1090,
+      "sha256": "2443873395479309cf7b4cfb46fc3082bbfa043480fc720c794cd44c33c6eaf9"
+    },
+    "models/aws_robomaker_residential_DeskPortraitC_01/materials/textures/aws_DeskPortraitC_01.png": {
+      "bytes": 8409,
+      "sha256": "aa1efb1ad6c589f21632c379d48a50b44bc13191427b884db10ae9b6f02c8b8f"
+    },
+    "models/aws_robomaker_residential_DeskPortraitC_01/materials/textures/aws_DeskPortraitC_02.png": {
+      "bytes": 1334208,
+      "sha256": "15ee356e34a188c9136122bd5354fa26a0c210b0204aa0a5b50145d7e0bfb2f7"
+    },
+    "models/aws_robomaker_residential_DeskPortraitC_01/meshes/aws_DeskPortraitC_01_collision.DAE": {
+      "bytes": 9566,
+      "sha256": "dadf3e39f67b424c289473d467de560e8e9b714933ed23308b0fc1c6d48fe555"
+    },
+    "models/aws_robomaker_residential_DeskPortraitC_01/meshes/aws_DeskPortraitC_01_visual.DAE": {
+      "bytes": 157648,
+      "sha256": "4489ace7d3de4c9317c7623a30b91ed39b5303d1b35a3dcd1d40c960731c9c3a"
+    },
+    "models/aws_robomaker_residential_DeskPortraitC_01/model.config": {
+      "bytes": 282,
+      "sha256": "affdaf114dc62a9193fd1a20bc1e6538ce006fe903de38498a92fe82a603ee0b"
+    },
+    "models/aws_robomaker_residential_DeskPortraitC_01/model.sdf": {
+      "bytes": 1080,
+      "sha256": "0705ee720d399592dd7bdea0c5ea56071e1c831f56201b1a671b65fedc6d7ca5"
+    },
+    "models/aws_robomaker_residential_DeskPortraitC_02/materials/textures/aws_DeskPortraitC_01.png": {
+      "bytes": 8409,
+      "sha256": "aa1efb1ad6c589f21632c379d48a50b44bc13191427b884db10ae9b6f02c8b8f"
+    },
+    "models/aws_robomaker_residential_DeskPortraitC_02/materials/textures/aws_DeskPortraitC_02.png": {
+      "bytes": 1311527,
+      "sha256": "8fc278b5e69053d4c1ce9ac690419e60116976f195933162aecbdac01fe08f0a"
+    },
+    "models/aws_robomaker_residential_DeskPortraitC_02/meshes/aws_DeskPortraitC_01_collision.DAE": {
+      "bytes": 9566,
+      "sha256": "dadf3e39f67b424c289473d467de560e8e9b714933ed23308b0fc1c6d48fe555"
+    },
+    "models/aws_robomaker_residential_DeskPortraitC_02/meshes/aws_DeskPortraitC_01_visual.DAE": {
+      "bytes": 157638,
+      "sha256": "63bea905a902ec9798146c5f61f05df1ac498a85c71c9e06c13e31db5add4660"
+    },
+    "models/aws_robomaker_residential_DeskPortraitC_02/model.config": {
+      "bytes": 282,
+      "sha256": "affdaf114dc62a9193fd1a20bc1e6538ce006fe903de38498a92fe82a603ee0b"
+    },
+    "models/aws_robomaker_residential_DeskPortraitC_02/model.sdf": {
+      "bytes": 1080,
+      "sha256": "787276cab36e77ceb2060566cfb09b6a6285a174609fc5ad55ec77807e019754"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_01/materials/textures/aws_DeskPortraitD_01.png": {
+      "bytes": 8409,
+      "sha256": "aa1efb1ad6c589f21632c379d48a50b44bc13191427b884db10ae9b6f02c8b8f"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_01/materials/textures/aws_DeskPortraitD_02.png": {
+      "bytes": 1917182,
+      "sha256": "36bfafb465de892e3ea00a03f9b825ff652f3d6cf4036a700a91a5caea7df862"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_01/meshes/aws_DeskPortraitD_01_collision.DAE": {
+      "bytes": 9320,
+      "sha256": "a8f503041861bd94df453015bff2d53dbfd83813fc3faa2d1951d9413496a6a9"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_01/meshes/aws_DeskPortraitD_01_visual.DAE": {
+      "bytes": 28557,
+      "sha256": "bf3dd0b31bc11d2a40c616c03fb017e62e86a412b8be33f71017269911eaef6e"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_01/model.config": {
+      "bytes": 282,
+      "sha256": "f2e3c888c51de0a962908652ed0ceb1b2a36420f26d55d2511a7511dd4dbd7de"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_01/model.sdf": {
+      "bytes": 1397,
+      "sha256": "20e4374856ae6b9f5241b118ad3c2c7e5eb8a366bbdd855d237e62f746df2bed"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_02/materials/textures/aws_DeskPortraitD_01.png": {
+      "bytes": 8409,
+      "sha256": "aa1efb1ad6c589f21632c379d48a50b44bc13191427b884db10ae9b6f02c8b8f"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_02/materials/textures/aws_DeskPortraitD_02.png": {
+      "bytes": 1901281,
+      "sha256": "4f46ade60e453ab20fe04319c0e9959fbd9fbeaa1d6b807b0e3e4a0bb1b4573e"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_02/meshes/aws_DeskPortraitD_01_collision.DAE": {
+      "bytes": 9320,
+      "sha256": "a8f503041861bd94df453015bff2d53dbfd83813fc3faa2d1951d9413496a6a9"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_02/meshes/aws_DeskPortraitD_01_visual.DAE": {
+      "bytes": 28557,
+      "sha256": "2bbd484fc0e5a98561afebe99c6f267d18c14d42573a0443975be474a23b5d3b"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_02/model.config": {
+      "bytes": 282,
+      "sha256": "dd15788c2c3eb2643057203e2e4e84beef57c8988c44f72252cf7fe49835e202"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_02/model.sdf": {
+      "bytes": 1397,
+      "sha256": "9b73f6432ee330fd896fd6ae363e0f3124fe1896cdcc2a02d257eb2f4e2c131c"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_03/materials/textures/aws_DeskPortraitD_01.png": {
+      "bytes": 8409,
+      "sha256": "aa1efb1ad6c589f21632c379d48a50b44bc13191427b884db10ae9b6f02c8b8f"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_03/materials/textures/aws_DeskPortraitD_02.png": {
+      "bytes": 1892996,
+      "sha256": "c7ab37adda051d623d1e5be61a8bc29565b873d1678b51da941956b3fc6adf48"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_03/meshes/aws_DeskPortraitD_01_collision.DAE": {
+      "bytes": 9320,
+      "sha256": "a8f503041861bd94df453015bff2d53dbfd83813fc3faa2d1951d9413496a6a9"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_03/meshes/aws_DeskPortraitD_01_visual.DAE": {
+      "bytes": 28557,
+      "sha256": "90b56de85178a32ad1e761fb87629d6fa268c1c9b1ab175ff94ad0155bdcd6c0"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_03/model.config": {
+      "bytes": 282,
+      "sha256": "f2e3c888c51de0a962908652ed0ceb1b2a36420f26d55d2511a7511dd4dbd7de"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_03/model.sdf": {
+      "bytes": 1397,
+      "sha256": "76efcd7a06a2358344a4b7b0457a64dbe64059c6106945218a87e1ffa272864f"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_04/materials/textures/aws_DeskPortraitD_01.png": {
+      "bytes": 8409,
+      "sha256": "aa1efb1ad6c589f21632c379d48a50b44bc13191427b884db10ae9b6f02c8b8f"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_04/materials/textures/aws_DeskPortraitD_02.png": {
+      "bytes": 1949735,
+      "sha256": "37532587ab29a2bcfaab9813820d71755ac874b261030c31ea2703aa7ec8dd7b"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_04/meshes/aws_DeskPortraitD_01_collision.DAE": {
+      "bytes": 9320,
+      "sha256": "a8f503041861bd94df453015bff2d53dbfd83813fc3faa2d1951d9413496a6a9"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_04/meshes/aws_DeskPortraitD_01_visual.DAE": {
+      "bytes": 28557,
+      "sha256": "00cbf0af82317a23e805c1f9e3d47f1eda0ee959dbbd43dfda827c349631785c"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_04/model.config": {
+      "bytes": 282,
+      "sha256": "437feb12a1d3f8dd178129d655701804edee2f87ae0c4ed87ed82c9e440184a8"
+    },
+    "models/aws_robomaker_residential_DeskPortraitD_04/model.sdf": {
+      "bytes": 1397,
+      "sha256": "cc6aa15f4a13c161ffd44ff255b640616524cd8b38a7d8c97e575f455ecd4a52"
+    },
+    "models/aws_robomaker_residential_Door_01/materials/textures/aws_Door_01.png": {
+      "bytes": 1082703,
+      "sha256": "2fbc8ead942bf580c7595db3644a986cdc7f28dbe303ac6d2de0145922c20bb8"
+    },
+    "models/aws_robomaker_residential_Door_01/meshes/aws_Door_01_collision.DAE": {
+      "bytes": 5367,
+      "sha256": "e88bde13dbcbfcdd16c15611a68ebfbb70baf8428b8ad3eff1104c62e4cd727b"
+    },
+    "models/aws_robomaker_residential_Door_01/meshes/aws_Door_01_visual.DAE": {
+      "bytes": 290308,
+      "sha256": "066da88ca5aeed78ccd16610b88bb2c36af1111441ed365b829430406863aef1"
+    },
+    "models/aws_robomaker_residential_Door_01/model.config": {
+      "bytes": 273,
+      "sha256": "31d9c5d4d5821ab283d68d938d330d59b585b9533b894a9fdad5e9f4b11e7688"
+    },
+    "models/aws_robomaker_residential_Door_01/model.sdf": {
+      "bytes": 1056,
+      "sha256": "e15ab656530d1e74ece36984c4d70b7614b69cf7893dd163779122f78005e51f"
+    },
+    "models/aws_robomaker_residential_Dumbbell_01/materials/textures/aws_Dumbbell_01.png": {
+      "bytes": 3293,
+      "sha256": "a1c8288c37167a8f7c2ed3be9158cd0ae5f7e6fea87782d4092bfa637f6c4e70"
+    },
+    "models/aws_robomaker_residential_Dumbbell_01/meshes/aws_Dumbbell_01_collision.DAE": {
+      "bytes": 14567,
+      "sha256": "96588c7cec38bcf6abe8123a3d1899ac23a4d81f1a7902c5e02e179307dd88a5"
+    },
+    "models/aws_robomaker_residential_Dumbbell_01/meshes/aws_Dumbbell_01_visual.DAE": {
+      "bytes": 380851,
+      "sha256": "a8caf96348dc6053d2f4c43fc832febb8bc8d96fbe2ab5edfd06b6d79cb0b23e"
+    },
+    "models/aws_robomaker_residential_Dumbbell_01/model.config": {
+      "bytes": 277,
+      "sha256": "50e7e8557ab56c4d4da3dc456e2cf282019d31584796ed9c26d029b0342b017f"
+    },
+    "models/aws_robomaker_residential_Dumbbell_01/model.sdf": {
+      "bytes": 1406,
+      "sha256": "b8858d8f88a0b9a8819b3a029d558d5b9d3c2e2e8dbc57b57b90c4e2115adbb3"
+    },
+    "models/aws_robomaker_residential_FitnessEquipment_01/materials/textures/aws_FitnessEquipment_01.png": {
+      "bytes": 133885,
+      "sha256": "141f674c65afc5c14449e539a03e601c96c6e7ced708b3a7303f7225f0bf3efd"
+    },
+    "models/aws_robomaker_residential_FitnessEquipment_01/meshes/aws_FitnessEquipment_01_collision.DAE": {
+      "bytes": 15180,
+      "sha256": "3deb8d43b411c0725894cddc358cf5d4e0917ffe5010e095790d9c0330c99f85"
+    },
+    "models/aws_robomaker_residential_FitnessEquipment_01/meshes/aws_FitnessEquipment_01_visual.DAE": {
+      "bytes": 223934,
+      "sha256": "9304cde97224418129b68cc2ea2c6fbf2171afcf251a788b0a8d1c4903aaffb9"
+    },
+    "models/aws_robomaker_residential_FitnessEquipment_01/model.config": {
+      "bytes": 285,
+      "sha256": "545ab871cc0f0af69211635ad8886fdd3f0aa2ffeed66dccf7c44e2faa81a8ff"
+    },
+    "models/aws_robomaker_residential_FitnessEquipment_01/model.sdf": {
+      "bytes": 1118,
+      "sha256": "be06ca97c2120bbef1f0b169dadfe09bbcf0bb7db06c5536eecbbcbfbc2fed6d"
+    },
+    "models/aws_robomaker_residential_FloorB_01/materials/textures/aws_FloorB_01.png": {
+      "bytes": 218761,
+      "sha256": "943cac901efdb091ddfb35028ceed2f4e71759ec76f699e11ba448cc1729ac92"
+    },
+    "models/aws_robomaker_residential_FloorB_01/meshes/aws_FloorB_01_collision.DAE": {
+      "bytes": 8609,
+      "sha256": "ed8283a0860e18b97b0607a5d8e92fd32bc985a925cdce62a548ee210db36c8d"
+    },
+    "models/aws_robomaker_residential_FloorB_01/meshes/aws_FloorB_01_visual.DAE": {
+      "bytes": 7639,
+      "sha256": "ca4e06835b4208982e14d64c9fe4b40a993b7b9aaddedb96d4620e2c9134b5a1"
+    },
+    "models/aws_robomaker_residential_FloorB_01/model.config": {
+      "bytes": 275,
+      "sha256": "20c6bdc620af9469f9f699bb27b88bdb4349726b990c1a0dc6b8efcbd3796f39"
+    },
+    "models/aws_robomaker_residential_FloorB_01/model.sdf": {
+      "bytes": 1278,
+      "sha256": "6c27cd61d412359117af2ffc21a8b4cc28a14a145dfd42c74fba3b2fe052360c"
+    },
+    "models/aws_robomaker_residential_FoldingDoor_01/materials/textures/aws_FoldingDoor_01.png": {
+      "bytes": 37489,
+      "sha256": "7a577c2be79cd88afea14d39f68e10574f530a3756d081d2d4036a050bf92382"
+    },
+    "models/aws_robomaker_residential_FoldingDoor_01/meshes/aws_FoldingDoor_01_collision.DAE": {
+      "bytes": 5567,
+      "sha256": "cd3152a9dbea869d37efb013f4a040a94c70946919330d3b5196721fdae05e2e"
+    },
+    "models/aws_robomaker_residential_FoldingDoor_01/meshes/aws_FoldingDoor_01_visual.DAE": {
+      "bytes": 1779413,
+      "sha256": "7af47fa44c21a3a0a4ee1ccc3121cf7021bdb64cb481a9492bee35f099aa88f8"
+    },
+    "models/aws_robomaker_residential_FoldingDoor_01/model.config": {
+      "bytes": 280,
+      "sha256": "871afb239292bed027cad1bc0941d98be3e1ecc89d924bf3df3e06768f5f0f2f"
+    },
+    "models/aws_robomaker_residential_FoldingDoor_01/model.sdf": {
+      "bytes": 1091,
+      "sha256": "cc3b533c4a01fdb02ac83bbcb57127d6f33f90d907f898e1cdf8ca579d51ce3c"
+    },
+    "models/aws_robomaker_residential_FoldingDoor_02/materials/textures/aws_FoldingDoor_02.png": {
+      "bytes": 79655,
+      "sha256": "14aec04f881c52c415465269687f9205f97ee431d7e449da920a3e35c6dd70d4"
+    },
+    "models/aws_robomaker_residential_FoldingDoor_02/meshes/aws_FoldingDoor_02_collision.DAE": {
+      "bytes": 5534,
+      "sha256": "5800c1ff33f973219eb830a9c63e274cbd41c759dea2c834b0fafa81b5dc9d93"
+    },
+    "models/aws_robomaker_residential_FoldingDoor_02/meshes/aws_FoldingDoor_02_visual.DAE": {
+      "bytes": 38488,
+      "sha256": "c092c9cce50eb8f8d67fa8feaa18affad0e1119dfe9fef62e33288c3bc3cbf56"
+    },
+    "models/aws_robomaker_residential_FoldingDoor_02/model.config": {
+      "bytes": 280,
+      "sha256": "ebe94a23ce7aebc3abee7f3f64cee9428817a62debcb5c8a662296c6063f56fb"
+    },
+    "models/aws_robomaker_residential_FoldingDoor_02/model.sdf": {
+      "bytes": 1088,
+      "sha256": "0c8c8b56e7a79b40f696a8b691f5377c50d6b71cade3f7906c4f0aa32ed3ec9d"
+    },
+    "models/aws_robomaker_residential_Handle_01/materials/textures/aws_Handle_01.png": {
+      "bytes": 699963,
+      "sha256": "83ba9204397262fb40773d02c8cb14caa1634f0423826787fd9bcf16d634e2ad"
+    },
+    "models/aws_robomaker_residential_Handle_01/meshes/aws_Handle_01_collision.DAE": {
+      "bytes": 11613,
+      "sha256": "58bf9f3bcb1d7aae36d41d1762dfdfdab8142b99d99b37d9dd12c4faed220c34"
+    },
+    "models/aws_robomaker_residential_Handle_01/meshes/aws_Handle_01_visual.DAE": {
+      "bytes": 466947,
+      "sha256": "e80939aaa438555e49ea710a99765410c404afa4333685a88ef3c52505a35559"
+    },
+    "models/aws_robomaker_residential_Handle_01/model.config": {
+      "bytes": 275,
+      "sha256": "ff83026fa230a11f441c7623ff6cb65a57badef9ea8feb68ef7bf1b6a5ed0134"
+    },
+    "models/aws_robomaker_residential_Handle_01/model.sdf": {
+      "bytes": 1066,
+      "sha256": "8f84fdb09ff721d81553622b82a129b65bbb04cef56fabb959c588b4f701bb14"
+    },
+    "models/aws_robomaker_residential_HouseWallB_01/materials/textures/aws_HouseWallB_01.png": {
+      "bytes": 189904,
+      "sha256": "9ac538643259e20e8f4dcdcda8d15a783f093e75fe3da06b0077f456ad47361e"
+    },
+    "models/aws_robomaker_residential_HouseWallB_01/meshes/aws_HouseWallB_01_collision.DAE": {
+      "bytes": 63090,
+      "sha256": "206d5f29afce56beddd82d1ecf75c0494c090c12a8994b3bb5efc8cc1d709a39"
+    },
+    "models/aws_robomaker_residential_HouseWallB_01/meshes/aws_HouseWallB_01_visual.DAE": {
+      "bytes": 73759,
+      "sha256": "06e90aaa93ccb48ae83f7b7dc5851ea30672b1b02977c20d3c1103a9231852d0"
+    },
+    "models/aws_robomaker_residential_HouseWallB_01/model.config": {
+      "bytes": 279,
+      "sha256": "5ee4d2be944a4c80e7f6cadc0e79c3c4a4671592755111a7cd53b1edfe8abfaf"
+    },
+    "models/aws_robomaker_residential_HouseWallB_01/model.sdf": {
+      "bytes": 792,
+      "sha256": "d8ddfdfc1ecdf13d785cfcd4633e44c7f05b4f16303c80ba4318ec42cf6e468c"
+    },
+    "models/aws_robomaker_residential_KitchenCabinet_01/materials/textures/aws_KitchenCabinet_01.png": {
+      "bytes": 448416,
+      "sha256": "68d0cc8e38a11adc0d9798dc4dfed92a5c45dbf342b26f7929fe57db05a46821"
+    },
+    "models/aws_robomaker_residential_KitchenCabinet_01/meshes/aws_KitchenCabinet_01_collision.DAE": {
+      "bytes": 12138,
+      "sha256": "32357200643818e37dc1ea27f419dbb8d4acd6e0a4e485f2a93239365b18740f"
+    },
+    "models/aws_robomaker_residential_KitchenCabinet_01/meshes/aws_KitchenCabinet_01_visual.DAE": {
+      "bytes": 2165232,
+      "sha256": "e55aab5c171aa80e262313acc8d50d6ba39f703981fd51f19f68ec4f83abf6f2"
+    },
+    "models/aws_robomaker_residential_KitchenCabinet_01/model.config": {
+      "bytes": 283,
+      "sha256": "558b0cbca5e8a97ca8b21ffdb6d049e03c930c61bfe78061758a7ec1ec16e0f8"
+    },
+    "models/aws_robomaker_residential_KitchenCabinet_01/model.sdf": {
+      "bytes": 2133,
+      "sha256": "d80dbd34ac1989246325ec5d9df2ff7d40012f540fb94ae6b62e4afb462b476d"
+    },
+    "models/aws_robomaker_residential_KitchenTable_01/materials/textures/aws_KitchenTable_01.png": {
+      "bytes": 1120336,
+      "sha256": "ffbe7df9f3d93969b0f8966c424d1156b020363ea40e7b9ff89a32725463a4e5"
+    },
+    "models/aws_robomaker_residential_KitchenTable_01/meshes/aws_KitchenTable_01_collision.DAE": {
+      "bytes": 16846,
+      "sha256": "2bc587c03b78dcd9515bb2dde969a262bc9299d593c2e41f0e025b113705b949"
+    },
+    "models/aws_robomaker_residential_KitchenTable_01/meshes/aws_KitchenTable_01_visual.DAE": {
+      "bytes": 146135,
+      "sha256": "59eeb77f0f9c54f8a46d045b71372d5b6c9cb8c25beff4aac9ba8db013b4c771"
+    },
+    "models/aws_robomaker_residential_KitchenTable_01/model.config": {
+      "bytes": 281,
+      "sha256": "4fa5e32b01afb93ae786d126ac73aaa38fc8d61ad24bbbc708d0fc8e859d1a37"
+    },
+    "models/aws_robomaker_residential_KitchenTable_01/model.sdf": {
+      "bytes": 1078,
+      "sha256": "98e059ed3c72be6a01807c9fe1cedfa59ae10d62edb15886806782d0e42e54c6"
+    },
+    "models/aws_robomaker_residential_KitchenUtensils_01/materials/textures/aws_KitchenUtensils_01.png": {
+      "bytes": 381895,
+      "sha256": "fa93c4f5b22e1e239a7f649fe3dfc46c9a50f11d83bb098b15ced52a9d57f7da"
+    },
+    "models/aws_robomaker_residential_KitchenUtensils_01/meshes/aws_KitchenUtensils_01_collision.DAE": {
+      "bytes": 22849,
+      "sha256": "2ae42dd8221451228f2b51349221f87360a040ed7fa6f3da0a63acc148919948"
+    },
+    "models/aws_robomaker_residential_KitchenUtensils_01/meshes/aws_KitchenUtensils_01_visual.DAE": {
+      "bytes": 1805925,
+      "sha256": "cf4b08458225038ef628aa6c589dde65eed4c1d9662ddcb9d92bae92e4694c85"
+    },
+    "models/aws_robomaker_residential_KitchenUtensils_01/model.config": {
+      "bytes": 284,
+      "sha256": "1b5bb3055dd03af43b2e7a0ad50170e036cd35c9d0b91ed9aa5958d5e72253a2"
+    },
+    "models/aws_robomaker_residential_KitchenUtensils_01/model.sdf": {
+      "bytes": 1113,
+      "sha256": "d3c535069460b1659a6ce12b6e9c71a1a3fa0627b2a674ba637529a58b0c76e5"
+    },
+    "models/aws_robomaker_residential_LightC_01/materials/textures/aws_LightC_01.png": {
+      "bytes": 28876,
+      "sha256": "5306f4c52646d0faaba7b84c0e834dc19bc3e491a85063a3028f20928b5b7303"
+    },
+    "models/aws_robomaker_residential_LightC_01/meshes/aws_LightC_01_collision.DAE": {
+      "bytes": 6636,
+      "sha256": "81170c680b9acac72b33faf39bdc8776ba989652d4f3efe1fab793bf1caaef5d"
+    },
+    "models/aws_robomaker_residential_LightC_01/meshes/aws_LightC_01_visual.DAE": {
+      "bytes": 59587,
+      "sha256": "5e1b158ecd72212ef412358bb707057a7006d6600c9544f615d7e6b7a288abca"
+    },
+    "models/aws_robomaker_residential_LightC_01/model.config": {
+      "bytes": 275,
+      "sha256": "f4f45dddae0f6469827d1db903ea90ce1a110bb46862f58c1959af952a482a59"
+    },
+    "models/aws_robomaker_residential_LightC_01/model.sdf": {
+      "bytes": 1066,
+      "sha256": "345d496df2d013aec001130ee44103c6d82b6a4649771c96bc9e29341606e953"
+    },
+    "models/aws_robomaker_residential_NightStand_01/materials/textures/aws_NightStand_01.png": {
+      "bytes": 7436,
+      "sha256": "d9449ed06f2e58d3c01ab789ac274dcec7a6537960181e0aadeb0e699259d9b5"
+    },
+    "models/aws_robomaker_residential_NightStand_01/meshes/aws_NightStand_01_collision.DAE": {
+      "bytes": 7796,
+      "sha256": "08411370aa61fa499c31e75963b01eea4a6c2d16746547ef8d4ada9cbeb2af34"
+    },
+    "models/aws_robomaker_residential_NightStand_01/meshes/aws_NightStand_01_visual.DAE": {
+      "bytes": 124032,
+      "sha256": "37964f44ab1184ea1b2a104d1a437b76f4021daf3f3670d30c7373e5b7480960"
+    },
+    "models/aws_robomaker_residential_NightStand_01/model.config": {
+      "bytes": 279,
+      "sha256": "cb21535710454b15e7e17e96a76b2ac685bd8defd55d6ecaa1c1f34db5f27d24"
+    },
+    "models/aws_robomaker_residential_NightStand_01/model.sdf": {
+      "bytes": 1092,
+      "sha256": "7a2d3d66b92a6a42644fc9826f556f1b2257833b2ad195daba9c302721489242"
+    },
+    "models/aws_robomaker_residential_Pillow_01/materials/textures/aws_Pillow_01.png": {
+      "bytes": 1689362,
+      "sha256": "b90a79e86dca100e3cb3375cf7185c4c9ce348e6de18871a7bdcadd1081da433"
+    },
+    "models/aws_robomaker_residential_Pillow_01/meshes/aws_Pillow_01_collision.DAE": {
+      "bytes": 14581,
+      "sha256": "a2545ccccc9d76d38f40d73a35189a85ceb5e7d3ea64768cb1ad226bdd04abc1"
+    },
+    "models/aws_robomaker_residential_Pillow_01/meshes/aws_Pillow_01_visual.DAE": {
+      "bytes": 786846,
+      "sha256": "1fcc8ba301bb9100d9bb88c05ec3700e4203e53b42b8db11c1de178930c0fb3e"
+    },
+    "models/aws_robomaker_residential_Pillow_01/model.config": {
+      "bytes": 275,
+      "sha256": "a19a4cfae3084979b0046a249718d96f8a0a6250676c9b1a37f3a75a68f6f4e1"
+    },
+    "models/aws_robomaker_residential_Pillow_01/model.sdf": {
+      "bytes": 1045,
+      "sha256": "3e735014540c30a43d7b2f2a65d5a808a684f87c37a1fe6168e07db7eaaab731"
+    },
+    "models/aws_robomaker_residential_PortraitA_01/materials/textures/aws_PortraitA_01.png": {
+      "bytes": 8411,
+      "sha256": "9b1aca736c997f972a0ae396395581b6feebd145ba4b5209f1898c929f76b0a9"
+    },
+    "models/aws_robomaker_residential_PortraitA_01/materials/textures/aws_PortraitA_02.png": {
+      "bytes": 541931,
+      "sha256": "a7d9217e72edcb4bca45a5c7eec6079a45aa3b6eda44345c3715169b24227794"
+    },
+    "models/aws_robomaker_residential_PortraitA_01/meshes/aws_PortraitA_01_collision.DAE": {
+      "bytes": 4455,
+      "sha256": "bbd1e639e1b858f9ada90d122410bb54954150a4121b98b5cc502ced9054ac9d"
+    },
+    "models/aws_robomaker_residential_PortraitA_01/meshes/aws_PortraitA_01_visual.DAE": {
+      "bytes": 25945,
+      "sha256": "052451a6523cacde088c25c5004b2481d5692d95b45181c230e296abc79d4ad6"
+    },
+    "models/aws_robomaker_residential_PortraitA_01/model.config": {
+      "bytes": 278,
+      "sha256": "c2b79d7f34fd531a525190cfd4eeff7419d08d286f9a847b52e329dfa7b237b1"
+    },
+    "models/aws_robomaker_residential_PortraitA_01/model.sdf": {
+      "bytes": 1082,
+      "sha256": "6390ebdd604194945969adc4b1fe809683ebd8281c83c6cfc5f908cab9bfbfd6"
+    },
+    "models/aws_robomaker_residential_PortraitA_02/materials/textures/aws_PortraitA_01.png": {
+      "bytes": 8411,
+      "sha256": "9b1aca736c997f972a0ae396395581b6feebd145ba4b5209f1898c929f76b0a9"
+    },
+    "models/aws_robomaker_residential_PortraitA_02/materials/textures/aws_PortraitA_02.png": {
+      "bytes": 549203,
+      "sha256": "088b5766780267a3000d63dd7e2ec32d96fa138885d85f03deccfe08fb5b53d8"
+    },
+    "models/aws_robomaker_residential_PortraitA_02/meshes/aws_PortraitA_01_collision.DAE": {
+      "bytes": 4455,
+      "sha256": "bbd1e639e1b858f9ada90d122410bb54954150a4121b98b5cc502ced9054ac9d"
+    },
+    "models/aws_robomaker_residential_PortraitA_02/meshes/aws_PortraitA_01_visual.DAE": {
+      "bytes": 25945,
+      "sha256": "e5f59923ee2bb262b64ec7e037d1d561695ad15a15944ccb9dcd35211a5c120f"
+    },
+    "models/aws_robomaker_residential_PortraitA_02/model.config": {
+      "bytes": 278,
+      "sha256": "64512a191ae4730a52ae8e6c320d2384274ad62e06b52a19c815978f67843848"
+    },
+    "models/aws_robomaker_residential_PortraitA_02/model.sdf": {
+      "bytes": 1081,
+      "sha256": "01e76118b13c38366a4dcdfbe53afed1806bc4c7f78ee1fc82172b646193e2f4"
+    },
+    "models/aws_robomaker_residential_PortraitB_01/materials/textures/aws_PortraitB_01.png": {
+      "bytes": 8409,
+      "sha256": "aa1efb1ad6c589f21632c379d48a50b44bc13191427b884db10ae9b6f02c8b8f"
+    },
+    "models/aws_robomaker_residential_PortraitB_01/materials/textures/aws_PortraitB_02.png": {
+      "bytes": 446956,
+      "sha256": "5e6b14b18be32b836b24a0fda1624180ec4bf35bb3c0d0df40a1e349a7210650"
+    },
+    "models/aws_robomaker_residential_PortraitB_01/meshes/aws_PortraitB_01_collision.DAE": {
+      "bytes": 7138,
+      "sha256": "3fe4bb9e27002eeb15506a9b88fea3f8b5bbfe24275c158271b4caef65db6cbe"
+    },
+    "models/aws_robomaker_residential_PortraitB_01/meshes/aws_PortraitB_01_visual.DAE": {
+      "bytes": 29571,
+      "sha256": "9910f5fc77c0beb7b52a393cf278d0f6495e0cc522544eac8c5f6bc245be97f3"
+    },
+    "models/aws_robomaker_residential_PortraitB_01/model.config": {
+      "bytes": 278,
+      "sha256": "1687957a6d6fdd5152fced0b3fcdc76fbd5b0e74d57129a6b3ca95c3097c9a44"
+    },
+    "models/aws_robomaker_residential_PortraitB_01/model.sdf": {
+      "bytes": 1081,
+      "sha256": "b3fa0d096a5e274ceab5df812d3ac6097907ffafd457dc171fc2483e1c6f223e"
+    },
+    "models/aws_robomaker_residential_PortraitB_02/materials/textures/aws_PortraitB_01.png": {
+      "bytes": 8409,
+      "sha256": "aa1efb1ad6c589f21632c379d48a50b44bc13191427b884db10ae9b6f02c8b8f"
+    },
+    "models/aws_robomaker_residential_PortraitB_02/materials/textures/aws_PortraitB_02.png": {
+      "bytes": 591563,
+      "sha256": "b0461c607144b6391aca8013e10f7eba5ae33977894ba22acfd3710ff28d42cc"
+    },
+    "models/aws_robomaker_residential_PortraitB_02/meshes/aws_PortraitB_01_collision.DAE": {
+      "bytes": 7138,
+      "sha256": "3fe4bb9e27002eeb15506a9b88fea3f8b5bbfe24275c158271b4caef65db6cbe"
+    },
+    "models/aws_robomaker_residential_PortraitB_02/meshes/aws_PortraitB_01_visual.DAE": {
+      "bytes": 29571,
+      "sha256": "9a0fca6fb6614b88aa8a3617f88a8e078faeaf44798149b0e4dd940d3ae2a3fb"
+    },
+    "models/aws_robomaker_residential_PortraitB_02/model.config": {
+      "bytes": 278,
+      "sha256": "ec36a872f7e8a6681644908f6a37ab8dc55f3b396c47fdaa700878c5bf5c3720"
+    },
+    "models/aws_robomaker_residential_PortraitB_02/model.sdf": {
+      "bytes": 1081,
+      "sha256": "ab0aa528d6fa5ebd8b66891db4e467b6d7430cb9d73d493874722532955e403b"
+    },
+    "models/aws_robomaker_residential_PortraitB_03/materials/textures/aws_PortraitB_01.png": {
+      "bytes": 8409,
+      "sha256": "aa1efb1ad6c589f21632c379d48a50b44bc13191427b884db10ae9b6f02c8b8f"
+    },
+    "models/aws_robomaker_residential_PortraitB_03/materials/textures/aws_PortraitB_02.png": {
+      "bytes": 624568,
+      "sha256": "7c0f17ec225b977730fbe7a3792c3fe7acd5cbb919276fdd8fe879509d648693"
+    },
+    "models/aws_robomaker_residential_PortraitB_03/meshes/aws_PortraitB_01_collision.DAE": {
+      "bytes": 7138,
+      "sha256": "3fe4bb9e27002eeb15506a9b88fea3f8b5bbfe24275c158271b4caef65db6cbe"
+    },
+    "models/aws_robomaker_residential_PortraitB_03/meshes/aws_PortraitB_01_visual.DAE": {
+      "bytes": 29571,
+      "sha256": "4e5adb046cec59aa312cbbbdb8337e28a92c51263d1e8c4376eec0b63edc11b4"
+    },
+    "models/aws_robomaker_residential_PortraitB_03/model.config": {
+      "bytes": 278,
+      "sha256": "5c2d7ef8d27b77e8d32184ba1fee16f0ae069f34a6afcbbdc4526e478e39fcc3"
+    },
+    "models/aws_robomaker_residential_PortraitB_03/model.sdf": {
+      "bytes": 1081,
+      "sha256": "b5b7fff352d65b3de18e0c37f17a32362e3169d4638f147cc5b506e17fa9cca2"
+    },
+    "models/aws_robomaker_residential_PortraitC_01/materials/textures/aws_PortraitC_01.png": {
+      "bytes": 8409,
+      "sha256": "0674ec4fd74e2870f0251579d4e1f2456018bcee4a186509d222e7a85f03c096"
+    },
+    "models/aws_robomaker_residential_PortraitC_01/materials/textures/aws_PortraitC_02.png": {
+      "bytes": 1084319,
+      "sha256": "f347beebf0204fe9b10b44cc1540fa1cebeda7078e1bd1de76cf94b878a0a684"
+    },
+    "models/aws_robomaker_residential_PortraitC_01/meshes/aws_PortraitC_01_collision.DAE": {
+      "bytes": 7137,
+      "sha256": "b22c209c7240f796dde85de4192e482c0b901d4395d01160399e7abf503c09e0"
+    },
+    "models/aws_robomaker_residential_PortraitC_01/meshes/aws_PortraitC_01_visual.DAE": {
+      "bytes": 21661,
+      "sha256": "71c4296e8639c1ffe8c53ec2e4dd06ea8343ff4fc1b55dbd3f9542ff7bc6ad9c"
+    },
+    "models/aws_robomaker_residential_PortraitC_01/model.config": {
+      "bytes": 278,
+      "sha256": "cf541da4ef37d167e07f331d9eec4b0a01e628099ec59964abbb6eafebdefd3d"
+    },
+    "models/aws_robomaker_residential_PortraitC_01/model.sdf": {
+      "bytes": 1081,
+      "sha256": "8e0a47e293544e0a921f04d13d0b18232b26cb2259482b4ffccd5f034dc64ef3"
+    },
+    "models/aws_robomaker_residential_PortraitD_01/materials/textures/aws_PortraitD_01.png": {
+      "bytes": 8408,
+      "sha256": "1feebcdbb8a61e55ddd3f1fba41c1f156599621e60f994649a88fd6cdc9d578a"
+    },
+    "models/aws_robomaker_residential_PortraitD_01/materials/textures/aws_PortraitD_02.png": {
+      "bytes": 853887,
+      "sha256": "ba85f5a4fb4f2c21a8059c49c0fde28b5c607b68e876ba0ffcf6a6cf03991bec"
+    },
+    "models/aws_robomaker_residential_PortraitD_01/meshes/aws_PortraitD_01_collision.DAE": {
+      "bytes": 7143,
+      "sha256": "0ac6e26f0f3824fd59d9cba632753c22fda0c4b76d207c2a8a7e8a504a3dd9ba"
+    },
+    "models/aws_robomaker_residential_PortraitD_01/meshes/aws_PortraitD_01_visual.DAE": {
+      "bytes": 22966,
+      "sha256": "9a54fd40a0f53d60b9f1ff7321cefaabe7340e5a4eafd4c09dad7e1b009506b6"
+    },
+    "models/aws_robomaker_residential_PortraitD_01/model.config": {
+      "bytes": 278,
+      "sha256": "ec7f1d8baf732932771419ad4755d1407a019140cb684c50589898836c4bce4a"
+    },
+    "models/aws_robomaker_residential_PortraitD_01/model.sdf": {
+      "bytes": 1093,
+      "sha256": "b92ab9a3621f95b753ae39cb3e228bf22c58215e4f8687cef82cdbe3f14a807e"
+    },
+    "models/aws_robomaker_residential_PortraitD_02/materials/textures/aws_PortraitD_01.png": {
+      "bytes": 8408,
+      "sha256": "1feebcdbb8a61e55ddd3f1fba41c1f156599621e60f994649a88fd6cdc9d578a"
+    },
+    "models/aws_robomaker_residential_PortraitD_02/materials/textures/aws_PortraitD_02.png": {
+      "bytes": 836629,
+      "sha256": "ae4afbbb5d1c7b08a8c4ddc1cbdd7566cde6c428e230f792c94585898aa0e024"
+    },
+    "models/aws_robomaker_residential_PortraitD_02/meshes/aws_PortraitD_01_collision.DAE": {
+      "bytes": 7143,
+      "sha256": "0ac6e26f0f3824fd59d9cba632753c22fda0c4b76d207c2a8a7e8a504a3dd9ba"
+    },
+    "models/aws_robomaker_residential_PortraitD_02/meshes/aws_PortraitD_01_visual.DAE": {
+      "bytes": 22966,
+      "sha256": "1b20c92f3ddd1bc017eae68a3a942a7e694bf2c6ec33b25b5b9206a3a7e71196"
+    },
+    "models/aws_robomaker_residential_PortraitD_02/model.config": {
+      "bytes": 278,
+      "sha256": "52f423f98315b40e21fdbd438d6364ee9aaeefbff615121affd94e9615f5dada"
+    },
+    "models/aws_robomaker_residential_PortraitD_02/model.sdf": {
+      "bytes": 1093,
+      "sha256": "0b55abe6afb82625158184b9b487cdc82b719c4a8f80451f82919dc6a4a659e7"
+    },
+    "models/aws_robomaker_residential_PortraitE_01/materials/textures/aws_PortraitE_01.png": {
+      "bytes": 8411,
+      "sha256": "9b1aca736c997f972a0ae396395581b6feebd145ba4b5209f1898c929f76b0a9"
+    },
+    "models/aws_robomaker_residential_PortraitE_01/materials/textures/aws_PortraitE_02.png": {
+      "bytes": 1411361,
+      "sha256": "902b9f8853af05c871c4213b0ecf6bdc1004401d1e6125378c07dd1c065046c5"
+    },
+    "models/aws_robomaker_residential_PortraitE_01/meshes/aws_PortraitE_01_collision.DAE": {
+      "bytes": 5550,
+      "sha256": "4df38d5be895416e925f0f09664bc53e0ddfe889ff236dd22f6b3c7acb36d754"
+    },
+    "models/aws_robomaker_residential_PortraitE_01/meshes/aws_PortraitE_01_visual.DAE": {
+      "bytes": 25942,
+      "sha256": "a4e72aa309bb515e30916b560c0534668263cba71092b3d1ddbfffd211578340"
+    },
+    "models/aws_robomaker_residential_PortraitE_01/model.config": {
+      "bytes": 278,
+      "sha256": "63f5475075f3620254504f771c943e5ae043b78faeabc6c6d4dc513aec81a3cd"
+    },
+    "models/aws_robomaker_residential_PortraitE_01/model.sdf": {
+      "bytes": 1081,
+      "sha256": "41d805c6a22eae083ab6045b7854df53fb7fa8c347525777aa9f07a9b21a533f"
+    },
+    "models/aws_robomaker_residential_PortraitE_02/materials/textures/aws_PortraitE_01.png": {
+      "bytes": 8411,
+      "sha256": "9b1aca736c997f972a0ae396395581b6feebd145ba4b5209f1898c929f76b0a9"
+    },
+    "models/aws_robomaker_residential_PortraitE_02/materials/textures/aws_PortraitE_02.png": {
+      "bytes": 1346918,
+      "sha256": "4e2e1926fca15510ff96150cca248e0cd982e7c007626553846d42093f8570d1"
+    },
+    "models/aws_robomaker_residential_PortraitE_02/meshes/aws_PortraitE_01_collision.DAE": {
+      "bytes": 5550,
+      "sha256": "4df38d5be895416e925f0f09664bc53e0ddfe889ff236dd22f6b3c7acb36d754"
+    },
+    "models/aws_robomaker_residential_PortraitE_02/meshes/aws_PortraitE_01_visual.DAE": {
+      "bytes": 25942,
+      "sha256": "dd1300eebd606505dd1eaa10f938b744110d73c301764b5e98ea8ee0ccaeb441"
+    },
+    "models/aws_robomaker_residential_PortraitE_02/model.config": {
+      "bytes": 278,
+      "sha256": "d5bdce78afc0d9c5891f48d16681bf17fbbede9898179822ad29cdcfebbbbbf2"
+    },
+    "models/aws_robomaker_residential_PortraitE_02/model.sdf": {
+      "bytes": 1081,
+      "sha256": "0a1383ac36239f31c310ce39284050b66a7f5e9c5efb71e06c74c08914bade1c"
+    },
+    "models/aws_robomaker_residential_Quilt_01/materials/textures/aws_Quilt_01.png": {
+      "bytes": 1104935,
+      "sha256": "d0843477390219389727a2cc9877ab1e6e92a687b5d97e926841aab0b1446669"
+    },
+    "models/aws_robomaker_residential_Quilt_01/meshes/aws_Quilt_01_collision.DAE": {
+      "bytes": 7226,
+      "sha256": "13c0a5d4c1067d516a9431edfbdf1a202fa29185664a4cb25feb0c9f8da0af14"
+    },
+    "models/aws_robomaker_residential_Quilt_01/meshes/aws_Quilt_01_visual.DAE": {
+      "bytes": 220814,
+      "sha256": "903480129ae8f7a281418e5fd0d3c52a2211259e7ec3234685f44a3e8f738890"
+    },
+    "models/aws_robomaker_residential_Quilt_01/model.config": {
+      "bytes": 274,
+      "sha256": "a7f753d84661b5caecd240f694bf72c9df73d959dec09446b77a90831689ce0b"
+    },
+    "models/aws_robomaker_residential_Quilt_01/model.sdf": {
+      "bytes": 1040,
+      "sha256": "6b8f24399117c2f7a666ae2db12beb84812926228ae55d89538d3cb521f2eeeb"
+    },
+    "models/aws_robomaker_residential_Rangehood_01/materials/textures/aws_Rangehood_01.png": {
+      "bytes": 49606,
+      "sha256": "04073649287995ad8a7461fc30a23adb3ddd8559b5d591dc2b7280d9d44674d5"
+    },
+    "models/aws_robomaker_residential_Rangehood_01/meshes/aws_Rangehood_01_collision.DAE": {
+      "bytes": 8684,
+      "sha256": "7a38053ee97d3058b16e4361967d47f27048f4e50f4d8a98bef7cae1a0a158bc"
+    },
+    "models/aws_robomaker_residential_Rangehood_01/meshes/aws_Rangehood_01_visual.DAE": {
+      "bytes": 476210,
+      "sha256": "92bcf53bf36b0dcf73ce14df820c335a902385b82300d66e3dc41d18a10d08fc"
+    },
+    "models/aws_robomaker_residential_Rangehood_01/model.config": {
+      "bytes": 278,
+      "sha256": "1e8aa4830f86d10e570e56e9d39fbcc203027624df39a7fbebb835b3367190e2"
+    },
+    "models/aws_robomaker_residential_Rangehood_01/model.sdf": {
+      "bytes": 1081,
+      "sha256": "c53341249441b52a20f6757dd650645955b105cb4c7cbb59ab31e748e8a53b4e"
+    },
+    "models/aws_robomaker_residential_ReadingDesk_01/materials/textures/aws_ReadingDesk_01.png": {
+      "bytes": 834018,
+      "sha256": "fc720fe6a63ab4483e668e986e80bc095429ea497bfc3a6ca96b121e52f0dfb2"
+    },
+    "models/aws_robomaker_residential_ReadingDesk_01/meshes/aws_ReadingDesk_01_collision.DAE": {
+      "bytes": 15025,
+      "sha256": "2e07ecffd6748046f2ab44b13ec45a88c3a05a91f2d56c481b2d2113820dfe86"
+    },
+    "models/aws_robomaker_residential_ReadingDesk_01/meshes/aws_ReadingDesk_01_visual.DAE": {
+      "bytes": 116715,
+      "sha256": "79611ea4e6e22ce28d95faaeede5979b9223691212eebe12dfb55966d015ebf0"
+    },
+    "models/aws_robomaker_residential_ReadingDesk_01/model.config": {
+      "bytes": 280,
+      "sha256": "df7b4cbdd50e444c91ec20783ee109f6b57441399704585d59f1a6facaadde5f"
+    },
+    "models/aws_robomaker_residential_ReadingDesk_01/model.sdf": {
+      "bytes": 1073,
+      "sha256": "36609816ffce89ff9a52a0f0521221e2c9347ccfb19c760defc89ea6e807bacf"
+    },
+    "models/aws_robomaker_residential_Refrigerator_01/materials/textures/aws_Refrigerator_01.png": {
+      "bytes": 152862,
+      "sha256": "2f4973d07ab6a6e1de5e482900bd682d6cffddce471d78fc6d21a2acbefbaff4"
+    },
+    "models/aws_robomaker_residential_Refrigerator_01/materials/textures/aws_Refrigerator_02.png": {
+      "bytes": 89928,
+      "sha256": "3c57cd595659b49acbc93f43125da8f4dcd8344485c1774e63ebbd69691e6be3"
+    },
+    "models/aws_robomaker_residential_Refrigerator_01/meshes/aws_Refrigerator_01.DAE": {
+      "bytes": 149158,
+      "sha256": "602b8a02b9019a57ad8de546bc05b75ee7141f622fc9a516a63ebf8c9a8c5ee6"
+    },
+    "models/aws_robomaker_residential_Refrigerator_01/meshes/aws_Refrigerator_01_collision.DAE": {
+      "bytes": 15619,
+      "sha256": "5e77d4d3040da42f95c602e202fad7ac5e2ac19ab1da6a31ae66465074ba5bdb"
+    },
+    "models/aws_robomaker_residential_Refrigerator_01/meshes/aws_Refrigerator_01_visual.DAE": {
+      "bytes": 177451,
+      "sha256": "c83384318815644af331fc2dd332ce7ea35316bc58140a908a5d209d057055ae"
+    },
+    "models/aws_robomaker_residential_Refrigerator_01/model.config": {
+      "bytes": 281,
+      "sha256": "c21a194146ee66be1c3c8fa41311f835a17021ac368a84a9ec1c78a111319a9e"
+    },
+    "models/aws_robomaker_residential_Refrigerator_01/model.sdf": {
+      "bytes": 808,
+      "sha256": "e2c5d2d65bc3ed28d278cf5f1bd54cccf4dd7de9eeaf43f9eb8b0ab2b45d1e31"
+    },
+    "models/aws_robomaker_residential_RoomCeiling_01/materials/textures/aws_RoomCeiling_01.png": {
+      "bytes": 341237,
+      "sha256": "2e22db02ce5f9bf815e4aae92d9dbc349be8918c757a4080e77f4bf6b03eee34"
+    },
+    "models/aws_robomaker_residential_RoomCeiling_01/meshes/aws_RoomCeiling_01_collision.DAE": {
+      "bytes": 9615,
+      "sha256": "3c9c5d450ced87a4bc98b225de863e39cc6d21c1eb4149cff8a7aedf97912e61"
+    },
+    "models/aws_robomaker_residential_RoomCeiling_01/meshes/aws_RoomCeiling_01_visual.DAE": {
+      "bytes": 35359,
+      "sha256": "94fe63cd43865c560e0e61a47d6fc8cedc1000d2c3d29edb80ebfffa1ed43d28"
+    },
+    "models/aws_robomaker_residential_RoomCeiling_01/model.config": {
+      "bytes": 280,
+      "sha256": "3e43f486be5330082f7aa94eb9371c74640499a793032d3e9ed794f545273e9d"
+    },
+    "models/aws_robomaker_residential_RoomCeiling_01/model.sdf": {
+      "bytes": 1101,
+      "sha256": "975ee8657dfb34bf8ffeac78fe87bf35d3d44d4181afeed45c11adb7b7c56787"
+    },
+    "models/aws_robomaker_residential_RoomWall_01/materials/textures/aws_RoomWall_01.png": {
+      "bytes": 3396184,
+      "sha256": "1a242b0f680a14381708e8f53f445aeca6a53d8f6cbce3914f1b0356123741aa"
+    },
+    "models/aws_robomaker_residential_RoomWall_01/meshes/aws_RoomWall_01_collision.DAE": {
+      "bytes": 5074,
+      "sha256": "6e642ca1fdaa7ef795c89eb86d4630b123a5266541a30c6a656e92afe8271907"
+    },
+    "models/aws_robomaker_residential_RoomWall_01/meshes/aws_RoomWall_01_visual.DAE": {
+      "bytes": 11472,
+      "sha256": "e16a7f43dfe3bf68176a5fdb9f93512aa020d7765feef288d0bde7d06d60437b"
+    },
+    "models/aws_robomaker_residential_RoomWall_01/model.config": {
+      "bytes": 277,
+      "sha256": "8aafa7057c9ad24db715dc94a1ff0edf0c1413d361307dd94668d15c2a66556e"
+    },
+    "models/aws_robomaker_residential_RoomWall_01/model.sdf": {
+      "bytes": 1077,
+      "sha256": "80c78b24c6e85a03615277b3ada2b2ce9ad9fd9dcbf7b746c9437b5acbef20fd"
+    },
+    "models/aws_robomaker_residential_RoomWindow_01/materials/textures/aws_RoomWindow_01.png": {
+      "bytes": 53020,
+      "sha256": "2d234dca5c16d3fc9258c1da199b307e6df79cadfe79c40b13224d0070875820"
+    },
+    "models/aws_robomaker_residential_RoomWindow_01/meshes/aws_RoomWindow_01_collision.DAE": {
+      "bytes": 5544,
+      "sha256": "f5abe4a46b922e6f00c206ad2bdab23209a0c41b86ebb618368104d07f644fa1"
+    },
+    "models/aws_robomaker_residential_RoomWindow_01/meshes/aws_RoomWindow_01_visual.DAE": {
+      "bytes": 62176,
+      "sha256": "71d3684994cd5fbf4d44537e7d8f111f59faf8215ee19b305e10245441168496"
+    },
+    "models/aws_robomaker_residential_RoomWindow_01/model.config": {
+      "bytes": 279,
+      "sha256": "6f6b774553f445e5488eedd132770617952d81f960f81bd575ae9edeae4dc16d"
+    },
+    "models/aws_robomaker_residential_RoomWindow_01/model.sdf": {
+      "bytes": 1086,
+      "sha256": "081c000fbbbebc94af4ca84b5d88c721e9403d29b2e9a2d19457e013b7e69eea"
+    },
+    "models/aws_robomaker_residential_SeasoningBox_01/materials/textures/aws_SeasoningBox_01.png": {
+      "bytes": 64295,
+      "sha256": "518077673aefc5d0d9b4d419dd3a4b42d124d3c0e7fce464f5c5e3375695f734"
+    },
+    "models/aws_robomaker_residential_SeasoningBox_01/meshes/aws_SeasoningBox_01_collision.DAE": {
+      "bytes": 5596,
+      "sha256": "e286d937056dd5a146a54d70085d17fe1bb692f15fea4d5ab48cef9b4f6ac2ca"
+    },
+    "models/aws_robomaker_residential_SeasoningBox_01/meshes/aws_SeasoningBox_01_visual.DAE": {
+      "bytes": 4122275,
+      "sha256": "bdd6d872a624388f64c9077a0c7d4f587d77d892a3860e2cda60494fae4b2903"
+    },
+    "models/aws_robomaker_residential_SeasoningBox_01/model.config": {
+      "bytes": 281,
+      "sha256": "9a3a8b8acb3e024163e3a4d2bcb6ea392abb2afff3039adbb85c3b2ca33bff92"
+    },
+    "models/aws_robomaker_residential_SeasoningBox_01/model.sdf": {
+      "bytes": 1075,
+      "sha256": "725e3667a9855055b1dfc71eb4608cfc276dd9c6aade2f8ea60031b921da741c"
+    },
+    "models/aws_robomaker_residential_SecurityCamera_01/materials/textures/aws_SecurityCamera_01.png": {
+      "bytes": 32915,
+      "sha256": "d2852509c00eb15c0e9d47b3320ff14547d4bbc3756f635f70a0e800013fa632"
+    },
+    "models/aws_robomaker_residential_SecurityCamera_01/meshes/aws_SecurityCamera_01_collision.DAE": {
+      "bytes": 8723,
+      "sha256": "b1c1eab4ecd1c41824ef6b95224f5227bf2e30d73d04e2d7c271912dc143a900"
+    },
+    "models/aws_robomaker_residential_SecurityCamera_01/meshes/aws_SecurityCamera_01_visual.DAE": {
+      "bytes": 131425,
+      "sha256": "56a226314816db6159501d95cf02ed951649a40274e7360e72df420003b47b61"
+    },
+    "models/aws_robomaker_residential_SecurityCamera_01/model.config": {
+      "bytes": 283,
+      "sha256": "1203ace2bbe6ba9f414a8a0038589f58268d6339b731b0b072d2fbd24eeaeb9b"
+    },
+    "models/aws_robomaker_residential_SecurityCamera_01/model.sdf": {
+      "bytes": 1104,
+      "sha256": "66bb1a6003dd3b43f0df9e0d1fe855b568f5ccdbcc8260b6b343e69c66681a8a"
+    },
+    "models/aws_robomaker_residential_ShoeRack_01/materials/textures/aws_ShoeRack_01.png": {
+      "bytes": 834018,
+      "sha256": "fc720fe6a63ab4483e668e986e80bc095429ea497bfc3a6ca96b121e52f0dfb2"
+    },
+    "models/aws_robomaker_residential_ShoeRack_01/meshes/aws_ShoeRack_01_collision.DAE": {
+      "bytes": 20961,
+      "sha256": "85222bdf2247bd57e8f557c677e2e8f20e0d63d7175c6a6f23d78e568ef1953f"
+    },
+    "models/aws_robomaker_residential_ShoeRack_01/meshes/aws_ShoeRack_01_visual.DAE": {
+      "bytes": 99675,
+      "sha256": "c37f396170b296ce64a45a8137172f8f067e2c7c9c190a587d483f7fb4df0756"
+    },
+    "models/aws_robomaker_residential_ShoeRack_01/model.config": {
+      "bytes": 277,
+      "sha256": "561bbd32299b27bc21ac17f836fe8f9d6796e89d8cd60bc9fa241d0df6ffbd88"
+    },
+    "models/aws_robomaker_residential_ShoeRack_01/model.sdf": {
+      "bytes": 1314,
+      "sha256": "917283fb2f385de23cf354e4a5baa835d27ebe59653f5e89aaf24bd13f45b869"
+    },
+    "models/aws_robomaker_residential_SofaB_01/materials/textures/aws_SofaB_01.png": {
+      "bytes": 8411,
+      "sha256": "6b58288bc4e42d58573f28cecb89215d3e561489660e07961b5a75795714a236"
+    },
+    "models/aws_robomaker_residential_SofaB_01/meshes/aws_SofaB_01_collision.DAE": {
+      "bytes": 9910,
+      "sha256": "195a3c2709ddbd15c9806d8a3c066ce5c79eaa5a4cfae9b2019986e4ec30c59b"
+    },
+    "models/aws_robomaker_residential_SofaB_01/meshes/aws_SofaB_01_visual.DAE": {
+      "bytes": 108679,
+      "sha256": "27782ce189cae323515658afa794b5511982810929d486558eed718382bc8fa3"
+    },
+    "models/aws_robomaker_residential_SofaB_01/model.config": {
+      "bytes": 274,
+      "sha256": "0d312a43ecc016d09d5c811c7dd64756fa6fb9b045c73e4885edbd0ee871092e"
+    },
+    "models/aws_robomaker_residential_SofaB_01/model.sdf": {
+      "bytes": 1057,
+      "sha256": "ad948592eab351f1a2b82c803f41bd48439ff6c2264c7d50ed180bd446c837f8"
+    },
+    "models/aws_robomaker_residential_SofaC_01/materials/textures/aws_SofaC_01.png": {
+      "bytes": 8411,
+      "sha256": "6b58288bc4e42d58573f28cecb89215d3e561489660e07961b5a75795714a236"
+    },
+    "models/aws_robomaker_residential_SofaC_01/meshes/aws_SofaC_01_collision.DAE": {
+      "bytes": 104557,
+      "sha256": "74f3953205c9243c023692930e945ca5151a4264577487b12cae2c1300e0cc9d"
+    },
+    "models/aws_robomaker_residential_SofaC_01/meshes/aws_SofaC_01_visual.DAE": {
+      "bytes": 1002881,
+      "sha256": "928f013aafadb14a5675260a715ed03047c75f3f3f8306a9568c958094ea4d9e"
+    },
+    "models/aws_robomaker_residential_SofaC_01/model.config": {
+      "bytes": 274,
+      "sha256": "0eb0cf4206afd27966aa156ec678b75bde68ff74d4e176931115f2c7d2949f9c"
+    },
+    "models/aws_robomaker_residential_SofaC_01/model.sdf": {
+      "bytes": 1041,
+      "sha256": "82fde21e43115648ff5b752ffb289e15f124e2323ec8af5a34cabcb5314e786f"
+    },
+    "models/aws_robomaker_residential_Sofa_01/materials/textures/aws_Sofa_01.png": {
+      "bytes": 8411,
+      "sha256": "6b58288bc4e42d58573f28cecb89215d3e561489660e07961b5a75795714a236"
+    },
+    "models/aws_robomaker_residential_Sofa_01/meshes/aws_Sofa_01.DAE": {
+      "bytes": 3278372,
+      "sha256": "95f0de929b42bed6a45fc4dc23fb03c7c7abd71c687d424e64f0492063eb9347"
+    },
+    "models/aws_robomaker_residential_Sofa_01/meshes/aws_Sofa_01_collision.DAE": {
+      "bytes": 142175,
+      "sha256": "d48913dfce3db467b24f0f9703d48543860b3709d48b105e39030a93dc08f31e"
+    },
+    "models/aws_robomaker_residential_Sofa_01/meshes/aws_Sofa_01_visual.DAE": {
+      "bytes": 1067556,
+      "sha256": "ac2e48edc30af80a296a42f7549b59d567ff3abf4248e5cfc165d9cba86a9d1e"
+    },
+    "models/aws_robomaker_residential_Sofa_01/model.config": {
+      "bytes": 273,
+      "sha256": "fdc69c35d6b8dad1ba658fad151e8aa18996777d20309ee962fdae535105f9bb"
+    },
+    "models/aws_robomaker_residential_Sofa_01/model.sdf": {
+      "bytes": 1052,
+      "sha256": "6cf3b6fabfd0c4fa24e7d39a20c9188b818e98f4dd6ca1c0fb658ecdae9815a7"
+    },
+    "models/aws_robomaker_residential_TVCabinet_01/materials/textures/aws_TVCabinet_01.png": {
+      "bytes": 834018,
+      "sha256": "fc720fe6a63ab4483e668e986e80bc095429ea497bfc3a6ca96b121e52f0dfb2"
+    },
+    "models/aws_robomaker_residential_TVCabinet_01/meshes/aws_TVCabinet_01_collision.DAE": {
+      "bytes": 31615,
+      "sha256": "b0318e75b88dda614af95997dcc96608bc0804e6490ca81dc2fcfbbbbd3500f4"
+    },
+    "models/aws_robomaker_residential_TVCabinet_01/meshes/aws_TVCabinet_01_visual.DAE": {
+      "bytes": 26308,
+      "sha256": "8cb4abef0131b980f37af918f1d15ab011d01eb626515f1c4ccf77ef27f96b31"
+    },
+    "models/aws_robomaker_residential_TVCabinet_01/model.config": {
+      "bytes": 278,
+      "sha256": "59078912e87228b844b23a96b8cfc98139c0b64a1dd1d53cf3faabd5092dcdec"
+    },
+    "models/aws_robomaker_residential_TVCabinet_01/model.sdf": {
+      "bytes": 1097,
+      "sha256": "2cfcd06a3ef9458e1574ba3fc25f8e34313f25a063dbbe38c9a52f253955ea35"
+    },
+    "models/aws_robomaker_residential_TV_01/materials/textures/aws_TV_01.png": {
+      "bytes": 845317,
+      "sha256": "4aefc84a2cdab461269c5265308c2e224578e971cdeeb4c79e66af300b7c0efb"
+    },
+    "models/aws_robomaker_residential_TV_01/meshes/aws_TV_01_collision.DAE": {
+      "bytes": 4925,
+      "sha256": "b4701986e4d0e4091643c738a72ca4cf04b8f5a2f337dab7e1e1b25784e862d3"
+    },
+    "models/aws_robomaker_residential_TV_01/meshes/aws_TV_01_visual.DAE": {
+      "bytes": 33091,
+      "sha256": "1135e68b89e0d2738f015f76647180526ffcd7bb90677817c827f939b45848c7"
+    },
+    "models/aws_robomaker_residential_TV_01/model.config": {
+      "bytes": 271,
+      "sha256": "62385367c44cadf4f827fe1a5edbe6025fa82dc420823c6e3fb4ae10c901e1a3"
+    },
+    "models/aws_robomaker_residential_TV_01/model.sdf": {
+      "bytes": 1046,
+      "sha256": "8f8ebb70aa8c40efcb1fe33de38c0d2cb7284935ceb95309b677087ca6e8ceba"
+    },
+    "models/aws_robomaker_residential_TV_02/materials/textures/aws_TV_01.png": {
+      "bytes": 946739,
+      "sha256": "73c98d8626ae76428a1ab9b78e3471b7e70ab586fbea7e4a0fb87799a188bbc5"
+    },
+    "models/aws_robomaker_residential_TV_02/meshes/aws_TV_01_collision.DAE": {
+      "bytes": 4925,
+      "sha256": "b4701986e4d0e4091643c738a72ca4cf04b8f5a2f337dab7e1e1b25784e862d3"
+    },
+    "models/aws_robomaker_residential_TV_02/meshes/aws_TV_01_visual.DAE": {
+      "bytes": 33091,
+      "sha256": "1135e68b89e0d2738f015f76647180526ffcd7bb90677817c827f939b45848c7"
+    },
+    "models/aws_robomaker_residential_TV_02/model.config": {
+      "bytes": 271,
+      "sha256": "dc509963cbd2f7a3eac9978ddf0daa0ac40ca0ce08fa2cdac5881634c8c44146"
+    },
+    "models/aws_robomaker_residential_TV_02/model.sdf": {
+      "bytes": 1046,
+      "sha256": "b23fd0060bbadcc522de3be68b7e2b213625cecd5f8caab0a1c356a81064253a"
+    },
+    "models/aws_robomaker_residential_Tablet_01/materials/textures/aws_Tablet_01_nologo.png": {
+      "bytes": 75932,
+      "sha256": "1af50e2f89d809a8dde2fdf7cfa7de3b5d706977ed52a1093a2608e45de8bba3"
+    },
+    "models/aws_robomaker_residential_Tablet_01/meshes/aws_Tablet_01_collision.DAE": {
+      "bytes": 4995,
+      "sha256": "02f6b5210a5cfa6c0c418c80a32b0b8c80089af6c2debf6b523b7acc12621cd2"
+    },
+    "models/aws_robomaker_residential_Tablet_01/meshes/aws_Tablet_01_visual.DAE": {
+      "bytes": 67769,
+      "sha256": "7093aadbce8f37c56335e469a5a67b3fbe2cd9da2c3d28e586db5a1aef3df46b"
+    },
+    "models/aws_robomaker_residential_Tablet_01/model.config": {
+      "bytes": 275,
+      "sha256": "4c388096a4960ddd8bbd020bd6a909415ef0b062f0c7b0c9692e7a0949c9d688"
+    },
+    "models/aws_robomaker_residential_Tablet_01/model.sdf": {
+      "bytes": 1089,
+      "sha256": "d1fd14e0667ef2be95c1935c2e1cf3cf446959c439bca55e3c2a4d1be450be5b"
+    },
+    "models/aws_robomaker_residential_Tableware_01/materials/textures/aws_Tableware_01.png": {
+      "bytes": 43822,
+      "sha256": "45bd2caf3a2b682c2e7b2a6bf425da43798b2125d78ad69dfba930649bd884ea"
+    },
+    "models/aws_robomaker_residential_Tableware_01/meshes/aws_Tableware_01_collision.DAE": {
+      "bytes": 16293,
+      "sha256": "98b160d133bcada49bf069e11d9402926693c39543c74d7fa29d8f2f8e401e35"
+    },
+    "models/aws_robomaker_residential_Tableware_01/meshes/aws_Tableware_01_visual.DAE": {
+      "bytes": 1325747,
+      "sha256": "67951a95d24315f9fe5d51c51f44926d603399d5a16eb01b60ead3e5784de4a7"
+    },
+    "models/aws_robomaker_residential_Tableware_01/model.config": {
+      "bytes": 278,
+      "sha256": "a7a7689636994cd363694b0aa6b4b2f65be9b2ce3f432af92fe18d6bb63e6651"
+    },
+    "models/aws_robomaker_residential_Tableware_01/model.sdf": {
+      "bytes": 1060,
+      "sha256": "0f06fd6ca3136f3546ecc1c35d22e7ba6b7fe2aeb0b251c65cc5305896a89e59"
+    },
+    "models/aws_robomaker_residential_Trash_01/materials/textures/aws_Trash_01.png": {
+      "bytes": 257912,
+      "sha256": "54488551f566900f9279fb2341bcbad55bb071d153512fef1d29e27542096506"
+    },
+    "models/aws_robomaker_residential_Trash_01/meshes/aws_Trash_01_collision.DAE": {
+      "bytes": 12215,
+      "sha256": "ac7024fbbc1e1745c9385203285e5b5f0186a50d00fa8e3d82fd5d17265b6f52"
+    },
+    "models/aws_robomaker_residential_Trash_01/meshes/aws_Trash_01_visual.DAE": {
+      "bytes": 114629,
+      "sha256": "6234e93167cb4ecd676a8a001b3b86f0e1714d94d4e25dfdb1ef6d48185ff89c"
+    },
+    "models/aws_robomaker_residential_Trash_01/model.config": {
+      "bytes": 274,
+      "sha256": "4471f98d184f8900418f6d05dc5c55910aa7a7359bb2ea71495f07950d6d39a9"
+    },
+    "models/aws_robomaker_residential_Trash_01/model.sdf": {
+      "bytes": 1180,
+      "sha256": "9183b0f3faf7bedcd5cab285f8b64a4f1cd4bf584e0763adbaf4bf7db6ab0f05"
+    },
+    "models/aws_robomaker_residential_Vase_01/materials/textures/aws_Vase_01.png": {
+      "bytes": 108580,
+      "sha256": "1c6b10ba237534b453e003b696fcae42d414aa5b57b41a9b52674223ff777967"
+    },
+    "models/aws_robomaker_residential_Vase_01/meshes/aws_Vase_01_collision.DAE": {
+      "bytes": 13481,
+      "sha256": "3a1b268b56dc41cbe3c0ebfb8ae9bd2de1a1e5e359c74c5cc6abf1d5a0fb7577"
+    },
+    "models/aws_robomaker_residential_Vase_01/meshes/aws_Vase_01_visual.DAE": {
+      "bytes": 404545,
+      "sha256": "888915aab7d7f3e9b02b24cc741c404b8278dd0a18888226c9f1abdbe258cc64"
+    },
+    "models/aws_robomaker_residential_Vase_01/model.config": {
+      "bytes": 273,
+      "sha256": "f1f6ef3b94dd8fcfa32e70a8ad932ffbd14affeae79ffac20c9bf6c27b247c4e"
+    },
+    "models/aws_robomaker_residential_Vase_01/model.sdf": {
+      "bytes": 1035,
+      "sha256": "7a72357fa66960b98f0b5143c151c6c7bfaf6e5730330c2f8e1b01b50cec0874"
+    },
+    "models/aws_robomaker_residential_Wardrobe_01/materials/textures/aws_Wardrobe_01.png": {
+      "bytes": 2264171,
+      "sha256": "ce7a1bdb9c4091ac802021a20a21d44a8de75d3cc57475c82489819a45a14b68"
+    },
+    "models/aws_robomaker_residential_Wardrobe_01/meshes/aws_Wardrobe_01_collision.DAE": {
+      "bytes": 13914,
+      "sha256": "d8951bbaac273ae27e5d258492de82fb892e1c1c9ba1d9706bc93210c935628a"
+    },
+    "models/aws_robomaker_residential_Wardrobe_01/meshes/aws_Wardrobe_01_visual.DAE": {
+      "bytes": 427981,
+      "sha256": "50fba1ce304e8b5abf0b6cebaccd1b511aa3ca023870ec075a228d01b9a4d4c7"
+    },
+    "models/aws_robomaker_residential_Wardrobe_01/model.config": {
+      "bytes": 277,
+      "sha256": "a1fc654148ba099e91a357838a51b9b88fb87f07c7b80e1794a84a672260ad95"
+    },
+    "models/aws_robomaker_residential_Wardrobe_01/model.sdf": {
+      "bytes": 1082,
+      "sha256": "880c76681f0a564f9db84bf7c1d5e4f50afb8749fd78e0dc10a3a1d26db26b52"
+    },
+    "worlds/small_house.world": {
+      "bytes": 29819,
+      "sha256": "eb25db9b0a7ca10574fa6f908a10a47a6467c8f805785b54c8f3fa74980d6816"
+    }
+  },
+  "repository": "https://github.com/TeamSOBITS/aws_small_house_world.git",
+  "scope": "LICENSE, worlds/small_house.world, and every regular file under models/ mounted into Gazebo resource path"
+}

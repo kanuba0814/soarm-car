@@ -1,0 +1,28 @@
+GPU 0: NVIDIA GeForce RTX 3070 (UUID: GPU-fe5942ba-f27b-4468-b447-0e1f09a1a16d)
+name of display: :0
+display: :0  screen: 0
+direct rendering: Yes
+Memory info (GL_NVX_gpu_memory_info):
+    Dedicated video memory: 8192 MB
+    Total available memory: 8192 MB
+    Currently available dedicated video memory: 7783 MB
+OpenGL vendor string: NVIDIA Corporation
+OpenGL renderer string: NVIDIA GeForce RTX 3070/PCIe/SSE2
+OpenGL core profile version string: 4.6.0 NVIDIA 610.57.04
+OpenGL core profile shading language version string: 4.60 NVIDIA
+OpenGL core profile context flags: (none)
+OpenGL core profile profile mask: core profile
+
+OpenGL version string: 4.6.0 NVIDIA 610.57.04
+OpenGL shading language version string: 4.60 NVIDIA
+OpenGL context flags: (none)
+OpenGL profile mask: (none)
+
+OpenGL ES profile version string: OpenGL ES 3.2 NVIDIA 610.57.04
+OpenGL ES profile shading language version string: OpenGL ES GLSL ES 3.20
+
+EGL client extensions string:
+
+Default display:
+eglinfo: eglInitialize failed
+
