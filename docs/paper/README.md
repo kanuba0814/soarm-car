@@ -1,5 +1,7 @@
 # A1 Held-Out Paper Package
 
+Start with [the full delivery status](../../DELIVERY.md). The separate [AWS navigation diagnostic report](../research/aws-navigation-validation-status.md) records aborted actions, not navigation success; it does not change the frozen A1 evaluation.
+
 `thesis.md` is the editable Chinese manuscript. `references.bib` contains the eight cited primary entries without invented bibliographic fields. `results/` is generated evidence, not hand-edited prose.
 
 ## Contents
@@ -31,6 +33,18 @@ python3 scripts/build_companion_paper_html.py
 ```
 
 The generator requires Python 3, `matplotlib`, and an installed local font; the HTML builder additionally requires `markdown-it-py`. Recorded versions are in `environment.json` and `requirements-paper.txt`. To rebuild the PDF, open the generated local `paper.html` in Chromium and print to PDF; the retained PDF was created with agent-browser and checked with Poppler. It checks exactly three archives, 24 evaluator rows per archive, four frozen variants, 72 unique scene/variant/query rows, 24 views, and 18 query-layout conditions. Results use `private-evaluation/evaluation.json.rows`, not only `paired-summary.json`.
+
+## Full Offline Consumer Replay
+
+Using the recorded Python environment (Python 3.12+ with NumPy/Pillow) and `bwrap`, run from the repository root:
+
+```bash
+python3 scripts/replay_companion_paper.py --seed 101
+python3 scripts/replay_companion_paper.py --seed 103
+python3 scripts/replay_companion_paper.py --seed 107
+```
+
+Each command verifies the frozen receipt, safely extracts to a new temporary directory, runs the public method without a private-data mount, and independently evaluates its output. It requires exact equality of all 24 evaluator rows and aggregate metrics with the archive. All three commands passed in the delivery verification. It uses frozen detections: no new inference, renderer, ROS, or robot motion is performed. Results are retained at the printed directory and are replays, not additional experimental samples.
 
 ## Archive Inspection And Replay Boundary
 

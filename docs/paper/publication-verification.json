@@ -1,10 +1,10 @@
 {
-    "checked_at_utc": "2026-09-09T04:21:43.148311+00:00",
+    "checked_at_utc": "2026-09-09T04:57:49.208525+00:00",
     "scope": "Publication artifact and offline consumer verification; not navigation or hardware success",
     "files": {
         "docs/paper/thesis.md": "44ec1c0b026207ca8b52538db1ccfec027d1807b27aa62609581f950a22fae98",
         "docs/paper/paper.html": "d487b31d3f172e651685828689ee3ce06ea462313b8ff0aacc8e9759b8d5c5f8",
-        "docs/paper/thesis.pdf": "2fa3a57ad9eab3ba9335cfcb751e98853341ae7a7209c0cace8cc43ced7eb339"
+        "docs/paper/thesis.pdf": "f9002037ef116410597ee643e5d25e5d6f56669a89f413967b783e1b22e1ae30"
     },
     "browser_qa": {
         "page_load": true,
@@ -15,7 +15,8 @@
             "结论",
             "参考文献"
         ],
-        "pdf_artifact_verified": true
+        "pdf_artifact_verified": true,
+        "local_figures_loaded": 3
     },
     "unit_tests": {
         "count": 21,
@@ -28,5 +29,34 @@
         "capture_views_per_archive": 8,
         "generated_override_hashes_match_receipts": true
     },
-    "pdfinfo": "Title:           面向家庭服务机器人的关系与多视角视觉目标辨识\nCreator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36\nProducer:        Skia/PDF m152\nCreationDate:    Wed Sep  9 13:21:14 2026 JST\nModDate:         Wed Sep  9 13:21:14 2026 JST\nCustom Metadata: no\nMetadata Stream: no\nTagged:          yes\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           5\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       864463 bytes\nOptimized:       no\nPDF version:     1.4\n"
+    "pdfinfo": "Title:           面向家庭服务机器人的关系与多视角视觉目标辨识\nCreator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36\nProducer:        Skia/PDF m152\nCreationDate:    Wed Sep  9 13:51:57 2026 JST\nModDate:         Wed Sep  9 13:51:57 2026 JST\nCustom Metadata: no\nMetadata Stream: no\nTagged:          yes\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           5\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       864463 bytes\nOptimized:       no\nPDF version:     1.4\n",
+    "ros_node_diagnostic": {
+        "passed": true,
+        "command": "bash scripts/test-aws-knownselfpose-node-only.sh",
+        "scope": "CPU-only mocked node diagnostic; not navigation success"
+    },
+    "independent_offline_replays": [
+        {
+            "seed": "101",
+            "rows": 24,
+            "rows_equal": true,
+            "metrics_equal": true,
+            "command": "python3 scripts/replay_companion_paper.py --seed 101"
+        },
+        {
+            "seed": "103",
+            "rows": 24,
+            "rows_equal": true,
+            "metrics_equal": true,
+            "command": "python3 scripts/replay_companion_paper.py --seed 103"
+        },
+        {
+            "seed": "107",
+            "rows": 24,
+            "rows_equal": true,
+            "metrics_equal": true,
+            "command": "python3 scripts/replay_companion_paper.py --seed 107"
+        }
+    ],
+    "navigation_status": "ABORTED in retained action results; no arrival, cancel safety, A2 efficacy or hardware claim"
 }

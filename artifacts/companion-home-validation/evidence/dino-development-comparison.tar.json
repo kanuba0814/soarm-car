@@ -1,0 +1,5 @@
+{
+    "archive": "dino-development-comparison.tar.gz",
+    "sha256": "c0f0553aada2018401f9c9bf0bc1aca56070edd479a4b92fc2e1535a30a7899f",
+    "scope": "Four original-layout development RGB frames, Grounding-DINO boxes-only feasibility comparison; excluded from frozen YOLO A1 held-out scores. Raw provenance and used consumer source included. Not detection accuracy or navigation success."
+}

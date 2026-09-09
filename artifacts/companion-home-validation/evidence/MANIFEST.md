@@ -1,6 +1,6 @@
 # Companion Metric Pilot Evidence Manifest
 
-These lossless archives are tracked so a Git checkout can restore raw RGB, metric float32 depth, masks, complete CameraInfo, Pose_V evidence, and launcher records without relying on ignored runtime paths. They intentionally exclude regenerated geometry/YOLO consumers; rerun those consumers against the extracted raw capture.
+These lossless archives are tracked so a Git checkout can restore raw RGB, metric float32 depth, masks, complete CameraInfo, Pose_V evidence, and launcher records without relying on ignored runtime paths. The first three archives exclude regenerated geometry/YOLO outputs; later archives include the consumer evidence described below. Raw-data consumers can be replayed independently.
 
 | Archive | SHA-256 | Contents |
 | --- | --- | --- |
@@ -12,7 +12,10 @@ These lossless archives are tracked so a Git checkout can restore raw RGB, metri
 
 The original and earlier metric archives remain retained, but their endpoint-only native samples are **superseded for C3 pose acceptance**. The two persistent archives include both raw inputs and the measured consumer outputs required for review.
 
+| Archive | SHA-256 | Contents |
+| --- | --- | --- |
 | `segmentation-occlusion-smoke-e8974b6.tar.gz` | `51d9abaebf7c565004dbf03f5c9602c3da8432e266462ee4c95bd3e5a2ec5241` | Runtime-only front/rear label occlusion smoke, including native-source pose, raw `rgb8` labels bytes, and synchronization evidence. |
 | `instance-survey-e8974b6.tar.gz` | `f89bec0a7eef59f7aaee016704b2716cb3149c20389dc62eb9863e376b578e69` | Eight-view development survey with raw RGB-D/source pose/labels, frozen YOLO output, evaluator-private masks/instance mapping/matching summary, and separate public package. |
 | `segmentation-smoke-overlay-e8974b6.tar.gz` | `63d90844fc7acfda01ac7af2b2d93cb65a9860b4501da63d537153f13c1a6db9` | Replacement direct occlusion smoke including generated-overlay model/label hashes, source furniture labels, and front label 251 blocking rear label 250. |
 | `instance-survey-label-propagation-failure-e8974b6.tar.gz` | `d025858c936973428607b4a945ee2a465601eb3ca8b75ad2edcf33ed9de1145b` | Retained first eight-view survey failure: direct model-attached labels decoded as background only, proving why generated source models were flattened to world includes before retry. |
+| `dino-development-comparison.tar.gz` | `c0f0553aada2018401f9c9bf0bc1aca56070edd479a4b92fc2e1535a30a7899f` | Four-frame boxes-only Grounding-DINO development comparison, raw inputs/results/provenance and the used consumer source; excluded from frozen YOLO A1 held-out metrics. |
