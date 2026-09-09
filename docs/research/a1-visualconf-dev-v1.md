@@ -11,6 +11,8 @@ This frozen development run uses only the public package, frozen YOLO boxes, RGB
 
 Historical public track counts, acceptance counts, and all private-evaluator metrics are not reported here because they came from the incomplete prototype/evaluator path. The replacement public replay records its own measured gates, components, association audit, scores, rankings, abstentions, hashes, and exact replay command in its runtime output. The table detector is not treated as an evaluator-verified table identity and no matching threshold is lowered to create an anchor.
 
+The independent evaluator replay and actual original-layout development scores are frozen in `artifacts/companion-home-validation/evidence/a1-visualconf-dev-v2/`. This is development evidence only, not a held-out-layout, navigation, localization, or thesis-final result.
+
 Replay:
 
 ```bash

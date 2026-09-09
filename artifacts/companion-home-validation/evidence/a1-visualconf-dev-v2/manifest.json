@@ -1,0 +1,37 @@
+{
+  "scope": "A1_DEVELOPMENT_ORIGINAL_LAYOUT_ONLY_NOT_FINAL_TEST",
+  "supersession": {
+    "historical": "a1-visualconf-dev-v1 private numeric output",
+    "status": "SUPERSEDED_INCOMPLETE",
+    "reason": "legacy evaluator assigned correct=False without deterministic constituent identity matching; retained historical runtime outputs are INVALID, not measured negative evidence"
+  },
+  "replay": {
+    "public_broker": "python3 scripts/prepare_a1_visualconf_public_inputs.py --public-dir artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final/public --frozen-detections artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/yolo/results.json --acquisition-dir artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1 --output-dir <public-input>",
+    "public_method": "python3 scripts/run_a1_visualconf_public.py --public-dir artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final/public --public-input-dir <public-input> --config config/a1_visualconf_dev_v1.json --output-dir <public-method>",
+    "private_evaluator": "python3 scripts/evaluate_a1_visualconf_private.py --private-dir artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final/private --public-dir artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final/public --public-input-dir <public-input> --method <public-method>/method.json --config config/a1_visualconf_dev_v1.json --output-dir <private-evaluation>"
+  },
+  "hashes": {
+    "public_method.json.xz": "b07d11afefacf482bb2a4efecabf0090c1af57d4147570ba395ae9bcd0b6c72f",
+    "private_evaluation.json.xz": "5032ea909b6c77afd6c44b4a8938b8f21a2080e74e6f6f891fcb8017e505db78",
+    "public_input/calibration_selfpose.json": "3e59f5235dca76ea3fd5f3fd5bd36db6527f04c91acaf45b22866ef3394983d6",
+    "public_input/detections.json": "685a8e2faa1d2812ebc2d16d50b4edafbf337b7499422aedf7661a38cea82b43",
+    "public_input/gates.json": "ec2beaf07d52366ab5b942a4477718d1a83dd91419fb018e9a98f15ee68cf16d",
+    "scripts/evaluate_a1_visualconf_private.py": "b683e63053672a387a5a0c435c89d08abfb58ad4d0a3fba27c8e60b780a20015",
+    "scripts/run_a1_visualconf_public.py": "126e2d23b297cb2547d2e75bac76038ccdb93d524037d350c98c262a83b85d99",
+    "config/a1_visualconf_dev_v1.json": "dcf27d871bb4f737ef623c90f84414a64f27899f29922274614938b260eb5ca1"
+  },
+  "actual_dev_metrics": {
+    "records": 24,
+    "definite_gt_rows": 8,
+    "candidate_recall": 0.5,
+    "forced_top1": null,
+    "mrr": 0.25,
+    "accepted_coverage": 0.5,
+    "wrong_accepted": 0,
+    "unknown_identity_score_rows": 20,
+    "relation_unknown_rows": 0,
+    "foreground_purity_mean": 0.6,
+    "foreground_coverage_mean": 0.34758213385720105
+  },
+  "isolation": "bubblewrap bind-mounted only code, public RGB-D, sanitized input, config, Python runtime, and a writable output parent. The canonical private GT path was absent; normalized output was identical after mutating an unmounted private-ID copy."
+}
