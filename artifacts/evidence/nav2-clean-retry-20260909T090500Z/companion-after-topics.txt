@@ -1,0 +1,8 @@
+/camera/camera_info
+/camera/depth_image
+/camera/image
+/clock
+/gazebo/odom
+/model/kuruma/cmd_vel
+/parameter_events
+/rosout

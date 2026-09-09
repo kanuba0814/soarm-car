@@ -1,0 +1,26 @@
+lifecycle/readiness evidence:
+266:[lifecycle_manager-8] [INFO] [1788944500.524016032] [lifecycle_manager_map]: [34m[1mManaged nodes are active[0m[0m
+clock/sensor gate evidence:
+Traceback (most recent call last):
+  File "/workspaces/soarm-car/scripts/nav2-clean-route-consumer.py", line 350, in <module>
+    sys.exit(main())
+  File "/workspaces/soarm-car/scripts/nav2-clean-route-consumer.py", line 175, in main
+    raise RuntimeError('sensor/FAST-LIO readiness unavailable')
+RuntimeError: sensor/FAST-LIO readiness unavailable
+valid DDS negative check:
+no invalid-DDS error observed
+renderer block evidence:
+372:[ign gazebo-1] [1;31m[Err] [Ogre2RenderEngine.cc:993] [0m[1;31m Unable to create the rendering window: [0m[1;31mOGRE EXCEPTION(3:RenderingAPIException): eglInitialize failed for device EGL_EXT_device_drm EGL_EXT_device_drm_render_node #0 /dev/dri/card0 in EGLSupport::getGLDisplay at /build/ogre-next-UFfg83/ogre-next-2.2.5+dfsg3/RenderSystems/GL3Plus/src/windowing/EGL/PBuffer/OgreEglPBufferSupport.cpp (line 320)[0m[1;31m[0m
+373:[ign gazebo-1] [1;31m[Err] [Ogre2RenderEngine.cc:993] [0m[1;31m Unable to create the rendering window: [0m[1;31mOGRE EXCEPTION(3:RenderingAPIException): OpenGL 3.3 is not supported. Please update your graphics card drivers. in GL3PlusRenderSystem::initialiseContext at /build/ogre-next-UFfg83/ogre-next-2.2.5+dfsg3/RenderSystems/GL3Plus/src/OgreGL3PlusRenderSystem.cpp (line 3363)[0m[1;31m[0m
+374:[ign gazebo-1] [1;31m[Err] [Ogre2RenderEngine.cc:993] [0m[1;31m Unable to create the rendering window: [0m[1;31mOGRE EXCEPTION(3:RenderingAPIException): OpenGL 3.3 is not supported. Please update your graphics card drivers. in GL3PlusRenderSystem::initialiseContext at /build/ogre-next-UFfg83/ogre-next-2.2.5+dfsg3/RenderSystems/GL3Plus/src/OgreGL3PlusRenderSystem.cpp (line 3363)[0m[1;31m[0m
+375:[ign gazebo-1] [1;31m[Err] [Ogre2RenderEngine.cc:993] [0m[1;31m Unable to create the rendering window: [0m[1;31mOGRE EXCEPTION(3:RenderingAPIException): OpenGL 3.3 is not supported. Please update your graphics card drivers. in GL3PlusRenderSystem::initialiseContext at /build/ogre-next-UFfg83/ogre-next-2.2.5+dfsg3/RenderSystems/GL3Plus/src/OgreGL3PlusRenderSystem.cpp (line 3363)[0m[1;31m[0m
+376:[ign gazebo-1] [1;31m[Err] [Ogre2RenderEngine.cc:993] [0m[1;31m Unable to create the rendering window: [0m[1;31mOGRE EXCEPTION(3:RenderingAPIException): OpenGL 3.3 is not supported. Please update your graphics card drivers. in GL3PlusRenderSystem::initialiseContext at /build/ogre-next-UFfg83/ogre-next-2.2.5+dfsg3/RenderSystems/GL3Plus/src/OgreGL3PlusRenderSystem.cpp (line 3363)[0m[1;31m[0m
+377:[ign gazebo-1] [1;31m[Err] [Ogre2RenderEngine.cc:993] [0m[1;31m Unable to create the rendering window: [0m[1;31mOGRE EXCEPTION(3:RenderingAPIException): OpenGL 3.3 is not supported. Please update your graphics card drivers. in GL3PlusRenderSystem::initialiseContext at /build/ogre-next-UFfg83/ogre-next-2.2.5+dfsg3/RenderSystems/GL3Plus/src/OgreGL3PlusRenderSystem.cpp (line 3363)[0m[1;31m[0m
+378:[ign gazebo-1] [1;31m[Err] [Ogre2RenderEngine.cc:993] [0m[1;31m Unable to create the rendering window: [0m[1;31mOGRE EXCEPTION(3:RenderingAPIException): OpenGL 3.3 is not supported. Please update your graphics card drivers. in GL3PlusRenderSystem::initialiseContext at /build/ogre-next-UFfg83/ogre-next-2.2.5+dfsg3/RenderSystems/GL3Plus/src/OgreGL3PlusRenderSystem.cpp (line 3363)[0m[1;31m[0m
+379:[ign gazebo-1] [1;31m[Err] [Ogre2RenderEngine.cc:993] [0m[1;31m Unable to create the rendering window: [0m[1;31mOGRE EXCEPTION(3:RenderingAPIException): OpenGL 3.3 is not supported. Please update your graphics card drivers. in GL3PlusRenderSystem::initialiseContext at /build/ogre-next-UFfg83/ogre-next-2.2.5+dfsg3/RenderSystems/GL3Plus/src/OgreGL3PlusRenderSystem.cpp (line 3363)[0m[1;31m[0m
+380:[ign gazebo-1] [1;31m[Err] [Ogre2RenderEngine.cc:993] [0m[1;31m Unable to create the rendering window: [0m[1;31mOGRE EXCEPTION(3:RenderingAPIException): OpenGL 3.3 is not supported. Please update your graphics card drivers. in GL3PlusRenderSystem::initialiseContext at /build/ogre-next-UFfg83/ogre-next-2.2.5+dfsg3/RenderSystems/GL3Plus/src/OgreGL3PlusRenderSystem.cpp (line 3363)[0m[1;31m[0m
+381:[ign gazebo-1] [1;31m[Err] [Ogre2RenderEngine.cc:993] [0m[1;31m Unable to create the rendering window: [0m[1;31mOGRE EXCEPTION(3:RenderingAPIException): OpenGL 3.3 is not supported. Please update your graphics card drivers. in GL3PlusRenderSystem::initialiseContext at /build/ogre-next-UFfg83/ogre-next-2.2.5+dfsg3/RenderSystems/GL3Plus/src/OgreGL3PlusRenderSystem.cpp (line 3363)[0m[1;31m[0m
+382:[ign gazebo-1] [1;31m[Err] [Ogre2RenderEngine.cc:1001] [0m[1;31mUnable to create the rendering window after [[0m[1;31m11[0m[1;31m] attempts.[0m[1;31m[0m
+409:[ign gazebo-1] Segmentation fault (Address not mapped to object [0x220])
+412:[ign gazebo-1] Segmentation fault (core dumped)
+413:[ERROR] [ign gazebo-1]: process has died [pid 3929, exit code 139, cmd 'ruby /usr/bin/ign gazebo -r -s /tmp/soarm_ros2/install/soarm_simulation/share/soarm_simulation/worlds/house_floorplan_ros2_control.sdf --force-version 6'].

@@ -1,0 +1,15 @@
+{
+  "classification": "consumer failed; partial route preserved",
+  "complete": false,
+  "error": "RuntimeError: sensor/FAST-LIO readiness unavailable",
+  "limits": {
+    "sim_seconds_per_goal": 120.0,
+    "wall_seconds_per_goal": 180.0
+  },
+  "passed": false,
+  "raw_health_samples": [],
+  "raw_status_samples": [],
+  "route": [],
+  "telemetry": {},
+  "traceback": "Traceback (most recent call last):\n  File \"/workspaces/soarm-car/scripts/nav2-clean-route-consumer.py\", line 175, in main\n    raise RuntimeError('sensor/FAST-LIO readiness unavailable')\nRuntimeError: sensor/FAST-LIO readiness unavailable\n"
+}

@@ -1,0 +1,1 @@
+NAV2_CLEAN_CASE=direct_mppi NAV2_CLEAN_ROUTE=room-1 ROS_DOMAIN_ID=211 IGN_PARTITION=soarm-nav2-retry-20260909T090500Z timeout 1500 scripts/run-nav2-clean-comparison.sh
