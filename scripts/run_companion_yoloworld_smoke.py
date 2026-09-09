@@ -42,7 +42,9 @@ def parse_args():
 
 def main():
     args = parse_args()
-    frames = sorted(args.input_dir.glob("*_rgb.png"))
+    frames = sorted(args.input_dir.rglob("rgb.png"))
+    if not frames:
+        frames = sorted(args.input_dir.glob("*_rgb.png"))
     if len(frames) < 3:
         raise SystemExit("Expected at least three saved RGB PNGs")
     if args.output_dir.exists():
@@ -79,7 +81,7 @@ def main():
                 "xyxy_pixels": [float(value) for value in box.xyxy[0].tolist()],
                 "household_reporting_class": label in HOUSEHOLD_CLASSES,
             })
-        overlay_path = args.output_dir / f"{frame.stem}_boxes.png"
+        overlay_path = args.output_dir / f"{frame.parent.name}_{frame.stem}_boxes.png"
         if not cv2.imwrite(str(overlay_path), result.plot()):
             raise RuntimeError(f"Could not save overlay: {overlay_path}")
         records.append({
