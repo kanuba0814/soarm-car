@@ -1,0 +1,21 @@
+--- /home/gxxl/soarm-car-nav2-clean/scripts/run-nav2-clean-comparison.sh	2026-09-06 02:26:34.406802324 +0900
++++ /tmp/soarm-nav2-renderer-parity-20260909/scripts/run-nav2-clean-comparison.sh	2026-09-09 18:10:00.853793331 +0900
+@@ -80,12 +80,16 @@
+     local case_dir="$out/$case_name" container="soarm-nav2-clean-${case_name}-$$"
+     local metrics_container="/workspaces/soarm-car/$case_dir/metrics.json"
+     mkdir -p "$case_dir"
+-    docker run -d --name "$container" --network host --ipc host --security-opt label=disable \
++    docker run -d --name "$container" --gpus all --network host --ipc host --security-opt label=disable \
+         --device /dev/dri --group-add "${VIDEO_GID:-39}" --group-add "${RENDER_GID:-105}" \
+         -v "$repo:/workspaces/soarm-car" \
++        -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v "${XAUTHORITY:?XAUTHORITY must name local X credentials}:/tmp/.host-xauthority:ro" \
+         -e ROS_DOMAIN_ID="$domain" -e IGN_PARTITION="$partition" \
++        -e DISPLAY="${DISPLAY:?DISPLAY must name the local X server}" -e XAUTHORITY=/tmp/.host-xauthority \
++        -e NVIDIA_DRIVER_CAPABILITIES=graphics,utility,compute -e LD_LIBRARY_PATH= -e LIBGL_DRIVERS_PATH= \
++        -e __GLX_VENDOR_LIBRARY_NAME=nvidia -e __EGL_VENDOR_LIBRARY_FILENAMES=/tmp/nvidia-egl.json -e XDG_RUNTIME_DIR=/tmp/runtime-root \
+         -e OMP_NUM_THREADS=1 -e OPENBLAS_NUM_THREADS=1 -e MKL_NUM_THREADS=1 -e NUMEXPR_NUM_THREADS=1 \
+-        "$image" bash -lc "ros2 launch soarm_navigation house_fastlio_nav2.launch.py nav2_params_file:=$params" \
++        "$image" bash -lc "mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root && printf '%s\\n' '{\"file_format_version\":\"1.0.0\",\"ICD\":{\"library_path\":\"libEGL_nvidia.so.0\"}}' > /tmp/nvidia-egl.json && exec ros2 launch soarm_navigation house_fastlio_nav2.launch.py nav2_params_file:=$params" \
+         >"$case_dir/container-id.txt"
+     local stop_needed=true
+     trap 'if [[ "$stop_needed" == true ]]; then cleanup_container "$container" "$case_dir"; fi' RETURN
