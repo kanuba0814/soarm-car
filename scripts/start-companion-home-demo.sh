@@ -39,13 +39,13 @@ source /opt/ros/humble/setup.bash
 source /workspaces/soarm-car/install/setup.bash
 colcon --log-base /tmp/companion-demo/log build --base-paths /feature/ros2_ws/src/soarm_simulation --build-base /tmp/companion-demo/build --install-base /tmp/companion-demo/install --symlink-install
 source /tmp/companion-demo/install/setup.bash
-python3 /feature/scripts/prepare_companion_home_world.py /asset/worlds/small_house.world /runtime.sdf
-export IGN_GAZEBO_RESOURCE_PATH=/asset/models:/tmp/companion-demo/install/soarm_simulation/share/soarm_simulation/models
+python3 /feature/scripts/prepare_companion_home_world.py /asset/worlds/small_house.world /runtime.sdf --sphere-wheel-demo
+export IGN_GAZEBO_RESOURCE_PATH=/tmp/companion-demo-models:/asset/models:/tmp/companion-demo/install/soarm_simulation/share/soarm_simulation/models
 export GZ_SIM_RESOURCE_PATH=$IGN_GAZEBO_RESOURCE_PATH
 printf "%s\\n" "{\\"file_format_version\\":\\"1.0.0\\",\\"ICD\\":{\\"library_path\\":\\"libEGL_nvidia.so.0\\"}}" > /tmp/nvidia-egl.json
 ros2 run ros_gz_bridge parameter_bridge \
   "/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock" \
-  "/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist" \
+  "/model/kuruma/cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist" \
   "/gazebo/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry" \
   "/camera/image@sensor_msgs/msg/Image[gz.msgs.Image" \
   "/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo" \

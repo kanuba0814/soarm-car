@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 source, destination, *options = sys.argv[1:]
-valid = {"--metric-calibration-panel", "--evaluator-segmentation", "--segmentation-occlusion-smoke"}
+valid = {"--metric-calibration-panel", "--evaluator-segmentation", "--segmentation-occlusion-smoke", "--sphere-wheel-demo"}
 if any(option not in valid for option in options):
     raise SystemExit("unsupported runtime world option")
 options = set(options)
@@ -47,6 +47,45 @@ robot = ET.SubElement(world, "include")
 ET.SubElement(robot, "uri").text = "model://kuruma_eval" if "--evaluator-segmentation" in options else "model://kuruma"
 ET.SubElement(robot, "name").text = "kuruma"
 ET.SubElement(robot, "pose").text = "0 0 0.08 0 0 0"
+
+if "--sphere-wheel-demo" in options:
+    # The interactive demo shadows only its runtime model. It reuses the existing
+    # ros2_control sphere-wheel contact proxy without changing the research model.
+    native_model = Path("/tmp/companion-demo/install/soarm_simulation/share/soarm_simulation/models/kuruma")
+    sphere_model = Path("/tmp/companion-demo/install/soarm_simulation/share/soarm_simulation/models/kuruma_ros2_control/model.sdf")
+    runtime_root = Path("/tmp/companion-demo-models")
+    generated = runtime_root / "kuruma"
+    shutil.rmtree(generated, ignore_errors=True)
+    shutil.copytree(native_model, generated)
+    model_path = generated / "model.sdf"
+    model_tree = ET.parse(model_path)
+    source_tree = ET.parse(sphere_model)
+    model = model_tree.getroot().find("model")
+    source = source_tree.getroot().find("model")
+    if model is None or source is None:
+        raise SystemExit("sphere-wheel demo model source is invalid")
+    for wheel in ("front_left", "front_right", "rear_left", "rear_right"):
+        link_name = f"{wheel}_wheel"
+        current_link = model.find(f"link[@name='{link_name}']")
+        sphere_link = source.find(f"link[@name='{link_name}']")
+        if current_link is None or sphere_link is None:
+            raise SystemExit(f"sphere-wheel demo source lacks {wheel} wheel geometry")
+        for element_name in ("visual", "collision"):
+            current_geometry = current_link.find(f"{element_name}[@name='wheel']/geometry") if element_name == "visual" else current_link.find(f"{element_name}[@name='wheel_collision']/geometry")
+            sphere_geometry = sphere_link.find(f"{element_name}[@name='wheel']/geometry") if element_name == "visual" else sphere_link.find(f"{element_name}[@name='wheel_collision']/geometry")
+            if current_geometry is None or sphere_geometry is None:
+                raise SystemExit(f"sphere-wheel demo source lacks {wheel} {element_name} geometry")
+            current_geometry.clear()
+            current_geometry.append(sphere_geometry[0])
+    mecanum = model.find("plugin[@name='ignition::gazebo::systems::MecanumDrive']")
+    if mecanum is None:
+        raise SystemExit("sphere-wheel demo source has no native MecanumDrive to replace")
+    model.remove(mecanum)
+    ET.SubElement(model, "plugin", {
+        "filename": "ignition-gazebo-velocity-control-system",
+        "name": "gz::sim::systems::VelocityControl",
+    })
+    model_tree.write(model_path, encoding="utf-8", xml_declaration=True)
 
 if "--evaluator-segmentation" in options:
     native_model = Path("/tmp/companion/install/soarm_simulation/share/soarm_simulation/models/kuruma")

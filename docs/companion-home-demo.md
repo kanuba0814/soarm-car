@@ -2,6 +2,12 @@
 
 此演示仅运行在 Docker 隔离的 Fortress 仿真中（`--network none`、`ROS_LOCALHOST_ONLY=1`），不会连接实机，也不启动自主导航。它显示固定的 AWS furnished small house、Kuruma 底盘，以及独立的 RGB 相机预览窗口。
 
+## 底盘模型
+
+演示运行时只覆盖 Kuruma 的车轮：四个视觉和碰撞轮均为半径 `0.0763 m` 的球体；冻结的研究模型和 AWS 资产不修改。Fortress 内置 `VelocityControl` 接收 `/model/kuruma/cmd_vel`，直接连续施加机体坐标速度，用于演示全向底盘运动学。它不是麦克纳姆滚子接触、轮胎打滑或牵引力动力学模型；球轮仍保留为可见和可碰撞的近似几何。
+
+相机保持原挂载：相对 `base_link` 为 `(0.180, 0, 0.150) m`，水平视场 `1.047 rad`，裁剪范围 `0.1-8 m`。因此低位前视 RGB 与可自由旋转的 Gazebo GUI 不同；厨房家具可能在 GUI 可见但不在相机视锥内，不能据此判断网格缺失。
+
 ## 启动
 
 在 companion validation 工作树执行：

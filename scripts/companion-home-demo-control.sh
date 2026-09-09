@@ -13,7 +13,7 @@ case "$action" in
     turn-left)  command='{linear: {x: 0.0, y: 0.0}, angular: {z: 0.35}}' ;;
     turn-right) command='{linear: {x: 0.0, y: 0.0}, angular: {z: -0.35}}' ;;
     stop)
-        docker exec "$container_name" bash -lc 'source /opt/ros/humble/setup.bash; source /tmp/companion-demo/install/setup.bash; ros2 topic pub -r 20 --times 4 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.0, y: 0.0}, angular: {z: 0.0}}"' >/dev/null
+        docker exec "$container_name" bash -lc 'source /opt/ros/humble/setup.bash; source /tmp/companion-demo/install/setup.bash; ros2 topic pub -r 20 --times 4 /model/kuruma/cmd_vel geometry_msgs/msg/Twist "{linear: {x: 0.0, y: 0.0}, angular: {z: 0.0}}"' >/dev/null
         exit 0
         ;;
     pose)
@@ -32,7 +32,7 @@ esac
 
 zero='{linear: {x: 0.0, y: 0.0}, angular: {z: 0.0}}'
 release() {
-    docker exec "$container_name" bash -lc "source /opt/ros/humble/setup.bash; source /tmp/companion-demo/install/setup.bash; ros2 topic pub -r 20 --times 4 /cmd_vel geometry_msgs/msg/Twist '$zero'" >/dev/null 2>&1 || true
+    docker exec "$container_name" bash -lc "source /opt/ros/humble/setup.bash; source /tmp/companion-demo/install/setup.bash; ros2 topic pub -r 20 --times 4 /model/kuruma/cmd_vel geometry_msgs/msg/Twist '$zero'" >/dev/null 2>&1 || true
 }
 trap release EXIT INT TERM
-docker exec "$container_name" bash -lc "source /opt/ros/humble/setup.bash; source /tmp/companion-demo/install/setup.bash; ros2 topic pub -r 20 --times 8 /cmd_vel geometry_msgs/msg/Twist '$command'" >/dev/null
+docker exec "$container_name" bash -lc "source /opt/ros/humble/setup.bash; source /tmp/companion-demo/install/setup.bash; ros2 topic pub -r 20 --times 8 /model/kuruma/cmd_vel geometry_msgs/msg/Twist '$command'" >/dev/null
