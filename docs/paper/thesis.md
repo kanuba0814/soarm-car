@@ -1,50 +1,42 @@
-# 论文基础草稿（未完成稿）
+# 面向家庭服务机器人的关系与多视角视觉目标辨识：单住宅受控评估
 
-## 暂定题目
+> 研究稿，非投稿定稿。本文只报告冻结 A1 VisualConf 离线评估，不报告导航、A2 观察位或硬件结果。
 
-**面向家庭服务机器人的关系约束视觉目标定位与可达观察位选择：受控仿真平台、评估隔离与验证方案**
+## 摘要
 
-## 摘要（暂定）
-
-家庭服务机器人接受“到沙发旁的小桌子确认水杯是否仍在”等指令时，不能把类别检索、到达某一坐标和目标确认混为同一件事。该任务至少包含指定实例的视觉定位、可行终端观察位选择，以及到位后的新观测确认。本文拟研究关系约束与去相关多视角证据是否能降低同类物体情境中的错目标风险，并研究在底盘可达性和固定资源预算约束下，观察位排序是否能提升可见终点确认。本文当前交付的是研究基础而非完成论文：已完成的量化证据仅来自隔离的 Gazebo Fortress RGB-D 消费链、机器人自身仿真位姿插值、几何重放诊断、两轴相机约定校准，以及评估端私有的可见实例真值解码。它们证明了若干后续实验的测量与隔离前提，**不**证明所提方法有效、导航成功、关系理解正确或真实硬件可用。方法比较、统计检验、导航结果和结论均须待冻结数据划分后据实际计算结果补写。
+本文报告关系约束与去相关多视角证据在家庭场景视觉目标辨识中的一次冻结、隔离评估。公共 VisualConf 方法仅使用 RGB-D、相机内参、经门控的 source-time 自身位姿和冻结检测；私有 evaluator 独立使用可见实例掩码与身份真值。三个留出布局位于同一 AWS Small House，包含 24 个固定观测、6 个查询、4 个预注册变体 V、V+R、V+M、V+R+M，共 72 个变体--查询--布局行和 18 个查询--布局条件。原始私有行显示：每个变体有 11/18 definite GT 行、3/8 已知 forced Top-1 正确；精确 MRR 只在每变体 3 个身份已知行上可算且均为 0，MRR 边界与 accepted 错误率边界仍很宽。结果未显示任何变体优于其他变体；unknown GT、unknown identity 和 relation-unknown 的数量限制了结论。本文提供归档哈希、行字段、生成代码、CSV、SVG/PNG 与离线 HTML，以便复核这一否定性且证据受限的结论。
 
 **关键词：** 家庭服务机器人；视觉语义导航；指定实例；主动观察；评估隔离；RGB-D
 
-## 1. 引言
+## 1. 问题与范围
 
-自然语言目标在家庭环境中常以属性、房间和相对关系限定实例，而不是只给出物体类别。例如，两个椅子都可被检测到时，“餐桌旁的椅子”要求系统保存关系证据并在证据不足时保留未知。即使对象候选正确，物体质心也未必是移动底盘的合法终点：足迹碰撞、占据栅格、路径可达性、地图版本及相机到地图变换都构成硬约束。到达后还应以新的稳定观测确认指定实例，不能以 Nav2 到位或旧地图中曾出现该物体替代确认。
+家庭环境中的“找餐桌左侧的椅子”不是类别检测的同义词：同类候选、深度前景、跨视图关联和关系锚点都可能不确定。本研究稿的对象是 A1 VisualConf：在冻结的 RGB-D survey 上，对公共候选轨迹进行视觉 V、关系 R、去相关多视角 M 的排序与接受/弃权。它不控制机器人、不生成路径，也不把任一物体坐标当作导航终点。
 
-本研究拟在现有 FAST-LIO/Nav2 作为基础设施的前提下，考察两个受限模块：A1 为关系证据和多视角支持度的候选重排序；A2 为安全可达观察位集合内、兼顾可见性代理、信息收益代理与路径代价的选择。研究不重新实现 SLAM，也不主张“纯视觉定位”或无激光导航。语音和闲聊入口亦不是算法贡献；运动必须仍受现有预览、确认、停止、取消和重新使能边界约束。
-
-该切片的必要性在于：语义地图、开放词汇对象图、层级检索、语言引导导航及对话消歧均已有代表性工作，不能把它们的组合包装为先验创新。更严格地说，若关系重排序在关系任务上未改善，若等预算观察位策略无增益，或收益来自隐藏真值泄漏、额外模型调用或额外行走，则相应假设应被拒绝而非事后修改叙述。
+本次评估的可回答问题是：在同一固定检测、公共输入和私有评分规则下，加入 R 或 M 是否在留出行上显示可辨识的排序或接受差异？这是描述性问题，不设“应当提升”的成功假设；unknown 必须保留。A2 主动观察、Nav2、碰撞、时延、真实硬件及跨住宅泛化属于后续独立研究，本文没有实验或结论。
 
 ## 2. 相关工作与差异边界
 
 VLMaps 将预训练视觉语言特征融入三维重建并支持语言索引空间地图，且其实现要求 RGB、米制深度、位姿和相机标定输入 \cite{vlmaps2023}。它为同编码器的语义候选检索基线提供直接参照，但不等于关系指定实例的终端确认。ConceptGraphs 通过有位姿 RGB-D 序列的多视角关联构建开放词汇三维场景图 \cite{conceptgraphs2023}；因此，使用对象图或多帧融合本身不构成本文贡献。HOV-SG 已研究建筑、楼层、房间和物体层级的开放词汇场景图与长程导航 \cite{hovsg2024}，房间约束应被当作已有表示或基线因素。
 
-面向语言和场景上下文的具身导航也并非空白。REVERIE 讨论远程具身视觉指代表达导航与目标落地 \cite{reverie2020}，SOON 给出带图探索的场景导向对象导航任务 \cite{soon2021}；二者的预采集仿真、观察和动作假设与本地 Gazebo 底盘、占据地图及新帧确认条件不同，故不直接比较数值。ZSON 提供以多模态目标嵌入实现零样本对象目标导航的参照 \cite{zson2022}，可启发冻结编码器的最近候选 B0，而非要求迁移其全部训练栈。CoIN 已把导航中的目标实例不确定性与开放式人机对话结合 \cite{coin2025}，故“检测到不确定就询问用户”不能作为独立创新；本研究首先固定文本输入或将交互单列为对照。
+面向语言和场景上下文的具身导航也并非空白。REVERIE 讨论远程具身视觉指代表达导航与目标落地 \cite{reverie2020}，SOON 给出带图探索的场景导向对象导航任务 \cite{soon2021}；二者的预采集仿真、观察和动作假设与本地 Gazebo 底盘、占据地图及新帧确认条件不同，故不直接比较数值。ZSON 给出零样本对象目标导航的多模态目标嵌入参照 \cite{zson2022}，但本文实现并不使用该嵌入评分。CoIN 已把导航中的目标实例不确定性与开放式人机对话结合 \cite{coin2025}，故“检测到不确定就询问用户”不能作为独立创新；本研究首先固定文本输入或将交互单列为对照。
 
 最新核查进一步限制 A2 的表述。SAP-Nav 已采用环状候选观察位、可导航区域筛选、射线可见覆盖、到达后再验证与有限重试 \cite{sapnav2026}。因此，“环状采样 + 可见性评分 + 新视图验证”不提出新颖性主张；若仅实现其局部公式，只能称为 SAP-Nav-inspired 几何基线，不能称完整复现。本文仅把代价敏感选择、去相关支持、缺失关系证据和最新终点身份不变量作为待测差异，未宣称首创。
 
-## 3. 研究问题与可证伪假设
+## 3. 冻结 VisualConf 方法
 
-**RQ1：** 在同一视觉编码器、候选生成器、地图与最终确认器下，关系约束和去相关多视角证据能否改善指定实例定位，而不是只提升相邻重复帧的置信？
+**RQ1：** 对冻结检测产生的候选轨迹，在单住宅三个留出布局中，V、V+R、V+M、V+R+M 的 forced ranking、接受覆盖和不确定性边界分别是什么；这些数据是否支持任一变体优越？这里的 V 是该轨迹全部冻结检测框置信度的最大值：`V(t)=max_i confidence_i`。
 
-**H1：** 对同类歧义、关系约束和遮挡任务，A1 相较纯相似度 B0 提高 Top-1 或 MRR，并在接受样本上降低错目标率；不存在目标时不以强行选择换取表面成功。候选分数可定义为 `s=w_vV+w_rR+w_mM-w_uU`，其中关系缺失为未知而非满足，连续近邻帧不视为独立支持，深度/位姿或缺失证据进入惩罚项。未经开发集校准，该分数不得称为概率。反例是同一误检连续出现二十帧仍被错误累积为高置信。
+每个 active track 的 M 先将其可用检测按相机二维中心和目标 bearing 分组：若中心距离小于 `viewgroup_camera_center_m=0.3` 且 bearing 差小于 `viewgroup_bearing_deg=20`，即归同组。令 d 为组数，e 为各前景世界 XY 中位位置相对其整体中位数的中位距离，δ 为 `depth_compatibility_m=0.1 m`，则实现为 `M(t)=0`（d<=1），否则 `min(1,(d-1)/2)*exp(-e/δ)`。所以近似相同的重复观测不能增加 M。
 
-**RQ2：** 在相同路径、观察次数、模型调用和时限预算下，合法观察位的效用排序能否改善新帧确认任务的成功与效率？
+R 只针对关系查询。公共代码要求恰好一个 active dining-table anchor、至少一个 active chair、每个所需轨迹均有非空 relation surface envelope 且无敏感性几何失败；否则 R 为 unknown，理由为 `missing_or_ambiguous_anchor`、`no_public_candidate` 或 `perturbation_geometry_failed`。以 obs_001 heading 定义 RIGHT-positive、LEFT-negative 横轴；候选与 anchor 的所有敏感表面组合给出区间。left/right 还要求跨越配置 side margin，nearest/farthest 用双向第十百分位表面间隙；区间在 `relation_ambiguity_m=0.15 m` 内改变顺序时为 `relation_order_changes_under_perturbation`。只有稳定 winner 的轨迹 R=1，其他可评分候选 R=0。
 
-**H2：** A2 在先经 footprint、occupancy、路径、地图身份与变换新鲜度硬筛的集合中，按可见性/信息收益代理与路径代价排序，相较最近安全位、固定序、随机安全位和匹配预算的重复观察对照，提高合法观察位成功或确认目标成功，且不以额外预算解释收益。候选集合为空时必须报告不可达或待核验，不得静默换成同名对象。可见性代理不可读取仿真隐藏标签；真值只用于额外 oracle 诊断。
-
-任务成功定义为：在预定预算内到达合法观察位，并由到位后的新稳定 RGB-D 帧正确确认指定实例。导航到位成功、视觉确认成功和总体任务成功分别报告。SPL 仅在已知从同一起点到“合法成功观察位集合”的最短可达路径时计算；不存在、不可达和歧义任务单独报告正确拒绝、错误成功与弃权，不在事后剔除。所有阈值只在开发集冻结，按场景或布局组划分，禁止同一录像相邻帧随机拆分；同一任务、布局和随机种子在各方法间配对，并按场景聚合及 bootstrap 区间。
-
-公平比较要求四组共享视觉输入、检测器、地图、候选生成器、低层控制器及最终确认器；仅改变被检验的定位重排序或观察位策略。预算必须把实际行走距离、停稳后观察次数、视觉或语言模型调用和总时限一并计入。每组均拥有相同次数的有界再观察和同样的拒绝权限，避免“少执行”被误报为更安全，或“多看几次”被归因于方法设计。测试集一经查看不得反向调节权重、阈值或任务定义；若最短路径、可见性或实例身份只能由私有真值得出，应将其标为 evaluator/oracle 诊断，而不能进入可部署指标。
+变体的精确公共分数是所有**启用且可用**项的算术均值：`score(t)=mean([V(t)] + [M(t) if +M] + [R_q(t) if +R and relational and R is known])`。因此没有加权 U 项，也没有对 unknown 施加隐藏惩罚；关系 unknown 时 +R 变体仍可强制排序，但接受被拒绝并保留原因。若首两分差小于 `top_two_margin=0.05` 也拒绝。上述实现事实来自 `scripts/a1_visualconf/public.py:280-419`，未在留出数据后调参。
 
 ## 4. 实验平台、数据来源与当前证据
 
 平台是受控仿真，不是实物机器人试验。当前真实消费者链为 `Gazebo Fortress rgbd_camera -> ros_gz_bridge -> rclpy persistence -> persistent native Pose_V -> source-time interpolation -> reload z-buffer diagnostic -> frozen YOLO-World`。运行时容器维持 `--network none`、`ROS_LOCALHOST_ONLY=1`、独占 `IGN_PARTITION` 与 `IGN_IP=127.0.0.1`；Kuruma 原始 SDF 未被修改。因而以下“真实”仅指真实执行并保存的仿真传感器、原生姿态流和下游解码器，不指真实世界硬件采集。
 
-在 `companion-first-pilot.md`（验证工作树提交 `370b138`，相关原始运行标识 `a27e139`、`e8974b6`）记录的四个开发视角中，连续原生姿态流对每帧均给出 17 ms 的 source-time bracket、31 个稳定窗样本、最大流间隔 17--18 ms、最大平移 0.48--0.77 mm、最大旋转 0.00177--0.00317 rad；这是已冻结 C3 门槛下的**机器人自身仿真位姿**条件。它不进入 planner，不能当作真实定位精度或方法输入结果。
+在 `companion-first-pilot.md`（验证工作树提交 `370b138`，相关原始运行标识 `a27e139`、`e8974b6`）记录的四个开发视角中，连续原生姿态流对每帧均给出 17 ms 的 source-time bracket、31 个稳定窗样本、最大流间隔 17--18 ms、最大平移 0.48--0.77 mm、最大旋转 0.00177--0.00317 rad；这是已冻结 C3 门槛下的**机器人自身仿真位姿**条件。它不是定位真值、导航精度或 private TARGET 真值；但经过门控的 source-time self pose 是公开允许输入，D2 公共 consumer 用其和 camera mounting 将深度前景投到世界坐标。private TARGET identity/mask/源位姿从不输入公共方法。
 
 同一记录的重放几何诊断中，预选 `overlap_base -> overlap_forward` 有 56.82% supported unique-pixel coverage，计有 245 个 behind、97 个 foreground 和 35,782 个描述性 depth-compatible 像素；后者绝对中位残差为 0.000791 m、P95 为 0.02150 m。该 Z-buffer 消费者重放拒绝 nonfinite/相机后点，并以每个目标像素最近源深度处理遮挡。数值只是该受控视角对的描述性诊断，不能被改写为家庭场景几何精度、地图精度、导航精度或视觉方法性能。
 
@@ -80,23 +72,25 @@ V 接受 3/11 definite 行，三者均 identity-unknown，错误率界为 0--1�
 
 按 layout 汇总的 24 行不能跨变体当作 24 个独立任务。seed101 有 12 definite、12 unknown GT；已知 forced Top-1 为 8/12=0.6667，精确 MRR 为 0/4，边界均为 0.6667；无 accepted。relation unknown 是 16/24，归档摘要的主因是 `perturbation_geometry_failed`。seed103 有 16 definite、8 unknown GT；forced Top-1 为 4/16=0.25，精确 MRR 0/4，边界 0.5--0.5；接受 4/16，其中 2 个已知错误，错误率 0.5；relation unknown 16/24，主因 `missing_or_ambiguous_anchor`。seed107 有 16 definite、8 unknown GT；仅 4 个 forced Top-1 已知且正确 0，精确 MRR 0/4，边界 0.28125--0.75；接受 6/16，全部 identity-unknown，错误率 0--1；relation unknown 8/24，主因 `relation_order_changes_under_perturbation`。图 `perlayout-failure-coverage.svg/png` 分别显示 unknown relation 和 unknown GT 覆盖，不能由其推出布局难度排序。
 
-这里还有一项必须公开的数值不一致：`paired-summary.json` 的每布局 `mrr_known` 为 0.0，却同时给出非零的 `mrr_lower_bound`/`mrr_upper_bound`；原始行解释该现象，因为可精确判分 MRR 的少数行均为 0，而其他 definite 行为 partial identity uncertainty，只贡献边界。生成器不复用该含义容易误读的字段，而是从行级 `mrr`、`mrr_lower_bound`、`mrr_upper_bound` 重新计算，并在 JSON 中保存分母。这不是修改冻结输出，而是报告它们的语义差异。
+`paired-summary.json` 的 `mrr_known=0.0` 与非零 MRR 边界不是数值不变量失败，而是分母语义不同：精确 MRR 仅对 `mrr` 非空的身份已知行取均值，而边界对 definite 行的 `mrr_lower_bound`/`mrr_upper_bound` 聚合。生成器直接从原始行重算并保存两种分母，以消除“同一指标”这一错误解读。
 
-原始 `941ea2d` 的 `a1-visualconf-dev-v1` 含 constant-R、假组件代理和 all-false evaluator，是无效脚手架，绝不作为结果、覆盖率或失败分析来源。留出前修复也必须保留：`bde1f3e` 修正 RIGHT-positive 轴与关系扰动语义，`ca8d021` 将 MRR 上界改为 `max(mrr_lower, uncertain_best)`，并写入 v6 冻结配置。它们发生在本次留出归档前；本报告没有重跑、调参、改动方法或 evaluator。
+原始 `941ea2d` 的 `a1-visualconf-dev-v1` 含 constant-R、假组件代理和 all-false evaluator，是无效脚手架，绝不作为结果、覆盖率或失败分析来源。留出前修复也必须保留：`97cfd31` 修正 RIGHT-positive 轴与关系扰动语义，`ca8d021` 将 MRR 上界改为 `max(mrr_lower, uncertain_best)`，并写入 v6 冻结配置。它们发生在本次留出归档前；本报告没有重跑、调参、改动方法或 evaluator。
 
 A2、观察位选择、闭环导航、路径/碰撞/接管、端到端延迟、实物迁移和任何 Nav2 成功均没有本包结果。导航部分明确待单独的物理与运动安全结果，不能由这里的固定 survey RGB-D 或离线 evaluator 推出。真实硬件没有运动；家庭图像应本地受控保存，不上传第三方 API。
 
-## 7. 伦理、局限与可复现性
+## 7. 结论、局限与可复现性
+
+72 个冻结行没有证明 V、R、M 或其组合的优越性：已知 forced Top-1 在四个变体上相同，精确 MRR 可计算子集极小且为零，accepted 结果包含大量 unknown identity，relation-unknown 也占显著比例。这些是评估覆盖与身份可判定性的限制，不是安全性证据。本文不声称误接受率、安全、导航能力或硬件可用性；A2/导航只可在独立物理和运动安全评估完成后另行讨论。
 
 该研究面对家庭空间和潜在个人图像，应实行最小化采集、受控本地保存、按任务删除或保留审批记录，并明确不把未获授权的图像上传给第三方服务。真实运动不得由闲聊触发；模型输出不得直接给任意速度或坐标。存在不确定、变换过期、地图不一致或无合法视角时，系统应拒绝、停止或要求人工重新确认。仿真隐藏实例标签和源位姿只服务评估，若泄漏到候选选择，将使全部方法结论失效。
 
-局限还包括：当前只有小规模开发视角而非家庭多日、多光照或跨布局数据；YOLO 框不等于身份、关系或检测准确率；受控自位姿不代表真实定位；深度 compatible 不证明 same-surface；SAP-Nav 等近期工作使主动视角新颖性主张仍不成立。本文应按失败也可发表的原则保留零增益与反例，不因实验不支持假设而叠加无关模块。
+局限还包括：当前结果覆盖同一住宅的三个 held-out layouts，但没有跨住宅、多日、多光照或真实世界数据；YOLO 框不等于身份、关系或检测准确率；受控自位姿不代表真实定位；深度 compatible 不证明 same-surface；SAP-Nav 等近期工作使主动视角新颖性主张仍不成立。本文保留零增益和反例，不因结果不支持预期而扩大方法或数据范围。
 
 ## 附录 A. 可复现实验包与重放边界
 
 编辑稿为 `docs/paper/thesis.md`，八条已引用的一手文献条目在 `docs/paper/references.bib`。生成入口为 `python3 scripts/generate_companion_paper_results.py`；它仅以 Python `tarfile` 读取 `artifacts/companion-home-validation/evidence/a1-heldout-results-v6/a1-heldout-seed101.tar.xz`、`seed103.tar.xz`、`seed107.tar.xz`，读取成员 `private-evaluation/evaluation.json` 和 `receipt.json`，不解压或写入历史归档。随后运行 `python3 scripts/build_companion_paper_html.py` 可得到没有 CDN、没有外部资源的 `docs/paper/paper.html`。表、原始行、JSON 和 SVG/PNG 图均在 `docs/paper/results/`；包索引、离线 public `bwrap`、private evaluator 与 scene regeneration 的正确边界见 `docs/paper/README.md`。
 
-冻结配置是 `config/a1_visualconf_dev_v1.json` 的 v6 版本。运行时 asset/source 锁、哈希和许可证分别在 `docs/upstream-manifest.yaml`、`docs/research/sources/SHA256SUMS`、house 的 `SOURCE.md`、`vendor/wheeltec/SOURCE.md` 与随源 LICENSE 文件中。重放 public consumer 必须使用 `scripts/run_a1_heldout_testbatch.py` 所构造的只读 `/public`、`/input`、`/config.json` bwrap 边界，随后才允许独立 private evaluator。scene regeneration 使用 `scripts/prepare_a1_heldout_layout.py` 和 `config/a1_heldout_layouts_v1.json`，是 renderer-owner 的单独工作；本包不执行它，也不执行模拟、GPU、模型、导航或物理运动。
+冻结配置是 `config/a1_visualconf_dev_v1.json` 的 v6 版本。实际本地配置与资产清单为 `config/aws_small_house_companion.json`、`config/aws_small_house_companion_assets.json`、`artifacts/companion-home-validation/evidence/MANIFEST.md` 和三个 held-out test archives；归档内 `capture/models.txt` 与 `capture/evidence.json` 保存运行时模型/证据记录。重放 public consumer 必须使用 `scripts/run_a1_heldout_testbatch.py` 所构造的只读 `/public`、`/input`、`/config.json` bwrap 边界，随后才允许独立 private evaluator。scene regeneration 使用 `scripts/prepare_a1_heldout_layout.py` 和 `config/a1_heldout_layouts_v1.json`，是 renderer-owner 的单独工作；本包不执行它，也不执行模拟、GPU、模型、导航或物理运动。
 
 ## 附录 B. 数值主张追溯表
 
@@ -108,7 +102,7 @@ A2、观察位选择、闭环导航、路径/碰撞/接管、端到端延迟、�
 | 归档输出与输入绑定 | archive `receipt.json.outputs`，尤其 `private-evaluation/evaluation.json` 与 `public-output/method/method.json` SHA | 基础执行提交 `bb2809d`，报告提交由结果 JSON 记录 | receipt 是冻结工件；生成器不会改写它 |
 | source-time pose、两轴校准与私有 GT 隔离 | `docs/research/companion-first-pilot.md`、`companion-visible-instance-gt.md` 的命名证据与 archive capture/package 成员 | 这些为持出前消费者接缝，不是 A1 accuracy | 不外推至硬件、导航或物理世界 |
 
-历史 `941ea2d` 的 development scaffold 含 constant-R、假组件代理和 all-false evaluator，明确排除。留出前的 `bde1f3e` 修正 RIGHT-positive/关系扰动；`ca8d021` 修正 `mrr_upper_bound=max(mrr_lower, uncertain_best)`，二者在 v6 结果之前完成。SAP-Nav 的环状候选、可导航筛选、可见覆盖、到达复核重叠仅用于限制新颖性叙述，未在本包复现，也未作为导航成果。
+历史 `941ea2d` 的 development scaffold 含 constant-R、假组件代理和 all-false evaluator，明确排除。留出前的 `97cfd31` 修正 RIGHT-positive/关系扰动；`ca8d021` 修正 `mrr_upper_bound=max(mrr_lower, uncertain_best)`，二者在 v6 结果之前完成。SAP-Nav 的环状候选、可导航筛选、可见覆盖、到达复核重叠仅用于限制新颖性叙述，未在本包复现，也未作为导航成果。
 
 ## 参考文献
 

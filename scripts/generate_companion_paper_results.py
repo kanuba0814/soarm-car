@@ -69,7 +69,10 @@ def write_csv(path, rows):
 
 def save(fig, output, name):
     for suffix in ("svg", "png"):
-        fig.savefig(output / f"{name}.{suffix}", bbox_inches="tight", dpi=180)
+        path = output / f"{name}.{suffix}"
+        fig.savefig(path, bbox_inches="tight", dpi=180)
+        if suffix == "svg":
+            path.write_text("\n".join(line.rstrip() for line in path.read_text().splitlines()) + "\n")
     plt.close(fig)
 
 
