@@ -129,6 +129,7 @@ def main():
                 transform = None
         assert transform is not None, 'independent TF listener did not receive map->base_link'
         assert transform.header.stamp.sec >= 1, 'TF did not retain source/clock time'
+        assert pilot.map_to_source_world((.3, -.2)) == (.3, -.2, .08, 0.0), 'fixed-origin map inversion changed model placement'
         assert runtime.odom and abs(runtime.odom[-1].twist.twist.linear.x) > .01, 'source finite-difference twist stayed zero'
 
         # Stop source updates, advance simulated clock, and verify stale source pose is not republished.

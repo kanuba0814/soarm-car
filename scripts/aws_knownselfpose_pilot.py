@@ -34,6 +34,9 @@ NATIVE_LIDAR_FRAME = 'livox_frame'
 NATIVE_LIDAR_Z_M = 0.170
 MODEL_TO_BASE_LINK_Z_M = 0.0763
 SOURCE_STARTUP_MINIMUM_SAMPLES = 4
+PLACEMENT_TOLERANCE_M = 0.05
+STATIONARY_LINEAR_MPS = 0.02
+STATIONARY_ANGULAR_RADPS = 0.03
 
 
 class NativePoseStream:
@@ -106,6 +109,7 @@ class Pilot:
         self.node.create_subscription(Twist, '/cmd_vel', self.on_command, 30)
         self.pose = None
         self.origin = None
+        self.origin_model_z = None
         self.native_pose_stream = NativePoseStream()
         self.last_native_stamp_ns = 0
         self.bridge_pose_headers = []
@@ -128,6 +132,9 @@ class Pilot:
         self.map = [[205 for _ in range(SIZE)] for _ in range(SIZE)]
         self.pose_samples = []
         self.last_pose_wall = 0.0
+        self.initial_placement_used = False
+        self.initial_placement = None
+        self.events = []
         self.publish_native_lidar_extrinsic()
         self.node.create_timer(0.05, self.publish_pose)
 
@@ -174,6 +181,7 @@ class Pilot:
             self.last_pose_wall = time.monotonic()
             if self.origin is None:
                 self.origin = observed[:3]
+                self.origin_model_z = float(position['z'])
                 self.node.get_logger().info('known source-pose origin measured from native Pose_V envelope')
             self.pose_samples.append({'source_stamp': observed[3], 'world_model': [observed[0], observed[1], float(position['z'])], 'model_to_base_link_z_m': MODEL_TO_BASE_LINK_Z_M})
         self.pose_samples = self.pose_samples[-12000:]
@@ -281,7 +289,7 @@ class Pilot:
         self.command_pub.publish(Twist())
 
     def grid(self, x, y):
-        return int(x / RESOLUTION + SIZE // 2), int(y / RESOLUTION + SIZE // 2)
+        return math.floor(x / RESOLUTION + SIZE // 2), math.floor(y / RESOLUTION + SIZE // 2)
 
     def ray(self, x0, y0, x1, y1, endpoint):
         dx, dy = abs(x1 - x0), abs(y1 - y0)
@@ -359,8 +367,75 @@ class Pilot:
                 goals.append(cell)
             if len(goals) == 2: break
         assert len(goals) == 2, 'sensor map has insufficient connected conservative coverage for two routes'
-        to_pose = lambda cell: ((cell[0] - SIZE // 2) * RESOLUTION, (cell[1] - SIZE // 2) * RESOLUTION)
+        # Cell centers avoid boundary-rounding ambiguity during initial placement and path checks.
+        to_pose = lambda cell: ((cell[0] - SIZE // 2 + .5) * RESOLUTION, (cell[1] - SIZE // 2 + .5) * RESOLUTION)
         return start, goals, to_pose
+
+    def map_pose(self):
+        assert self.pose is not None and self.origin is not None
+        x, y, heading, _ = self.pose
+        ox, oy, oh = self.origin
+        c, s = math.cos(-oh), math.sin(-oh)
+        return (c * (x - ox) - s * (y - oy), s * (x - ox) + c * (y - oy), self.wrap_angle(heading - oh))
+
+    def map_to_source_world(self, map_xy):
+        """Invert the fixed initial-source map transform; no map origin is reset."""
+        assert self.origin is not None and self.origin_model_z is not None
+        ox, oy, oh = self.origin
+        c, s = math.cos(oh), math.sin(oh)
+        return (ox + c * map_xy[0] - s * map_xy[1],
+                oy + s * map_xy[0] + c * map_xy[1], self.origin_model_z, oh)
+
+    def set_initial_placement(self, start, to_pose):
+        assert not self.initial_placement_used, 'all teleports after initial placement are forbidden'
+        assert self.free_with_footprint(start), 'selected start is not footprint-free in the sensor map'
+        requested_map = to_pose(start)
+        requested_world = self.map_to_source_world(requested_map)
+        before_stamp = self.last_native_stamp_ns
+        request = ('name: "kuruma" position { x: %s y: %s z: %s } '
+                   'orientation { x: 0 y: 0 z: %s w: %s }' %
+                   (requested_world[0], requested_world[1], requested_world[2],
+                    math.sin(requested_world[3] / 2), math.cos(requested_world[3] / 2)))
+        response = subprocess.run(
+            ['ign', 'service', '-s', '/world/default/set_pose', '--reqtype', 'ignition.msgs.Pose',
+             '--reptype', 'ignition.msgs.Boolean', '--timeout', '3000', '--req', request],
+            text=True, capture_output=True, check=False)
+        self.initial_placement_used = True
+        self.initial_placement = {
+            'requested_map': list(requested_map), 'requested_source_world_model': list(requested_world),
+            'request': request, 'response_stdout': response.stdout, 'response_stderr': response.stderr,
+            'returncode': response.returncode, 'observed_map': None,
+        }
+        if response.returncode != 0 or 'true' not in response.stdout.lower():
+            raise RuntimeError(f'initial set_pose request failed: {self.initial_placement}')
+        deadline = time.monotonic() + 12.0
+        fresh_observations = 0
+        while time.monotonic() < deadline:
+            self.spin_once(.1)
+            observed_map = self.map_pose()
+            distance = math.hypot(observed_map[0] - requested_map[0], observed_map[1] - requested_map[1])
+            stationary = (math.hypot(*self.body_twist[:2]) <= STATIONARY_LINEAR_MPS and
+                          abs(self.body_twist[2]) <= STATIONARY_ANGULAR_RADPS)
+            if self.last_native_stamp_ns > before_stamp and distance <= PLACEMENT_TOLERANCE_M and stationary:
+                fresh_observations += 1
+                if fresh_observations >= SOURCE_STARTUP_MINIMUM_SAMPLES:
+                    self.initial_placement['observed_map'] = list(observed_map)
+                    self.initial_placement['observed_source_stamp_ns'] = self.last_native_stamp_ns
+                    self.initial_placement['stationary_body_twist'] = list(self.body_twist)
+                    return requested_map
+            else:
+                fresh_observations = 0
+        self.initial_placement['observed_map'] = list(self.map_pose())
+        self.initial_placement['stationary_body_twist'] = list(self.body_twist)
+        raise RuntimeError(f'initial set_pose did not reach a fresh stationary requested map pose: {self.initial_placement}')
+
+    def assert_actual_start(self, requested_map):
+        observed_map = self.map_pose()
+        distance = math.hypot(observed_map[0] - requested_map[0], observed_map[1] - requested_map[1])
+        actual_cell = self.grid(observed_map[0], observed_map[1])
+        if distance > PLACEMENT_TOLERANCE_M or not self.free_with_footprint(actual_cell):
+            raise RuntimeError(f'no verified start under declared 0.70 m footprint model: requested={requested_map} observed={observed_map} cell={actual_cell}')
+        return observed_map
 
     def save_image(self, name):
         image = self.images.get(name)
@@ -417,7 +492,14 @@ class Pilot:
         result = handle.get_result_async(); rclpy.spin_until_future_complete(self.node, result, timeout_sec=30)
         path = result.result().result.path
         points = [[p.pose.position.x, p.pose.position.y] for p in path.poses]
-        assert len(points) > 1 and self.swept_path_is_free(points), 'planner path crosses occupied or unknown swept footprint'
+        actual_start = self.map_pose()
+        path_valid = len(points) > 1 and self.swept_path_is_free(points)
+        (self.output / f'compute_path_{index}.json').write_text(json.dumps({
+            'actual_start_map': list(actual_start), 'goal_map': list(goal_xy), 'path_points': points,
+            'start_distance_m': math.hypot(points[0][0] - actual_start[0], points[0][1] - actual_start[1]) if points else None,
+            'full_swept_footprint_valid': path_valid,
+        }, indent=2) + '\n')
+        assert path_valid and math.hypot(points[0][0] - actual_start[0], points[0][1] - actual_start[1]) <= PLACEMENT_TOLERANCE_M, 'planner path crosses occupied or unknown swept footprint'
         sent = navigate.send_goal_async(NavigateToPose.Goal(pose=goal)); rclpy.spin_until_future_complete(self.node, sent, timeout_sec=15)
         handle = sent.result(); assert handle and handle.accepted
         result = handle.get_result_async()
@@ -447,6 +529,8 @@ class Pilot:
             'published_lidar_extrinsic_frames': sorted(self.lidar_extrinsic_frames),
             'lifecycle_attempts': self.lifecycle_attempts,
             'lifecycle_pending': sorted(name for name, future in self.lifecycle_futures.items() if not future.done()),
+            'initial_placement': self.initial_placement,
+            'events': self.events,
         }
 
     def finish(self):
@@ -470,17 +554,21 @@ def main():
         pilot.command(x=0.10, seconds=4); pilot.command(z=-0.30, seconds=4)
         pilot.spin(3); pilot.build_map()
         start, goals, to_pose = pilot.choose_routes()
+        requested_start = pilot.set_initial_placement(start, to_pose)
         unknown = next((c for c in ((1, 1), (SIZE-2, SIZE-2)) if pilot.map[c[1]][c[0]] == 205), None)
         occupied = next(((x,y) for y,row in enumerate(pilot.map) for x,v in enumerate(row) if v == 0), None)
         assert unknown and occupied and not pilot.free_with_footprint(unknown) and not pilot.free_with_footprint(occupied)
         nav = subprocess.Popen(['ros2', 'launch', 'soarm_navigation', 'aws_knownselfpose_research.launch.py', f'map:={output / "sensor_map.yaml"}'])
         try:
             pilot.wait_nav()
+            observed_start = pilot.assert_actual_start(requested_start)
+            pilot.events.append({'event': 'navigation_episode_start', 'requested_map': list(requested_start),
+                                 'observed_map': list(observed_start), 'footprint_m': 0.70})
             results = [pilot.action(to_pose(goal), index) for index, goal in enumerate(goals)]
         finally:
             nav.terminate(); nav.wait(timeout=15)
         length, fresh = pilot.finish()
-        report = {'label': 'knownselfpose physicalsim research-only', 'map_frame': {'definition': 'initial source-stamped simulator self pose', 'initial_world_pose': pilot.origin, 'tf_owner': 'aws_knownselfpose_pilot'}, 'map_provenance': {'source': 'PointCloud2 LiDAR raycasts', 'cloud_count': len(pilot.clouds), 'unknown_value': 205, 'height_limit_m': [0.10, 1.50]}, 'source_frames': sorted(set(c['frame'] for c in pilot.clouds)), 'observed_lidar_frames': sorted(pilot.lidar_frames), 'lidar_extrinsic': {'parent': 'base_link', 'child': NATIVE_LIDAR_FRAME, 'translation_m': [0.0, 0.0, NATIVE_LIDAR_Z_M], 'source': 'native kuruma model.sdf'},  'source_poses': pilot.pose_samples, 'routes': results, 'trajectory': pilot.trajectory, 'trajectory_path_length_m': length, 'commands': pilot.commands, 'fresh_images': fresh, 'negative_checks': {'unknown_goal_rejected': True, 'occupied_goal_rejected': True, 'corner_obstacle_rejected': True}, 'collision_assessment': {'status': 'UNKNOWN', 'reason': 'no runtime contact stream/instrumentation was supplied; absence is not treated as zero collision'}}
+        report = {'label': 'knownselfpose physicalsim research-only', 'map_frame': {'definition': 'initial source-stamped simulator self pose', 'initial_world_pose': pilot.origin, 'tf_owner': 'aws_knownselfpose_pilot'}, 'map_provenance': {'source': 'PointCloud2 LiDAR raycasts', 'cloud_count': len(pilot.clouds), 'unknown_value': 205, 'height_limit_m': [0.10, 1.50]}, 'source_frames': sorted(set(c['frame'] for c in pilot.clouds)), 'observed_lidar_frames': sorted(pilot.lidar_frames), 'lidar_extrinsic': {'parent': 'base_link', 'child': NATIVE_LIDAR_FRAME, 'translation_m': [0.0, 0.0, NATIVE_LIDAR_Z_M], 'source': 'native kuruma model.sdf'},  'source_poses': pilot.pose_samples, 'initial_placement': pilot.initial_placement, 'events': pilot.events, 'routes': results, 'trajectory': pilot.trajectory, 'trajectory_path_length_m': length, 'commands': pilot.commands, 'fresh_images': fresh, 'negative_checks': {'unknown_goal_rejected': True, 'occupied_goal_rejected': True, 'corner_obstacle_rejected': True}, 'collision_assessment': {'status': 'UNKNOWN', 'reason': 'no runtime contact stream/instrumentation was supplied; absence is not treated as zero collision'}}
         (output / 'pilot_report.json').write_text(json.dumps(report, indent=2) + '\n')
         with tarfile.open(output / 'knownselfpose_physicalsim_evidence.tar.gz', 'w:gz') as archive:
             for path in output.iterdir():
