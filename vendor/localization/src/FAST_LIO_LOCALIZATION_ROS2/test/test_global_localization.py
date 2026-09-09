@@ -19,6 +19,22 @@ SPEC = importlib.util.spec_from_file_location('global_localization', MODULE_PATH
 MODULE = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(MODULE)
 GlobalLocalizationNode = MODULE.GlobalLocalizationNode
+InputFreshness = MODULE.InputFreshness
+
+
+class InputFreshnessTest(unittest.TestCase):
+    def test_requires_strictly_advancing_and_fresh_inputs(self):
+        freshness = InputFreshness(0.5)
+        self.assertTrue(freshness.update('scan', 100, 1.0))
+        self.assertTrue(freshness.update('odom', 100, 1.0))
+        self.assertTrue(freshness.fresh(1.5))
+        self.assertFalse(freshness.update('scan', 100, 1.1))
+        self.assertFalse(freshness.update('odom', 99, 1.1))
+        self.assertFalse(freshness.fresh(1.500001))
+        self.assertFalse(freshness.fresh(0.9))
+        self.assertTrue(freshness.update('scan', 101, 1.6))
+        self.assertTrue(freshness.update('odom', 101, 1.6))
+        self.assertTrue(freshness.fresh(1.8))
 
 
 class GlobalLocalizationRegistrationTest(unittest.TestCase):
