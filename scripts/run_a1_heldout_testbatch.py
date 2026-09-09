@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 
-REQUIRED_OUTPUTS = ("capture/capture.json", "yolo/results.json", "package/public/manifest.json", "package/private/instances.json", "public-input/detections.json", "public-method/method.json", "private-evaluation/evaluation.json")
+REQUIRED_OUTPUTS = ("capture/capture.json", "yolo/results.json", "package/public/manifest.json", "package/private/instances.json", "public-input/detections.json", "public-output/method/method.json", "private-evaluation/evaluation.json")
 
 
 def digest(path):
@@ -44,9 +44,10 @@ def commands(layout, runtime_root, args):
     method = root / "public-output" / "method"
     private = root / "private-evaluation"
     python = sys.executable
+    yolo_python = args.yolo_python
     return [
         [python, "scripts/companion_capture.py", str(capture), args.survey_config],
-        [python, "scripts/run_companion_yoloworld_smoke.py", "--input-dir", str(capture), "--output-dir", str(yolo), "--confidence", "0.10"],
+        [yolo_python, "scripts/run_companion_yoloworld_smoke.py", "--input-dir", str(capture), "--output-dir", str(yolo), "--confidence", "0.10"],
         [python, "scripts/companion_evaluator_gt.py", "--input-dir", str(capture), "--yolo-results", str(yolo / "results.json"), "--output-dir", str(package)],
         [python, "scripts/prepare_a1_visualconf_public_inputs.py", "--public-dir", str(package / "public"), "--frozen-detections", str(yolo / "results.json"), "--acquisition-dir", str(capture), "--config", args.a1_config, "--output-dir", str(public_input)],
         ["bwrap", "--ro-bind", "/usr", "/usr", "--ro-bind", "/lib", "/lib", "--ro-bind", "/lib64", "/lib64", "--ro-bind", str(Path(sys.executable).parents[1]), str(Path(sys.executable).parents[1]), "--ro-bind", str(Path.cwd() / "scripts"), "/code", "--ro-bind", str(package / "public"), "/public", "--ro-bind", str(public_input), "/input", "--ro-bind", str(Path(args.a1_config).resolve()), "/config.json", "--proc", "/proc", "--dev", "/dev", "--bind", str(method.parent), "/method-parent", sys.executable, "/code/run_a1_visualconf_public.py", "--public-dir", "/public", "--public-input-dir", "/input", "--config", "/config.json", "--output-dir", "/method-parent/method"],
@@ -59,7 +60,11 @@ def receipt(layout, runtime_root, args):
     files = [root / item for item in REQUIRED_OUTPUTS]
     if not all(path.exists() for path in files):
         return None
-    return {"scene_id": layout["scene_id"], "world_sha256": layout["world_sha256"], "a1_config_sha256": digest(args.a1_config), "outputs": {str(path.relative_to(root)): digest(path) for path in files}}
+    current = {"scene_id": layout["scene_id"], "world_sha256": layout["world_sha256"], "a1_config_sha256": digest(args.a1_config), "outputs": {str(path.relative_to(root)): digest(path) for path in files}}
+    receipt_path = root / "receipt.json"
+    if receipt_path.exists() and json.loads(receipt_path.read_text()) != current:
+        raise RuntimeError(f"hash-mismatched completed receipt for {layout['scene_id']}")
+    return current if receipt_path.exists() else None
 
 
 def main():
@@ -69,7 +74,7 @@ def main():
     parser.add_argument("--runtime-root", type=Path, required=True)
     parser.add_argument("--survey-config", required=True)
     parser.add_argument("--a1-config", required=True)
-    parser.add_argument("--renderer-command", help="shell command that starts the renderer and honors A1_WORLD_OVERRIDE")
+    parser.add_argument("--yolo-python", default="/home/gxxl/.cache/soarm-perception-envs/conceptgraphs-b06/bin/python3.10")
     parser.add_argument("--prepare", action="store_true")
     parser.add_argument("--execute", action="store_true")
     args = parser.parse_args()
@@ -83,28 +88,24 @@ def main():
         return
     if os.environ.get("A1_RENDERER_RELEASED") != "1":
         raise SystemExit("--execute is disabled until parent sets A1_RENDERER_RELEASED=1")
-    if not args.renderer_command:
-        raise SystemExit("--execute requires --renderer-command")
     args.runtime_root.mkdir(parents=True, exist_ok=True)
     completed = []
     for layout in layouts:
         existing = receipt(layout, args.runtime_root, args)
-        if existing is not None:
+        if existing is not None and (args.runtime_root / layout["scene_id"] / "receipt.json").exists():
             completed.append(existing)
             continue
         root = args.runtime_root / layout["scene_id"]
-        if root.exists():
-            raise SystemExit(f"refusing partial or mismatched runtime directory {root}")
-        root.mkdir()
-        (root / "public-output").mkdir()
+        if root.exists() and not (root / "capture" / "capture.json").exists():
+            raise SystemExit(f"refusing partial runtime directory without retained capture {root}")
+        root.mkdir(exist_ok=True)
+        (root / "public-output").mkdir(exist_ok=True)
         environment = os.environ | renderer_environment(layout)
-        renderer = subprocess.Popen(args.renderer_command, shell=True, env=environment)
-        try:
-            for command in constructed[layout["scene_id"]]:
-                subprocess.run(command, check=True, env=environment)
-        finally:
-            renderer.terminate()
-            renderer.wait(timeout=30)
+        capture_environment = environment | {"COMPANION_WORLD_OVERRIDE": environment["A1_WORLD_OVERRIDE"], "COMPANION_WORLD_OVERRIDE_SHA256": environment["A1_WORLD_OVERRIDE_SHA256"], "COMPANION_CAPTURE_CONFIG": args.survey_config, "COMPANION_HOME_OUTPUT": str((root / "capture").resolve()), "COMPANION_EVALUATOR_SEGMENTATION": "1"}
+        if not (root / "capture" / "capture.json").exists():
+            subprocess.run(["bash", "scripts/dev-companion-home-validation.sh"], check=True, env=capture_environment)
+        for command in constructed[layout["scene_id"]][1:]:
+            subprocess.run(command, check=True, env=environment)
         done = receipt(layout, args.runtime_root, args)
         if done is None:
             raise RuntimeError(f"incomplete execution receipt for {layout['scene_id']}")

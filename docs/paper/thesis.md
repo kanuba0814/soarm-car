@@ -24,4 +24,6 @@ A1 固定六个中文查询、四个变体和相同八视图预算。关系轴�
 
 ## 结果状态
 
-开发重放证据位于 `artifacts/companion-home-validation/evidence/a1-visualconf-dev-v4/`。它不是持出测试，也不支持跨布局泛化。持出捕获、公开隔离重放、私有评估和按布局配对汇总仍待执行。
+开发重放证据位于 `artifacts/companion-home-validation/evidence/a1-visualconf-dev-v6/`。三种预声明持出布局已在同一 AWS Small House 中完成 24 个视图与 72 条方法查询记录，完整原始归档与按布局汇总位于 `artifacts/companion-home-validation/evidence/a1-heldout-results-v6/`。这三种布局不是独立家庭，不能据此作宽泛统计显著性或跨家庭泛化主张。
+
+按布局的 definite-GT 行数分别为 12、16、16。候选召回分别为 0.667、0.750、0.750；已知 forced Top-1 分别为 0.667、0.250、0.000；已知 MRR 均为 0，但身份不确定保留了 MRR 区间。关系未知分别为 16、16、8 行，原因分别为扰动几何失败、锚点缺失或歧义、以及扰动下顺序改变。这些是失败和弃权也被保留的持出测量，不证明关系方法有效、导航成功、A2 效果或硬件可用性。

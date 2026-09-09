@@ -9,6 +9,8 @@ runtime_calibration_panel="${COMPANION_RUNTIME_CALIBRATION_PANEL:-0}"
 evaluator_segmentation="${COMPANION_EVALUATOR_SEGMENTATION:-0}"
 segmentation_smoke="${COMPANION_SEGMENTATION_OCCLUSION_SMOKE:-0}"
 asset_dir="${AWS_SMALL_HOUSE_DIR:-$root/artifacts/baselines/aws_small_house_world}"
+world_override="${COMPANION_WORLD_OVERRIDE:-}"
+world_override_sha256="${COMPANION_WORLD_OVERRIDE_SHA256:-}"
 image="${SOARM_TEST_IMAGE:-soarm-car-ros2-dev:hm3d}"
 run_dir="${COMPANION_HOME_OUTPUT:?Set COMPANION_HOME_OUTPUT to a new output directory}"
 container_name="${SOARM_TEST_CONTAINER:-soarm-companion-home-${RANDOM}-${RANDOM}}"
@@ -49,9 +51,16 @@ assert set(manifest) == {str(path) for path in actual}
 for relative, details in manifest.items():
     data = (asset_dir / relative).read_bytes(); assert len(data) == details['bytes'] and hashlib.sha256(data).hexdigest() == details['sha256'], relative
 PY
+world_override_relative=""
+if [[ -n "$world_override" ]]; then
+    [[ -f "$world_override" && -n "$world_override_sha256" ]] || { printf 'Invalid generated world override\n' >&2; exit 2; }
+    [[ "$(sha256sum "$world_override" | awk '{print $1}')" == "$world_override_sha256" ]] || { printf 'Generated world override hash mismatch\n' >&2; exit 2; }
+    world_override_relative="${world_override#$root/}"
+    [[ "$world_override_relative" != "$world_override" ]] || { printf 'Generated override must be inside repository\n' >&2; exit 2; }
+fi
 docker image inspect "$image" --format '{{.Id}} {{index .RepoDigests 0}}' >"$run_dir/image-identity.txt"
 
-container_id="$(docker run -d --rm --name "$container_name" --gpus all --network none --device /dev/dri --group-add "${VIDEO_GID:-39}" --group-add "${RENDER_GID:-105}" --security-opt label=disable -e ROS_DOMAIN_ID="$ros_domain_id" -e ROS_LOCALHOST_ONLY=1 -e IGN_PARTITION="$ign_partition" -e IGN_IP=127.0.0.1 -e DISPLAY="$host_display" -e XAUTHORITY=/tmp/.host-xauthority -e NVIDIA_DRIVER_CAPABILITIES=graphics,utility,compute -e LD_LIBRARY_PATH= -e LIBGL_DRIVERS_PATH= -e __GLX_VENDOR_LIBRARY_NAME=nvidia -e __EGL_VENDOR_LIBRARY_FILENAMES=/tmp/nvidia-egl.json -e XDG_RUNTIME_DIR=/tmp/runtime-root -v "$root:/feature:ro" -v "$asset_dir:/asset:ro" -v "$run_dir:/output" -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v "$host_xauthority:/tmp/.host-xauthority:ro" -w /feature --entrypoint bash "$image" -lc '
+container_id="$(docker run -d --name "$container_name" --gpus all --network none --device /dev/dri --group-add "${VIDEO_GID:-39}" --group-add "${RENDER_GID:-105}" --security-opt label=disable -e ROS_DOMAIN_ID="$ros_domain_id" -e ROS_LOCALHOST_ONLY=1 -e IGN_PARTITION="$ign_partition" -e IGN_IP=127.0.0.1 -e DISPLAY="$host_display" -e XAUTHORITY=/tmp/.host-xauthority -e NVIDIA_DRIVER_CAPABILITIES=graphics,utility,compute -e LD_LIBRARY_PATH= -e LIBGL_DRIVERS_PATH= -e __GLX_VENDOR_LIBRARY_NAME=nvidia -e __EGL_VENDOR_LIBRARY_FILENAMES=/tmp/nvidia-egl.json -e XDG_RUNTIME_DIR=/tmp/runtime-root -v "$root:/feature:ro" -v "$asset_dir:/asset:ro" -v "$run_dir:/output" -v /tmp/.X11-unix:/tmp/.X11-unix:rw -v "$host_xauthority:/tmp/.host-xauthority:ro" -w /feature --entrypoint bash "$image" -lc '
 set -e; mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root
 source /opt/ros/humble/setup.bash; source /workspaces/soarm-car/install/setup.bash
 colcon --log-base /tmp/companion/log build --base-paths /feature/ros2_ws/src/soarm_simulation --build-base /tmp/companion/build --install-base /tmp/companion/install --symlink-install
@@ -60,7 +69,9 @@ runtime_options=""
 if [ "'"$runtime_calibration_panel"'" = 1 ]; then runtime_options="$runtime_options --metric-calibration-panel"; fi
 if [ "'"$evaluator_segmentation"'" = 1 ]; then runtime_options="$runtime_options --evaluator-segmentation"; fi
 if [ "'"$segmentation_smoke"'" = 1 ]; then runtime_options="$runtime_options --segmentation-occlusion-smoke"; fi
-python3 /feature/scripts/prepare_companion_home_world.py /asset/worlds/small_house.world /runtime.sdf $runtime_options
+runtime_source=/asset/worlds/small_house.world
+if [ -n "'"$world_override_relative"'" ]; then runtime_source="/feature/'"$world_override_relative"'"; fi
+python3 /feature/scripts/prepare_companion_home_world.py "$runtime_source" /runtime.sdf $runtime_options
 export IGN_GAZEBO_RESOURCE_PATH=/tmp/companion-evaluator-models:/asset/models:/tmp/companion/install/soarm_simulation/share/soarm_simulation/models; export GZ_SIM_RESOURCE_PATH=$IGN_GAZEBO_RESOURCE_PATH
 printf "%s\\n" "{\\"file_format_version\\":\\"1.0.0\\",\\"ICD\\":{\\"library_path\\":\\"libEGL_nvidia.so.0\\"}}" > /tmp/nvidia-egl.json
 { nvidia-smi -L; glxinfo -B; eglinfo -B || true; } > /output/renderer.txt 2>&1
@@ -84,10 +95,10 @@ docker logs "$container_name" >"$run_dir/container.log" 2>&1 || true
 ! grep -Eqi 'invalid mesh|failed to load geometry|missing texture|unable to find.*(mesh|texture)' "$run_dir/gazebo.log" "$run_dir/container.log"
 grep -Eq 'direct rendering: Yes' "$run_dir/renderer.txt"
 python3 - "$run_dir" "$lock" "$asset_dir" <<'PY'
-import hashlib, json, subprocess, sys
+import hashlib, json, os, subprocess, sys
 from pathlib import Path
 output, lock, asset = map(Path, sys.argv[1:]); capture = json.loads((output / 'capture.json').read_text())
-capture['source_lock'] = json.loads(lock.read_text())['asset']; capture['asset_commit_observed'] = subprocess.check_output(['git', '-C', str(asset), 'rev-parse', 'HEAD'], text=True).strip(); capture['image_identity'] = (output / 'image-identity.txt').read_text().strip()
+capture['source_lock'] = json.loads(lock.read_text())['asset']; capture['generated_world_override'] = {'path': os.environ.get('COMPANION_WORLD_OVERRIDE'), 'sha256': os.environ.get('COMPANION_WORLD_OVERRIDE_SHA256')}; capture['asset_commit_observed'] = subprocess.check_output(['git', '-C', str(asset), 'rev-parse', 'HEAD'], text=True).strip(); capture['image_identity'] = (output / 'image-identity.txt').read_text().strip()
 capture['files_sha256'] = {str(path.relative_to(output)): hashlib.sha256(path.read_bytes()).hexdigest() for path in sorted(output.rglob('*')) if path.is_file() and path.name not in ('evidence.json',)}
 (output / 'evidence.json').write_text(json.dumps(capture, indent=2) + '\n')
 PY

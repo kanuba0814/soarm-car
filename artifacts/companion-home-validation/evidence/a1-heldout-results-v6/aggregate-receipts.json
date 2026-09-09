@@ -1,0 +1,47 @@
+{
+  "status": "COMPLETED_ONLY",
+  "layouts": [
+    {
+      "scene_id": "a1-heldout-seed101",
+      "world_sha256": "8a2e19c7af0e18034c34597e164e397ea18eba586a6bfb85fea9eb61de7a112f",
+      "a1_config_sha256": "34a5528d22f204e3a6383d92850aae90d3d5b155bd219e808feaa5d3c0b1b37f",
+      "outputs": {
+        "capture/capture.json": "ab87ebd64c54531a12b687218518a4227d5f4d16591ad1f8b2481ad00e5a0ee0",
+        "yolo/results.json": "04345cbded8ab02066eb6ac120b0798bbfa791df5d7443c8692fb4d816236bc8",
+        "package/public/manifest.json": "374cd9416bd57f748d4efcf9d3e50a344543165ccd5578d47233ffd5882f9a9d",
+        "package/private/instances.json": "3e07bbd427ea6165208e4e451421ceb7ca2e702b5e9c2fe68a735c8995594f43",
+        "public-input/detections.json": "a64d3b8eafc339a2a9bc9f9bd75be56794d002585bf6d2610252e79bfd9f16fb",
+        "public-output/method/method.json": "8de61e633b9a167b73055f1acdbaca3e479df7f66ac0373f8bfa9f0d66dd1dea",
+        "private-evaluation/evaluation.json": "0b59ca3f78d54c3ccb730863ec9e78d39729f6a28f402acbaec4b2e67bb301fb"
+      }
+    },
+    {
+      "scene_id": "a1-heldout-seed103",
+      "world_sha256": "8f1413cca7dbce9649d3d14fe2de8cfc64600306d6b8ae3746484b39403157fe",
+      "a1_config_sha256": "34a5528d22f204e3a6383d92850aae90d3d5b155bd219e808feaa5d3c0b1b37f",
+      "outputs": {
+        "capture/capture.json": "f7317e7442c86f5423b3839526019f7a667a432e3018aebce884b229157fdb02",
+        "yolo/results.json": "6a8d5d617b73e147af3f2332eb94c591480270a2e970a970023a2cd68f2491a5",
+        "package/public/manifest.json": "3c02f917bdec65e3f0f800e65f44ac78dba9812dac9501568c6f790177c52215",
+        "package/private/instances.json": "9c7b6cbc8360f8dca185015b0f4b195f873fb5025a0e44cd643de533594a72ac",
+        "public-input/detections.json": "335abcf60b0cb02610d219288a6a455aa10215fcc853eaecd57253e45be59ca6",
+        "public-output/method/method.json": "ecf820c75bc717759a5ed5a2e4c39cf6af78ece65612aa65a5060b16e39ed511",
+        "private-evaluation/evaluation.json": "888880b89620dcb0654c2693e08bc3c8df0793227bb38641a804938fc27805d2"
+      }
+    },
+    {
+      "scene_id": "a1-heldout-seed107",
+      "world_sha256": "2dccf0e53322a5763710b52049dc9b987a58bebcffa2b2bdb97f0cdfa8b8312f",
+      "a1_config_sha256": "34a5528d22f204e3a6383d92850aae90d3d5b155bd219e808feaa5d3c0b1b37f",
+      "outputs": {
+        "capture/capture.json": "a641f0a2860852fa09c2d18efc9ffe2de3778ec489c7f521b48ae89e29eb10e2",
+        "yolo/results.json": "a56b4ad4ec575c84fc5c58d6bf5fb7d57fcec7fcd2ea14d57534b6595d35aa6a",
+        "package/public/manifest.json": "4c543bcb7b160a37826ebecd1347e921951beb01fa088bf3482624e323b00c3f",
+        "package/private/instances.json": "52670ab7f5a5ca9ed32b9fe53e3a38825d64e3ee3f25c3ed91792b3ad4f11194",
+        "public-input/detections.json": "2fc5c4174a732544d1e7e9622e550c4865970cadc6b65eb08d5758d4dd43efd9",
+        "public-output/method/method.json": "5af1875a7a9ce1dcac481fe2668a9104b0f6470b1836ef4aec58badab6537b78",
+        "private-evaluation/evaluation.json": "c8d1df80b66b37d29c771d1446770a682ed9cdcd8e59ccd1fe3e71517876bb65"
+      }
+    }
+  ]
+}

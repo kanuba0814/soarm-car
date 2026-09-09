@@ -34,6 +34,7 @@ class HeldoutPreparationTests(unittest.TestCase):
         class Args:
             survey_config = "config/companion_instance_survey.json"
             a1_config = "config/a1_visualconf_dev_v1.json"
+            yolo_python = "/home/gxxl/.cache/soarm-perception-envs/conceptgraphs-b06/bin/python3.10"
         constructed = [commands(layout, Path("/tmp/a1-runtime"), Args()) for layout in layouts]
         self.assertEqual(len({str(layout["world"]) for layout in layouts}), 3)
         self.assertEqual(len({layout["world_sha256"] for layout in layouts}), 3)

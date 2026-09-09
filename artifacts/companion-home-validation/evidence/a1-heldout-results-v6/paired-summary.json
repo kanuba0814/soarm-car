@@ -1,0 +1,12 @@
+{
+  "scope": "THREE_HELDOUT_LAYOUTS_ONE_AWS_HOUSE_NOT_INDEPENDENT_HOMES",
+  "executed_layouts": 3,
+  "executed_views": 24,
+  "executed_method_query_rows": 72,
+  "per_layout": [
+    {"scene_id": "a1-heldout-seed101", "definite_gt_rows": 12, "candidate_recall": 0.6666666666666666, "forced_top1": 0.6666666666666666, "mrr_known": 0.0, "mrr_lower_bound": 0.6666666666666666, "mrr_upper_bound": 0.6666666666666666, "accepted_coverage": 0.0, "wrong_accepted": 0, "unknown_identity_score_rows": 20, "relation_unknown_rows": 16, "relation_reasons": {"perturbation_geometry_failed": 16}},
+    {"scene_id": "a1-heldout-seed103", "definite_gt_rows": 16, "candidate_recall": 0.75, "forced_top1": 0.25, "mrr_known": 0.0, "mrr_lower_bound": 0.5, "mrr_upper_bound": 0.5, "accepted_coverage": 0.25, "wrong_accepted": 2, "unknown_identity_score_rows": 20, "relation_unknown_rows": 16, "relation_reasons": {"missing_or_ambiguous_anchor": 16}},
+    {"scene_id": "a1-heldout-seed107", "definite_gt_rows": 16, "candidate_recall": 0.75, "forced_top1": 0.0, "mrr_known": 0.0, "mrr_lower_bound": 0.28125, "mrr_upper_bound": 0.75, "accepted_coverage": 0.375, "wrong_accepted": 0, "unknown_identity_score_rows": 20, "relation_unknown_rows": 8, "relation_reasons": {"relation_order_changes_under_perturbation": 8}}
+  ],
+  "aggregation_limit": "Report per-layout paired results and unknown counts only; do not treat 72 rows as independent homes or claim broad bootstrap significance from three layouts."
+}
