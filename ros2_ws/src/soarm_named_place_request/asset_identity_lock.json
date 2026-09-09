@@ -1,34 +1,33 @@
 {
   "catalog_sha256": "742399c8fb8150fb55d78d230f9d90785193dff466c9e79690314266a49859d5",
+  "allowed_place_ids": ["room-1", "room-2", "room-3", "mian"],
   "assets": {
     "house_floorplan_pgm": {
       "path": "ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm",
       "sha256": "7d9c0b348928d1cb11c3ae033191b05989d35078ae34f3527c5779e0b731e08b"
     },
-    "house_floorplan_reference_pcd": {
+    "house_widened_reference_pcd": {
       "path": "artifacts/house_widened_reference.pcd",
       "sha256": "f930a35e03ad641d2ad25174afa19f6fe9d070e38ae1bfe63391a5f3afac9a12"
     },
     "house_fastlio_nav2_launch": {
       "path": "ros2_ws/src/soarm_navigation/soarm_navigation/launch/house_fastlio_nav2.launch.py",
-      "sha256": "99b9c951b1f5c501ddcc2e8467954f7539c9d1dbde55604630628ed840d53ec6"
+      "sha256": "c88daf45e9627d79fc13812b27795f57dd9936ebb39b40ba475aba3bbb7a3273"
     },
     "house_nav2_mppi_yaml": {
       "path": "ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml",
-      "sha256": "310136d35c5759370d6e8fac4b3f033a4f38fb5c92a99a59fe2a10579d7f6bc3"
+      "sha256": "b5c4a85a389a77bda2308665aea81d80749fb04a66ad643d1ed0520662da1c1f"
     },
-    "navigate_holonomic_bt": {
-      "path": "ros2_ws/src/soarm_navigation/behavior_trees/navigate_holonomic.xml",
-      "sha256": "d9c91f043dcd1f53373c5a69659bd1fb13a2c8b7d7f8894e7d8d3d1728068266"
+    "navigate_position_only_holonomic_bt": {
+      "path": "ros2_ws/src/soarm_navigation/behavior_trees/navigate_position_only_holonomic.xml",
+      "sha256": "6e2bb8a2c847aad9f6b76ea31eb9c674d65d637ecc99c3a27f8641831f675c08"
     },
     "navigate_through_poses_holonomic_bt": {
       "path": "ros2_ws/src/soarm_navigation/behavior_trees/navigate_through_poses_holonomic.xml",
-      "sha256": "c9c2e06cfa258a0bf9aaf2394b86aa7ff838a5ecd8cf2b7f6a61982aff52487b"
+      "sha256": "419dd60ba0c464541c045a8b51df2169702121b600e4c4fd2f02d0e4887ff6af"
     }
   },
-  "nav_yaml_path": "ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml",
   "runtime_evidence": {
-    "image": "soarm-car-nav2-ros2-dev:latest",
     "image_id": "sha256:15012136e44c6a439c137ac62a67c0f38f09f55a357ba03a916a48895f6e4dc9",
     "nav2_msgs": "1.1.20-1jammy.20260724.030612",
     "navigation2": "1.1.20-1jammy.20260804.223401",
