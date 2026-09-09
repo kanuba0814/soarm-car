@@ -15,8 +15,8 @@
 | 本机路径（均在 `/home/gxxl/`） | 分支 / 核对 HEAD | 用途与使用边界 |
 |---|---|---|
 | `soarm-car-nav2-clean` | `experiment/nav2-clean-baseline` / `41463f9` | **现有自主导航优先复用基线**：球轮 `kuruma_ros2_control`、FAST-LIO、Smac、全向 MPPI；有多房间成功记录。当前有修改及未跟踪脚本，不能仅凭 HEAD 还原当前成功实现。 |
-| `soarm-car-companion-validation` | `research/companion-home-validation` / `2a6d9b7` | 家具住宅 GUI、RGB-D、论文包及手动演示。最新演示是球轮 + Fortress `VelocityControl` 运动学近似，不是上述 ros2_control 导航基线。 |
-| `soarm-car-vlm-grid` | `research/vlm-grid-design` / `d9b6dc2` | 当前小型 VL + 公开 RGB-D 栅格实验，后续开发进行中；不拥有导航/仿真进程。模型权重在独立缓存，输入输出和恢复锁由本分支记录。 |
+| `soarm-car-companion-validation` | `research/companion-home-validation` / `08f5eb2` | 家具住宅 GUI、RGB-D、论文包及手动演示。最新演示是球轮 + Fortress `VelocityControl` 运动学近似，不是上述 ros2_control 导航基线。 |
+| `soarm-car-vlm-grid` | `research/vlm-grid-design` / `5c58bb1` | 小型 VL + 公开 RGB-D 栅格开发小试；五项几何检查及有限ID适配已运行。不拥有导航/仿真进程；未接通端到端导航。设计说明 `docs/research/graduation-hybrid-design.md`；模型权重在独立缓存，输入输出和恢复锁由本分支记录。 |
 | `soarm-car-main-integration` | `main` / `3c82261` | 已集成房屋净空、参考定位地图和 HM3D 场景；包含导航入口，本次未在此运行。 |
 | `soarm-car` | `feature/kuruma-rethink` / `3490d7f` | 用户主工作区，有大量未提交的房间导航、定位、安全链和感知改动。**不是可任意清理的副本。** |
 | `soarm-car-hm3d-apartments` | `feature/hm3d-apartment-worlds` / `9e8228a` | HM3D apartment_a/b 家庭场景与资产转换；资产许可和忽略文件需另行恢复。 |
