@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Prior map assisted exploration shortlist",
+  "type": "object",
+  "required": ["observation_results", "shortlist", "runtime"],
+  "properties": {
+    "observation_results": {"type": "array"},
+    "shortlist": {"type": "object", "required": ["status", "revision", "candidates", "observed_area_cells", "reference_prior_connected_area_cells"], "properties": {"status":  {"enum": ["ok", "no_frontier", "blocked", "exhausted"]}, "revision": {"type": "integer"}, "observed_area_cells": {"type": "integer", "minimum": 0}, "visibility_area_cells": {"type": "integer", "minimum": 0}, "reference_prior_connected_area_cells": {"type": "integer", "minimum": 0}, "rejections": {"type": "array"}, "candidates":  {"type": "array", "items": {"type": "object", "required": ["cluster_id", "goal", "frontier_cells", "predicted_gain_cells", "distance_m"], "properties": {"cluster_id": {"type": "string"}, "goal": {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}, "frontier_cells": {"type": "integer", "minimum": 1}, "predicted_gain_cells": {"type": "integer", "minimum": 0}, "distance_m": {"type": "number", "minimum": 0}}}}}},
+    "state": {"type": "object"},
+    "runtime": {"type": "object", "required": ["cpu_only", "cpu_process_seconds", "estimated_grid_memory_bytes"]}
+  }
+}

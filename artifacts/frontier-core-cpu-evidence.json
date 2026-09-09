@@ -1,0 +1,176 @@
+{
+  "observation_results": [
+    {
+      "new_observed_cells": 11,
+      "new_visibility_cells": 21,
+      "revision": 1,
+      "status": "applied"
+    }
+  ],
+  "runtime": {
+    "cpu_only": true,
+    "cpu_process_seconds": 0.034893,
+    "estimated_grid_memory_bytes": 278400
+  },
+  "shortlist": {
+    "candidates": [],
+    "observed_area_cells": 11,
+    "reference_prior_connected_area_cells": 61384,
+    "rejections": [
+      {
+        "cluster_id": "frontier-3610ce634a824c09",
+        "reason": "no_safe_approach"
+      }
+    ],
+    "revision": 1,
+    "status": "blocked",
+    "visibility_area_cells": 21
+  },
+  "state": {
+    "accepted_observation_ids": [
+      "real-prior-fixture-001"
+    ],
+    "frame": "map",
+    "live_obstacle_cells": [],
+    "map_identity": "house_floorplan-v1-7d9c0b34",
+    "navigation_z_band": [
+      -0.3,
+      0.5
+    ],
+    "observed_cells": [
+      [
+        20,
+        25
+      ],
+      [
+        21,
+        25
+      ],
+      [
+        22,
+        25
+      ],
+      [
+        23,
+        25
+      ],
+      [
+        24,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        26,
+        25
+      ],
+      [
+        27,
+        25
+      ],
+      [
+        28,
+        25
+      ],
+      [
+        29,
+        25
+      ],
+      [
+        30,
+        25
+      ]
+    ],
+    "retry_regions": [],
+    "revision": 1,
+    "state_version": 1,
+    "visibility_cells": [
+      [
+        20,
+        25
+      ],
+      [
+        20,
+        26
+      ],
+      [
+        20,
+        27
+      ],
+      [
+        20,
+        28
+      ],
+      [
+        20,
+        29
+      ],
+      [
+        20,
+        30
+      ],
+      [
+        20,
+        31
+      ],
+      [
+        20,
+        32
+      ],
+      [
+        20,
+        33
+      ],
+      [
+        20,
+        34
+      ],
+      [
+        20,
+        35
+      ],
+      [
+        21,
+        25
+      ],
+      [
+        22,
+        25
+      ],
+      [
+        23,
+        25
+      ],
+      [
+        24,
+        25
+      ],
+      [
+        25,
+        25
+      ],
+      [
+        26,
+        25
+      ],
+      [
+        27,
+        25
+      ],
+      [
+        28,
+        25
+      ],
+      [
+        29,
+        25
+      ],
+      [
+        30,
+        25
+      ]
+    ]
+  }
+}
