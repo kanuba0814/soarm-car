@@ -1,0 +1,10 @@
+{
+  "runtime": "fresh archive restore 41463f9 with only 0243b7b applied",
+  "pcd_sha256": "f930a35e03ad641d2ad25174afa19f6fe9d070e38ae1bfe63391a5f3afac9a12",
+  "unchanged": "gate, MPPI config, widened PGM, and localization YAML hashes in unchanged-inputs.sha256",
+  "result": "Initial ICP succeeded (fitness 0.8449198007583618, RMSE 0.09513986855745316m), but room-1 canceled with zero progress before hub was attempted.",
+  "health": "Consumer observed states 2, 1, 1, 2, 1. Container log shows MID-360 observation age grew from 0.20s to 0.57s and gate latched at 1788969429.500926154.",
+  "repair_status": "STEADY_TIME timer and strict advancing source freshness patch loaded without startup exception, but health still became stale under actual input gaps; no timeout relaxation was made.",
+  "renderer": "Actual Ogre process maps/DRI FDs were not captured before runner cleanup; GLX evidence is not substituted.",
+  "release": false
+}

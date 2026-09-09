@@ -1,0 +1,130 @@
+diff --git a/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/scripts/global_localization.py b/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/scripts/global_localization.py
+index 47b16b8..e00461c 100755
+--- a/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/scripts/global_localization.py
++++ b/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/scripts/global_localization.py
+@@ -3,10 +3,12 @@
+ 
+ import copy
+ import threading
++import time
+ import numpy as np
+ import open3d as o3d
+ 
+ import rclpy
++from rclpy.clock import Clock, ClockType
+ from rclpy.node import Node
+ import tf_transformations
+ 
+@@ -22,6 +24,29 @@ from geometry_msgs.msg import (
+ from std_msgs.msg import Header
+ from soarm_interfaces.msg import LocalizationHealth
+ 
++class InputFreshness:
++    """Tracks only strictly advancing source timestamps against wall time."""
++
++    def __init__(self, timeout):
++        if not np.isfinite(timeout) or timeout <= 0.0:
++            raise ValueError('input freshness timeout must be positive')
++        self.timeout = float(timeout)
++        self.source_ns = {'scan': None, 'odom': None}
++        self.receipt = {'scan': None, 'odom': None}
++
++    def update(self, name, stamp_ns, now):
++        previous = self.source_ns[name]
++        if not isinstance(stamp_ns, int) or stamp_ns <= 0 or previous is not None and stamp_ns <= previous:
++            return False
++        self.source_ns[name] = stamp_ns
++        self.receipt[name] = now
++        return True
++
++    def fresh(self, now):
++        return all(receipt is not None and 0.0 <= now - receipt <= self.timeout
++                   for receipt in self.receipt.values())
++
++
+ from localization_health import (
+     DEGRADED,
+     HEALTHY,
+@@ -62,6 +87,7 @@ class GlobalLocalizationNode(Node):
+         self.declare_parameter('max_unverified_seconds', 20.0)
+         self.declare_parameter('health_heartbeat_rate', 10.0)
+         self.declare_parameter('map_id', '')
++        self.declare_parameter('input_freshness_timeout', 0.5)
+ 
+         self.map_voxel_size    = self.get_parameter('map_voxel_size').value
+         self.scan_voxel_size   = self.get_parameter('scan_voxel_size').value
+@@ -100,6 +126,8 @@ class GlobalLocalizationNode(Node):
+         if self.health_heartbeat_rate <= 0.0:
+             raise ValueError('health_heartbeat_rate must be positive')
+         self.map_id = self.get_parameter('map_id').value
++        self.input_freshness = InputFreshness(
++            self.get_parameter('input_freshness_timeout').value)
+ 
+         # ─── State Variables ─────────────────────────────────────
+         self.global_map    = None
+@@ -129,7 +157,8 @@ class GlobalLocalizationNode(Node):
+             1
+         )
+ 
+-        self.create_timer(1.0 / self.health_heartbeat_rate, self.publish_health)
++        self.create_timer(1.0 / self.health_heartbeat_rate, self.publish_health,
++                          clock=Clock(clock_type=ClockType.STEADY_TIME))
+         self.get_logger().info('GlobalLocalizationNode initialized.')
+ 
+     def pc2_to_array(self, pc_msg: PointCloud2) -> np.ndarray:
+@@ -180,9 +209,14 @@ class GlobalLocalizationNode(Node):
+             self.get_logger().info('Initial global localization succeeded.')
+ 
+     def cb_save_cur_odom(self, msg: Odometry):
+-        self.cur_odom = msg
++        stamp_ns = self.stamp_to_nanoseconds(msg.header.stamp)
++        if self.input_freshness.update('odom', stamp_ns, time.monotonic()):
++            self.cur_odom = msg
+ 
+     def cb_save_cur_scan(self, msg: PointCloud2):
++        source_stamp_ns = self.stamp_to_nanoseconds(msg.header.stamp)
++        if not self.input_freshness.update('scan', source_stamp_ns, time.monotonic()):
++            return
+         msg.header.frame_id = 'camera_init'
+         msg.header.stamp    = self.get_clock().now().to_msg()
+         self.pub_pc_in_map.publish(msg)
+@@ -204,8 +238,10 @@ class GlobalLocalizationNode(Node):
+         message = LocalizationHealth()
+         message.stamp = self.get_clock().now().to_msg()
+         message.sequence = self.health_tracker.sequence
+-        message.state = self.health_tracker.state
+-        message.reason_mask = self.health_tracker.reason_mask
++        inputs_fresh = self.input_freshness.fresh(time.monotonic())
++        message.state = self.health_tracker.state if inputs_fresh else DEGRADED
++        message.reason_mask = (self.health_tracker.reason_mask if inputs_fresh else
++                               self.health_tracker.reason_mask | REASON_STALE_INPUT)
+         accepted_ns = self.health_tracker.last_accepted_stamp_ns
+         message.last_accepted_correction_stamp.sec = accepted_ns // 1_000_000_000
+         message.last_accepted_correction_stamp.nanosec = accepted_ns % 1_000_000_000
+diff --git a/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/test/test_global_localization.py b/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/test/test_global_localization.py
+index a4aae9f..8c15ff1 100644
+--- a/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/test/test_global_localization.py
++++ b/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/test/test_global_localization.py
+@@ -19,6 +19,22 @@ SPEC = importlib.util.spec_from_file_location('global_localization', MODULE_PATH
+ MODULE = importlib.util.module_from_spec(SPEC)
+ SPEC.loader.exec_module(MODULE)
+ GlobalLocalizationNode = MODULE.GlobalLocalizationNode
++InputFreshness = MODULE.InputFreshness
++
++
++class InputFreshnessTest(unittest.TestCase):
++    def test_requires_strictly_advancing_and_fresh_inputs(self):
++        freshness = InputFreshness(0.5)
++        self.assertTrue(freshness.update('scan', 100, 1.0))
++        self.assertTrue(freshness.update('odom', 100, 1.0))
++        self.assertTrue(freshness.fresh(1.5))
++        self.assertFalse(freshness.update('scan', 100, 1.1))
++        self.assertFalse(freshness.update('odom', 99, 1.1))
++        self.assertFalse(freshness.fresh(1.500001))
++        self.assertFalse(freshness.fresh(0.9))
++        self.assertTrue(freshness.update('scan', 101, 1.6))
++        self.assertTrue(freshness.update('odom', 101, 1.6))
++        self.assertTrue(freshness.fresh(1.8))
+ 
+ 
+ class GlobalLocalizationRegistrationTest(unittest.TestCase):
