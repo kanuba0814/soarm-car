@@ -1,0 +1,4 @@
+scene_id,total_rows,definite_gt_rows,unknown_gt_rows,forced_top1_known,forced_top1_correct,forced_top1_rate_known,mrr_exact_known_count,mrr_exact_known,mrr_lower_bound,mrr_upper_bound,accepted_total,accepted_known,accepted_correct_known,accepted_unknown,accepted_coverage_definite,wrong_accepted_known,wrong_accepted_rate_lower,wrong_accepted_rate_upper,relation_unknown_rows,relation_unknown_rate
+a1-heldout-seed101,24,12,12,12,8,0.6666666666666666,4,0.0,0.6666666666666666,0.6666666666666666,0,0,0,0,0.0,0,,,16,0.6666666666666666
+a1-heldout-seed103,24,16,8,16,4,0.25,4,0.0,0.5,0.5,4,4,2,0,0.25,2,0.5,0.5,16,0.6666666666666666
+a1-heldout-seed107,24,16,8,4,0,0.0,4,0.0,0.28125,0.75,6,0,0,6,0.375,0,0.0,1.0,8,0.3333333333333333

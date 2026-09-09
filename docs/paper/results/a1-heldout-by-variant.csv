@@ -1,0 +1,5 @@
+variant,total_rows,definite_gt_rows,unknown_gt_rows,forced_top1_known,forced_top1_correct,forced_top1_rate_known,mrr_exact_known_count,mrr_exact_known,mrr_lower_bound,mrr_upper_bound,accepted_total,accepted_known,accepted_correct_known,accepted_unknown,accepted_coverage_definite,wrong_accepted_known,wrong_accepted_rate_lower,wrong_accepted_rate_upper,relation_unknown_rows,relation_unknown_rate
+V,18,11,7,8,3,0.375,3,0.0,0.4696969696969697,0.6363636363636364,3,0,0,3,0.2727272727272727,0,0.0,1.0,10,0.5555555555555556
+V+R,18,11,7,8,3,0.375,3,0.0,0.4621212121212121,0.6363636363636364,2,0,0,2,0.18181818181818182,0,0.0,1.0,10,0.5555555555555556
+V+M,18,11,7,8,3,0.375,3,0.0,0.4696969696969697,0.6363636363636364,3,3,1,0,0.2727272727272727,2,0.6666666666666666,0.6666666666666666,10,0.5555555555555556
+V+R+M,18,11,7,8,3,0.375,3,0.0,0.4621212121212121,0.6363636363636364,2,1,1,1,0.18181818181818182,0,0.0,0.5,10,0.5555555555555556

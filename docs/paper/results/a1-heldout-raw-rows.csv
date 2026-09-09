@@ -1,0 +1,73 @@
+scene_id,variant,query_id,gt_status,gt_identities,gt_reason,accepted_track_id,public_abstain_reason,public_relation_status,public_relation_reason,candidate_recall,forced_top1,mrr,mrr_lower_bound,mrr_upper_bound,accepted_correct,score_status
+a1-heldout-seed101,V,Q1,definite,"['ChairA_01_001', 'ChairA_01_002', 'ChairA_01_003', 'ChairA_01_004']",,,top_two_margin,measured_or_not_required,,True,True,,1.0,1.0,,partial_identity_uncertainty
+a1-heldout-seed101,V,Q2,definite,['SofaC_01_001'],,,no_public_candidate,measured_or_not_required,,False,False,0.0,0.0,0.0,,measured
+a1-heldout-seed101,V,Q3,definite,['ChairA_01_001'],,,top_two_margin,unknown,perturbation_geometry_failed,True,True,,1.0,1.0,,partial_identity_uncertainty
+a1-heldout-seed101,V,Q4,ambiguous,[],no_definite_right_surface,,top_two_margin,unknown,perturbation_geometry_failed,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed101,V,Q5,ambiguous,[],relation_ambiguity_margin,,top_two_margin,unknown,perturbation_geometry_failed,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed101,V,Q6,ambiguous,[],relation_ambiguity_margin,,top_two_margin,unknown,perturbation_geometry_failed,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed101,V+R,Q1,definite,"['ChairA_01_001', 'ChairA_01_002', 'ChairA_01_003', 'ChairA_01_004']",,,top_two_margin,measured_or_not_required,,True,True,,1.0,1.0,,partial_identity_uncertainty
+a1-heldout-seed101,V+R,Q2,definite,['SofaC_01_001'],,,no_public_candidate,measured_or_not_required,,False,False,0.0,0.0,0.0,,measured
+a1-heldout-seed101,V+R,Q3,definite,['ChairA_01_001'],,,perturbation_geometry_failed,unknown,perturbation_geometry_failed,True,True,,1.0,1.0,,partial_identity_uncertainty
+a1-heldout-seed101,V+R,Q4,ambiguous,[],no_definite_right_surface,,perturbation_geometry_failed,unknown,perturbation_geometry_failed,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed101,V+R,Q5,ambiguous,[],relation_ambiguity_margin,,perturbation_geometry_failed,unknown,perturbation_geometry_failed,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed101,V+R,Q6,ambiguous,[],relation_ambiguity_margin,,perturbation_geometry_failed,unknown,perturbation_geometry_failed,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed101,V+M,Q1,definite,"['ChairA_01_001', 'ChairA_01_002', 'ChairA_01_003', 'ChairA_01_004']",,,top_two_margin,measured_or_not_required,,True,True,,1.0,1.0,,partial_identity_uncertainty
+a1-heldout-seed101,V+M,Q2,definite,['SofaC_01_001'],,,no_public_candidate,measured_or_not_required,,False,False,0.0,0.0,0.0,,measured
+a1-heldout-seed101,V+M,Q3,definite,['ChairA_01_001'],,,top_two_margin,unknown,perturbation_geometry_failed,True,True,,1.0,1.0,,partial_identity_uncertainty
+a1-heldout-seed101,V+M,Q4,ambiguous,[],no_definite_right_surface,,top_two_margin,unknown,perturbation_geometry_failed,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed101,V+M,Q5,ambiguous,[],relation_ambiguity_margin,,top_two_margin,unknown,perturbation_geometry_failed,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed101,V+M,Q6,ambiguous,[],relation_ambiguity_margin,,top_two_margin,unknown,perturbation_geometry_failed,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed101,V+R+M,Q1,definite,"['ChairA_01_001', 'ChairA_01_002', 'ChairA_01_003', 'ChairA_01_004']",,,top_two_margin,measured_or_not_required,,True,True,,1.0,1.0,,partial_identity_uncertainty
+a1-heldout-seed101,V+R+M,Q2,definite,['SofaC_01_001'],,,no_public_candidate,measured_or_not_required,,False,False,0.0,0.0,0.0,,measured
+a1-heldout-seed101,V+R+M,Q3,definite,['ChairA_01_001'],,,perturbation_geometry_failed,unknown,perturbation_geometry_failed,True,True,,1.0,1.0,,partial_identity_uncertainty
+a1-heldout-seed101,V+R+M,Q4,ambiguous,[],no_definite_right_surface,,perturbation_geometry_failed,unknown,perturbation_geometry_failed,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed101,V+R+M,Q5,ambiguous,[],relation_ambiguity_margin,,perturbation_geometry_failed,unknown,perturbation_geometry_failed,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed101,V+R+M,Q6,ambiguous,[],relation_ambiguity_margin,,perturbation_geometry_failed,unknown,perturbation_geometry_failed,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed103,V,Q1,definite,"['ChairA_01_001', 'ChairA_01_002', 'ChairA_01_003', 'ChairA_01_004']",,,top_two_margin,measured_or_not_required,,True,True,,1.0,1.0,,partial_identity_uncertainty
+a1-heldout-seed103,V,Q2,definite,['SofaC_01_001'],,,no_public_candidate,measured_or_not_required,,False,False,0.0,0.0,0.0,,measured
+a1-heldout-seed103,V,Q3,definite,['ChairA_01_001'],,,top_two_margin,unknown,missing_or_ambiguous_anchor,True,False,,0.5,0.5,,partial_identity_uncertainty
+a1-heldout-seed103,V,Q4,ambiguous,[],relation_ambiguity_margin,,top_two_margin,unknown,missing_or_ambiguous_anchor,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed103,V,Q5,ambiguous,[],relation_ambiguity_margin,,top_two_margin,unknown,missing_or_ambiguous_anchor,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed103,V,Q6,definite,['ChairA_01_001'],,,top_two_margin,unknown,missing_or_ambiguous_anchor,True,False,,0.5,0.5,,partial_identity_uncertainty
+a1-heldout-seed103,V+R,Q1,definite,"['ChairA_01_001', 'ChairA_01_002', 'ChairA_01_003', 'ChairA_01_004']",,,top_two_margin,measured_or_not_required,,True,True,,1.0,1.0,,partial_identity_uncertainty
+a1-heldout-seed103,V+R,Q2,definite,['SofaC_01_001'],,,no_public_candidate,measured_or_not_required,,False,False,0.0,0.0,0.0,,measured
+a1-heldout-seed103,V+R,Q3,definite,['ChairA_01_001'],,,missing_or_ambiguous_anchor,unknown,missing_or_ambiguous_anchor,True,False,,0.5,0.5,,partial_identity_uncertainty
+a1-heldout-seed103,V+R,Q4,ambiguous,[],relation_ambiguity_margin,,missing_or_ambiguous_anchor,unknown,missing_or_ambiguous_anchor,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed103,V+R,Q5,ambiguous,[],relation_ambiguity_margin,,missing_or_ambiguous_anchor,unknown,missing_or_ambiguous_anchor,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed103,V+R,Q6,definite,['ChairA_01_001'],,,missing_or_ambiguous_anchor,unknown,missing_or_ambiguous_anchor,True,False,,0.5,0.5,,partial_identity_uncertainty
+a1-heldout-seed103,V+M,Q1,definite,"['ChairA_01_001', 'ChairA_01_002', 'ChairA_01_003', 'ChairA_01_004']",,track_002,,measured_or_not_required,,True,True,,1.0,1.0,True,partial_identity_uncertainty
+a1-heldout-seed103,V+M,Q2,definite,['SofaC_01_001'],,,no_public_candidate,measured_or_not_required,,False,False,0.0,0.0,0.0,,measured
+a1-heldout-seed103,V+M,Q3,definite,['ChairA_01_001'],,track_002,,unknown,missing_or_ambiguous_anchor,True,False,,0.5,0.5,False,partial_identity_uncertainty
+a1-heldout-seed103,V+M,Q4,ambiguous,[],relation_ambiguity_margin,track_002,,unknown,missing_or_ambiguous_anchor,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed103,V+M,Q5,ambiguous,[],relation_ambiguity_margin,track_002,,unknown,missing_or_ambiguous_anchor,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed103,V+M,Q6,definite,['ChairA_01_001'],,track_002,,unknown,missing_or_ambiguous_anchor,True,False,,0.5,0.5,False,partial_identity_uncertainty
+a1-heldout-seed103,V+R+M,Q1,definite,"['ChairA_01_001', 'ChairA_01_002', 'ChairA_01_003', 'ChairA_01_004']",,track_002,,measured_or_not_required,,True,True,,1.0,1.0,True,partial_identity_uncertainty
+a1-heldout-seed103,V+R+M,Q2,definite,['SofaC_01_001'],,,no_public_candidate,measured_or_not_required,,False,False,0.0,0.0,0.0,,measured
+a1-heldout-seed103,V+R+M,Q3,definite,['ChairA_01_001'],,,missing_or_ambiguous_anchor,unknown,missing_or_ambiguous_anchor,True,False,,0.5,0.5,,partial_identity_uncertainty
+a1-heldout-seed103,V+R+M,Q4,ambiguous,[],relation_ambiguity_margin,,missing_or_ambiguous_anchor,unknown,missing_or_ambiguous_anchor,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed103,V+R+M,Q5,ambiguous,[],relation_ambiguity_margin,,missing_or_ambiguous_anchor,unknown,missing_or_ambiguous_anchor,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed103,V+R+M,Q6,definite,['ChairA_01_001'],,,missing_or_ambiguous_anchor,unknown,missing_or_ambiguous_anchor,True,False,,0.5,0.5,,partial_identity_uncertainty
+a1-heldout-seed107,V,Q1,definite,"['ChairA_01_001', 'ChairA_01_002', 'ChairA_01_003', 'ChairA_01_004']",,track_002,,measured_or_not_required,,True,,,0.5,1.0,,partial_identity_uncertainty
+a1-heldout-seed107,V,Q2,definite,['SofaC_01_001'],,,no_public_candidate,measured_or_not_required,,False,False,0.0,0.0,0.0,,measured
+a1-heldout-seed107,V,Q3,definite,['ChairA_01_001'],,track_002,,unknown,relation_order_changes_under_perturbation,True,,,0.3333333333333333,1.0,,partial_identity_uncertainty
+a1-heldout-seed107,V,Q4,ambiguous,[],no_definite_right_surface,track_002,,measured_or_not_required,,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed107,V,Q5,ambiguous,[],relation_ambiguity_margin,track_002,,unknown,relation_order_changes_under_perturbation,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed107,V,Q6,definite,['ChairA_01_001'],,track_002,,measured_or_not_required,,True,,,0.3333333333333333,1.0,,partial_identity_uncertainty
+a1-heldout-seed107,V+R,Q1,definite,"['ChairA_01_001', 'ChairA_01_002', 'ChairA_01_003', 'ChairA_01_004']",,track_002,,measured_or_not_required,,True,,,0.5,1.0,,partial_identity_uncertainty
+a1-heldout-seed107,V+R,Q2,definite,['SofaC_01_001'],,,no_public_candidate,measured_or_not_required,,False,False,0.0,0.0,0.0,,measured
+a1-heldout-seed107,V+R,Q3,definite,['ChairA_01_001'],,,relation_order_changes_under_perturbation,unknown,relation_order_changes_under_perturbation,True,,,0.3333333333333333,1.0,,partial_identity_uncertainty
+a1-heldout-seed107,V+R,Q4,ambiguous,[],no_definite_right_surface,track_011,,measured_or_not_required,,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed107,V+R,Q5,ambiguous,[],relation_ambiguity_margin,,relation_order_changes_under_perturbation,unknown,relation_order_changes_under_perturbation,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed107,V+R,Q6,definite,['ChairA_01_001'],,track_011,,measured_or_not_required,,True,,,0.25,1.0,,partial_identity_uncertainty
+a1-heldout-seed107,V+M,Q1,definite,"['ChairA_01_001', 'ChairA_01_002', 'ChairA_01_003', 'ChairA_01_004']",,,top_two_margin,measured_or_not_required,,True,,,0.5,1.0,,partial_identity_uncertainty
+a1-heldout-seed107,V+M,Q2,definite,['SofaC_01_001'],,,no_public_candidate,measured_or_not_required,,False,False,0.0,0.0,0.0,,measured
+a1-heldout-seed107,V+M,Q3,definite,['ChairA_01_001'],,,top_two_margin,unknown,relation_order_changes_under_perturbation,True,,,0.3333333333333333,1.0,,partial_identity_uncertainty
+a1-heldout-seed107,V+M,Q4,ambiguous,[],no_definite_right_surface,,top_two_margin,measured_or_not_required,,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed107,V+M,Q5,ambiguous,[],relation_ambiguity_margin,,top_two_margin,unknown,relation_order_changes_under_perturbation,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed107,V+M,Q6,definite,['ChairA_01_001'],,,top_two_margin,measured_or_not_required,,True,,,0.3333333333333333,1.0,,partial_identity_uncertainty
+a1-heldout-seed107,V+R+M,Q1,definite,"['ChairA_01_001', 'ChairA_01_002', 'ChairA_01_003', 'ChairA_01_004']",,,top_two_margin,measured_or_not_required,,True,,,0.5,1.0,,partial_identity_uncertainty
+a1-heldout-seed107,V+R+M,Q2,definite,['SofaC_01_001'],,,no_public_candidate,measured_or_not_required,,False,False,0.0,0.0,0.0,,measured
+a1-heldout-seed107,V+R+M,Q3,definite,['ChairA_01_001'],,,relation_order_changes_under_perturbation,unknown,relation_order_changes_under_perturbation,True,,,0.3333333333333333,1.0,,partial_identity_uncertainty
+a1-heldout-seed107,V+R+M,Q4,ambiguous,[],no_definite_right_surface,track_011,,measured_or_not_required,,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed107,V+R+M,Q5,ambiguous,[],relation_ambiguity_margin,,relation_order_changes_under_perturbation,unknown,relation_order_changes_under_perturbation,,,,,,,unknown_gt_ambiguous
+a1-heldout-seed107,V+R+M,Q6,definite,['ChairA_01_001'],,track_011,,measured_or_not_required,,True,,,0.25,1.0,,partial_identity_uncertainty
