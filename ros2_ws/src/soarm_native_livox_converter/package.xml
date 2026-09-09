@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>soarm_native_livox_converter</name>
+  <version>0.1.0</version>
+  <description>Native PointCloud2 to Livox CustomMsg converter for simulation.</description>
+  <maintainer email="dev@example.invalid">soarm-car</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>livox_ros_driver2</depend>
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+</package>

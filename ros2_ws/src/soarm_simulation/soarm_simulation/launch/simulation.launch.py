@@ -35,6 +35,8 @@ def generate_launch_description():
         DeclareLaunchArgument('spawn_robot', default_value='true'),
         DeclareLaunchArgument('ground_truth_map_tf', default_value='true', description='Publish identity map->odom_combined for room preview; disable when AMCL/localisation owns this transform.'),
         DeclareLaunchArgument('publish_sim_odometry', default_value='true', description='Publish /odom and odom_combined TF from Gazebo; disable when FAST-LIO owns Nav2 odometry.'),
+        DeclareLaunchArgument('use_native_livox_converter', default_value='false', description='Use the C++ PointCloud2 to Livox converter instead of SimAdapter Python point handling.'),
+        DeclareLaunchArgument('throttle_odom_path', default_value='false', description='Publish the RViz-only /odom_path at at most 2 Hz when it has subscribers.'),
         DeclareLaunchArgument('rviz', default_value='false', description='Start RViz with robot, TF, odometry path, point cloud and camera displays.'),
         gazebo,
         Node(package='robot_state_publisher', executable='robot_state_publisher', parameters=[{'robot_description': robot}]),
@@ -55,8 +57,21 @@ def generate_launch_description():
             {'policy_file': os.path.join(sim_share, 'config', 'mission_policy.yaml')},
             {'publish_odometry': LaunchConfiguration('publish_sim_odometry')},
             {'arm_enabled': False},
+            {'use_native_livox_converter': LaunchConfiguration('use_native_livox_converter')},
         ]),
-        Node(package='soarm_simulation', executable='odom_path'),
+        Node(
+            package='soarm_native_livox_converter', executable='native_livox_converter',
+            condition=IfCondition(LaunchConfiguration('use_native_livox_converter')),
+        ),
+        Node(
+            package='soarm_simulation', executable='odom_path',
+            parameters=[{'publish_rate_hz': 2.0}],
+            condition=IfCondition(LaunchConfiguration('throttle_odom_path')),
+        ),
+        Node(
+            package='soarm_simulation', executable='odom_path',
+            condition=IfCondition(PythonExpression(["'", LaunchConfiguration('throttle_odom_path'), "' != 'true'"])),
+        ),
         Node(
             package='nav2_map_server', executable='map_server', name='map_server',
             condition=localisation_world,

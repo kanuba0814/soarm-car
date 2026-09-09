@@ -21,20 +21,26 @@ class SimAdapter(Node):
         super().__init__('kuruma_sim_adapter')
         self.declare_parameter('publish_odometry', True)
         self.declare_parameter('arm_enabled', False)
+        self.declare_parameter('use_native_livox_converter', False)
         self.publish_odometry = self.get_parameter('publish_odometry').value
         self.arm_enabled = self.get_parameter('arm_enabled').value
+        self.use_native_livox_converter = self.get_parameter('use_native_livox_converter').value
         self.odom_pub = self.create_publisher(Odometry, '/odom', 20) if self.publish_odometry else None
         self.power_pub = self.create_publisher(Float32, '/PowerVoltage', 5)
         self.imu_pub = self.create_publisher(Imu, '/imu/data_raw', 50)
-        self.points_pub = self.create_publisher(PointCloud2, '/mid360/points', 10)
-        self.livox_pub = self.create_publisher(CustomMsg, '/livox/lidar', 10)
+        self.points_pub = None
+        self.livox_pub = None
+        if not self.use_native_livox_converter:
+            self.points_pub = self.create_publisher(PointCloud2, '/mid360/points', 10)
+            self.livox_pub = self.create_publisher(CustomMsg, '/livox/lidar', 10)
         self.livox_imu_pub = self.create_publisher(Imu, '/livox/imu', 50)
         self.tf = TransformBroadcaster(self) if self.publish_odometry else None
         if self.publish_odometry:
             self.create_subscription(Odometry, '/gazebo/odom', self.on_gazebo_odom, 20)
         self.create_subscription(Imu, '/gazebo/imu', self.on_imu, 50)
         self.create_subscription(Imu, '/gazebo/livox_imu', self.on_livox_imu, 50)
-        self.create_subscription(PointCloud2, '/mid360/scan/points/points', self.on_points, 10)
+        if not self.use_native_livox_converter:
+            self.create_subscription(PointCloud2, '/mid360/scan/points/points', self.on_points, 10)
         self.create_timer(1.0, lambda: self.power_pub.publish(Float32(data=24.0)))
         # Interfaces remain discoverable, but chassis-first simulation never fabricates arm success.
         self.arm_server = ActionServer(self, FollowJointTrajectory, '/arm_controller/follow_joint_trajectory', self.unavailable_trajectory, goal_callback=self.arm_goal, cancel_callback=lambda _: CancelResponse.ACCEPT)
