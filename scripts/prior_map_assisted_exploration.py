@@ -141,13 +141,13 @@ class ExplorationSupervisor:
     """Single-owner supervisor: core shortlist -> ComputePath -> NavigateToPose."""
 
     def __init__(self, core, navigator, expected_health_map_id, *, source_map_id=None, max_goals=6, wall_limit=1200.0,
-                 per_goal_wall=180.0, separation_m=.2, arrival_tolerance=.2):
+                 per_goal_wall=180.0, startup_grace=45.0, separation_m=.2, arrival_tolerance=.2):
         self.core = core
         self.navigator = navigator
         self.gate = FreshnessGate(expected_health_map_id, source_map_id)
         self.records = deque(maxlen=1024)
         self.consumed = deque(maxlen=1024)
-        self.max_goals, self.wall_limit, self.per_goal_wall = max_goals, wall_limit, per_goal_wall
+        self.max_goals, self.wall_limit, self.per_goal_wall, self.startup_grace = max_goals, wall_limit, per_goal_wall, startup_grace
         self.separation_m, self.arrival_tolerance = separation_m, arrival_tolerance
         self.state, self.reason = State.IDLE, 'not started'
         self.robot_pose = None
@@ -261,6 +261,8 @@ class ExplorationSupervisor:
             raise RuntimeError('supervisor not started')
         if now - self.started_at > self.wall_limit:
             self._request_cancel(State.BUDGET_EXHAUSTED, 'whole-run wall budget exhausted', now)
+        if self.state == State.READY and now - self.started_at > self.startup_grace and not self.gate.ready(now):
+            self._request_cancel(State.SENSOR_FAULT, 'startup data grace expired: ' + self.gate.reason, now)
         if self.state != State.CANCELLING and self.records:
             newest = self.records[-1]
             if (self._last_observation_receipt is None or

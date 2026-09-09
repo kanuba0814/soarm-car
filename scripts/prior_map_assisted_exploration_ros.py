@@ -36,6 +36,25 @@ def seconds(stamp):
     return stamp.sec + stamp.nanosec / 1e9
 
 
+def relocate_prior_manifest(manifest_path, asset_root, output_dir):
+    """Relocate only asset paths; retain the pinned identity and geometry fields."""
+    manifest = json.loads(Path(manifest_path).read_text())
+    root = Path(asset_root)
+    for key in ('yaml_path', 'pgm_path'):
+        source = Path(manifest[key])
+        try:
+            relative = source.relative_to('/home/gxxl/soarm-car-nav2-clean')
+        except ValueError as error:
+            raise RuntimeError('unsupported locked prior path: ' + str(source)) from error
+        candidate = root / relative
+        if not candidate.is_file():
+            raise RuntimeError('relocated locked prior missing: ' + str(candidate))
+        manifest[key] = str(candidate)
+    output = Path(output_dir) / 'relocated-prior-manifest.json'
+    output.write_text(json.dumps(manifest, indent=2, sort_keys=True) + '\n')
+    return output
+
+
 def transform_point(point, transform):
     x, y, z = point
     q = transform.rotation
@@ -172,6 +191,7 @@ class PriorMapExplorationNode(Node):
         super().__init__('prior_map_assisted_exploration')
         self.set_parameters([Parameter('use_sim_time', Parameter.Type.BOOL, True)])
         self.declare_parameter('prior_manifest', str(Path(__file__).parents[1] / 'config/prior_map_assisted_exploration_input_lock.json'))
+        self.declare_parameter('prior_asset_root', '')
         self.declare_parameter('max_validated_rays', 1024)
         self.declare_parameter('ground_z', 0.0)
         self.declare_parameter('floor_tolerance', .10)
@@ -182,6 +202,11 @@ class PriorMapExplorationNode(Node):
         self.declare_parameter('asset_root', '/tmp/soarm-intel-nav-restore-20260909')
         self.declare_parameter('expected_health_map_id', 'house_widened_reference.pcd')
         manifest = self.get_parameter('prior_manifest').value
+        prior_asset_root = self.get_parameter('prior_asset_root').value
+        if prior_asset_root:
+            relocation_dir = Path(self.get_parameter('evidence_dir').value) if self.get_parameter('evidence_dir').value else Path('/tmp')
+            relocation_dir.mkdir(parents=True, exist_ok=True)
+            manifest = str(relocate_prior_manifest(manifest, prior_asset_root, relocation_dir))
         prior = load_pinned_prior(manifest)
         self.adapter = PointCloudAdapter(
             prior.map_identity, int(self.get_parameter('max_validated_rays').value),
@@ -209,7 +234,7 @@ class PriorMapExplorationNode(Node):
         self.drop_source = False
         self.last_checkpoint, self.last_report, self.last_state = 0.0, 0.0, None
         if self.evidence_dir:
-            self.evidence_dir.mkdir(parents=True, exist_ok=False)
+            self.evidence_dir.mkdir(parents=True, exist_ok=True)
             (self.evidence_dir / 'metadata.json').write_text(json.dumps({'map_identity': prior.map_identity, 'health_map_id': self.get_parameter('expected_health_map_id').value, 'use_sim_time': True, 'wallclock_watchdog': 'time.monotonic', 'ground_z': self.adapter.ground_z, 'floor_tolerance': self.adapter.floor_tolerance, 'navigation_z_band': [self.adapter.navigation_z_min, self.adapter.navigation_z_max], 'point_sample_policy': 'uniform_index_across_full_message', 'max_validated_rays': self.adapter.max_validated_rays}, indent=2) + '\n')
         self.create_service(Trigger, '~/pause', self.pause)
         self.create_service(Trigger, '~/resume', self.resume)

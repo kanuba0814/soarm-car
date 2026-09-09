@@ -99,6 +99,25 @@ class SupervisorTests(unittest.TestCase):
         self.assertEqual([item['kind'] for item in record.observation['returns']], ['floor', 'obstacle', 'floor'])
         self.assertEqual(record.observation['sample_policy'], 'full_message_uniform_index')
 
+    def test_startup_waits_for_data_then_faults_only_after_grace(self):
+        core, nav = Core(), Navigator()
+        supervisor = ExplorationSupervisor(core, nav, MAP_ID, startup_grace=2.)
+        supervisor.start(0.)
+        supervisor.tick(.05)
+        self.assertEqual(supervisor.state, State.READY)
+        adapter = PointCloudAdapter(MAP_ID)
+        supervisor.health('HEALTHY', MAP_ID, 1.)
+        supervisor.enqueue(self.record(adapter, 'one', 1, 1., 1., 1.))
+        supervisor.tick(1.)
+        supervisor.health('HEALTHY', MAP_ID, 1.5)
+        supervisor.enqueue(self.record(adapter, 'two', 2, 2., 1.5, 2.))
+        supervisor.tick(1.5)
+        self.assertEqual(supervisor.state, State.NAVIGATING)
+        fault = ExplorationSupervisor(Core(), Navigator(), MAP_ID, startup_grace=.1)
+        fault.start(0.)
+        fault.tick(.2)
+        self.assertEqual(fault.state, State.SENSOR_FAULT)
+
     def test_watchdog_rejects_stale_replay_wrong_map_missing_tf_and_paused_clock(self):
         adapter = PointCloudAdapter(MAP_ID, max_validated_rays=2)
         gate = FreshnessGate(MAP_ID)
