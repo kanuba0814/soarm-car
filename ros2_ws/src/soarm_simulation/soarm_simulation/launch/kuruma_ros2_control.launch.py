@@ -30,6 +30,8 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('world', default_value='kuruma_ros2_control', description='ros2_control world basename from share/soarm_simulation/worlds.'),
         DeclareLaunchArgument('gz_args', default_value='-r -s', description='Gazebo arguments; use "-r" to open the GUI.'),
+        DeclareLaunchArgument('use_native_livox_converter', default_value='false', description='Use the C++ PointCloud2 to Livox converter instead of SimAdapter Python point handling.'),
+        DeclareLaunchArgument('throttle_odom_path', default_value='false', description='Publish the RViz-only /odom_path at at most 2 Hz when it has subscribers.'),
         DeclareLaunchArgument('rviz', default_value='false', description='Start RViz with robot, TF, odometry path, point cloud and camera displays.'),
         SetEnvironmentVariable('IGN_GAZEBO_RESOURCE_PATH', os.path.join(sim_share, 'models')),
         SetEnvironmentVariable('GZ_SIM_RESOURCE_PATH', os.path.join(sim_share, 'models')),
@@ -49,8 +51,21 @@ def generate_launch_description():
             {'policy_file': os.path.join(sim_share, 'config', 'mission_policy.yaml')},
             {'publish_odometry': False},
             {'arm_enabled': False},
+            {'use_native_livox_converter': LaunchConfiguration('use_native_livox_converter')},
         ]),
-        Node(package='soarm_simulation', executable='odom_path'),
+        Node(
+            package='soarm_native_livox_converter', executable='native_livox_converter',
+            condition=IfCondition(LaunchConfiguration('use_native_livox_converter')),
+        ),
+        Node(
+            package='soarm_simulation', executable='odom_path',
+            parameters=[{'publish_rate_hz': 2.0}],
+            condition=IfCondition(LaunchConfiguration('throttle_odom_path')),
+        ),
+        Node(
+            package='soarm_simulation', executable='odom_path',
+            condition=IfCondition(PythonExpression(["'", LaunchConfiguration('throttle_odom_path'), "' != 'true'"])),
+        ),
         Node(
             package='rviz2', executable='rviz2', name='simulation_rviz',
             condition=IfCondition(LaunchConfiguration('rviz')),

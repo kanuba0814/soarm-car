@@ -1,0 +1,29 @@
+{
+  "raw": {
+    "count": 101,
+    "median_clock_minus_stamp": 0.014000000000002899,
+    "max_clock_minus_stamp": 0.06700000000000017,
+    "unique_dimensions": [
+      [
+        720,
+        16
+      ]
+    ]
+  },
+  "adapted": {
+    "count": 63,
+    "median_clock_minus_stamp": 1.0160000000000018,
+    "max_clock_minus_stamp": 1.095000000000006,
+    "unique_dimensions": [
+      [
+        720,
+        16
+      ]
+    ]
+  },
+  "imu": {
+    "count": 63,
+    "median_wall_spacing": 0.4091911010000331,
+    "max_wall_spacing": 0.4558528910001769
+  }
+}

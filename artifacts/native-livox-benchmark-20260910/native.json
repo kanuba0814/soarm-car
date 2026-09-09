@@ -1,0 +1,35 @@
+{
+  "label": "SYNTHETIC_10HZ_REPLAY_OF_CAPTURED_RAW_CDR",
+  "samples": 100,
+  "requested_rate_hz": 10.0,
+  "source_stamp": {
+    "sec": 201,
+    "nanosec": 400000000
+  },
+  "source_layout": {
+    "width": 720,
+    "height": 16,
+    "point_step": 32,
+    "row_step": 23040,
+    "data_bytes": 368640
+  },
+  "finite_point_count": 11083,
+  "output_equality": {
+    "adapted_all_messages": true,
+    "livox_all_messages": true,
+    "adapted_sha256": "54757d899178bfbac61be7db4ab28aa7936a118e339cba74a7785ea86f5e9771",
+    "livox_sha256": "d48129905b26c4fb11a0ec729dea698807bbfcddf4b2d11c5350eef008699a58"
+  },
+  "wall_latency_seconds": {
+    "adapted": {
+      "median": 0.002210319998994237,
+      "p95": 0.00245784700018703,
+      "max": 0.0031897740009299014
+    },
+    "livox": {
+      "median": 0.033688205998259946,
+      "p95": 0.04184443099984492,
+      "max": 0.04296447399974568
+    }
+  }
+}

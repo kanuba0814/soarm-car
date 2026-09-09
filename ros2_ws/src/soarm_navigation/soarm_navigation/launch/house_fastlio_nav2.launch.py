@@ -30,12 +30,16 @@ def generate_launch_description():
         DeclareLaunchArgument('gz_args', default_value='-r -s'),
         DeclareLaunchArgument('rviz', default_value='false'),
         DeclareLaunchArgument('fixed_map_shadow', default_value='false'),
+        DeclareLaunchArgument('use_native_livox_converter', default_value='false'),
+        DeclareLaunchArgument('throttle_odom_path', default_value='false'),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(PathJoinSubstitution([simulation_share, 'launch', 'kuruma_ros2_control.launch.py'])),
             launch_arguments={
                 'world': 'house_floorplan_ros2_control',
                 'gz_args': LaunchConfiguration('gz_args'),
                 'rviz': LaunchConfiguration('rviz'),
+                'use_native_livox_converter': LaunchConfiguration('use_native_livox_converter'),
+                'throttle_odom_path': LaunchConfiguration('throttle_odom_path'),
             }.items()),
         Node(
             package='nav2_map_server', executable='map_server', name='map_server',
