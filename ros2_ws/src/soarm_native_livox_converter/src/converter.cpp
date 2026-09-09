@@ -43,6 +43,7 @@ bool read_field_offsets(const sensor_msgs::msg::PointCloud2 & source, uint32_t &
 bool valid_layout(const sensor_msgs::msg::PointCloud2 & source, uint32_t & x, uint32_t & y, uint32_t & z)
 {
   if (source.is_bigendian || source.point_step < sizeof(float)) return false;
+  if (source.height != 0 && source.width > std::numeric_limits<uint32_t>::max() / source.height) return false;
   if (source.width > std::numeric_limits<uint32_t>::max() / source.point_step) return false;
   const uint32_t expected_row_step = source.width * source.point_step;
   if (source.row_step != expected_row_step) return false;

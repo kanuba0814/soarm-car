@@ -1,0 +1,134 @@
+Type: sensor_msgs/msg/PointCloud2
+
+Publisher count: 1
+
+Node name: native_livox_converter
+Node namespace: /
+Topic type: sensor_msgs/msg/PointCloud2
+Endpoint type: PUBLISHER
+GID: 01.0f.89.ce.6b.0e.34.ef.00.00.00.00.00.00.12.03.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 1
+
+Node name: local_costmap
+Node namespace: /local_costmap
+Topic type: sensor_msgs/msg/PointCloud2
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.89.ce.81.0e.3b.92.00.00.00.00.00.00.59.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: BEST_EFFORT
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Type: livox_ros_driver2/msg/CustomMsg
+
+Publisher count: 1
+
+Node name: native_livox_converter
+Node namespace: /
+Topic type: livox_ros_driver2/msg/CustomMsg
+Endpoint type: PUBLISHER
+GID: 01.0f.89.ce.6b.0e.34.ef.00.00.00.00.00.00.13.03.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 1
+
+Node name: fast_lio_mapping
+Node namespace: /
+Topic type: livox_ros_driver2/msg/CustomMsg
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.89.ce.75.0e.3e.c2.00.00.00.00.00.00.13.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Type: sensor_msgs/msg/Imu
+
+Publisher count: 1
+
+Node name: kuruma_sim_adapter
+Node namespace: /
+Topic type: sensor_msgs/msg/Imu
+Endpoint type: PUBLISHER
+GID: 01.0f.89.ce.69.0e.75.f4.00.00.00.00.00.00.13.03.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 1
+
+Node name: fast_lio_mapping
+Node namespace: /
+Topic type: sensor_msgs/msg/Imu
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.89.ce.75.0e.3e.c2.00.00.00.00.00.00.14.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+/behavior_server
+/bt_navigator
+/bt_navigator_navigate_through_poses_rclcpp_node
+/bt_navigator_navigate_to_pose_rclcpp_node
+/controller_manager
+/controller_server
+/fast_lio_mapping
+/global_costmap/global_costmap
+/global_localization
+/global_map_publisher
+/gz_ros2_control
+/joint_state_broadcaster
+/kuruma_sim_adapter
+/lifecycle_manager_map
+/lifecycle_manager_navigation
+/local_costmap/local_costmap
+/localization_cmd_gate
+/map_server
+/mecanum_drive_controller
+/native_livox_converter
+/odom_path
+/planner_server
+/robot_state_publisher
+/ros_gz_bridge
+/smoother_server
+/transform_fusion
+/transform_listener_impl_5562b04ab000
+/transform_listener_impl_55bb258a4ef0
+/transform_listener_impl_55f904658d30
+/transform_listener_impl_56373f42b920
+/velocity_smoother
+/waypoint_follower

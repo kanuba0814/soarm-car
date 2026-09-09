@@ -67,6 +67,10 @@ def python_reference(source):
     return serialize_message(adapted), serialize_message(livox), len(points)
 
 
+def decoded_field_digest(message):
+    return hashlib.sha256(repr(message).encode('utf-8')).hexdigest()
+
+
 def percentile(values, percentile_value):
     ordered = sorted(values)
     return ordered[round((len(ordered) - 1) * percentile_value)]
@@ -95,6 +99,8 @@ def main():
         next_send = time.monotonic()
         adapted_latencies = []
         livox_latencies = []
+        adapted_digests = set()
+        livox_digests = set()
         for sample in range(args.samples):
             while time.monotonic() < next_send:
                 rclpy.spin_once(node, timeout_sec=min(0.01, next_send - time.monotonic()))
@@ -117,6 +123,8 @@ def main():
             expected_message = deserialize_message(expected_livox, CustomMsg)
             if actual_message != expected_message:
                 raise RuntimeError(f'Livox CustomMsg field mismatch at sample {sample}')
+            adapted_digests.add(decoded_field_digest(actual_adapted))
+            livox_digests.add(decoded_field_digest(actual_message))
             adapted_latencies.append(adapted_time - injected)
             livox_latencies.append(livox_time - injected)
             next_send += interval
@@ -127,7 +135,7 @@ def main():
             'source_stamp': {'sec': source.header.stamp.sec, 'nanosec': source.header.stamp.nanosec},
             'source_layout': {'width': source.width, 'height': source.height, 'point_step': source.point_step, 'row_step': source.row_step, 'data_bytes': len(source.data)},
             'finite_point_count': point_count,
-            'output_equality': {'adapted_all_messages': True, 'livox_all_messages': True, 'adapted_sha256': hashlib.sha256(expected_adapted).hexdigest(), 'livox_sha256': hashlib.sha256(expected_livox).hexdigest()},
+            'output_equality': {'adapted_all_messages': True, 'livox_all_messages': True, 'adapted_reference_cdr_sha256': hashlib.sha256(expected_adapted).hexdigest(), 'livox_reference_cdr_sha256': hashlib.sha256(expected_livox).hexdigest(), 'adapted_decoded_field_sha256': sorted(adapted_digests), 'livox_decoded_field_sha256': sorted(livox_digests)},
             'wall_latency_seconds': {
                 'adapted': {'median': percentile(adapted_latencies, 0.5), 'p95': percentile(adapted_latencies, 0.95), 'max': max(adapted_latencies)},
                 'livox': {'median': percentile(livox_latencies, 0.5), 'p95': percentile(livox_latencies, 0.95), 'max': max(livox_latencies)},

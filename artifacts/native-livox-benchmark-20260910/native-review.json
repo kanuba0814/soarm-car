@@ -1,0 +1,41 @@
+{
+  "label": "SYNTHETIC_10HZ_REPLAY_OF_CAPTURED_RAW_CDR",
+  "samples": 30,
+  "requested_rate_hz": 10.0,
+  "source_stamp": {
+    "sec": 201,
+    "nanosec": 400000000
+  },
+  "source_layout": {
+    "width": 720,
+    "height": 16,
+    "point_step": 32,
+    "row_step": 23040,
+    "data_bytes": 368640
+  },
+  "finite_point_count": 11083,
+  "output_equality": {
+    "adapted_all_messages": true,
+    "livox_all_messages": true,
+    "adapted_reference_cdr_sha256": "54757d899178bfbac61be7db4ab28aa7936a118e339cba74a7785ea86f5e9771",
+    "livox_reference_cdr_sha256": "d8448d62d42da35e9e618fbcd579f5f3e7edd9283eb4d2c25fdbf0f90f34dc9c",
+    "adapted_decoded_field_sha256": [
+      "5873b25474fef48f8d46395567386fc0e772f13cef700a8b90751d8a5b036ef1"
+    ],
+    "livox_decoded_field_sha256": [
+      "d5e56eb978761436d80b36f2330956f57e554d4d5a7414e39af94a7d8d327f8a"
+    ]
+  },
+  "wall_latency_seconds": {
+    "adapted": {
+      "median": 0.0022020310007064836,
+      "p95": 0.0027226759993936867,
+      "max": 0.002869936999559286
+    },
+    "livox": {
+      "median": 0.03344981600093888,
+      "p95": 0.03598017800140951,
+      "max": 0.038444633999461075
+    }
+  }
+}

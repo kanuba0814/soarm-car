@@ -8,6 +8,7 @@
 #include <cstring>
 #include <fstream>
 #include <iterator>
+#include <limits>
 #include <vector>
 
 namespace
@@ -114,6 +115,11 @@ sensor_msgs::msg::PointCloud2 minimal_cloud(size_t count)
 TEST(Converter, CapturedCloudMatchesPythonReferenceAndPreservesPayload)
 {
   const auto source = read_captured_cloud();
+  ASSERT_EQ(source.width, 720u);
+  ASSERT_EQ(source.height, 16u);
+  ASSERT_EQ(source.point_step, 32u);
+  ASSERT_EQ(source.row_step, 23040u);
+  ASSERT_EQ(source.data.size(), 368640u);
   sensor_msgs::msg::PointCloud2 adapted;
   livox_ros_driver2::msg::CustomMsg converted;
   ASSERT_TRUE(soarm_native_livox_converter::convert(source, adapted, converted));
@@ -167,5 +173,30 @@ TEST(Converter, RejectsMalformedLayoutsWithoutOutputMutation)
   EXPECT_EQ(converted.point_num, 42u);
   source = minimal_cloud(2);
   source.is_bigendian = true;
+  EXPECT_FALSE(soarm_native_livox_converter::convert(source, adapted, converted));
+  source = minimal_cloud(2);
+  source.fields[0].datatype = 2;
+  EXPECT_FALSE(soarm_native_livox_converter::convert(source, adapted, converted));
+  source = minimal_cloud(2);
+  source.fields[1].count = 2;
+  EXPECT_FALSE(soarm_native_livox_converter::convert(source, adapted, converted));
+  source = minimal_cloud(2);
+  source.fields[2].offset = source.point_step - 3;
+  EXPECT_FALSE(soarm_native_livox_converter::convert(source, adapted, converted));
+  source = minimal_cloud(2);
+  source.data.pop_back();
+  EXPECT_FALSE(soarm_native_livox_converter::convert(source, adapted, converted));
+}
+
+TEST(Converter, RejectsPointCountOverflowWithoutAllocatingPayload)
+{
+  auto source = minimal_cloud(0);
+  source.width = std::numeric_limits<uint32_t>::max() / 4;
+  source.height = 5;
+  source.point_step = 4;
+  source.row_step = 0;
+  source.data.clear();
+  sensor_msgs::msg::PointCloud2 adapted;
+  livox_ros_driver2::msg::CustomMsg converted;
   EXPECT_FALSE(soarm_native_livox_converter::convert(source, adapted, converted));
 }
