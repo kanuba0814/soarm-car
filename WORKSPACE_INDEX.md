@@ -17,7 +17,7 @@
 
 | 本机路径（均在 `/home/gxxl/`） | 分支 / 核对 HEAD | 用途与使用边界 |
 |---|---|---|
-| `soarm-car-graduation` | `integration/graduation-assistant` / `ee29af9` | **当前产品功能集成工作区**：恢复快照、命名请求、语义记忆、VL裁剪和只读工作台已合并。入口 http://127.0.0.1:8766；说明 `docs/robot-workspace.md`，批次追溯 `docs/research/unattended-graduation-experiments.md`。 |
+| `soarm-car-graduation` | `integration/graduation-assistant` / `9b9dd2d` | **当前产品功能集成工作区**：恢复快照、命名请求、语义记忆、VL裁剪和只读工作台已合并。入口 http://127.0.0.1:8766；说明 `docs/robot-workspace.md`，批次追溯 `docs/research/unattended-graduation-experiments.md`。 |
 | `soarm-car-nav-recovery` | `experiment/nav-baseline-recovery` / `33187ea` | 原导航当前状态恢复快照，两个独立恢复验证通过；已合并集成分支 `75cbe01`，未修改原导航。 |
 | `soarm-car-nav2-clean` | `experiment/nav2-clean-baseline` / `41463f9` | **现有自主导航优先复用基线**：球轮 `kuruma_ros2_control`、FAST-LIO、Smac、全向 MPPI；有多房间成功记录。当前有修改及未跟踪脚本，不能仅凭 HEAD 还原当前成功实现。 |
 | `soarm-car-companion-validation` | `research/companion-home-validation` / `08f5eb2` | 家具住宅 GUI、RGB-D、论文包及手动演示。最新演示是球轮 + Fortress `VelocityControl` 运动学近似，不是上述 ros2_control 导航基线。 |
@@ -27,6 +27,16 @@
 | `soarm-car-hm3d-apartments` | `feature/hm3d-apartment-worlds` / `9e8228a` | HM3D apartment_a/b 家庭场景与资产转换；资产许可和忽略文件需另行恢复。 |
 | `soarm-car-larger-house` | `feature/larger-house-clearance` / `5148af6` | 房屋尺度/净空与定位场景历史分支。 |
 | `soarm-car-companion-nav` | `research/companion-nav-knownpose` / `4035770` | AWS 已知自身位姿研究支线，保留 ABORTED 记录；**不作为现有导航的替代入口**，也不代表其他分支导航失败。 |
+
+### Intel自主探索批次（进行中）
+
+| 工作树 | 分支 | 当前职责 |
+|---|---|---|
+| `soarm-car-intel-runtime` | `experiment/intel-runtime` | Intel渲染与传感器验证、运行环境交接；独占仿真直到明确释放。不得使用历史NVIDIA启动补丁。 |
+| `soarm-car-frontier-core` | `experiment/frontier-core` | CPU先验地图辅助前沿算法；观察网格与先验分离，评审/修正后才能实跑。 |
+| `soarm-car-exploration-runtime` | `experiment/exploration-runtime` | 在原消费者任务选择处扩展探索，单一共享动作传输；等待Intel与核心验收后进行真实端到端验证。 |
+
+验收契约：集成工作区 `docs/research/intel-exploration-contract.md`。模式明确为先验地图辅助探索，不称为未知环境SLAM。
 
 ### 本批辅助实验工作树（均在 `/home/gxxl/`，已合并者优先使用集成工作区）
 
