@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/workspaces/soarm-car/scripts/nav2-clean-route-consumer.py", line 350, in <module>
+    sys.exit(main())
+  File "/workspaces/soarm-car/scripts/nav2-clean-route-consumer.py", line 175, in main
+    raise RuntimeError('sensor/FAST-LIO readiness unavailable')
+RuntimeError: sensor/FAST-LIO readiness unavailable

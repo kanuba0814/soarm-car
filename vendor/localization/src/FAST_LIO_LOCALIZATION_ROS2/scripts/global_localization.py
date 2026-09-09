@@ -2,6 +2,7 @@
 # coding=utf-8
 
 import copy
+import json
 import threading
 import time
 import numpy as np
@@ -106,6 +107,7 @@ class GlobalLocalizationNode(Node):
         self.declare_parameter('health_heartbeat_rate', 10.0)
         self.declare_parameter('map_id', '')
         self.declare_parameter('input_freshness_timeout', 0.5)
+        self.declare_parameter('health_diagnostics_trace', False)
 
         self.map_voxel_size    = self.get_parameter('map_voxel_size').value
         self.scan_voxel_size   = self.get_parameter('scan_voxel_size').value
@@ -146,6 +148,8 @@ class GlobalLocalizationNode(Node):
         self.map_id = self.get_parameter('map_id').value
         self.input_freshness = InputFreshness(
             self.get_parameter('input_freshness_timeout').value)
+        self.health_diagnostics_trace = bool(
+            self.get_parameter('health_diagnostics_trace').value)
 
         # ─── State Variables ─────────────────────────────────────
         self.global_map    = None
@@ -262,6 +266,15 @@ class GlobalLocalizationNode(Node):
         message.state = self.health_tracker.state if inputs_fresh else DEGRADED
         message.reason_mask = (self.health_tracker.reason_mask if inputs_fresh else
                                self.health_tracker.reason_mask | REASON_STALE_INPUT)
+        if self.health_diagnostics_trace:
+            now_wall = time.monotonic()
+            self.get_logger().info('health_trace ' + json.dumps({
+                'input_freshness': self.input_freshness.diagnostics(now_wall),
+                'node_clock_ns': self.get_clock().now().nanoseconds,
+                'publish_wall_monotonic': now_wall,
+                'state': message.state,
+                'reason_mask': message.reason_mask,
+            }, sort_keys=True))
         accepted_ns = self.health_tracker.last_accepted_stamp_ns
         message.last_accepted_correction_stamp.sec = accepted_ns // 1_000_000_000
         message.last_accepted_correction_stamp.nanosec = accepted_ns % 1_000_000_000

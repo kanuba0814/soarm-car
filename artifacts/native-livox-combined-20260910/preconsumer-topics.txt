@@ -1,0 +1,9 @@
+Type: rosgraph_msgs/msg/Clock
+Publisher count: 1
+Subscription count: 16
+Type: sensor_msgs/msg/PointCloud2
+Publisher count: 1
+Subscription count: 1
+Type: livox_ros_driver2/msg/CustomMsg
+Publisher count: 1
+Subscription count: 1

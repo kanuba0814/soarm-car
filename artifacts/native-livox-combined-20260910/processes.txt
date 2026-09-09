@@ -1,0 +1,8 @@
+      1 ros2            /usr/bin/python3 /opt/ros/humble/bin/ros2 launch soarm_navigation house_fastlio_nav2.launch.py rviz:=false use_native_livox_converter:=true throttle_odom_path:=true
+   3682 sh              /bin/sh -c ruby /usr/bin/ign gazebo -r -s /tmp/soarm_ros2/install/soarm_simulation/share/soarm_simulation/worlds/house_floorplan_ros2_control.sdf --force-version 6
+   3685 ruby            ign gazebo -r -s /tmp/soarm_ros2/install/soarm_simulation/share/soarm_simulation/worlds/house_floorplan_ros2_control.sdf
+   3687 parameter_bridg /opt/ros/humble/lib/ros_gz_bridge/parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock /ground_truth/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry /gazebo/imu@sensor_msgs/msg/Imu[gz.msgs.IMU /gazebo/livox_imu@sensor_msgs/msg/Imu[gz.msgs.IMU /camera/image@sensor_msgs/msg/Image[gz.msgs.Image /camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo /camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image /mid360/scan/points/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args
+   3691 native_livox_co /tmp/soarm_ros2/install/soarm_native_livox_converter/lib/soarm_native_livox_converter/native_livox_converter --ros-args
+   3703 python3         python3 /tmp/soarm_ros2/install/fast_lio_localization/lib/fast_lio_localization/global_localization.py --ros-args -r __node:=global_localization --params-file /tmp/soarm_ros2/install/fast_lio_localization/share/fast_lio_localization/config/soarm_house_localization.yaml --params-file /tmp/launch_params_yqsivedk
+   4147 bash            bash -lc ps -eo pid,comm,args | grep -E "ign|gz|ros_gz|global_localization|native_livox"
+   4156 grep            grep -E ign|gz|ros_gz|global_localization|native_livox

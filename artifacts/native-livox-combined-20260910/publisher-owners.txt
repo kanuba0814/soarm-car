@@ -1,0 +1,87 @@
+Type: sensor_msgs/msg/PointCloud2
+
+Publisher count: 1
+
+Node name: native_livox_converter
+Node namespace: /
+Topic type: sensor_msgs/msg/PointCloud2
+Endpoint type: PUBLISHER
+GID: 01.0f.89.ce.6b.0e.0c.ba.00.00.00.00.00.00.12.03.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 0
+
+Type: livox_ros_driver2/msg/CustomMsg
+
+Publisher count: 1
+
+Node name: native_livox_converter
+Node namespace: /
+Topic type: livox_ros_driver2/msg/CustomMsg
+Endpoint type: PUBLISHER
+GID: 01.0f.89.ce.6b.0e.0c.ba.00.00.00.00.00.00.13.03.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 1
+
+Node name: fast_lio_mapping
+Node namespace: /
+Topic type: livox_ros_driver2/msg/CustomMsg
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.89.ce.75.0e.84.35.00.00.00.00.00.00.13.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Type: sensor_msgs/msg/Imu
+
+Publisher count: 1
+
+Node name: kuruma_sim_adapter
+Node namespace: /
+Topic type: sensor_msgs/msg/Imu
+Endpoint type: PUBLISHER
+GID: 01.0f.89.ce.69.0e.d5.71.00.00.00.00.00.00.13.03.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite
+
+Subscription count: 1
+
+Node name: fast_lio_mapping
+Node namespace: /
+Topic type: sensor_msgs/msg/Imu
+Endpoint type: SUBSCRIPTION
+GID: 01.0f.89.ce.75.0e.84.35.00.00.00.00.00.00.14.04.00.00.00.00.00.00.00.00
+QoS profile:
+  Reliability: RELIABLE
+  History (Depth): UNKNOWN
+  Durability: VOLATILE
+  Lifespan: Infinite
+  Deadline: Infinite
+  Liveliness: AUTOMATIC
+  Liveliness lease duration: Infinite

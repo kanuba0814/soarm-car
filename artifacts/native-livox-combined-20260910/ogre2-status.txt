@@ -1,0 +1,1 @@
+unavailable: no /root/.ignition/rendering/ogre2.log; simulator clock never emitted
