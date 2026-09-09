@@ -1,5 +1,6 @@
 {
   "scope": "A1_DEVELOPMENT_V3_RELATION_CORRECTION_ORIGINAL_LAYOUT_ONLY",
+  "superseded_by": "a1-visualconf-dev-v4: corrected RIGHT-positive axis and empty definite-target score denominator",
   "supersedes": {"a1-visualconf-dev-v2": "relation semantics superseded: v2 discarded perturbed component geometry and did not enforce side-of-table intervals"},
   "rules": "config/a1_visualconf_dev_v1.json version a1-visualconf-dev-v3-relation-correction",
   "replay": {

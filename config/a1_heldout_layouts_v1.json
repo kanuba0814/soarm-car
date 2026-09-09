@@ -1,0 +1,14 @@
+{
+  "version": "a1-heldout-layouts-v1",
+  "scene_ids": ["a1-heldout-seed101", "a1-heldout-seed103", "a1-heldout-seed107"],
+  "source_asset_lock": {"world": "worlds/small_house.world", "world_sha256": "eb25db9b0a7ca10574fa6f908a10a47a6467c8f805785b54c8f3fa74980d6816", "repository_commit": "e2f90621f0fd1a0c496f4e7fcca06138808bc2ec"},
+  "fixed_survey_pose_config": "config/companion_instance_survey.json",
+  "attempt_bound_per_view": 2,
+  "layouts": [
+    {"seed": 101, "scene_id": "a1-heldout-seed101", "transforms": [{"name": "ChairA_01_001", "radial_shift_m": 0.34, "tangential_shift_m": 0.12}, {"name": "ChairA_01_002", "radial_shift_m": 0.48, "tangential_shift_m": -0.16}, {"name": "ChairA_01_003", "radial_shift_m": 0.39, "tangential_shift_m": 0.18}]},
+    {"seed": 103, "scene_id": "a1-heldout-seed103", "transforms": [{"name": "ChairA_01_001", "radial_shift_m": 0.55, "tangential_shift_m": -0.10}, {"name": "ChairA_01_002", "radial_shift_m": 0.31, "tangential_shift_m": 0.20}, {"name": "ChairA_01_003", "radial_shift_m": 0.44, "tangential_shift_m": -0.19}]},
+    {"seed": 107, "scene_id": "a1-heldout-seed107", "transforms": [{"name": "ChairA_01_001", "radial_shift_m": 0.42, "tangential_shift_m": -0.21}, {"name": "ChairA_01_002", "radial_shift_m": 0.58, "tangential_shift_m": 0.09}, {"name": "ChairA_01_003", "radial_shift_m": 0.33, "tangential_shift_m": -0.22}]}
+  ],
+  "geometry_checks": {"chair_radius_m": 0.28, "minimum_changed_pair_clearance_m": 0.08, "world_xy_bounds_m": [-8.0, 8.0, -6.0, 4.0], "limitation": "Checks only changed-chair disc separation and declared world bounds. They are not whole-house collision, wall clearance, reachability, or renderer feasibility certification."},
+  "planned_protocol": {"views_per_layout": 8, "queries_per_view_budget": 6, "variants": 4, "planned_rows_per_layout": 24, "planned_rows_total": 72, "capture_gates": ["source-time pose", "full-window attitude <=5 degrees", "RGB-D sync", "private segmentation sync"], "public_isolation": "bwrap public method after capture", "evaluation": "unchanged private evaluator after frozen public output"}
+}

@@ -319,7 +319,8 @@ def relation_values(kind, tracks, heading, rules):
     required = [anchor] + chairs
     if any(track.get("relation_geometry_failures") or not track.get("relation_surface_envelopes") for track in required):
         return None, "perturbation_geometry_failed"
-    lateral = np.array([-math.sin(heading), math.cos(heading)])
+    # Frozen horizontal convention: RIGHT is positive, so LEFT is negative.
+    lateral = np.array([math.sin(heading), -math.cos(heading)])
     intervals = {}
     for chair in chairs:
         values = []

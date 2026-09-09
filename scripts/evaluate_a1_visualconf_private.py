@@ -176,7 +176,8 @@ def ground_truth_answers(instances, reference_heading, rules):
         return answers
     table = tables[0]
     table_xy = np.median(np.asarray(table["surface_voxels_2cm"])[:, :2], axis=0)
-    lateral = np.array([-math.sin(reference_heading), math.cos(reference_heading)])
+    # Independent evaluator uses the same documented RIGHT-positive axis.
+    lateral = np.array([math.sin(reference_heading), -math.cos(reference_heading)])
     uncertainty = 2 * rules["surface_voxel_m"]
     side = {item["identity"]: float(np.dot(np.median(np.asarray(item["surface_voxels_2cm"])[:, :2], axis=0) - table_xy, lateral)) for item in chairs}
     gaps = {item["identity"]: surface_gap(item, table) for item in chairs}
@@ -199,17 +200,20 @@ def ground_truth_answers(instances, reference_heading, rules):
 def outcome(record, answer, identities):
     ranking = record["forced_ranking"]
     if answer["status"] != "definite":
-        return {"candidate_recall": None, "forced_top1": None, "mrr": None, "accepted_correct": None, "score_status": "unknown_gt_" + answer["status"]}
+        return {"candidate_recall": None, "forced_top1": None, "mrr": None, "mrr_lower_bound": None, "mrr_upper_bound": None, "accepted_correct": None, "score_status": "unknown_gt_" + answer["status"]}
     matched = [item for item in ranking if identities[item["track_id"]]["status"] == "verified"]
     uncertain = [item for item in ranking if identities[item["track_id"]]["status"] != "verified"]
     candidate_positions = [index + 1 for index, item in enumerate(ranking) if identities[item["track_id"]]["status"] == "verified" and identities[item["track_id"]]["identity"] in answer["identities"]]
     candidate_recall = True if candidate_positions else (None if uncertain else False)
     top = ranking[0] if ranking else None
-    top1 = None if top is None or identities[top["track_id"]]["status"] != "verified" else identities[top["track_id"]]["identity"] in answer["identities"]
-    mrr = 1.0 / candidate_positions[0] if candidate_positions else (None if uncertain else 0.0)
+    top1 = False if top is None else (None if identities[top["track_id"]]["status"] != "verified" else identities[top["track_id"]]["identity"] in answer["identities"])
+    mrr = 1.0 / candidate_positions[0] if candidate_positions and not uncertain else (None if uncertain else 0.0)
+    mrr_lower = 1.0 / candidate_positions[0] if candidate_positions else 0.0
+    uncertain_positions = [index + 1 for index, item in enumerate(ranking) if identities[item["track_id"]]["status"] != "verified"]
+    mrr_upper = 1.0 / min(uncertain_positions) if uncertain_positions else mrr_lower
     accepted = record["accepted_track_id"]
     accepted_correct = None if accepted is None or identities[accepted]["status"] != "verified" else identities[accepted]["identity"] in answer["identities"]
-    return {"candidate_recall": candidate_recall, "forced_top1": top1, "mrr": mrr, "accepted_correct": accepted_correct, "score_status": "measured" if not uncertain else "partial_identity_uncertainty"}
+    return {"candidate_recall": candidate_recall, "forced_top1": top1, "mrr": mrr, "mrr_lower_bound": mrr_lower, "mrr_upper_bound": mrr_upper, "accepted_correct": accepted_correct, "score_status": "measured" if not uncertain else "partial_identity_uncertainty"}
 
 
 def mean_known(rows, key):
@@ -245,6 +249,9 @@ def main():
     accepted = [row for row in definite if row["accepted_track_id"] is not None]
     metrics = {"records": len(rows), "definite_gt_rows": len(definite), "candidate_recall": mean_known(definite, "candidate_recall"), "forced_top1": mean_known(definite, "forced_top1"), "mrr": mean_known(definite, "mrr"), "accepted_coverage": len(accepted) / len(definite) if definite else None, "wrong_accepted": sum(row["accepted_correct"] is False for row in accepted), "unknown_identity_score_rows": sum(row["score_status"] != "measured" for row in rows), "relation_unknown_rows": sum(row["public_relation_status"] == "unknown" for row in rows), "relation_reason_denominators": {reason: sum(row["public_relation_reason"] == reason for row in rows) for reason in sorted({row["public_relation_reason"] for row in rows if row["public_relation_reason"]})}}
     foreground_rows = [item["foreground"] for track in identities.values() for item in track["constituents"] if item.get("foreground")]
+    metrics["known_score_counts"] = {key: sum(row[key] is not None for row in definite) for key in ("candidate_recall", "forced_top1", "mrr", "accepted_correct")}
+    metrics["mrr_lower_bound"] = mean_known(definite, "mrr_lower_bound")
+    metrics["mrr_upper_bound"] = mean_known(definite, "mrr_upper_bound")
     metrics["foreground_purity_mean"] = mean_known(foreground_rows, "purity")
     metrics["foreground_coverage_mean"] = mean_known(foreground_rows, "coverage")
     report = {"scope": "PRIVATE_EVALUATOR_ONLY_INDEPENDENT_OF_PUBLIC_FOREGROUND", "taxonomy_version": "a1-taxonomy-v2-explicit-assets", "taxonomy": TAXONOMY, "rules": {"constituent_assignment": "deterministic_maximum_weight_one_to_one_class_matched_iou_ge_0.5", "identity_rule": "verified only when every constituent matches one distinct identity; unmatched is uncertain and distinct identities are contamination", "relation": "private-mask observed-surface configured voxels; obs001 heading; bidirectional 10th-percentile gap; configured ambiguity and side margins widened by private voxel uncertainty"}, "input_hashes": {"method": sha256(args.method), "config": sha256(args.config), "private_instances": sha256(args.private_dir / "instances.json"), "public_calibration": sha256(args.public_input_dir / "calibration_selfpose.json")}, "ground_truth_instances": list(instances.values()), "ground_truth_answers": answers, "constituent_assignments": assignment_diagnostics, "track_identities": identities, "rows": rows, "metrics": metrics}

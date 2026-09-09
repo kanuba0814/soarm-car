@@ -17,7 +17,7 @@ class PublicA1InvariantTests(unittest.TestCase):
     def detection(self, observation_id, index, box, pixels, xy, label="chair"):
         return {"observation_id": observation_id, "detection_index": index, "label": label, "confidence": .8, "box_xyxy": box, "foreground": {"failure": None, "pixels_rc": pixels, "world_points": [[xy[0], xy[1], .4], [xy[0] + .02, xy[1], .4]], "xy_median_m": xy, "sensitivity": {"max_xy_shift_m": .01, "measurements": []}}}
 
-    def relation_tracks(self, chair_y=-.5):
+    def relation_tracks(self, chair_y=.5):
         chair = {"track_id": "chair", "label": "chair", "detections": [self.detection("obs_001", 0, [0, 0, 20, 20], [[0, 0], [0, 1]], [1.0, chair_y])], "status": "active"}
         table_detection = self.detection("obs_001", 1, [30, 0, 60, 20], [[0, 30], [0, 31]], [1.0, 0.0], "dining table")
         table = {"track_id": "table", "label": "dining table", "detections": [table_detection], "status": "active"}
@@ -57,26 +57,33 @@ class PublicA1InvariantTests(unittest.TestCase):
         np.testing.assert_allclose(origin, [1.0, 2.18, 3.2263], atol=1e-8)
         np.testing.assert_allclose(rotation @ np.array([0.0, 0.0, 1.0]), [0.0, 1.0, 0.0], atol=1e-8)
 
-    def test_positive_left_side_is_accepted(self):
-        chair, table = self.relation_tracks(-.5)
+    def test_right_positive_axis_classifies_h0_y_positive_as_left(self):
+        chair, table = self.relation_tracks(.5)
         row = self.relation_row([chair, table])
         self.assertEqual(row["accepted_track_id"], "chair")
 
-    def test_all_chairs_on_wrong_side_abstain(self):
+    def test_right_positive_axis_classifies_h90_x_negative_as_left(self):
         chair, table = self.relation_tracks(.5)
+        chair["relation_surface_envelopes"] = [[[-1.0, 0.0, .4], [-.98, 0.0, .4]]]
+        table["relation_surface_envelopes"] = [[[0.0, 0.0, .4], [.02, 0.0, .4]]]
+        rows = make_records({"rules": RULES, "queries": [{"id": "Q3", "kind": "leftmost_chair_left_table"}]}, [chair, table], math.pi / 2)
+        self.assertEqual(next(row for row in rows if row["variant"] == "V+R")["accepted_track_id"], "chair")
+
+    def test_all_chairs_on_wrong_side_abstain(self):
+        chair, table = self.relation_tracks(-.5)
         row = self.relation_row([chair, table])
         self.assertIsNone(row["accepted_track_id"])
         self.assertEqual(row["abstain_reason"], "no_definite_left_side")
 
     def test_anchor_perturbation_reversal_abstains(self):
-        chair, table = self.relation_tracks(-.4)
-        table["relation_surface_envelopes"].append([[1.0, -.6, .4], [1.02, -.6, .4]])
+        chair, table = self.relation_tracks(.4)
+        table["relation_surface_envelopes"].append([[1.0, .6, .4], [1.02, .6, .4]])
         row = self.relation_row([chair, table])
         self.assertIsNone(row["accepted_track_id"])
         self.assertEqual(row["relation_status"], "unknown")
 
     def test_failed_perturbation_is_unknown(self):
-        chair, table = self.relation_tracks(-.5)
+        chair, table = self.relation_tracks(.5)
         table["relation_geometry_failures"] = [{"measurement": {"failure": "foreground_ambiguous"}}]
         row = self.relation_row([chair, table])
         self.assertEqual(row["abstain_reason"], "perturbation_geometry_failed")
