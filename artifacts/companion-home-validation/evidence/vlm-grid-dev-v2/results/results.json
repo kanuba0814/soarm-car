@@ -1,0 +1,524 @@
+{
+  "scope": "DEV_ONLY_FORMAT_COMPARISON_NO_ACTION_EXECUTION",
+  "v1_preserved_at": "artifacts/companion-home-validation/evidence/vlm-grid-dev-v1/results/results.json",
+  "model": {
+    "id": "HuggingFaceTB/SmolVLM-500M-Instruct",
+    "revision": "a7da5b986cb59b408707209984f360a5f4ad7e47"
+  },
+  "runtime": {
+    "device": "cuda",
+    "load_seconds": 1.811758664000081,
+    "peak_cuda_allocated_mib": 1371.857421875,
+    "per_query_latency_seconds": [
+      0.6775533180007187,
+      0.2444776650008862,
+      0.3788956610005698,
+      0.23048186000232818,
+      0.22916320800140966,
+      0.309260264999466,
+      0.2463003970005957,
+      0.24615860499761766,
+      0.3316785780007194,
+      0.2442814219975844,
+      0.2438591530008125,
+      0.38238065199766424
+    ]
+  },
+  "prompts": {
+    "strict_json_prompt": "The image has opaque integer candidate labels drawn on boxes. Select the one candidate that is most useful as a nearby movable seating target. Select only a visible label, or NONE. Do not invent labels, coordinates, motion, or a route. Return exactly JSON: {\"candidate_id\":\"integer or NONE\",\"scene_description\":\"short factual description\"}.",
+    "simple_id_prompt": "The image has integer candidate labels drawn on boxes. Which visible candidate is a chair? Answer exactly one integer label, or NONE. No other text.",
+    "description_prompt": "Describe the visible indoor scene in one short factual sentence. Do not infer navigation, motion, or objects outside the image."
+  },
+  "records": [
+    {
+      "observation_id": "obs_001",
+      "candidate_label_to_opaque_id": {
+        "0": "obs_001:0",
+        "1": "obs_001:1"
+      },
+      "processor_input": {
+        "strict_annotated": {
+          "source_mode": "RGB",
+          "source_size_px": [
+            640,
+            480
+          ],
+          "chat_template_sha256": "a9f5b92e7fddb0f98ec3cc1ffb30e7114e1d708398a647445adfc55d7832c94a",
+          "tensor_shapes": {
+            "pixel_values": [
+              1,
+              13,
+              3,
+              512,
+              512
+            ],
+            "pixel_attention_mask": [
+              1,
+              13,
+              512,
+              512
+            ],
+            "input_ids": [
+              1,
+              942
+            ],
+            "attention_mask": [
+              1,
+              942
+            ]
+          }
+        },
+        "simple_annotated": {
+          "source_mode": "RGB",
+          "source_size_px": [
+            640,
+            480
+          ],
+          "chat_template_sha256": "f006ef40c9e22c6e8301cc07d244002b8375cc4500be5bb76e8fc2ddab033b80",
+          "tensor_shapes": {
+            "pixel_values": [
+              1,
+              13,
+              3,
+              512,
+              512
+            ],
+            "pixel_attention_mask": [
+              1,
+              13,
+              512,
+              512
+            ],
+            "input_ids": [
+              1,
+              901
+            ],
+            "attention_mask": [
+              1,
+              901
+            ]
+          }
+        },
+        "description_plain_rgb": {
+          "source_mode": "RGB",
+          "source_size_px": [
+            640,
+            480
+          ],
+          "chat_template_sha256": "5ab2284de6cb944f45feffc65329c10c3fd876c2cac2e21bdf45bce14d2cb235",
+          "tensor_shapes": {
+            "pixel_values": [
+              1,
+              13,
+              3,
+              512,
+              512
+            ],
+            "pixel_attention_mask": [
+              1,
+              13,
+              512,
+              512
+            ],
+            "input_ids": [
+              1,
+              894
+            ],
+            "attention_mask": [
+              1,
+              894
+            ]
+          }
+        }
+      },
+      "raw_outputs": {
+        "strict_json": " 1.",
+        "simple_id": " 1.",
+        "plain_description": " There are desks in a room with a white wall in the background."
+      },
+      "format_checks": {
+        "strict_json_valid": false,
+        "strict_json_error": "invalid_json",
+        "strict_candidate_label": null,
+        "simple_exact_valid": false,
+        "simple_exact_label": null,
+        "simple_opaque_id": null
+      },
+      "latency_seconds": {
+        "strict_json": 0.6775533180007187,
+        "simple_id": 0.2444776650008862,
+        "plain_description": 0.3788956610005698
+      }
+    },
+    {
+      "observation_id": "obs_002",
+      "candidate_label_to_opaque_id": {
+        "0": "obs_002:0",
+        "1": "obs_002:1",
+        "2": "obs_002:2",
+        "3": "obs_002:3"
+      },
+      "processor_input": {
+        "strict_annotated": {
+          "source_mode": "RGB",
+          "source_size_px": [
+            640,
+            480
+          ],
+          "chat_template_sha256": "a9f5b92e7fddb0f98ec3cc1ffb30e7114e1d708398a647445adfc55d7832c94a",
+          "tensor_shapes": {
+            "pixel_values": [
+              1,
+              13,
+              3,
+              512,
+              512
+            ],
+            "pixel_attention_mask": [
+              1,
+              13,
+              512,
+              512
+            ],
+            "input_ids": [
+              1,
+              942
+            ],
+            "attention_mask": [
+              1,
+              942
+            ]
+          }
+        },
+        "simple_annotated": {
+          "source_mode": "RGB",
+          "source_size_px": [
+            640,
+            480
+          ],
+          "chat_template_sha256": "f006ef40c9e22c6e8301cc07d244002b8375cc4500be5bb76e8fc2ddab033b80",
+          "tensor_shapes": {
+            "pixel_values": [
+              1,
+              13,
+              3,
+              512,
+              512
+            ],
+            "pixel_attention_mask": [
+              1,
+              13,
+              512,
+              512
+            ],
+            "input_ids": [
+              1,
+              901
+            ],
+            "attention_mask": [
+              1,
+              901
+            ]
+          }
+        },
+        "description_plain_rgb": {
+          "source_mode": "RGB",
+          "source_size_px": [
+            640,
+            480
+          ],
+          "chat_template_sha256": "5ab2284de6cb944f45feffc65329c10c3fd876c2cac2e21bdf45bce14d2cb235",
+          "tensor_shapes": {
+            "pixel_values": [
+              1,
+              13,
+              3,
+              512,
+              512
+            ],
+            "pixel_attention_mask": [
+              1,
+              13,
+              512,
+              512
+            ],
+            "input_ids": [
+              1,
+              894
+            ],
+            "attention_mask": [
+              1,
+              894
+            ]
+          }
+        }
+      },
+      "raw_outputs": {
+        "strict_json": " A.",
+        "simple_id": " A.",
+        "plain_description": " A room with a piano and cabinets."
+      },
+      "format_checks": {
+        "strict_json_valid": false,
+        "strict_json_error": "invalid_json",
+        "strict_candidate_label": null,
+        "simple_exact_valid": false,
+        "simple_exact_label": null,
+        "simple_opaque_id": null
+      },
+      "latency_seconds": {
+        "strict_json": 0.23048186000232818,
+        "simple_id": 0.22916320800140966,
+        "plain_description": 0.309260264999466
+      }
+    },
+    {
+      "observation_id": "obs_003",
+      "candidate_label_to_opaque_id": {
+        "0": "obs_003:0",
+        "1": "obs_003:1",
+        "2": "obs_003:2"
+      },
+      "processor_input": {
+        "strict_annotated": {
+          "source_mode": "RGB",
+          "source_size_px": [
+            640,
+            480
+          ],
+          "chat_template_sha256": "a9f5b92e7fddb0f98ec3cc1ffb30e7114e1d708398a647445adfc55d7832c94a",
+          "tensor_shapes": {
+            "pixel_values": [
+              1,
+              13,
+              3,
+              512,
+              512
+            ],
+            "pixel_attention_mask": [
+              1,
+              13,
+              512,
+              512
+            ],
+            "input_ids": [
+              1,
+              942
+            ],
+            "attention_mask": [
+              1,
+              942
+            ]
+          }
+        },
+        "simple_annotated": {
+          "source_mode": "RGB",
+          "source_size_px": [
+            640,
+            480
+          ],
+          "chat_template_sha256": "f006ef40c9e22c6e8301cc07d244002b8375cc4500be5bb76e8fc2ddab033b80",
+          "tensor_shapes": {
+            "pixel_values": [
+              1,
+              13,
+              3,
+              512,
+              512
+            ],
+            "pixel_attention_mask": [
+              1,
+              13,
+              512,
+              512
+            ],
+            "input_ids": [
+              1,
+              901
+            ],
+            "attention_mask": [
+              1,
+              901
+            ]
+          }
+        },
+        "description_plain_rgb": {
+          "source_mode": "RGB",
+          "source_size_px": [
+            640,
+            480
+          ],
+          "chat_template_sha256": "5ab2284de6cb944f45feffc65329c10c3fd876c2cac2e21bdf45bce14d2cb235",
+          "tensor_shapes": {
+            "pixel_values": [
+              1,
+              13,
+              3,
+              512,
+              512
+            ],
+            "pixel_attention_mask": [
+              1,
+              13,
+              512,
+              512
+            ],
+            "input_ids": [
+              1,
+              894
+            ],
+            "attention_mask": [
+              1,
+              894
+            ]
+          }
+        }
+      },
+      "raw_outputs": {
+        "strict_json": " 1.",
+        "simple_id": " 1.",
+        "plain_description": " There are chairs and tables in an empty room."
+      },
+      "format_checks": {
+        "strict_json_valid": false,
+        "strict_json_error": "invalid_json",
+        "strict_candidate_label": null,
+        "simple_exact_valid": false,
+        "simple_exact_label": null,
+        "simple_opaque_id": null
+      },
+      "latency_seconds": {
+        "strict_json": 0.2463003970005957,
+        "simple_id": 0.24615860499761766,
+        "plain_description": 0.3316785780007194
+      }
+    },
+    {
+      "observation_id": "obs_004",
+      "candidate_label_to_opaque_id": {
+        "0": "obs_004:0",
+        "1": "obs_004:2"
+      },
+      "processor_input": {
+        "strict_annotated": {
+          "source_mode": "RGB",
+          "source_size_px": [
+            640,
+            480
+          ],
+          "chat_template_sha256": "a9f5b92e7fddb0f98ec3cc1ffb30e7114e1d708398a647445adfc55d7832c94a",
+          "tensor_shapes": {
+            "pixel_values": [
+              1,
+              13,
+              3,
+              512,
+              512
+            ],
+            "pixel_attention_mask": [
+              1,
+              13,
+              512,
+              512
+            ],
+            "input_ids": [
+              1,
+              942
+            ],
+            "attention_mask": [
+              1,
+              942
+            ]
+          }
+        },
+        "simple_annotated": {
+          "source_mode": "RGB",
+          "source_size_px": [
+            640,
+            480
+          ],
+          "chat_template_sha256": "f006ef40c9e22c6e8301cc07d244002b8375cc4500be5bb76e8fc2ddab033b80",
+          "tensor_shapes": {
+            "pixel_values": [
+              1,
+              13,
+              3,
+              512,
+              512
+            ],
+            "pixel_attention_mask": [
+              1,
+              13,
+              512,
+              512
+            ],
+            "input_ids": [
+              1,
+              901
+            ],
+            "attention_mask": [
+              1,
+              901
+            ]
+          }
+        },
+        "description_plain_rgb": {
+          "source_mode": "RGB",
+          "source_size_px": [
+            640,
+            480
+          ],
+          "chat_template_sha256": "5ab2284de6cb944f45feffc65329c10c3fd876c2cac2e21bdf45bce14d2cb235",
+          "tensor_shapes": {
+            "pixel_values": [
+              1,
+              13,
+              3,
+              512,
+              512
+            ],
+            "pixel_attention_mask": [
+              1,
+              13,
+              512,
+              512
+            ],
+            "input_ids": [
+              1,
+              894
+            ],
+            "attention_mask": [
+              1,
+              894
+            ]
+          }
+        }
+      },
+      "raw_outputs": {
+        "strict_json": " 0.",
+        "simple_id": " 0.",
+        "plain_description": " A 3d rendering of a room with chairs and a table."
+      },
+      "format_checks": {
+        "strict_json_valid": false,
+        "strict_json_error": "invalid_json",
+        "strict_candidate_label": null,
+        "simple_exact_valid": false,
+        "simple_exact_label": null,
+        "simple_opaque_id": null
+      },
+      "latency_seconds": {
+        "strict_json": 0.2442814219975844,
+        "simple_id": 0.2438591530008125,
+        "plain_description": 0.38238065199766424
+      }
+    }
+  ],
+  "summary": {
+    "observations": 4,
+    "strict_json_valid": 0,
+    "simple_exact_valid": 0,
+    "plain_nonempty_descriptions": 4
+  },
+  "replay": "python scripts/run_vlm_grid_format_v2.py --public-dir artifacts/companion-home-validation/evidence/vlm-grid-dev-v1/public-input --config config/vlm_grid_dev_v2.json --model-dir /home/gxxl/.cache/soarm-vlm-grid/models/smolvlm-500m --output-dir <new-output-dir>"
+}

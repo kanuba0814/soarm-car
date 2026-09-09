@@ -50,7 +50,7 @@ $PYTHON scripts/run_vlm_grid_demo.py \
   --output-dir /tmp/vlm-grid-results
 ```
 
-No token, authentication, remote-code trust, upload, or model package upgrade is used. The weights are intentionally outside Git; the pinned revision and file checksums in the result provide restoration evidence. Qwen3-VL was not downloaded or attempted because the required one-model acceptance was met and this is a bounded 8 GB first-run budget, not a model tournament.
+No token, authentication, remote-code trust, upload, or model package upgrade is used. The weights are intentionally outside Git; the pinned revision and file checksums in the result provide restoration evidence. Follow-up v2 retains this v1 evidence unchanged and records a bounded Qwen3-VL download attempt plus prompt-format comparison in `docs/research/vlm-grid-dev-v2.md`.
 
 ## Residual Risks
 

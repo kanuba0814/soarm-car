@@ -1,0 +1,15 @@
+{
+  "scope": "DEV_ONLY_VLM_FORMAT_COMPARISON_V2",
+  "supersedes": "none; v1 remains immutable strict-JSON/grid evidence",
+  "model": {
+    "id": "HuggingFaceTB/SmolVLM-500M-Instruct",
+    "revision": "a7da5b986cb59b408707209984f360a5f4ad7e47",
+    "dtype": "float16",
+    "max_new_tokens": 32,
+    "do_sample": false
+  },
+  "observations": ["obs_001", "obs_002", "obs_003", "obs_004"],
+  "strict_json_prompt": "The image has opaque integer candidate labels drawn on boxes. Select the one candidate that is most useful as a nearby movable seating target. Select only a visible label, or NONE. Do not invent labels, coordinates, motion, or a route. Return exactly JSON: {\"candidate_id\":\"integer or NONE\",\"scene_description\":\"short factual description\"}.",
+  "simple_id_prompt": "The image has integer candidate labels drawn on boxes. Which visible candidate is a chair? Answer exactly one integer label, or NONE. No other text.",
+  "description_prompt": "Describe the visible indoor scene in one short factual sentence. Do not infer navigation, motion, or objects outside the image."
+}

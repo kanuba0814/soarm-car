@@ -1,0 +1,16 @@
+{
+  "scope": "DEV_ONLY_QWEN3_VL_2B_BOUNDED_DOWNLOAD_LIMITATION",
+  "model_id": "Qwen/Qwen3-VL-2B-Instruct",
+  "revision": "89644892e4d85e24eaac8bacfd4f463576704203",
+  "official_model_safetensors_bytes": 4255140312,
+  "download_command": "hf download Qwen/Qwen3-VL-2B-Instruct --revision 89644892e4d85e24eaac8bacfd4f463576704203 --local-dir /home/gxxl/.cache/soarm-vlm-grid/models/qwen3-vl-2b --include model.safetensors --include '*.json' --include merges.txt --include vocab.json --max-workers 4",
+  "timeout_seconds": 1800,
+  "partial_model_safetensors_bytes": 402443084,
+  "outcome": "timed_out_before_weight_download_completed; no Qwen model load or inference attempted",
+  "disk_budget_reason": "SmolVLM root-only plus Qwen root-only official sizes are below the 8 GB first-run cap; the practical block was bounded transfer time, not the configured download budget.",
+  "gpu_observation_before_attempt": {
+    "device": "NVIDIA GeForce RTX 3070",
+    "free_mib": 6087
+  },
+  "safety": ["no package upgrades", "no authentication token", "no remote code", "no simulator process modification"]
+}
