@@ -45,6 +45,8 @@ printf "%s\\n" "{\\"file_format_version\\":\\"1.0.0\\",\\"ICD\\":{\\"library_pat
 source /opt/ros/humble/setup.bash; source /workspaces/soarm-car/install/setup.bash
 colcon --log-base /tmp/knownpose/log build --base-paths /feature/ros2_ws/src/soarm_simulation /feature/ros2_ws/src/soarm_navigation --build-base /tmp/knownpose/build --install-base /tmp/knownpose/install --symlink-install
 source /tmp/knownpose/install/setup.bash
+cp /feature/ros2_ws/src/soarm_navigation/behavior_trees/aws_knownselfpose_navigate.xml /output/active_navigate_tree.xml
+cp /feature/ros2_ws/src/soarm_navigation/behavior_trees/aws_knownselfpose_through_poses.xml /output/active_through_poses_tree.xml
 python3 /feature/scripts/prepare_companion_home_world.py /asset/worlds/small_house.world /tmp/runtime.sdf
 export IGN_GAZEBO_RESOURCE_PATH=/asset/models:/tmp/knownpose/install/soarm_simulation/share/soarm_simulation/models
 export GZ_SIM_RESOURCE_PATH=$IGN_GAZEBO_RESOURCE_PATH

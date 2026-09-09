@@ -1,0 +1,30 @@
+{
+  "error": "Nav2 lifecycle activation deadline exceeded; active=['/controller_server', '/planner_server'] pending=['/bt_navigator', '/controller_server', '/planner_server']",
+  "runtime_diagnostics": {
+    "clock_stamp": 110.49,
+    "source_pose_count": 6590,
+    "source_stamp_range": [
+      0.001,
+      110.488
+    ],
+    "max_source_gap_seconds": 0.01899999999999835,
+    "observed_lidar_frames": [
+      "kuruma/livox_frame/mid360"
+    ],
+    "published_lidar_extrinsic_frames": [
+      "kuruma/livox_frame/mid360",
+      "livox_frame"
+    ],
+    "lifecycle_attempts": {
+      "/planner_server": 29246,
+      "/controller_server": 28995,
+      "/bt_navigator": 28267
+    },
+    "lifecycle_pending": [
+      "/bt_navigator",
+      "/controller_server",
+      "/planner_server"
+    ]
+  },
+  "collision_assessment": "UNKNOWN"
+}

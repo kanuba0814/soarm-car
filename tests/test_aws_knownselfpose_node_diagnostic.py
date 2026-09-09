@@ -26,6 +26,30 @@ pilot_module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(pilot_module)
 
 
+class FakeNativePoseStream:
+    def __init__(self):
+        self.index = 0
+        self.records = []
+        for index in range(8):
+            stamp_ns = 1_000_000_000 + index * 10_000_000
+            self.records.append({'source_stamp_ns': stamp_ns, 'entity': {'name': 'kuruma', 'position': {'x': index * .01, 'y': 0.0, 'z': 0.08}, 'orientation': {'x': 0.0, 'y': 0.0, 'z': 0.0, 'w': 1.0}}, 'envelope': {}})
+
+    def drain(self, after_ns):
+        while self.index < len(self.records) and self.records[self.index]['source_stamp_ns'] <= after_ns:
+            self.index += 1
+        if self.index >= len(self.records):
+            return []
+        record = self.records[self.index]
+        self.index += 1
+        return [record]
+
+    def snapshot(self):
+        return self.records[:self.index], []
+
+    def close(self):
+        pass
+
+
 class MockRuntime(Node):
     def __init__(self):
         super().__init__('knownselfpose_mock_runtime')
@@ -65,6 +89,7 @@ class MockRuntime(Node):
 
 
 def main():
+    pilot_module.NativePoseStream = FakeNativePoseStream
     pilot = pilot_module.Pilot('/tmp/aws-knownselfpose-node-diagnostic')
     runtime = MockRuntime()
     executor = SingleThreadedExecutor()
@@ -96,7 +121,7 @@ def main():
         runtime.allow_active = True
         pilot.wait_nav(timeout_seconds=2.0)
         for _ in range(30):
-            rclpy.spin_once(pilot.node, timeout_sec=.05)
+            pilot.spin_once(.05)
             try:
                 transform = buffer.lookup_transform('map', 'base_link', rclpy.time.Time())
                 break
@@ -114,7 +139,7 @@ def main():
         clock = Clock(); clock.clock.sec = int(runtime.stamp); clock.clock.nanosec = int((runtime.stamp % 1.0) * 1e9)
         runtime.clock_pub.publish(clock)
         for _ in range(8):
-            rclpy.spin_once(pilot.node, timeout_sec=.05)
+            pilot.spin_once(.05)
         assert stamp_seconds(buffer.lookup_transform('map', 'base_link', rclpy.time.Time()).header.stamp) <= published_stamp + .1
         print('PASS node diagnostic: pending lifecycle calls preserved TF, inactive rejected, deadline bounded, source-time TF fresh, stale blocked, body twist nonzero')
     finally:

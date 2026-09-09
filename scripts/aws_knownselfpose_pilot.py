@@ -8,6 +8,7 @@ import struct
 import subprocess
 import sys
 import tarfile
+import threading
 import time
 from collections import deque
 from pathlib import Path
@@ -22,7 +23,7 @@ from lifecycle_msgs.msg import State
 from lifecycle_msgs.srv import GetState
 from sensor_msgs.msg import Image, PointCloud2
 from tf2_msgs.msg import TFMessage
-from tf2_ros import StaticTransformBroadcaster, TransformBroadcaster
+from tf2_ros import Buffer, StaticTransformBroadcaster, TransformBroadcaster, TransformListener
 
 RESOLUTION = 0.05
 SIZE = 320
@@ -31,6 +32,51 @@ MAX_GOAL_DISTANCE = 3.0
 SOURCE_FRESHNESS_SECONDS = 0.5
 NATIVE_LIDAR_FRAME = 'livox_frame'
 NATIVE_LIDAR_Z_M = 0.170
+MODEL_TO_BASE_LINK_Z_M = 0.0763
+SOURCE_STARTUP_MINIMUM_SAMPLES = 4
+
+
+class NativePoseStream:
+    """Thread-buffered native Pose_V envelopes; ROS executor never owns this pipe."""
+    def __init__(self):
+        self.records, self.errors = deque(maxlen=12000), deque(maxlen=200)
+        self.lock = threading.Lock()
+        self.process = subprocess.Popen(
+            ['stdbuf', '-oL', 'ign', 'topic', '-e', '-t', '/world/default/dynamic_pose/info', '--json-output'],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, bufsize=1)
+        self.thread = threading.Thread(target=self._read, daemon=True)
+        self.thread.start()
+
+    def _read(self):
+        for line in self.process.stdout:
+            try:
+                envelope = json.loads(line)
+                stamp = envelope.get('header', {}).get('stamp', {})
+                stamp_ns = int(stamp.get('sec', 0)) * 1_000_000_000 + int(stamp.get('nsec', stamp.get('nanosec', 0)))
+                entity = next((item for item in envelope.get('pose', []) if item.get('name') == 'kuruma'), None)
+                if stamp_ns <= 0 or entity is None:
+                    self.errors.append({'reason': 'missing_nonzero_stamp_or_exact_kuruma', 'envelope': envelope})
+                    continue
+                with self.lock:
+                    self.records.append({'source_stamp_ns': stamp_ns, 'entity': entity, 'envelope': envelope})
+            except (ValueError, json.JSONDecodeError) as error:
+                self.errors.append({'reason': 'json_decode', 'detail': str(error), 'raw_line': line})
+
+    def drain(self, after_ns):
+        with self.lock:
+            return [record for record in self.records if record['source_stamp_ns'] > after_ns]
+
+    def snapshot(self):
+        with self.lock:
+            return list(self.records), list(self.errors)
+
+    def close(self):
+        self.process.terminate()
+        try:
+            self.process.wait(timeout=3)
+        except subprocess.TimeoutExpired:
+            self.process.kill()
+        self.thread.join(timeout=3)
 
 
 def yaw(q):
@@ -53,13 +99,18 @@ class Pilot:
         self.static_tf_pub = StaticTransformBroadcaster(self.node)
         self.command_pub = self.node.create_publisher(Twist, '/cmd_vel', 10)
         self.odom_pub = self.node.create_publisher(Odometry, '/known_self_pose/odom', 10)
-        self.node.create_subscription(TFMessage, '/world/default/dynamic_pose/info', self.on_source_pose, 30)
+        self.node.create_subscription(TFMessage, '/world/default/dynamic_pose/info', self.on_bridge_pose, 30)
         self.node.create_subscription(PointCloud2, '/mid360/scan/points/points', self.on_cloud, 10)
         self.node.create_subscription(Image, '/camera/image', lambda m: self.on_image('rgb', m), 10)
         self.node.create_subscription(Image, '/camera/depth_image', lambda m: self.on_image('depth', m), 10)
         self.node.create_subscription(Twist, '/cmd_vel', self.on_command, 30)
         self.pose = None
         self.origin = None
+        self.native_pose_stream = NativePoseStream()
+        self.last_native_stamp_ns = 0
+        self.bridge_pose_headers = []
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self.node, spin_thread=False)
         self.previous_pose = None
         self.body_twist = (0.0, 0.0, 0.0)
         self.lidar_frames = set()
@@ -94,31 +145,38 @@ class Pilot:
     def wrap_angle(angle):
         return math.atan2(math.sin(angle), math.cos(angle))
 
-    def on_source_pose(self, message):
+    def on_bridge_pose(self, message):
         for transform in message.transforms:
-            if transform.child_frame_id not in ('kuruma', 'kuruma/base_link'):
-                continue
-            tr = transform.transform.translation
-            orientation = transform.transform.rotation
-            observed = (tr.x, tr.y, yaw(orientation), stamp_seconds(transform.header.stamp))
-            if self.pose is not None and observed[3] <= self.pose[3]:
-                return
+            if transform.child_frame_id in ('kuruma', 'kuruma/base_link'):
+                self.bridge_pose_headers.append({
+                    'bridge_stamp_ns': transform.header.stamp.sec * 1_000_000_000 + transform.header.stamp.nanosec,
+                    'parent': transform.header.frame_id, 'child': transform.child_frame_id,
+                })
+        self.bridge_pose_headers = self.bridge_pose_headers[-4000:]
+
+    def drain_native_pose(self):
+        for record in self.native_pose_stream.drain(self.last_native_stamp_ns):
+            stamp_ns, entity = record['source_stamp_ns'], record['entity']
+            position, orientation = entity['position'], entity['orientation']
+            observed = (float(position['x']), float(position['y']), yaw(type('Q', (), orientation)()), stamp_ns / 1_000_000_000)
             if self.previous_pose is not None:
                 previous_x, previous_y, previous_yaw, previous_stamp = self.previous_pose
                 dt = observed[3] - previous_stamp
-                if dt > 0.0:
-                    dx, dy = observed[0] - previous_x, observed[1] - previous_y
-                    c, s = math.cos(observed[2]), math.sin(observed[2])
-                    self.body_twist = ((c * dx + s * dy) / dt, (-s * dx + c * dy) / dt,
-                                       self.wrap_angle(observed[2] - previous_yaw) / dt)
+                if dt <= 0.0:
+                    continue
+                dx, dy = observed[0] - previous_x, observed[1] - previous_y
+                c, s = math.cos(observed[2]), math.sin(observed[2])
+                self.body_twist = ((c * dx + s * dy) / dt, (-s * dx + c * dy) / dt,
+                                   self.wrap_angle(observed[2] - previous_yaw) / dt)
             self.pose = observed
             self.previous_pose = observed
+            self.last_native_stamp_ns = stamp_ns
             self.last_pose_wall = time.monotonic()
             if self.origin is None:
                 self.origin = observed[:3]
-                self.node.get_logger().info('known source-pose origin measured from dynamic pose stream')
-            self.pose_samples.append({'source_stamp': observed[3], 'world': list(observed[:3])})
-            return
+                self.node.get_logger().info('known source-pose origin measured from native Pose_V envelope')
+            self.pose_samples.append({'source_stamp': observed[3], 'world_model': [observed[0], observed[1], float(position['z'])], 'model_to_base_link_z_m': MODEL_TO_BASE_LINK_Z_M})
+        self.pose_samples = self.pose_samples[-12000:]
 
     def publish_pose(self):
         if self.pose is None or self.origin is None:
@@ -191,17 +249,35 @@ class Pilot:
     def on_command(self, message):
         self.commands.append({'wall': time.monotonic(), 'x': message.linear.x, 'y': message.linear.y, 'z': message.angular.z})
 
+    def spin_once(self, timeout_sec=0.1):
+        self.drain_native_pose()
+        rclpy.spin_once(self.node, timeout_sec=timeout_sec)
+        self.drain_native_pose()
+
     def spin(self, seconds):
         end = time.monotonic() + seconds
         while time.monotonic() < end:
-            rclpy.spin_once(self.node, timeout_sec=0.1)
+            self.spin_once(.1)
+
+    def assert_source_ready(self, timeout_seconds=15.0):
+        deadline = time.monotonic() + timeout_seconds
+        while time.monotonic() < deadline:
+            self.spin_once(.1)
+            if len(self.pose_samples) >= SOURCE_STARTUP_MINIMUM_SAMPLES and self.last_native_stamp_ns > 0:
+                try:
+                    if self.tf_buffer.can_transform('map', 'base_link', rclpy.time.Time()):
+                        return
+                except Exception:
+                    pass
+        records, errors = self.native_pose_stream.snapshot()
+        raise RuntimeError(f'native Pose_V/TF startup precondition failed: native_records={len(records)} last_stamp_ns={self.last_native_stamp_ns} bridge_headers={self.bridge_pose_headers[-4:]} parse_errors={errors[-4:]}')
 
     def command(self, x=0.0, y=0.0, z=0.0, seconds=0.0):
         message = Twist(); message.linear.x = x; message.linear.y = y; message.angular.z = z
         end = time.monotonic() + seconds
         while time.monotonic() < end:
             self.command_pub.publish(message)
-            rclpy.spin_once(self.node, timeout_sec=0.05)
+            self.spin_once(.05)
         self.command_pub.publish(Twist())
 
     def grid(self, x, y):
@@ -233,11 +309,11 @@ class Pilot:
             heading = wh - oh
             start = self.grid(robot_x, robot_y)
             for px, py, pz in cloud['points']:
-                # LiDAR is mounted 0.17m high: only obstacle-height returns mark occupied.
+                # Native chain: model origin -> base_link (0.0763 m) -> livox_frame (0.170 m).
                 c2, s2 = math.cos(heading), math.sin(heading)
                 ex, ey = robot_x + c2 * px - s2 * py, robot_y + s2 * px + c2 * py
                 end = self.grid(ex, ey)
-                self.ray(*start, *end, endpoint=(0.10 <= pz + 0.17 <= 1.50))
+                self.ray(*start, *end, endpoint=(0.10 <= pz + MODEL_TO_BASE_LINK_Z_M + NATIVE_LIDAR_Z_M <= 1.50))
         # Unknown stays unknown unless directly traversed by a source LiDAR ray.
         self.output.joinpath('sensor_map.pgm').write_bytes(
             f'P5\n# sensor-derived known-self-pose occupancy; unknown=205\n{SIZE} {SIZE}\n255\n'.encode() +
@@ -315,8 +391,8 @@ class Pilot:
                         active.discard(name)
             if len(active) == len(self.lifecycle_clients):
                 return
-            # This is the sole executor owner: servicing callbacks keeps source TF alive.
-            rclpy.spin_once(self.node, timeout_sec=0.1)
+            # This is the sole executor owner: servicing callbacks keeps native source TF alive.
+            self.spin_once(.1)
         pending = sorted(name for name, future in self.lifecycle_futures.items() if not future.done())
         raise RuntimeError(f'Nav2 lifecycle activation deadline exceeded; active={sorted(active)} pending={pending}')
 
@@ -325,7 +401,7 @@ class Pilot:
         while time.monotonic() < deadline:
             if all(client.server_is_ready() for client in clients):
                 return
-            rclpy.spin_once(self.node, timeout_sec=0.1)
+            self.spin_once(.1)
         raise RuntimeError('Nav2 action servers unavailable before bounded deadline')
 
     def action(self, goal_xy, index):
@@ -347,13 +423,18 @@ class Pilot:
         result = handle.get_result_async()
         deadline = time.monotonic() + 120
         while not result.done() and time.monotonic() < deadline:
-            rclpy.spin_once(self.node, timeout_sec=.1)
+            self.spin_once(.1)
             if time.monotonic() - self.last_pose_wall > 1.0:
                 handle.cancel_goal_async(); self.command(); raise RuntimeError('source-pose telemetry watchdog expired')
         if not result.done():
             handle.cancel_goal_async(); self.command(); raise RuntimeError('goal watchdog expired')
         return {'index': index, 'goal': [goal_xy[0], goal_xy[1], math.pi / 2], 'path_points': points,
                 'status': result.result().status, 'map_sha256': hashlib.sha256((self.output/'sensor_map.pgm').read_bytes()).hexdigest()}
+
+    def write_native_traces(self):
+        records, errors = self.native_pose_stream.snapshot()
+        (self.output / 'raw_native_dynamic_pose_stream.json').write_text(json.dumps({'records': records, 'parse_errors': errors}, indent=2) + '\n')
+        (self.output / 'raw_bridge_dynamic_pose_headers.json').write_text(json.dumps(self.bridge_pose_headers, indent=2) + '\n')
 
     def runtime_diagnostics(self):
         stamps = [sample['source_stamp'] for sample in self.pose_samples]
@@ -380,6 +461,7 @@ def main():
     output = Path(sys.argv[1])
     pilot = Pilot(output)
     try:
+        pilot.assert_source_ready()
         pilot.spin(20)
         if pilot.pose is None or not pilot.clouds:
             raise RuntimeError('source-pose or raw PointCloud2 LiDAR unavailable')
@@ -406,6 +488,7 @@ def main():
         print(json.dumps({'status': 'completed', 'routes': len(results), 'path_length_m': length, 'collision': 'UNKNOWN'}))
     except Exception as error:
         pilot.command()
+        pilot.write_native_traces()
         (output / 'pilot_failure.json').write_text(json.dumps({'error': str(error), 'runtime_diagnostics': pilot.runtime_diagnostics(), 'collision_assessment': 'UNKNOWN'}, indent=2) + '\n')
         # A failed bounded run remains recoverable for inspection.
         with tarfile.open(output / 'knownselfpose_physicalsim_evidence.tar.gz', 'w:gz') as archive:
@@ -414,6 +497,8 @@ def main():
                     archive.add(path, arcname=path.name)
         raise
     finally:
+        pilot.write_native_traces()
+        pilot.native_pose_stream.close()
         pilot.node.destroy_node(); rclpy.shutdown()
 
 
