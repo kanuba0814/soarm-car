@@ -29,3 +29,12 @@ timeout 3 python3 /work/scripts/prior_map_assisted_exploration_ros.py --ros-args
 This starts no Gazebo, renderer, devices, publishers, or goals. A timeout exit
 only proves the node consumer remains alive during the startup data grace; it is
 not live E2E evidence.
+
+## Native Selector Compatibility
+
+The named-place lock accepts only the original audited launch SHA-256
+`c88daf45e9627d79fc13812b27795f57dd9936ebb39b40ba475aba3bbb7a3273` and
+the audited selector-only overlay SHA-256
+`a520fa54f04feb26b2ceb8da8723046b89c2c8ab1d4cb1444cba63df17ec94d5`.
+This file-identity allowance does not establish which runtime backend is active;
+that requires runtime evidence.
