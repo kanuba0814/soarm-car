@@ -1,0 +1,327 @@
+{
+  "scope": "DEV_ONLY_CPU_CONFIGURATION_SPACE_REPLAY",
+  "algorithm": "BFS shortest 4-connected path on configuration-space FREE cells, not A*",
+  "footprint_rule": "A robot center is FREE only if every in-bounds disk cell within the 0.50 m radius is observed FREE; UNKNOWN, OCCUPIED, and out-of-bounds disk cells block it.",
+  "raycast_limit": "Free cells are conditional single-view RGB-D height-classification evidence, not a collision proof.",
+  "source_artifacts": {
+    "public_input": "artifacts/companion-home-validation/evidence/vlm-grid-dev-v1/public-input",
+    "v1_geometry_results": "artifacts/companion-home-validation/evidence/vlm-grid-dev-v1/results/results.json",
+    "v2_format_results": "artifacts/companion-home-validation/evidence/vlm-grid-dev-v2/results/results.json",
+    "v2_observations": 4
+  },
+  "records": [
+    {
+      "observation_id": "obs_001",
+      "raw_observation_grid_coverage": {
+        "free_cells": 3049,
+        "occupied_cells": 147,
+        "unknown_cells": 8774
+      },
+      "configuration_space_grid_coverage": {
+        "free_cells": 0,
+        "occupied_cells": 1206,
+        "unknown_cells": 10764
+      },
+      "candidates": [
+        {
+          "candidate_id": "obs_001:0",
+          "label": "chair",
+          "confidence": 0.8520731925964355,
+          "box_xyxy": [
+            178.81243896484375,
+            150.55426025390625,
+            319.9261779785156,
+            308.11181640625
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.303694817087804,
+            0.09646052615356138
+          ],
+          "depth_median_m": 2.223539352416992
+        },
+        {
+          "candidate_id": "obs_001:1",
+          "label": "chair",
+          "confidence": 0.1348864883184433,
+          "box_xyxy": [
+            33.55000305175781,
+            119.67544555664062,
+            105.96876525878906,
+            304.733154296875
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.901032646909167,
+            0.2105503734906511
+          ],
+          "depth_median_m": 2.109449625015259
+        }
+      ],
+      "candidate_results": {
+        "obs_001:0": {
+          "status": "rejected",
+          "reason": "all_approach_footprints_occupied_or_unknown"
+        },
+        "obs_001:1": {
+          "status": "rejected",
+          "reason": "all_approach_footprints_occupied_or_unknown"
+        }
+      },
+      "geometry_only_choice": "NO_FEASIBLE_CANDIDATE",
+      "v1_geometry_only_choice": "NO_FEASIBLE_CANDIDATE"
+    },
+    {
+      "observation_id": "obs_002",
+      "raw_observation_grid_coverage": {
+        "free_cells": 3240,
+        "occupied_cells": 254,
+        "unknown_cells": 9376
+      },
+      "configuration_space_grid_coverage": {
+        "free_cells": 100,
+        "occupied_cells": 1898,
+        "unknown_cells": 10872
+      },
+      "candidates": [
+        {
+          "candidate_id": "obs_002:0",
+          "label": "chair",
+          "confidence": 0.6734814047813416,
+          "box_xyxy": [
+            82.7333755493164,
+            102.34384155273438,
+            216.12454223632812,
+            368.509521484375
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.389548599319198,
+            1.0047417858945882
+          ],
+          "depth_median_m": 1.638794183731079
+        },
+        {
+          "candidate_id": "obs_002:1",
+          "label": "chair",
+          "confidence": 0.5207833647727966,
+          "box_xyxy": [
+            0.029754638671875,
+            0.10919189453125,
+            194.564453125,
+            355.8265075683594
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.027547242564581,
+            1.5017489016430074
+          ],
+          "depth_median_m": 1.0855531692504883
+        },
+        {
+          "candidate_id": "obs_002:2",
+          "label": "chair",
+          "confidence": 0.4762606918811798,
+          "box_xyxy": [
+            83.26020812988281,
+            102.12661743164062,
+            215.91600036621094,
+            285.820068359375
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.889683197148776,
+            0.33638185296705636
+          ],
+          "depth_median_m": 2.594902515411377
+        },
+        {
+          "candidate_id": "obs_002:3",
+          "label": "chair",
+          "confidence": 0.23255710303783417,
+          "box_xyxy": [
+            233.84474182128906,
+            28.993988037109375,
+            372.22021484375,
+            321.42425537109375
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            5.8597159650674,
+            0.8598974722068787
+          ],
+          "depth_median_m": 1.5384553670883179
+        }
+      ],
+      "candidate_results": {
+        "obs_002:0": {
+          "status": "rejected",
+          "reason": "all_approach_footprints_occupied_or_unknown"
+        },
+        "obs_002:1": {
+          "status": "rejected",
+          "reason": "all_approach_footprints_occupied_or_unknown"
+        },
+        "obs_002:2": {
+          "status": "rejected",
+          "reason": "all_approach_footprints_occupied_or_unknown"
+        },
+        "obs_002:3": {
+          "status": "rejected",
+          "reason": "all_approach_footprints_occupied_or_unknown"
+        }
+      },
+      "geometry_only_choice": "NO_FEASIBLE_CANDIDATE",
+      "v1_geometry_only_choice": "obs_002:1"
+    },
+    {
+      "observation_id": "obs_003",
+      "raw_observation_grid_coverage": {
+        "free_cells": 2819,
+        "occupied_cells": 184,
+        "unknown_cells": 9623
+      },
+      "configuration_space_grid_coverage": {
+        "free_cells": 1,
+        "occupied_cells": 1383,
+        "unknown_cells": 11242
+      },
+      "candidates": [
+        {
+          "candidate_id": "obs_003:0",
+          "label": "chair",
+          "confidence": 0.8427027463912964,
+          "box_xyxy": [
+            169.01654052734375,
+            133.9405517578125,
+            326.01190185546875,
+            307.05645751953125
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.201824389627237,
+            0.22485642666262484
+          ],
+          "depth_median_m": 2.162108898162842
+        },
+        {
+          "candidate_id": "obs_003:1",
+          "label": "dining table",
+          "confidence": 0.3398299813270569,
+          "box_xyxy": [
+            100.3009033203125,
+            0.0,
+            579.3627319335938,
+            388.79913330078125
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.804961349410689,
+            1.5261943631912616
+          ],
+          "depth_median_m": 0.844732940196991
+        },
+        {
+          "candidate_id": "obs_003:2",
+          "label": "chair",
+          "confidence": 0.19598960876464844,
+          "box_xyxy": [
+            392.65185546875,
+            1.070281982421875,
+            639.7474365234375,
+            480.0
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.588949118064908,
+            1.6885956463757685
+          ],
+          "depth_median_m": 0.8119211792945862
+        }
+      ],
+      "candidate_results": {
+        "obs_003:0": {
+          "status": "rejected",
+          "reason": "all_approach_footprints_occupied_or_unknown"
+        },
+        "obs_003:1": {
+          "status": "rejected",
+          "reason": "all_approach_footprints_occupied_or_unknown"
+        },
+        "obs_003:2": {
+          "status": "rejected",
+          "reason": "all_approach_footprints_occupied_or_unknown"
+        }
+      },
+      "geometry_only_choice": "NO_FEASIBLE_CANDIDATE",
+      "v1_geometry_only_choice": "NO_FEASIBLE_CANDIDATE"
+    },
+    {
+      "observation_id": "obs_004",
+      "raw_observation_grid_coverage": {
+        "free_cells": 2084,
+        "occupied_cells": 258,
+        "unknown_cells": 10426
+      },
+      "configuration_space_grid_coverage": {
+        "free_cells": 0,
+        "occupied_cells": 2032,
+        "unknown_cells": 10736
+      },
+      "candidates": [
+        {
+          "candidate_id": "obs_004:0",
+          "label": "chair",
+          "confidence": 0.42947566509246826,
+          "box_xyxy": [
+            528.2305908203125,
+            122.77486419677734,
+            639.9794921875,
+            315.3438415527344
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            7.054512821249865,
+            1.8212622670132526
+          ],
+          "depth_median_m": 2.041262149810791
+        },
+        {
+          "candidate_id": "obs_004:2",
+          "label": "chair",
+          "confidence": 0.13439542055130005,
+          "box_xyxy": [
+            278.6019287109375,
+            1.815643310546875,
+            408.45849609375,
+            460.4104309082031
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.0270495339288015,
+            0.9150954773398278
+          ],
+          "depth_median_m": 1.135095477104187
+        }
+      ],
+      "candidate_results": {
+        "obs_004:0": {
+          "status": "rejected",
+          "reason": "all_approach_footprints_occupied_or_unknown"
+        },
+        "obs_004:2": {
+          "status": "rejected",
+          "reason": "all_approach_footprints_occupied_or_unknown"
+        }
+      },
+      "geometry_only_choice": "NO_FEASIBLE_CANDIDATE",
+      "v1_geometry_only_choice": "NO_FEASIBLE_CANDIDATE"
+    }
+  ],
+  "summary": {
+    "observations": 4,
+    "v1_geometry_feasible": 1,
+    "v3_geometry_feasible": 0
+  },
+  "replay": "python scripts/run_vlm_grid_geometry_v3.py --public-dir artifacts/companion-home-validation/evidence/vlm-grid-dev-v1/public-input --config config/vlm_grid_dev_v1.json --v1-results artifacts/companion-home-validation/evidence/vlm-grid-dev-v1/results/results.json --v2-results artifacts/companion-home-validation/evidence/vlm-grid-dev-v2/results/results.json --output-dir <new-output-dir>"
+}

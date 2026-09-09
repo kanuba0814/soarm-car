@@ -22,7 +22,7 @@ The local GPU run used `HuggingFaceTB/SmolVLM-500M-Instruct` at official revisio
 | Structured selection valid | 0/4 |
 | VLM-only usable selections | 0/4 |
 | Hybrid VLM-gated feasible selections | 0/4; each rejected for invalid JSON |
-| Geometry-only feasible approaches | 1/4 (`obs_002:1`) |
+| Geometry-only feasible approaches | 1/4 (`obs_002:1`), superseded by v3 corrected whole-footprint result of 0/4 |
 | Action execution | none; no ROS/Nav2 execution |
 
 The plain-image description was deliberately independent from the annotated candidate-ID image. Candidate selection received only annotated public boxes and an opaque `NO_MATCH` option. The VLM never receives or emits a velocity, grid goal, or route. The CPU gate derives a depth-grounded target and searches an approach ring, rather than commanding the target centroid.
@@ -54,7 +54,7 @@ No token, authentication, remote-code trust, upload, or model package upgrade is
 
 ## Residual Risks
 
-- A depth raycast is a sparse, single-view local observation, not a replacement for a reconciled persistent map.
+- A depth raycast is conditional sparse, single-view height-classification evidence, not a collision proof or replacement for a reconciled persistent map. The corrected configuration-space replay is recorded in `docs/research/vlm-grid-dev-v3.md`.
 - Candidate boxes are frozen YOLO detections and may target obstacles or partial surfaces.
 - The model's failure to follow this JSON prompt is a measured result for this setup, not a general VLM capability conclusion.
 - GPU availability remains shared with the Gazebo worker; this run did not stop or alter it.

@@ -43,7 +43,7 @@ Do **not** train or start LoRA now. The small sample shows an interface-format p
 | Small VLM | On-demand semantic proposal or scene description | Low measured Smol memory and sub-second queries after first query | Here: exact format failure 4/4; never emits velocity or a route |
 | Gated hybrid | VLM candidate -> depth target -> padded grid approach -> deterministic fallback | Separates semantics from safety; invalid VLM output is rejectable | Does not repair localization, map-frame, or controller failures |
 
-This preserves the graduation design: deterministic occupancy/costmap and navigation remain the authority; semantic memory supplies evidence; a VLM is asynchronous and proposal-only.
+This preserves the graduation design: deterministic occupancy/costmap and navigation remain the authority; semantic memory supplies evidence; a VLM is asynchronous and proposal-only. The authoritative reuse boundary is `/home/gxxl/soarm-car-nav2-clean` at baseline `41463f9` plus its current dirty paired configuration/scripts, with recorded `direct_mppi` success. This offline work does not rewrite Nav2 or claim overall navigation is broken.
 
 ## Primary Sources And Corrections
 

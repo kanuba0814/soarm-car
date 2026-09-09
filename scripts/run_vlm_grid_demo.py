@@ -14,7 +14,7 @@ from PIL import Image
 from transformers import AutoModelForImageTextToText, AutoProcessor
 
 from a1_visualconf.public import camera_transform
-from vlm_grid.geometry import FREE, OCCUPIED, UNKNOWN, build_grid, inflate_occupied, reachable_approach
+from vlm_grid.geometry import FREE, OCCUPIED, UNKNOWN, build_grid, configuration_space_grid, reachable_approach
 
 
 def digest(path):
@@ -155,7 +155,7 @@ def main():
         points = world_points(depth, info, transform, config["grid"]["ray_stride_px"], config["grid"]["max_depth_m"])
         obstacles = np.abs(points[:, 2]) > config["grid"]["floor_clearance_m"]
         raw_grid, origin = build_grid(source_xy, points, obstacles, config["grid"]["resolution_m"], config["grid"]["robot_radius_m"])
-        grid = inflate_occupied(raw_grid, round(config["grid"]["robot_radius_m"] / config["grid"]["resolution_m"]))
+        grid = configuration_space_grid(raw_grid, round(config["grid"]["robot_radius_m"] / config["grid"]["resolution_m"]))
         grid_results = {}
         for candidate in candidates:
             if candidate["target_xy_m"] is None:
