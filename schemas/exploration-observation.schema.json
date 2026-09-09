@@ -6,7 +6,8 @@
   "properties": {
     "prior_manifest": {"type": "string"},
     "robot_pose": {"$ref": "#/$defs/xyz"},
-    "config": {"type": "object", "properties": {"max_rays": {"type": "integer", "minimum": 1, "maximum": 2048}, "max_candidates": {"type": "integer", "minimum": 1, "maximum": 128}, "max_attempts": {"type": "integer", "minimum": 1, "maximum": 16}}, "additionalProperties": false},
+    "config": {"type": "object", "properties": {"max_rays": {"type": "integer", "minimum": 1, "maximum": 2048}, "max_candidates": {"type": "integer", "minimum": 1, "maximum": 128}, "max_attempts": {"type": "integer", "minimum": 1, "maximum": 16}, "navigation_z_min": {"type": "number"}, "navigation_z_max": {"type": "number"}}, "additionalProperties": false},
+    "state": {"type": "object"},
     "observations": {"type": "array", "items": {"$ref": "#/$defs/observation"}}
   },
   "$defs": {
