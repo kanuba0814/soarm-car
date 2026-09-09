@@ -1,0 +1,25 @@
+{
+  "source": "/tmp/soarm-intel-nav-restore-20260909",
+  "source_head": "41463f9a07dc317eb837558ad55b137fb92e35eb",
+  "pcd_sha256": "f930a35e03ad641d2ad25174afa19f6fe9d070e38ae1bfe63391a5f3afac9a12",
+  "run": "existing scripts/run-nav2-clean-comparison.sh, direct_mppi, room-1 route, original restored parameters",
+  "intel": "Mesa Intel ARL image sha256:1da9a18609c4664d7441d9f334c95e971f0795aa3815f6707ed761f2ce93d227; /dev/dri/renderD128 host identity",
+  "resource_policy": "existing route runner OMP/OPENBLAS/MKL/NUMEXPR=1; cgroup Cpus_allowed_list=0-15; cpu.stat nr_throttled=0",
+  "observed": {
+    "initial_icp": "fitness 0.8449198007583618, RMSE 0.09513989835977554m",
+    "route": "room-1 canceled, elapsed_sim_s 0.006, elapsed_wall_s 0.070946762, no progress",
+    "mid360_observation_age": "0.21s through 0.83s before and after health latch; expected update rate 0.20s",
+    "health_latch": "container log reports localization health lost at 1788968224.802965068 before room-1 starts at 1788968225.366031792"
+  },
+  "host_samples": {
+    "runtime_cpu": "approximately 514%-975% during entrypoint compilation, then 99%-249% in later sampled process phases; raw timestamps in host-samples.log",
+    "runtime_memory": "about 1.0GiB while high-CPU entrypoint build, 2.89-4.27GiB during later process phases",
+    "throttling": "no cgroup throttle events observed"
+  },
+  "limitations": [
+    "ros-observer.jsonl is empty and ros-scalar-seams attached before the rebuilt install was available, so this run cannot correlate gate receipt times with full LocalizationHealth messages.",
+    "renderer-process.txt captured the entrypoint build process before Gazebo started, not actual OGRE driver maps/DRI FDs.",
+    "No direct conclusion that renderer, CPU contention, or health receipt jitter is the root cause is justified from this run."
+  ],
+  "next_justified_change": "Instrument a readiness-aware observer that retries until the final /tmp/soarm_ros2/install/setup.bash can be sourced and waits for /clock plus /localization/health before collecting; retain all navigation and safety parameters."
+}

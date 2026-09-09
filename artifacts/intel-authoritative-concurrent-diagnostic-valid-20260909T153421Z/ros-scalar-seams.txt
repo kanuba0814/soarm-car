@@ -1,0 +1,36 @@
+=== /mid360/points
+bash: line 1: /tmp/soarm_ros2/install/setup.bash: No such file or directory
+WARNING: topic [/mid360/points] does not appear to be published yet
+Could not determine the type for the passed topic
+=== /livox/lidar
+WARNING: topic [/livox/lidar] does not appear to be published yet
+Could not determine the type for the passed topic
+=== /gazebo/imu
+WARNING: topic [/gazebo/imu] does not appear to be published yet
+Could not determine the type for the passed topic
+=== /gazebo/livox_imu
+WARNING: topic [/gazebo/livox_imu] does not appear to be published yet
+Could not determine the type for the passed topic
+=== /Odometry
+WARNING: topic [/Odometry] does not appear to be published yet
+Could not determine the type for the passed topic
+=== /cloud_registered
+WARNING: topic [/cloud_registered] does not appear to be published yet
+Could not determine the type for the passed topic
+=== /localization
+WARNING: topic [/localization] does not appear to be published yet
+Could not determine the type for the passed topic
+=== map_to_odom
+[INFO] [1788968085.928115150] [tf2_echo]: Waiting for transform map ->  odom_combined: Invalid frame ID "map" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1788968087.895692065] [tf2_echo]: Waiting for transform map ->  odom_combined: Invalid frame ID "map" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1788968089.895714638] [tf2_echo]: Waiting for transform map ->  odom_combined: Invalid frame ID "map" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1788968091.895702608] [tf2_echo]: Waiting for transform map ->  odom_combined: Invalid frame ID "map" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1788968093.539964883] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+=== odom_base
+[INFO] [1788968093.744446765] [tf2_echo]: Waiting for transform odom_combined ->  base_footprint: Invalid frame ID "odom_combined" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1788968095.724571688] [tf2_echo]: Waiting for transform odom_combined ->  base_footprint: Invalid frame ID "odom_combined" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1788968096.724608072] [tf2_echo]: Waiting for transform odom_combined ->  base_footprint: Invalid frame ID "odom_combined" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1788968098.724622006] [tf2_echo]: Waiting for transform odom_combined ->  base_footprint: Invalid frame ID "odom_combined" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1788968099.724647161] [tf2_echo]: Waiting for transform odom_combined ->  base_footprint: Invalid frame ID "odom_combined" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1788968100.724695464] [tf2_echo]: Waiting for transform odom_combined ->  base_footprint: Invalid frame ID "odom_combined" passed to canTransform argument target_frame - frame does not exist
+[INFO] [1788968101.544291139] [rclcpp]: signal_handler(SIGINT/SIGTERM)
