@@ -7,7 +7,7 @@ from pathlib import Path
 
 import numpy as np
 
-from a1_visualconf.public import add_sensitivity, associate, camera_transform, foreground, make_records, quaternion_matrix, score_tracks, sha256
+from a1_visualconf.public import add_sensitivity, associate, camera_transform, foreground, make_records, quaternion_matrix, score_tracks, sha256, validate_rules
 
 
 def heading(quaternion):
@@ -27,6 +27,7 @@ def main():
         raise SystemExit("refusing to overwrite output directory")
     manifest = json.loads((args.public_dir / "manifest.json").read_text())
     config = json.loads(args.config.read_text())
+    rules = validate_rules(config["rules"])
     public_input = args.public_input_dir
     detections_by_id = json.loads((public_input / "detections.json").read_text())["observations"]
     gates = json.loads((public_input / "gates.json").read_text())["observations"]
@@ -47,12 +48,12 @@ def main():
         transform = camera_transform(calibration[observation_id]["self_pose"], calibration[observation_id]["camera_mounting"])
         frames[observation_id] = {"depth": depth, "invalid": invalid, "info": info, "transform": transform}
         for item in detections_by_id.get(observation_id, []):
-            proposed = foreground(depth, invalid, info, transform, item["box_xyxy"])
+            proposed = foreground(depth, invalid, info, transform, item["box_xyxy"], rules)
             if not proposed["failure"]:
-                add_sensitivity(depth, invalid, info, transform, item["box_xyxy"], proposed)
+                add_sensitivity(depth, invalid, info, transform, item["box_xyxy"], proposed, rules)
             detections.append({"observation_id": observation_id, "detection_index": item["detection_index"], "label": item["label"], "confidence": item["confidence"], "box_xyxy": item["box_xyxy"], "foreground": proposed})
-    tracks, association_audit = associate(detections, frames)
-    score_tracks(tracks)
+    tracks, association_audit = associate(detections, frames, rules)
+    score_tracks(tracks, rules)
     reference = calibration.get("obs_001")
     if reference is None:
         reference_heading = 0.0

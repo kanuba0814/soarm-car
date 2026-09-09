@@ -10,7 +10,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from a1_visualconf.public import backproject, camera_transform, quaternion_matrix
+from a1_visualconf.public import backproject, camera_transform, quaternion_matrix, validate_rules
 
 
 TAXONOMY = {
@@ -22,8 +22,6 @@ TAXONOMY = {
     "Tablet_01": "tablet",
 }
 IOU_GATE = .50
-VOXEL_M = .02
-RELATION_MARGIN_M = .15 + 2 * VOXEL_M
 
 
 def sha256(path):
@@ -49,16 +47,16 @@ def heading(quaternion):
     return math.atan2(forward[1], forward[0])
 
 
-def voxelize(points):
+def voxelize(points, size):
     if not len(points):
         return []
     groups = {}
-    for key, point in zip(map(tuple, np.floor(points / VOXEL_M).astype(int)), points):
+    for key, point in zip(map(tuple, np.floor(points / size).astype(int)), points):
         groups.setdefault(key, []).append(point)
     return [np.mean(group, axis=0).tolist() for group in groups.values()]
 
 
-def load_ground_truth(private_dir, public_dir, public_input):
+def load_ground_truth(private_dir, public_dir, public_input, rules):
     package = json.loads((private_dir / "instances.json").read_text())
     calibration = json.loads((public_input / "calibration_selfpose.json").read_text())["observations"]
     instances = {}
@@ -86,7 +84,7 @@ def load_ground_truth(private_dir, public_dir, public_input):
             per_observation[observation_id].append({"identity": key, "label": label, "bbox_xyxy": visible["bbox_xyxy"], "label_id": visible["label_id"], "mask": mask, "valid_depth_pixels": int(len(pixels))})
     for instance in instances.values():
         points = np.vstack(instance.pop("points")) if instance["points"] else np.empty((0, 3))
-        instance["surface_voxels_2cm"] = voxelize(points)
+        instance["surface_voxels_2cm"] = voxelize(points, rules["surface_voxel_m"])
         instance["observed_surface_status"] = "available" if instance["surface_voxels_2cm"] else "insufficient_geometry"
     return instances, per_observation
 
@@ -167,7 +165,7 @@ def surface_gap(first, second):
     return float(max(np.percentile(distances.min(axis=1), 10), np.percentile(distances.min(axis=0), 10)))
 
 
-def ground_truth_answers(instances, reference_heading):
+def ground_truth_answers(instances, reference_heading, rules):
     chairs = [item for item in instances.values() if item["label"] == "chair"]
     tables = [item for item in instances.values() if item["label"] == "dining table"]
     couches = [item for item in instances.values() if item["label"] == "couch"]
@@ -179,6 +177,7 @@ def ground_truth_answers(instances, reference_heading):
     table = tables[0]
     table_xy = np.median(np.asarray(table["surface_voxels_2cm"])[:, :2], axis=0)
     lateral = np.array([-math.sin(reference_heading), math.cos(reference_heading)])
+    uncertainty = 2 * rules["surface_voxel_m"]
     side = {item["identity"]: float(np.dot(np.median(np.asarray(item["surface_voxels_2cm"])[:, :2], axis=0) - table_xy, lateral)) for item in chairs}
     gaps = {item["identity"]: surface_gap(item, table) for item in chairs}
     definitions = {"Q3": (side, min, "left"), "Q4": (side, max, "right"), "Q5": (gaps, min, "nearest"), "Q6": (gaps, max, "farthest")}
@@ -186,11 +185,11 @@ def ground_truth_answers(instances, reference_heading):
         ranked = sorted(values.items(), key=lambda item: item[1], reverse=selector is max)
         if any(value is None for _, value in ranked) or not ranked:
             answers[query] = {"status": "insufficient_geometry", "identities": [], "reason": "surface_gap_unavailable"}
-        elif len(ranked) > 1 and abs(ranked[0][1] - ranked[1][1]) <= RELATION_MARGIN_M:
+        elif len(ranked) > 1 and abs(ranked[0][1] - ranked[1][1]) <= rules["relation_ambiguity_m"] + uncertainty:
             answers[query] = {"status": "ambiguous", "identities": [], "reason": "relation_ambiguity_margin"}
-        elif relation == "left" and ranked[0][1] >= -RELATION_MARGIN_M:
+        elif relation == "left" and ranked[0][1] + uncertainty >= -rules["relation_side_margin_m"]:
             answers[query] = {"status": "ambiguous", "identities": [], "reason": "no_definite_left_surface"}
-        elif relation == "right" and ranked[0][1] <= RELATION_MARGIN_M:
+        elif relation == "right" and ranked[0][1] - uncertainty <= rules["relation_side_margin_m"]:
             answers[query] = {"status": "ambiguous", "identities": [], "reason": "no_definite_right_surface"}
         else:
             answers[query] = {"status": "definite", "identities": [ranked[0][0]], "reason": None, "values": values}
@@ -230,11 +229,12 @@ def main():
     if args.output_dir.exists():
         raise SystemExit("refusing to overwrite output directory")
     method, config = json.loads(args.method.read_text()), json.loads(args.config.read_text())
-    instances, gt_by_observation = load_ground_truth(args.private_dir, args.public_dir, args.public_input_dir)
+    rules = validate_rules(config["rules"])
+    instances, gt_by_observation = load_ground_truth(args.private_dir, args.public_dir, args.public_input_dir, rules)
     assignments, assignment_diagnostics = constituent_assignments(method, gt_by_observation)
     identities = track_identities(method, assignments)
     calibration = json.loads((args.public_input_dir / "calibration_selfpose.json").read_text())["observations"]
-    answers = ground_truth_answers(instances, heading(calibration["obs_001"]["self_pose"]["entity"]["orientation"]))
+    answers = ground_truth_answers(instances, heading(calibration["obs_001"]["self_pose"]["entity"]["orientation"]), rules)
     rows = []
     for record in method["records"]:
         answer = answers[record["query_id"]]
@@ -247,7 +247,7 @@ def main():
     foreground_rows = [item["foreground"] for track in identities.values() for item in track["constituents"] if item.get("foreground")]
     metrics["foreground_purity_mean"] = mean_known(foreground_rows, "purity")
     metrics["foreground_coverage_mean"] = mean_known(foreground_rows, "coverage")
-    report = {"scope": "PRIVATE_EVALUATOR_ONLY_INDEPENDENT_OF_PUBLIC_FOREGROUND", "taxonomy_version": "a1-taxonomy-v2-explicit-assets", "taxonomy": TAXONOMY, "rules": {"constituent_assignment": "deterministic_maximum_weight_one_to_one_class_matched_iou_ge_0.5", "identity_rule": "verified only when every constituent matches one distinct identity; unmatched is uncertain and distinct identities are contamination", "relation": "private-mask observed-surface 2cm voxels; obs001 heading; bidirectional 10th-percentile gap; 0.19m fixed uncertainty margin"}, "input_hashes": {"method": sha256(args.method), "config": sha256(args.config), "private_instances": sha256(args.private_dir / "instances.json"), "public_calibration": sha256(args.public_input_dir / "calibration_selfpose.json")}, "ground_truth_instances": list(instances.values()), "ground_truth_answers": answers, "constituent_assignments": assignment_diagnostics, "track_identities": identities, "rows": rows, "metrics": metrics}
+    report = {"scope": "PRIVATE_EVALUATOR_ONLY_INDEPENDENT_OF_PUBLIC_FOREGROUND", "taxonomy_version": "a1-taxonomy-v2-explicit-assets", "taxonomy": TAXONOMY, "rules": {"constituent_assignment": "deterministic_maximum_weight_one_to_one_class_matched_iou_ge_0.5", "identity_rule": "verified only when every constituent matches one distinct identity; unmatched is uncertain and distinct identities are contamination", "relation": "private-mask observed-surface configured voxels; obs001 heading; bidirectional 10th-percentile gap; configured ambiguity and side margins widened by private voxel uncertainty"}, "input_hashes": {"method": sha256(args.method), "config": sha256(args.config), "private_instances": sha256(args.private_dir / "instances.json"), "public_calibration": sha256(args.public_input_dir / "calibration_selfpose.json")}, "ground_truth_instances": list(instances.values()), "ground_truth_answers": answers, "constituent_assignments": assignment_diagnostics, "track_identities": identities, "rows": rows, "metrics": metrics}
     args.output_dir.mkdir(parents=True)
     (args.output_dir / "evaluation.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(metrics))

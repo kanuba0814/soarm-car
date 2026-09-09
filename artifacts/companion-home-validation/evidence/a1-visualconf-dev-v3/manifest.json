@@ -1,0 +1,19 @@
+{
+  "scope": "A1_DEVELOPMENT_V3_RELATION_CORRECTION_ORIGINAL_LAYOUT_ONLY",
+  "supersedes": {"a1-visualconf-dev-v2": "relation semantics superseded: v2 discarded perturbed component geometry and did not enforce side-of-table intervals"},
+  "rules": "config/a1_visualconf_dev_v1.json version a1-visualconf-dev-v3-relation-correction",
+  "replay": {
+    "broker": "python3 scripts/prepare_a1_visualconf_public_inputs.py --public-dir artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final/public --frozen-detections artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/yolo/results.json --acquisition-dir artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1 --config config/a1_visualconf_dev_v1.json --output-dir <public-input>",
+    "public": "python3 scripts/run_a1_visualconf_public.py --public-dir artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final/public --public-input-dir <public-input> --config config/a1_visualconf_dev_v1.json --output-dir <method>",
+    "private": "python3 scripts/evaluate_a1_visualconf_private.py --private-dir artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final/private --public-dir artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final/public --public-input-dir <public-input> --method <method>/method.json --config config/a1_visualconf_dev_v1.json --output-dir <evaluation>"
+  },
+  "hashes": {
+    "public_method.json.xz": "08588a0b653e0e35abdd2c4edd37e820fe1233b6533caca999ed8c5f5de7e9",
+    "private_evaluation.json.xz": "05ccb95c4eb15313879b4407c8a2d8c5aa45360f794c197624f25dcbdbae6e64",
+    "config": "704d16b40bcbd65889936e875a7faf4f81f19c2439e2e42c72ef1eaf11d67fb6",
+    "public_geometry": "3d0d3f0113a874b79cc1bca8b32b2f6ae7b76fdf9b55b74a24b1f5bad1c56881",
+    "private_evaluator": "ac84311195ada47c0c00b3011e985616857c92067aea0c0b61f9d49449e8ff4b"
+  },
+  "actual_dev_metrics": {"records": 24, "components": 9, "tracks": 12, "accepted": 12, "candidate_recall": 0.5, "forced_top1": null, "mrr": 0.25, "accepted_coverage": 0.5, "wrong_accepted": 0, "relation_unknown_rows": 16, "relation_reason_denominators": {"perturbation_geometry_failed": 16}},
+  "isolation": "bwrap mounted only code, public RGB-D, sanitized input, config, Python runtime, and output parent; canonical private GT path absent; normalized output matched unrestricted v3 replay."
+}

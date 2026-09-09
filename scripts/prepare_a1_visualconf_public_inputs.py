@@ -5,7 +5,7 @@ import json
 import math
 from pathlib import Path
 
-from a1_visualconf.public import sha256
+from a1_visualconf.public import sha256, validate_rules
 
 
 MOUNTING = {
@@ -29,11 +29,12 @@ def main():
     parser.add_argument("--public-dir", type=Path, required=True)
     parser.add_argument("--frozen-detections", type=Path, required=True)
     parser.add_argument("--acquisition-dir", type=Path, required=True)
+    parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
-    parser.add_argument("--tilt-limit-deg", type=float, default=5.0)
     args = parser.parse_args()
     if args.output_dir.exists():
         raise SystemExit("refusing to overwrite output directory")
+    rules = validate_rules(json.loads(args.config.read_text())["rules"])
     manifest = json.loads((args.public_dir / "manifest.json").read_text())
     frozen = json.loads(args.frozen_detections.read_text())
     capture = json.loads((args.acquisition_dir / "capture.json").read_text())
@@ -49,19 +50,19 @@ def main():
         tilts = [tilt_degrees(item["entity"]["orientation"]) for item in samples]
         source_time_ok = observation["rgb_stamp_ns"] == capture_record["rgb_stamp_ns"] and observation["depth_stamp_ns"] == capture_record["depth_stamp_ns"]
         maximum_tilt = max(tilts, default=float("inf"))
-        eligible = source_time_ok and bool(samples) and maximum_tilt <= args.tilt_limit_deg
+        eligible = source_time_ok and bool(samples) and maximum_tilt <= rules["tilt_limit_deg"]
         gates[observation_id] = {"opaque_observation_id": observation_id, "source_time_valid": source_time_ok, "window_sample_count": len(samples), "max_window_tilt_deg": maximum_tilt, "eligible": eligible, "reason": None if eligible else "invalid_physical_placement"}
         calibration[observation_id] = {"opaque_observation_id": observation_id, "self_pose": observation["self_pose"], "camera_mounting": MOUNTING}
         sanitized = []
         for index, box in enumerate(frozen_by_id.get(observation_id, {}).get("raw_boxes", [])):
-            if box.get("label") in ("chair", "dining table", "couch") and float(box.get("confidence", 0)) >= .1:
+            if box.get("label") in ("chair", "dining table", "couch") and float(box.get("confidence", 0)) >= rules["detector_confidence"]:
                 sanitized.append({"detection_index": index, "label": box["label"], "confidence": float(box["confidence"]), "box_xyxy": [float(value) for value in box["xyxy_pixels"]]})
         detections[observation_id] = sanitized
     args.output_dir.mkdir(parents=True)
     (args.output_dir / "detections.json").write_text(json.dumps({"scope": "PUBLIC_SANITIZED_DETECTIONS", "observations": detections}, indent=2) + "\n")
     (args.output_dir / "gates.json").write_text(json.dumps({"scope": "PUBLIC_VALIDATED_GATES", "observations": gates}, indent=2) + "\n")
     (args.output_dir / "calibration_selfpose.json").write_text(json.dumps({"scope": "PUBLIC_CALIBRATION_AND_SELFPOSE", "observations": calibration}, indent=2) + "\n")
-    (args.output_dir / "input_hashes.json").write_text(json.dumps({"public_manifest_sha256": sha256(args.public_dir / "manifest.json"), "frozen_detections_sha256": sha256(args.frozen_detections), "acquisition_capture_sha256": sha256(args.acquisition_dir / "capture.json"), "acquisition_pose_stream_sha256": sha256(args.acquisition_dir / "raw_native_dynamic_pose_stream.json")}, indent=2) + "\n")
+    (args.output_dir / "input_hashes.json").write_text(json.dumps({"public_manifest_sha256": sha256(args.public_dir / "manifest.json"), "frozen_detections_sha256": sha256(args.frozen_detections), "acquisition_capture_sha256": sha256(args.acquisition_dir / "capture.json"), "acquisition_pose_stream_sha256": sha256(args.acquisition_dir / "raw_native_dynamic_pose_stream.json"), "config_sha256": sha256(args.config)}, indent=2) + "\n")
     print(json.dumps({"observations": len(gates), "eligible": sum(item["eligible"] for item in gates.values()), "sanitized_detections": sum(len(item) for item in detections.values())}))
 
 

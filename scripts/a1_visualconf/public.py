@@ -12,6 +12,25 @@ COMPONENT_DEPTH_ABS_M = 0.05
 COMPONENT_DEPTH_REL = 0.02
 MIN_COMPONENT_PIXELS = 100
 MIN_COMPONENT_RATIO = 0.05
+REQUIRED_RULES = {
+    "tilt_limit_deg", "detector_confidence", "floor_z_m", "floor_clearance_m",
+    "track_xy_gate_m", "reprojection_gate", "depth_compatibility_m",
+    "association_cost_margin", "duplicate_iou", "duplicate_component_overlap",
+    "component_depth_abs_m", "component_depth_relative", "component_min_pixels",
+    "component_min_valid_ratio", "central_support_ratio", "box_perturbation_fraction",
+    "depth_perturbations_m", "top_two_margin", "relation_ambiguity_m",
+    "relation_side_margin_m", "surface_voxel_m",
+}
+
+
+def validate_rules(rules):
+    missing = REQUIRED_RULES - set(rules)
+    unknown = set(rules) - REQUIRED_RULES
+    if missing or unknown:
+        raise ValueError(f"invalid A1 rules: missing={sorted(missing)} unknown={sorted(unknown)}")
+    if len(rules["depth_perturbations_m"]) != 2 or rules["track_xy_gate_m"] <= 0 or rules["surface_voxel_m"] <= 0:
+        raise ValueError("invalid A1 rule values")
+    return rules
 
 
 def sha256(path):
@@ -85,7 +104,41 @@ def connected_components(valid, depth):
     return components
 
 
-def foreground(depth, invalid, info, transform, box, depth_offset_m=0.0):
+def connected_components_with_rules(valid, depth, rules):
+    height, width = valid.shape
+    visited = np.zeros_like(valid, dtype=bool)
+    components = []
+    for row, column in np.argwhere(valid):
+        if visited[row, column]:
+            continue
+        visited[row, column] = True
+        pending, points = deque([(int(row), int(column))]), []
+        while pending:
+            current_row, current_column = pending.popleft()
+            points.append((current_row, current_column))
+            current_depth = float(depth[current_row, current_column])
+            for next_row, next_column in ((current_row - 1, current_column), (current_row + 1, current_column), (current_row, current_column - 1), (current_row, current_column + 1)):
+                if next_row < 0 or next_row >= height or next_column < 0 or next_column >= width or not valid[next_row, next_column] or visited[next_row, next_column]:
+                    continue
+                next_depth = float(depth[next_row, next_column])
+                if abs(current_depth - next_depth) <= max(rules["component_depth_abs_m"], rules["component_depth_relative"] * max(current_depth, next_depth)):
+                    visited[next_row, next_column] = True
+                    pending.append((next_row, next_column))
+        components.append(np.asarray(points, dtype=int))
+    return components
+
+
+def voxelize_points(points, size):
+    points = np.asarray(points, dtype=float)
+    if not len(points):
+        return []
+    grouped = {}
+    for key, point in zip(map(tuple, np.floor(points / size).astype(int)), points):
+        grouped.setdefault(key, []).append(point)
+    return [np.mean(group, axis=0).tolist() for group in grouped.values()]
+
+
+def foreground(depth, invalid, info, transform, box, rules, depth_offset_m=0.0):
     height, width = depth.shape
     left, top, right, bottom = clip_box(box, width, height)
     if right <= left or bottom <= top:
@@ -99,17 +152,17 @@ def foreground(depth, invalid, info, transform, box, depth_offset_m=0.0):
     global_pixels = local_pixels + np.asarray([top, left])
     origin, rotation = transform
     world = backproject(depth + depth_offset_m, info, global_pixels) @ rotation.T + origin
-    floor_ok = np.abs(world[:, 2] - FLOOR_Z_M) > FLOOR_CLEARANCE_M
+    floor_ok = np.abs(world[:, 2] - rules["floor_z_m"]) > rules["floor_clearance_m"]
     retained = np.zeros_like(valid)
     floor_pixels = local_pixels[floor_ok]
     retained[floor_pixels[:, 0], floor_pixels[:, 1]] = True
-    components = connected_components(retained, local_depth)
+    components = connected_components_with_rules(retained, local_depth, rules)
     central = (int((right - left) * .2), int((right - left) * .8), int((bottom - top) * .2), int((bottom - top) * .8))
     evidence = []
     for component in components:
         count = len(component)
         support = int(((component[:, 1] >= central[0]) & (component[:, 1] < central[1]) & (component[:, 0] >= central[2]) & (component[:, 0] < central[3])).sum())
-        if count >= MIN_COMPONENT_PIXELS and count / valid_count >= MIN_COMPONENT_RATIO:
+        if count >= rules["component_min_pixels"] and count / valid_count >= rules["component_min_valid_ratio"]:
             evidence.append((support, component))
     component_rows = [{"pixels": int(len(component)), "central_support_pixels": support, "central_support_ratio": support / max(1, len(component))} for support, component in evidence]
     if not evidence:
@@ -117,22 +170,23 @@ def foreground(depth, invalid, info, transform, box, depth_offset_m=0.0):
     evidence.sort(key=lambda item: item[0], reverse=True)
     support, selected = evidence[0]
     runner_support = evidence[1][0] if len(evidence) > 1 else 0
-    if support < 2 * runner_support:
+    if support < rules["central_support_ratio"] * runner_support:
         return {"failure": "foreground_ambiguous", "box_xyxy": [left, top, right, bottom], "valid_pixels": valid_count, "floor_removed_pixels": int((~floor_ok).sum()), "components": component_rows}
     pixels = selected + np.asarray([top, left])
     selected_world = backproject(depth + depth_offset_m, info, pixels) @ rotation.T + origin
     return {"failure": None, "box_xyxy": [left, top, right, bottom], "valid_pixels": valid_count, "floor_removed_pixels": int((~floor_ok).sum()), "components": component_rows, "selected_component": {"pixels": int(len(selected)), "central_support_pixels": support, "central_support_ratio": support / max(1, len(selected))}, "pixels_rc": pixels.tolist(), "world_points": selected_world.tolist(), "xy_median_m": np.median(selected_world[:, :2], axis=0).tolist(), "xy_extent_10_90_m": np.percentile(selected_world[:, :2], [10, 90], axis=0).tolist(), "depth_median_m": float(np.median(depth[pixels[:, 0], pixels[:, 1]] + depth_offset_m))}
 
 
-def add_sensitivity(depth, invalid, info, transform, box, nominal):
+def add_sensitivity(depth, invalid, info, transform, box, nominal, rules):
     left, top, right, bottom = box
     width, height = right - left, bottom - top
-    boxes = {"nominal": box, "inset_5pct": [left + .05 * width, top + .05 * height, right - .05 * width, bottom - .05 * height], "outset_5pct": [left - .05 * width, top - .05 * height, right + .05 * width, bottom + .05 * height]}
+    fraction = rules["box_perturbation_fraction"]
+    boxes = {"nominal": box, "inset": [left + fraction * width, top + fraction * height, right - fraction * width, bottom - fraction * height], "outset": [left - fraction * width, top - fraction * height, right + fraction * width, bottom + fraction * height]}
     measurements = []
     for name, changed in boxes.items():
-        for offset in (-.02, .02):
-            result = foreground(depth, invalid, info, transform, changed, offset)
-            measurements.append({"box_perturbation": name, "depth_offset_m": offset, "failure": result["failure"], "xy_median_m": result.get("xy_median_m"), "selected_pixels": result.get("selected_component", {}).get("pixels", 0)})
+        for offset in rules["depth_perturbations_m"]:
+            result = foreground(depth, invalid, info, transform, changed, rules, offset)
+            measurements.append({"box_perturbation": name, "depth_offset_m": offset, "failure": result["failure"], "xy_median_m": result.get("xy_median_m"), "selected_pixels": result.get("selected_component", {}).get("pixels", 0), "surface_voxels": voxelize_points(result.get("world_points", []), rules["surface_voxel_m"])})
     positions = [item["xy_median_m"] for item in measurements if item["xy_median_m"] is not None]
     origin = np.asarray(nominal["xy_median_m"]) if nominal.get("xy_median_m") else None
     nominal["sensitivity"] = {"measurements": measurements, "max_xy_shift_m": max((float(np.linalg.norm(np.asarray(point) - origin)) for point in positions), default=None) if origin is not None else None, "unstable": len(positions) != len(measurements)}
@@ -147,16 +201,16 @@ def project(world_points, transform, info):
     return pixels, camera[:, 2], positive
 
 
-def compatibility(candidate, prior, frames):
+def compatibility(candidate, prior, frames, rules):
     distance = float(np.linalg.norm(np.asarray(candidate["foreground"]["xy_median_m"]) - np.asarray(prior["foreground"]["xy_median_m"])))
-    if distance > .30:
+    if distance > rules["track_xy_gate_m"]:
         return None
     frame = frames[prior["observation_id"]]
     pixels, z, positive = project(candidate["foreground"]["world_points"], frame["transform"], frame["info"])
     box = prior["box_xyxy"]
     inside = positive & (pixels[:, 0] >= box[0]) & (pixels[:, 0] <= box[2]) & (pixels[:, 1] >= box[1]) & (pixels[:, 1] <= box[3])
     reprojection = float(inside.mean()) if len(inside) else 0.0
-    if reprojection < .50:
+    if reprojection < rules["reprojection_gate"]:
         return None
     rounded = np.rint(pixels[inside]).astype(int)
     height, width = frame["depth"].shape
@@ -165,10 +219,10 @@ def compatibility(candidate, prior, frames):
         return None
     target_depth = frame["depth"][rounded[in_image, 1], rounded[in_image, 0]]
     valid = ~frame["invalid"][rounded[in_image, 1], rounded[in_image, 0]] & np.isfinite(target_depth) & (target_depth > 0)
-    depth_ratio = float((np.abs(z[inside][in_image][valid] - target_depth[valid]) <= .10).mean()) if valid.any() else 0.0
-    if depth_ratio < .50:
+    depth_ratio = float((np.abs(z[inside][in_image][valid] - target_depth[valid]) <= rules["depth_compatibility_m"]).mean()) if valid.any() else 0.0
+    if depth_ratio < rules["reprojection_gate"]:
         return None
-    return {"xy_distance_m": distance, "reprojection_ratio": reprojection, "depth_compatibility_ratio": depth_ratio, "cost": distance / .30 + (1 - reprojection) + (1 - depth_ratio)}
+    return {"xy_distance_m": distance, "reprojection_ratio": reprojection, "depth_compatibility_ratio": depth_ratio, "cost": distance / rules["track_xy_gate_m"] + (1 - reprojection) + (1 - depth_ratio)}
 
 
 def component_overlap(first, second):
@@ -176,7 +230,7 @@ def component_overlap(first, second):
     return len(first_pixels & second_pixels) / len(first_pixels | second_pixels) if first_pixels | second_pixels else 0.0
 
 
-def associate(detections, frames):
+def associate(detections, frames, rules):
     tracks, audit = [], {"same_frame_duplicates": [], "association_ambiguities": [], "split_ambiguities": []}
     for detection in sorted(detections, key=lambda item: (item["observation_id"], item["detection_index"])):
         if detection["foreground"]["failure"]:
@@ -187,13 +241,13 @@ def associate(detections, frames):
             if track["label"] != detection["label"] or track["status"] != "active":
                 continue
             same = [prior for prior in track["detections"] if prior["observation_id"] == detection["observation_id"]]
-            if same and not all(box_iou(detection["box_xyxy"], prior["box_xyxy"]) >= .70 and component_overlap(detection, prior) >= .80 for prior in same):
+            if same and not all(box_iou(detection["box_xyxy"], prior["box_xyxy"]) >= rules["duplicate_iou"] and component_overlap(detection, prior) >= rules["duplicate_component_overlap"] for prior in same):
                 continue
-            checks = [compatibility(detection, prior, frames) for prior in track["detections"]]
+            checks = [compatibility(detection, prior, frames, rules) for prior in track["detections"]]
             if all(check is not None for check in checks):
                 options.append((float(np.mean([check["cost"] for check in checks])), track, bool(same), checks))
         options.sort(key=lambda item: item[0])
-        if len(options) > 1 and options[1][0] - options[0][0] < .20:
+        if len(options) > 1 and options[1][0] - options[0][0] < rules["association_cost_margin"]:
             audit["association_ambiguities"].append({"detection": [detection["observation_id"], detection["detection_index"]], "track_ids": [options[0][1]["track_id"], options[1][1]["track_id"]], "cost_margin": options[1][0] - options[0][0]})
             tracks.append({"track_id": f"track_{len(tracks) + 1:03d}", "label": detection["label"], "detections": [detection], "status": "association_ambiguous"})
         elif options:
@@ -213,42 +267,48 @@ def associate(detections, frames):
                 if first["status"] == second["status"] == "active":
                     first_xy = np.median([item["foreground"]["xy_median_m"] for item in first["detections"]], axis=0)
                     second_xy = np.median([item["foreground"]["xy_median_m"] for item in second["detections"]], axis=0)
-                    if np.linalg.norm(first_xy - second_xy) <= .30:
+                    if np.linalg.norm(first_xy - second_xy) <= rules["track_xy_gate_m"]:
                         audit["split_ambiguities"].append({"label": label, "track_ids": [first["track_id"], second["track_id"]], "reason": "nearby_tracks_preserved_without_transitive_merge"})
     return tracks, audit
 
 
-def voxelize(detections):
+def voxelize(detections, rules):
     arrays = [np.asarray(item["foreground"]["world_points"], dtype=float) for item in detections if item["foreground"].get("world_points")]
-    if not arrays:
-        return []
-    points, grouped = np.vstack(arrays), {}
-    for key, point in zip(map(tuple, np.floor(points / .02).astype(int)), points):
-        grouped.setdefault(key, []).append(point)
-    return [np.mean(value, axis=0).tolist() for value in grouped.values()]
+    return voxelize_points(np.vstack(arrays), rules["surface_voxel_m"]) if arrays else []
 
 
-def score_tracks(tracks):
+def score_tracks(tracks, rules):
     for track in tracks:
         usable = [item for item in track["detections"] if not item["foreground"]["failure"]]
         positions = np.asarray([item["foreground"]["xy_median_m"] for item in usable], dtype=float)
         track["V"] = max(item["confidence"] for item in track["detections"])
         distinct = len({item["observation_id"] for item in usable})
         residual = float(np.median(np.linalg.norm(positions - np.median(positions, axis=0), axis=1))) if len(positions) > 1 else 0.0
-        track["M"] = min(1.0, (distinct - 1) / 2) * math.exp(-residual / .10) if distinct > 1 else 0.0
+        track["M"] = min(1.0, (distinct - 1) / 2) * math.exp(-residual / rules["depth_compatibility_m"]) if distinct > 1 else 0.0
         track["M_evidence"] = {"distinct_observations": distinct, "median_xy_residual_m": residual}
-        track["surface_voxels_2cm"] = voxelize(usable)
+        track["surface_voxels_2cm"] = voxelize(usable, rules)
+        alternatives = [track["surface_voxels_2cm"]]
+        failures = []
+        for detection in usable:
+            sensitivity = detection["foreground"].get("sensitivity", {})
+            for measurement in sensitivity.get("measurements", []):
+                if measurement["failure"] or not measurement["surface_voxels"]:
+                    failures.append({"observation_id": detection["observation_id"], "measurement": measurement})
+                else:
+                    alternatives.append(measurement["surface_voxels"])
+        track["relation_surface_envelopes"] = alternatives
+        track["relation_geometry_failures"] = failures
 
 
-def surface_gap(first, second):
-    one, two = np.asarray(first["surface_voxels_2cm"]), np.asarray(second["surface_voxels_2cm"])
+def surface_gap_points(first, second):
+    one, two = np.asarray(first), np.asarray(second)
     if not len(one) or not len(two):
         return None
     distances = np.linalg.norm(one[:, None, :2] - two[None, :, :2], axis=2)
     return float(max(np.percentile(distances.min(axis=1), 10), np.percentile(distances.min(axis=0), 10)))
 
 
-def relation_values(kind, tracks, heading):
+def relation_values(kind, tracks, heading, rules):
     chairs = [track for track in tracks if track["label"] == "chair" and track["status"] == "active"]
     anchors = [track for track in tracks if track["label"] == "dining table" and track["status"] == "active"]
     if len(anchors) != 1:
@@ -256,20 +316,56 @@ def relation_values(kind, tracks, heading):
     if not chairs:
         return None, "no_public_candidate"
     anchor = anchors[0]
-    if not anchor["surface_voxels_2cm"] or any(not chair["surface_voxels_2cm"] for chair in chairs):
-        return None, "incomplete_observed_surface"
-    anchor_xy = np.median(np.asarray(anchor["surface_voxels_2cm"])[:, :2], axis=0)
+    required = [anchor] + chairs
+    if any(track.get("relation_geometry_failures") or not track.get("relation_surface_envelopes") for track in required):
+        return None, "perturbation_geometry_failed"
     lateral = np.array([-math.sin(heading), math.cos(heading)])
-    values = {}
+    intervals = {}
     for chair in chairs:
-        if kind in ("nearest_chair_table", "farthest_chair_table"):
-            values[chair["track_id"]] = surface_gap(chair, anchor)
-        else:
-            values[chair["track_id"]] = float(np.dot(np.median(np.asarray(chair["surface_voxels_2cm"])[:, :2], axis=0) - anchor_xy, lateral))
-    return values, None
+        values = []
+        for candidate_surface in chair["relation_surface_envelopes"]:
+            for anchor_surface in anchor["relation_surface_envelopes"]:
+                if kind in ("nearest_chair_table", "farthest_chair_table"):
+                    value = surface_gap_points(candidate_surface, anchor_surface)
+                else:
+                    value = float(np.dot(np.median(np.asarray(candidate_surface)[:, :2], axis=0) - np.median(np.asarray(anchor_surface)[:, :2], axis=0), lateral))
+                if value is None:
+                    return None, "perturbation_geometry_failed"
+                values.append(value)
+        intervals[chair["track_id"]] = {"lower": min(values), "upper": max(values), "samples": values}
+    return intervals, None
+
+
+def choose_relation(kind, intervals, rules):
+    margin = rules["relation_ambiguity_m"]
+    side_margin = rules["relation_side_margin_m"]
+    if kind.startswith("leftmost"):
+        eligible = {key: value for key, value in intervals.items() if value["upper"] < -side_margin}
+        if not eligible:
+            return None, "no_definite_left_side"
+        winner = min(eligible, key=lambda key: eligible[key]["upper"])
+        if any(key != winner and eligible[key]["lower"] <= eligible[winner]["upper"] + margin for key in eligible):
+            return None, "relation_order_changes_under_perturbation"
+    elif kind.startswith("rightmost"):
+        eligible = {key: value for key, value in intervals.items() if value["lower"] > side_margin}
+        if not eligible:
+            return None, "no_definite_right_side"
+        winner = max(eligible, key=lambda key: eligible[key]["lower"])
+        if any(key != winner and eligible[key]["upper"] >= eligible[winner]["lower"] - margin for key in eligible):
+            return None, "relation_order_changes_under_perturbation"
+    elif kind.startswith("nearest"):
+        winner = min(intervals, key=lambda key: intervals[key]["upper"])
+        if any(key != winner and intervals[key]["lower"] <= intervals[winner]["upper"] + margin for key in intervals):
+            return None, "relation_order_changes_under_perturbation"
+    else:
+        winner = max(intervals, key=lambda key: intervals[key]["lower"])
+        if any(key != winner and intervals[key]["upper"] >= intervals[winner]["lower"] - margin for key in intervals):
+            return None, "relation_order_changes_under_perturbation"
+    return winner, None
 
 
 def make_records(config, tracks, reference_heading):
+    rules = validate_rules(config["rules"])
     records = []
     for variant in ("V", "V+R", "V+M", "V+R+M"):
         for query in config["queries"]:
@@ -277,29 +373,27 @@ def make_records(config, tracks, reference_heading):
             label = "couch" if kind == "couch" else "chair"
             candidates = [track for track in tracks if track["label"] == label and track["status"] == "active"]
             relational = kind not in ("chair", "couch")
-            relation, relation_reason = relation_values(kind, tracks, reference_heading) if relational else ({}, None)
+            relation, relation_reason = relation_values(kind, tracks, reference_heading, rules) if relational else ({}, None)
+            winner, stability_reason = choose_relation(kind, relation, rules) if relation is not None and relational else (None, relation_reason)
             ranking = []
             for track in candidates:
                 r_value = None
                 if relational and relation is not None:
-                    values = list(relation.values())
-                    r_value = (relation[track["track_id"]] - min(values)) / max(1e-9, max(values) - min(values))
-                    if kind.startswith(("leftmost", "nearest")):
-                        r_value = 1.0 - r_value
+                    interval = relation[track["track_id"]]
+                    r_value = 1.0 if track["track_id"] == winner else 0.0
+                    if winner is None:
+                        r_value = None
                 enabled = [track["V"]] + ([track["M"]] if "+M" in variant else []) + ([r_value] if "+R" in variant and relational and r_value is not None else [])
                 ranking.append({"track_id": track["track_id"], "score": float(sum(enabled) / len(enabled)), "V": track["V"], "M": track["M"], "R": r_value})
             ranking.sort(key=lambda item: item["score"], reverse=True)
-            uncertainty = max((item["foreground"].get("sensitivity", {}).get("max_xy_shift_m") or 0 for track in candidates for item in track["detections"]), default=0)
             accepted, reason = None, None
             if not ranking:
                 reason = "no_public_candidate"
-            elif relational and "+R" in variant and relation is None:
-                reason = relation_reason
-            elif relational and "+R" in variant and len(relation) > 1 and abs(sorted(relation.values())[-1] - sorted(relation.values())[-2]) <= .15 + 2 * uncertainty:
-                reason = "relation_ambiguity_margin"
-            elif len(ranking) > 1 and ranking[0]["score"] - ranking[1]["score"] < .05:
+            elif relational and "+R" in variant and (relation is None or winner is None):
+                reason = stability_reason
+            elif len(ranking) > 1 and ranking[0]["score"] - ranking[1]["score"] < rules["top_two_margin"]:
                 reason = "top_two_margin"
             else:
                 accepted = ranking[0]["track_id"]
-            records.append({"variant": variant, "query_id": query["id"], "query_kind": kind, "forced_ranking": ranking, "accepted_track_id": accepted, "abstain_reason": reason, "relation_status": "unknown" if relational and relation is None else "measured_or_not_required", "relation_reason": relation_reason, "relation_values": relation, "uncertainty_margin_m": .15 + 2 * uncertainty if relational else None})
+            records.append({"variant": variant, "query_id": query["id"], "query_kind": kind, "forced_ranking": ranking, "accepted_track_id": accepted, "abstain_reason": reason, "relation_status": "unknown" if relational and (relation is None or winner is None) else "measured_or_not_required", "relation_reason": stability_reason, "relation_intervals": relation, "uncertainty_margin_m": rules["relation_ambiguity_m"] if relational else None})
     return records

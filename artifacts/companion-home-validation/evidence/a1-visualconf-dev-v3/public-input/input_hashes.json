@@ -1,0 +1,7 @@
+{
+  "public_manifest_sha256": "59f8e589da53d4954cce00cf887fc82d43d9621cb9cc975b27176f094853b8f8",
+  "frozen_detections_sha256": "856018288e3e5e8edb064645944c94159fdbf561ecab4fce4c247633c14518ca",
+  "acquisition_capture_sha256": "aec35b8eaa4ec1a0e2e8a5644cb861366a8f1bb36294c526870cf9cd9ece4bb2",
+  "acquisition_pose_stream_sha256": "1f20cd733c0ac18aeb468a7a01575d24099de815dc4c3bcd89a0a3f187f2e2d4",
+  "config_sha256": "704d16b40bcbd65889936e875a7faf4f81f19c2439e2e42c72ef1eaf11d67fb6"
+}

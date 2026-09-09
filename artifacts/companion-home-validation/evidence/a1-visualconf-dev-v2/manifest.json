@@ -1,5 +1,6 @@
 {
   "scope": "A1_DEVELOPMENT_ORIGINAL_LAYOUT_ONLY_NOT_FINAL_TEST",
+  "superseded_by": "a1-visualconf-dev-v3: v2 relation semantics discarded perturbed component geometry and lacked required side-of-table interval predicates",
   "supersession": {
     "historical": "a1-visualconf-dev-v1 private numeric output",
     "status": "SUPERSEDED_INCOMPLETE",
