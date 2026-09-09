@@ -1,0 +1,37 @@
+{
+  "scope": "PUBLIC_RGBD_VLM_GRID_DEV_INPUT",
+  "source_archive_sha256": "f89bec0a7eef59f7aaee016704b2716cb3149c20389dc62eb9863e376b578e69",
+  "observations": [
+    "obs_001",
+    "obs_002",
+    "obs_003",
+    "obs_004"
+  ],
+  "allowed_files": [
+    "camera_info.json",
+    "depth_invalid_mask.npy",
+    "depth_m_float32.npy",
+    "rgb.png"
+  ],
+  "files": {
+    "calibration_selfpose.json": "3d7171d4c4a3b26c6fa74ca2d0c307b9775215acebd4c451984343e6afb4e541",
+    "detections.json": "3c2bb13c633be06d4bfc9543b0fa99df82cc303a02a7fe9ff61bdb9d1d76e863",
+    "gates.json": "b01c5c1e32c93c163377a692ad604e8eda210ebd3755090c09f9f1c1fd97d3da",
+    "obs_001/camera_info.json": "7d29954613fb40f11dab56bdea1f3593da5204b2dbd43b426c03a898ab8820e2",
+    "obs_001/depth_invalid_mask.npy": "586d4ba064d8c64652fe928b62d7b03a0bda5b3ffe82742a42c0f3593e3595cc",
+    "obs_001/depth_m_float32.npy": "a47cb6a03d85a75c7f0a6a114f2aed2ec39d585d7c1e8d74bda4b6f32f1b2f11",
+    "obs_001/rgb.png": "c0fa412b88d8042c4297415bcccc6373b6ba4893efefc8534bdec0ea2f5d5828",
+    "obs_002/camera_info.json": "78bf271bc3b3c4e220b29111168574065c85f0426c971e2fa7754c764964a26e",
+    "obs_002/depth_invalid_mask.npy": "ddfcda578fbf3880f1594ad50982c3612e93c190d9e2c812e59160ba4c8b524f",
+    "obs_002/depth_m_float32.npy": "b2b89a167c4ffb5738b2e0bc62efe2e6bc394019bbe3e586e7d5feaab452cd02",
+    "obs_002/rgb.png": "5cdac207162eb71f66ba402e6c0b7e0a6429527db15ab08c0fa8ed4e173ad1d6",
+    "obs_003/camera_info.json": "4699f1e4c3f9ddaf7ee350223f66defe4f2d7d20a3921cf4542f7a20c940a0c6",
+    "obs_003/depth_invalid_mask.npy": "fbf8b4293bd120ffb31efa4d789e72677e39d1ce9d53da3e68d7548afa970843",
+    "obs_003/depth_m_float32.npy": "4f51cae86052c8a5251a8d4166a8d69aedca1b25b2e1b054a436e93816592d47",
+    "obs_003/rgb.png": "59f3819c12ca7e6c646948ed47509e4abe57c2b1344f672af54fa69a59acc2f2",
+    "obs_004/camera_info.json": "f909483ced9602ed4608d91a78bf552b3215bd8fdfc046d1e48502a4109491c5",
+    "obs_004/depth_invalid_mask.npy": "a16d7cd99aac5560855a2cec7b4e52865adec1ffe70dbe23f34894dabf375ebf",
+    "obs_004/depth_m_float32.npy": "f0fb52fb3b51483c13a60b9a40ecf13c868293846d9e727a15266f61340f4b63",
+    "obs_004/rgb.png": "0fd269d1a4a4b71e88a1ee2eb46ac48b2757bd221cab7a56e165b0b29c667515"
+  }
+}

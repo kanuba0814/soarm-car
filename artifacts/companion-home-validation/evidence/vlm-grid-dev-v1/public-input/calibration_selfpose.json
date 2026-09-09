@@ -1,0 +1,209 @@
+{
+  "scope": "PUBLIC_CALIBRATION_AND_SELFPOSE",
+  "observations": {
+    "obs_001": {
+      "opaque_observation_id": "obs_001",
+      "self_pose": {
+        "source_stamp_ns": 925000000,
+        "interpolation": {
+          "lower_source_stamp_ns": 925000000,
+          "upper_source_stamp_ns": 925000000,
+          "bracket_gap_ns": 0,
+          "fraction": 0.0
+        },
+        "entity": {
+          "name": "kuruma",
+          "position": {
+            "x": 6.0,
+            "y": 2.5000000000000724,
+            "z": -0.00019761581308272436
+          },
+          "orientation": {
+            "x": 1.4738420486285043e-09,
+            "y": 1.4738384095356097e-09,
+            "z": -0.7071067811848163,
+            "w": 0.7071067811882787
+          }
+        }
+      },
+      "camera_mounting": {
+        "base_to_camera_translation_m": [
+          0.18,
+          0.0,
+          0.2263
+        ],
+        "optical_to_base_rows": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "description": "declared base-to-camera mount; optical +Z forward, +X right, +Y down"
+      }
+    },
+    "obs_002": {
+      "opaque_observation_id": "obs_002",
+      "self_pose": {
+        "source_stamp_ns": 2113000000,
+        "interpolation": {
+          "lower_source_stamp_ns": 2109000000,
+          "upper_source_stamp_ns": 2114000000,
+          "bracket_gap_ns": 5000000,
+          "fraction": 0.8
+        },
+        "entity": {
+          "name": "kuruma",
+          "position": {
+            "x": 5.100870574701707,
+            "y": 2.400376781999081,
+            "z": -4.166866874749931e-05
+          },
+          "orientation": {
+            "x": -8.82472347265968e-06,
+            "y": 5.2586244170686885e-05,
+            "z": -0.522706848034806,
+            "w": 0.8525124915063294
+          }
+        }
+      },
+      "camera_mounting": {
+        "base_to_camera_translation_m": [
+          0.18,
+          0.0,
+          0.2263
+        ],
+        "optical_to_base_rows": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "description": "declared base-to-camera mount; optical +Z forward, +X right, +Y down"
+      }
+    },
+    "obs_003": {
+      "opaque_observation_id": "obs_003",
+      "self_pose": {
+        "source_stamp_ns": 3367000000,
+        "interpolation": {
+          "lower_source_stamp_ns": 3365000000,
+          "upper_source_stamp_ns": 3370000000,
+          "bracket_gap_ns": 5000000,
+          "fraction": 0.4
+        },
+        "entity": {
+          "name": "kuruma",
+          "position": {
+            "x": 7.400931895924879,
+            "y": 2.299321677146693,
+            "z": -8.216318660754785e-05
+          },
+          "orientation": {
+            "x": 1.337010912657619e-06,
+            "y": 2.539858790192471e-06,
+            "z": 0.8912073599149684,
+            "w": -0.45359612170426855
+          }
+        }
+      },
+      "camera_mounting": {
+        "base_to_camera_translation_m": [
+          0.18,
+          0.0,
+          0.2263
+        ],
+        "optical_to_base_rows": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "description": "declared base-to-camera mount; optical +Z forward, +X right, +Y down"
+      }
+    },
+    "obs_004": {
+      "opaque_observation_id": "obs_004",
+      "self_pose": {
+        "source_stamp_ns": 4621000000,
+        "interpolation": {
+          "lower_source_stamp_ns": 4621000000,
+          "upper_source_stamp_ns": 4621000000,
+          "bracket_gap_ns": 0,
+          "fraction": 0.0
+        },
+        "entity": {
+          "name": "kuruma",
+          "position": {
+            "x": 5.9988757783553375,
+            "y": -0.39999999999744057,
+            "z": -0.00010129232417467604
+          },
+          "orientation": {
+            "x": -1.296944677182009e-07,
+            "y": 2.34650667911319e-08,
+            "z": 0.7071067811845484,
+            "w": 0.7071067811885344
+          }
+        }
+      },
+      "camera_mounting": {
+        "base_to_camera_translation_m": [
+          0.18,
+          0.0,
+          0.2263
+        ],
+        "optical_to_base_rows": [
+          [
+            0.0,
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            -1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "description": "declared base-to-camera mount; optical +Z forward, +X right, +Y down"
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "scope": "DEV_ONLY_VLM_GRID_MINI_DEMO",
+  "model": {
+    "id": "HuggingFaceTB/SmolVLM-500M-Instruct",
+    "revision": "a7da5b986cb59b408707209984f360a5f4ad7e47",
+    "dtype": "float16",
+    "max_new_tokens": 96,
+    "do_sample": false
+  },
+  "observations": ["obs_001", "obs_002", "obs_003", "obs_004"],
+  "grid": {
+    "resolution_m": 0.05,
+    "robot_radius_m": 0.5,
+    "approach_radius_m": 0.75,
+    "floor_clearance_m": 0.08,
+    "max_depth_m": 5.0,
+    "ray_stride_px": 6
+  },
+  "candidate_prompt": "The image has opaque candidate ID labels drawn on boxes. Select the one candidate that is most useful as a nearby movable seating target. Select only an ID visible in the image, or NO_MATCH. Do not invent IDs, coordinates, motion, or a route. Return exactly JSON: {\"candidate_id\":\"ID or NO_MATCH\",\"scene_description\":\"short factual description\"}.",
+  "description_prompt": "Describe the visible indoor scene in one short factual sentence. Do not infer navigation, motion, or objects outside the image."
+}

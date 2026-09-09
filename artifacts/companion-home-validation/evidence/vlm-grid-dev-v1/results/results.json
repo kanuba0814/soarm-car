@@ -1,0 +1,618 @@
+{
+  "scope": "DEV_ONLY_NO_ACTION_EXECUTION",
+  "inputs": {
+    "public_manifest_sha256": "f4636d09a86b3b72790db43b54f3d4278764bcec0bd92adecb6d0b63732d8199",
+    "config_sha256": "1ebd9fa0c65069691a747831763b87b575a19966bcc3dd41f4cb61d2c5776621"
+  },
+  "model": {
+    "id": "HuggingFaceTB/SmolVLM-500M-Instruct",
+    "revision": "a7da5b986cb59b408707209984f360a5f4ad7e47",
+    "local_files": {
+      "added_tokens.json": "74135b8664b56088c0006f1c8e848d79a8eba003411f72ebf1dc2ee96227be3a",
+      "chat_template.json": "a68ad1a42681ae44eacd109ff8dd56a840f761c03d72f4ff4c515d092f882168",
+      "config.json": "daacbbca6af3c34e50466c72aed2df4553a08084f6a0551d4ae420a241cb66c6",
+      "generation_config.json": "067a2a54e5f87162ecac6e0e911cc4665fc8f7f3324794ecbac0f76badb56636",
+      "merges.txt": "0b54e8aa4e53d5383e2e4bc635a56b43f9647f7b13832d5d9ecd8f82dac4f510",
+      "model.safetensors": "d05b567eeaf534e83d375551f068ed57b5f52d37c657197f644af5ef9db091a2",
+      "preprocessor_config.json": "6cb6e36d6fcb88ca1502c4a26750715dc3e7dedddc9a8f17b27d8d167d1457e7",
+      "processor_config.json": "e7bff42da73ae9eec9042ef20e066e11f1ee20f025358ff79131e3c0fb549b46",
+      "special_tokens_map.json": "aa0ff906077086dfa9734a7f97f68c825877a48f9468807be65504495cdeef09",
+      "tokenizer.json": "5ece781dc8d2b2f3e2f289ca0ae50b17cfc27dd27bfe7971bb8241e0b964331a",
+      "tokenizer_config.json": "36c6fd44d07d10fd8180ee6b46dcccf69fb7c06753968ff0d7e17b8bfe17b777",
+      "vocab.json": "82b84012e3add4d01d12ba14442026e49b8cbbaead1f79ecf3d919784f82dc79"
+    }
+  },
+  "runtime": {
+    "device": "cuda",
+    "load_seconds": 0.6285022990014113,
+    "peak_cuda_allocated_mib": 1371.857421875,
+    "per_query_latency_seconds": [
+      0.508850836999045,
+      0.24832701199920848,
+      0.14932786599820247,
+      0.2012972609991266,
+      0.21531765200052178,
+      0.22108373300216044,
+      0.2010532999993302,
+      0.24895894099972793
+    ]
+  },
+  "negative_checks": {
+    "invalid_json": "invalid_json",
+    "unknown_candidate": "unknown_candidate_id"
+  },
+  "records": [
+    {
+      "observation_id": "obs_001",
+      "raw_vlm_selection": " ID 0.",
+      "raw_vlm_description": " There are desks in a room with a white wall in the background.",
+      "selection_parse_error": "invalid_json",
+      "parsed_selection": null,
+      "candidates": [
+        {
+          "candidate_id": "obs_001:0",
+          "label": "chair",
+          "confidence": 0.8520731925964355,
+          "box_xyxy": [
+            178.81243896484375,
+            150.55426025390625,
+            319.9261779785156,
+            308.11181640625
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.303694817087804,
+            0.09646052615356138
+          ],
+          "depth_median_m": 2.223539352416992
+        },
+        {
+          "candidate_id": "obs_001:1",
+          "label": "chair",
+          "confidence": 0.1348864883184433,
+          "box_xyxy": [
+            33.55000305175781,
+            119.67544555664062,
+            105.96876525878906,
+            304.733154296875
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.901032646909167,
+            0.2105503734906511
+          ],
+          "depth_median_m": 2.109449625015259
+        }
+      ],
+      "grid": {
+        "frame": "per-observation RGB-D raycast in calibration self-pose world frame",
+        "saved_sensor_map_used": false,
+        "saved_sensor_map_reason": "no same-run camera/world transform observed",
+        "shape_cells": [
+          105,
+          114
+        ],
+        "coverage": {
+          "free_cells": 2034,
+          "occupied_or_padded_cells": 1734,
+          "unknown_cells": 8202
+        },
+        "candidate_results": {
+          "obs_001:0": {
+            "status": "rejected",
+            "reason": "all_approach_points_occupied_or_unknown"
+          },
+          "obs_001:1": {
+            "status": "rejected",
+            "reason": "all_approach_points_occupied_or_unknown"
+          }
+        }
+      },
+      "decisions": {
+        "geometry_only": {
+          "choice": "NO_FEASIBLE_CANDIDATE"
+        },
+        "vlm_only": {
+          "choice": "INVALID_RESPONSE",
+          "parse_error": "invalid_json"
+        },
+        "hybrid_gated": {
+          "choice": "NO_FEASIBLE_CANDIDATE",
+          "vlm_gate": {
+            "status": "rejected",
+            "reason": "invalid_json"
+          }
+        }
+      },
+      "latency_seconds": {
+        "selection": 0.508850836999045,
+        "description": 0.24832701199920848
+      }
+    },
+    {
+      "observation_id": "obs_002",
+      "raw_vlm_selection": " A.",
+      "raw_vlm_description": " A room with a piano and cabinets.",
+      "selection_parse_error": "invalid_json",
+      "parsed_selection": null,
+      "candidates": [
+        {
+          "candidate_id": "obs_002:0",
+          "label": "chair",
+          "confidence": 0.6734814047813416,
+          "box_xyxy": [
+            82.7333755493164,
+            102.34384155273438,
+            216.12454223632812,
+            368.509521484375
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.389548599319198,
+            1.0047417858945882
+          ],
+          "depth_median_m": 1.638794183731079
+        },
+        {
+          "candidate_id": "obs_002:1",
+          "label": "chair",
+          "confidence": 0.5207833647727966,
+          "box_xyxy": [
+            0.029754638671875,
+            0.10919189453125,
+            194.564453125,
+            355.8265075683594
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.027547242564581,
+            1.5017489016430074
+          ],
+          "depth_median_m": 1.0855531692504883
+        },
+        {
+          "candidate_id": "obs_002:2",
+          "label": "chair",
+          "confidence": 0.4762606918811798,
+          "box_xyxy": [
+            83.26020812988281,
+            102.12661743164062,
+            215.91600036621094,
+            285.820068359375
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.889683197148776,
+            0.33638185296705636
+          ],
+          "depth_median_m": 2.594902515411377
+        },
+        {
+          "candidate_id": "obs_002:3",
+          "label": "chair",
+          "confidence": 0.23255710303783417,
+          "box_xyxy": [
+            233.84474182128906,
+            28.993988037109375,
+            372.22021484375,
+            321.42425537109375
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            5.8597159650674,
+            0.8598974722068787
+          ],
+          "depth_median_m": 1.5384553670883179
+        }
+      ],
+      "grid": {
+        "frame": "per-observation RGB-D raycast in calibration self-pose world frame",
+        "saved_sensor_map_used": false,
+        "saved_sensor_map_reason": "no same-run camera/world transform observed",
+        "shape_cells": [
+          117,
+          110
+        ],
+        "coverage": {
+          "free_cells": 1720,
+          "occupied_or_padded_cells": 2784,
+          "unknown_cells": 8366
+        },
+        "candidate_results": {
+          "obs_002:0": {
+            "status": "rejected",
+            "reason": "all_approach_points_occupied_or_unknown"
+          },
+          "obs_002:1": {
+            "status": "feasible",
+            "grid": {
+              "approach_xy_m": [
+                5.497217156674671,
+                2.032078987532918
+              ],
+              "route_cells": [
+                [
+                  15,
+                  105
+                ],
+                [
+                  15,
+                  104
+                ],
+                [
+                  16,
+                  104
+                ],
+                [
+                  17,
+                  104
+                ],
+                [
+                  17,
+                  103
+                ],
+                [
+                  18,
+                  103
+                ],
+                [
+                  19,
+                  103
+                ],
+                [
+                  19,
+                  102
+                ],
+                [
+                  20,
+                  102
+                ],
+                [
+                  21,
+                  102
+                ],
+                [
+                  21,
+                  101
+                ]
+              ],
+              "route_length_m": 0.5
+            }
+          },
+          "obs_002:2": {
+            "status": "rejected",
+            "reason": "all_approach_points_occupied_or_unknown"
+          },
+          "obs_002:3": {
+            "status": "feasible",
+            "grid": {
+              "approach_xy_m": [
+                5.1352715953505985,
+                1.0540117560337694
+              ],
+              "route_cells": [
+                [
+                  15,
+                  105
+                ],
+                [
+                  15,
+                  104
+                ],
+                [
+                  15,
+                  103
+                ],
+                [
+                  15,
+                  102
+                ],
+                [
+                  15,
+                  101
+                ],
+                [
+                  15,
+                  100
+                ],
+                [
+                  15,
+                  99
+                ],
+                [
+                  15,
+                  98
+                ],
+                [
+                  14,
+                  98
+                ],
+                [
+                  14,
+                  97
+                ],
+                [
+                  14,
+                  96
+                ],
+                [
+                  14,
+                  95
+                ],
+                [
+                  14,
+                  94
+                ],
+                [
+                  14,
+                  93
+                ],
+                [
+                  14,
+                  92
+                ],
+                [
+                  14,
+                  91
+                ],
+                [
+                  14,
+                  90
+                ],
+                [
+                  14,
+                  89
+                ],
+                [
+                  14,
+                  88
+                ],
+                [
+                  14,
+                  87
+                ],
+                [
+                  14,
+                  86
+                ],
+                [
+                  14,
+                  85
+                ],
+                [
+                  14,
+                  84
+                ],
+                [
+                  14,
+                  83
+                ],
+                [
+                  14,
+                  82
+                ]
+              ],
+              "route_length_m": 1.2000000000000002
+            }
+          }
+        }
+      },
+      "decisions": {
+        "geometry_only": {
+          "choice": "obs_002:1"
+        },
+        "vlm_only": {
+          "choice": "INVALID_RESPONSE",
+          "parse_error": "invalid_json"
+        },
+        "hybrid_gated": {
+          "choice": "obs_002:1",
+          "vlm_gate": {
+            "status": "rejected",
+            "reason": "invalid_json"
+          }
+        }
+      },
+      "latency_seconds": {
+        "selection": 0.14932786599820247,
+        "description": 0.2012972609991266
+      }
+    },
+    {
+      "observation_id": "obs_003",
+      "raw_vlm_selection": " OBS_003:0.",
+      "raw_vlm_description": " There are chairs and tables in an empty room.",
+      "selection_parse_error": "invalid_json",
+      "parsed_selection": null,
+      "candidates": [
+        {
+          "candidate_id": "obs_003:0",
+          "label": "chair",
+          "confidence": 0.8427027463912964,
+          "box_xyxy": [
+            169.01654052734375,
+            133.9405517578125,
+            326.01190185546875,
+            307.05645751953125
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.201824389627237,
+            0.22485642666262484
+          ],
+          "depth_median_m": 2.162108898162842
+        },
+        {
+          "candidate_id": "obs_003:1",
+          "label": "dining table",
+          "confidence": 0.3398299813270569,
+          "box_xyxy": [
+            100.3009033203125,
+            0.0,
+            579.3627319335938,
+            388.79913330078125
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.804961349410689,
+            1.5261943631912616
+          ],
+          "depth_median_m": 0.844732940196991
+        },
+        {
+          "candidate_id": "obs_003:2",
+          "label": "chair",
+          "confidence": 0.19598960876464844,
+          "box_xyxy": [
+            392.65185546875,
+            1.070281982421875,
+            639.7474365234375,
+            480.0
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.588949118064908,
+            1.6885956463757685
+          ],
+          "depth_median_m": 0.8119211792945862
+        }
+      ],
+      "grid": {
+        "frame": "per-observation RGB-D raycast in calibration self-pose world frame",
+        "saved_sensor_map_used": false,
+        "saved_sensor_map_reason": "no same-run camera/world transform observed",
+        "shape_cells": [
+          118,
+          107
+        ],
+        "coverage": {
+          "free_cells": 1696,
+          "occupied_or_padded_cells": 2118,
+          "unknown_cells": 8812
+        },
+        "candidate_results": {
+          "obs_003:0": {
+            "status": "rejected",
+            "reason": "all_approach_points_occupied_or_unknown"
+          },
+          "obs_003:1": {
+            "status": "rejected",
+            "reason": "all_approach_points_occupied_or_unknown"
+          },
+          "obs_003:2": {
+            "status": "rejected",
+            "reason": "all_approach_points_occupied_or_unknown"
+          }
+        }
+      },
+      "decisions": {
+        "geometry_only": {
+          "choice": "NO_FEASIBLE_CANDIDATE"
+        },
+        "vlm_only": {
+          "choice": "INVALID_RESPONSE",
+          "parse_error": "invalid_json"
+        },
+        "hybrid_gated": {
+          "choice": "NO_FEASIBLE_CANDIDATE",
+          "vlm_gate": {
+            "status": "rejected",
+            "reason": "invalid_json"
+          }
+        }
+      },
+      "latency_seconds": {
+        "selection": 0.21531765200052178,
+        "description": 0.22108373300216044
+      }
+    },
+    {
+      "observation_id": "obs_004",
+      "raw_vlm_selection": " ID: 04:2.",
+      "raw_vlm_description": " A 3d rendering of a room with chairs and a table.",
+      "selection_parse_error": "invalid_json",
+      "parsed_selection": null,
+      "candidates": [
+        {
+          "candidate_id": "obs_004:0",
+          "label": "chair",
+          "confidence": 0.42947566509246826,
+          "box_xyxy": [
+            528.2305908203125,
+            122.77486419677734,
+            639.9794921875,
+            315.3438415527344
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            7.054512821249865,
+            1.8212622670132526
+          ],
+          "depth_median_m": 2.041262149810791
+        },
+        {
+          "candidate_id": "obs_004:2",
+          "label": "chair",
+          "confidence": 0.13439542055130005,
+          "box_xyxy": [
+            278.6019287109375,
+            1.815643310546875,
+            408.45849609375,
+            460.4104309082031
+          ],
+          "target_status": "ok",
+          "target_xy_m": [
+            6.0270495339288015,
+            0.9150954773398278
+          ],
+          "depth_median_m": 1.135095477104187
+        }
+      ],
+      "grid": {
+        "frame": "per-observation RGB-D raycast in calibration self-pose world frame",
+        "saved_sensor_map_used": false,
+        "saved_sensor_map_reason": "no same-run camera/world transform observed",
+        "shape_cells": [
+          114,
+          112
+        ],
+        "coverage": {
+          "free_cells": 461,
+          "occupied_or_padded_cells": 4119,
+          "unknown_cells": 8188
+        },
+        "candidate_results": {
+          "obs_004:0": {
+            "status": "rejected",
+            "reason": "all_approach_points_occupied_or_unknown"
+          },
+          "obs_004:2": {
+            "status": "rejected",
+            "reason": "all_approach_points_occupied_or_unknown"
+          }
+        }
+      },
+      "decisions": {
+        "geometry_only": {
+          "choice": "NO_FEASIBLE_CANDIDATE"
+        },
+        "vlm_only": {
+          "choice": "INVALID_RESPONSE",
+          "parse_error": "invalid_json"
+        },
+        "hybrid_gated": {
+          "choice": "NO_FEASIBLE_CANDIDATE",
+          "vlm_gate": {
+            "status": "rejected",
+            "reason": "invalid_json"
+          }
+        }
+      },
+      "latency_seconds": {
+        "selection": 0.2010532999993302,
+        "description": 0.24895894099972793
+      }
+    }
+  ],
+  "replay": "python scripts/run_vlm_grid_demo.py --public-dir artifacts/companion-home-validation/evidence/vlm-grid-dev-v1/public-input --config config/vlm_grid_dev_v1.json --model-dir /home/gxxl/.cache/soarm-vlm-grid/models/smolvlm-500m --output-dir <new-output-dir>"
+}

@@ -1,0 +1,37 @@
+{
+  "scope": "PUBLIC_VALIDATED_GATES",
+  "observations": {
+    "obs_001": {
+      "opaque_observation_id": "obs_001",
+      "source_time_valid": true,
+      "window_sample_count": 125,
+      "max_window_tilt_deg": 0.0,
+      "eligible": true,
+      "reason": null
+    },
+    "obs_002": {
+      "opaque_observation_id": "obs_002",
+      "source_time_valid": true,
+      "window_sample_count": 100,
+      "max_window_tilt_deg": 0.01289649741823147,
+      "eligible": true,
+      "reason": null
+    },
+    "obs_003": {
+      "opaque_observation_id": "obs_003",
+      "source_time_valid": true,
+      "window_sample_count": 100,
+      "max_window_tilt_deg": 0.00039964997555856917,
+      "eligible": true,
+      "reason": null
+    },
+    "obs_004": {
+      "opaque_observation_id": "obs_004",
+      "source_time_valid": true,
+      "window_sample_count": 101,
+      "max_window_tilt_deg": 1.5104797728455768e-05,
+      "eligible": true,
+      "reason": null
+    }
+  }
+}
