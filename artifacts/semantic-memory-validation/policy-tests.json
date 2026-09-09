@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "source_clock_id": "public-vlm-grid-dev-v1-source-stamp-ns",
+  "ttl_ns": 1500000000,
+  "tests": [
+    "actual archive validates all 19 manifest files and imports 11 observation-local detections",
+    "repeat import is idempotent",
+    "fresh independent query returns diningtable candidate with motion_authorized false",
+    "multiple fresh chairs stay unmerged and require confirmation",
+    "TTL boundary replay returns needs_confirmation when expired",
+    "future and incompatible clock queries require confirmation",
+    "unknown category returns not_found",
+    "out-of-order revision cannot replace newer revision",
+    "synthetic conflicting revisions retain references and require confirmation",
+    "newer synthetic evidence does not clear unresolved contradiction",
+    "importer CLI rejects hash mismatch and nonfinite calibration"
+  ],
+  "synthetic_revision_note": "Synthetic revisions test store policy only and are not evidence of actual object movement."
+}

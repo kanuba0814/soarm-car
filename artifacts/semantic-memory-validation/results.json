@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "public_input": "artifacts/companion-home-validation/evidence/vlm-grid-dev-v1/public-input",
+  "manifest_files_verified": 19,
+  "observations_imported": 4,
+  "detection_records": 11,
+  "first_imported_revisions": 11,
+  "repeat_imported_revisions": 0,
+  "all_rgb_references_resolvable_and_hashed": true,
+  "fresh_diningtable_query": {
+    "replay_time_ns": 4600000000,
+    "status": "candidates",
+    "candidate_ids": ["obs_003:1"],
+    "motion_authorized": false
+  },
+  "fresh_chair_query": {
+    "replay_time_ns": 4621000000,
+    "status": "needs_confirmation",
+    "reason": "multiple_unmerged_observation_local_candidates",
+    "candidate_ids": ["obs_003:0", "obs_003:2", "obs_004:0", "obs_004:2"],
+    "motion_authorized": false
+  },
+  "expired_diningtable_query": {
+    "replay_time_ns": 4900000000,
+    "status": "needs_confirmation",
+    "reason": "expired",
+    "motion_authorized": false
+  },
+  "absent_category_query": {
+    "status": "not_found",
+    "motion_authorized": false
+  }
+}
