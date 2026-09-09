@@ -210,7 +210,10 @@ def outcome(record, answer, identities):
     mrr = 1.0 / candidate_positions[0] if candidate_positions and not uncertain else (None if uncertain else 0.0)
     mrr_lower = 1.0 / candidate_positions[0] if candidate_positions else 0.0
     uncertain_positions = [index + 1 for index, item in enumerate(ranking) if identities[item["track_id"]]["status"] != "verified"]
-    mrr_upper = 1.0 / min(uncertain_positions) if uncertain_positions else mrr_lower
+    uncertain_best = 1.0 / min(uncertain_positions) if uncertain_positions else 0.0
+    mrr_upper = max(mrr_lower, uncertain_best)
+    if not 0.0 <= mrr_lower <= mrr_upper <= 1.0:
+        raise AssertionError("invalid MRR uncertainty interval")
     accepted = record["accepted_track_id"]
     accepted_correct = None if accepted is None or identities[accepted]["status"] != "verified" else identities[accepted]["identity"] in answer["identities"]
     return {"candidate_recall": candidate_recall, "forced_top1": top1, "mrr": mrr, "mrr_lower_bound": mrr_lower, "mrr_upper_bound": mrr_upper, "accepted_correct": accepted_correct, "score_status": "measured" if not uncertain else "partial_identity_uncertainty"}

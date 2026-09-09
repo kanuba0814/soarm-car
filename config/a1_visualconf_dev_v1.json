@@ -1,5 +1,5 @@
 {
-  "version": "a1-visualconf-dev-v5-viewgroup-correction",
+  "version": "a1-visualconf-dev-v6-mrr-bound-correction",
   "taxonomy": {"ChairA_01": "chair", "ChairD_01": "chair", "KitchenTable_01": "dining table", "SofaC_01": "couch", "CoffeeTable_01": "coffee table", "Tablet_01": "tablet"},
   "queries": [
     {"id": "Q1", "text_zh": "找一把椅子。", "kind": "chair"},

@@ -1,0 +1,8 @@
+{
+  "scope": "A1_DEVELOPMENT_V6_MRR_BOUND_CORRECTION",
+  "supersedes": "v5 MRR upper bound incorrectly discarded an earlier verified correct rank when uncertainty appeared later",
+  "hashes": {"public_method.json.xz": "e75ef334526ec3941d120d2d21816e7dc513f8750f35814b3b46374f85ddf555", "private_evaluation.json.xz": "5fe6c70cbcfb9eee2310ce3fd7f9cd75ffedadb98367545d942d07d24ee53b01", "config": "34a5528d22f204e3a6383d92850aae90d3d5b155bd219e808feaa5d3c0b1b37f", "private_evaluator": "8c3a4e2f7f37dfe430faf3a407c8c215d1e5680fb69b40654716e0fda37d3bcc", "heldout_runner": "8a08fbc2aa56a1aa29a1c54b3b8b81dd349d41d14a7035298102b1cc5c78a600"},
+  "mrr_interval_rule": "lower is best verified correct reciprocal or zero; upper is max(lower, best uncertain reciprocal); 0 <= lower <= upper <= 1",
+  "actual_dev": {"records": 24, "mrr": 0.0, "mrr_lower_bound": 0.25, "mrr_upper_bound": 0.5},
+  "heldout_execution": "Runner now has a concrete release-gated renderer/capture/YOLO/GT/broker/public/private/receipt chain. It was not invoked in this run."
+}
