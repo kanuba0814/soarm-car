@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>毕业助手实现检查器</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/public/app.css">
+</head>
+<body>
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">SOARM / GRADUATION EVIDENCE DESK</p>
+      <h1>毕业助手实现检查器</h1>
+    </div>
+    <div class="safety-badge"><span></span>离线辅助功能演示，不发送运动指令</div>
+  </header>
+
+  <main>
+    <section class="intro-band" aria-label="运行边界">
+      <div><strong>LOCALHOST</strong><small>127.0.0.1 只读服务</small></div>
+      <div><strong id="record-count">--</strong><small>公开观测局部记录</small></div>
+      <div><strong>motion_authorized: false</strong><small>查询结果不构成运动请求</small></div>
+    </section>
+
+    <section class="section architecture" aria-labelledby="arch-title">
+      <div class="section-title"><p class="kicker">01 / IMPLEMENTATION</p><h2 id="arch-title">定位与导航不是同一个模块</h2></div>
+      <div class="architecture-grid">
+        <article class="architecture-card localization">
+          <div class="card-head"><span class="number">A</span><h3>定位链</h3></div>
+          <p>LiDAR + IMU 形成连续里程计；ICP 对齐全局 PCD 后提供 map→odom 校正与健康状态。</p>
+          <code>FAST-LIO → ICP → transform_fusion</code>
+          <a href="#implementation-source">docs/navigation-localization-implementation.md</a>
+        </article>
+        <div class="flow-arrow" aria-hidden="true">定位健康 / TF →</div>
+        <article class="architecture-card navigation">
+          <div class="card-head"><span class="number">B</span><h3>导航链</h3></div>
+          <p>NavigateToPose 经 Nav2、SmacPlanner2D、Omni MPPI 与定位速度门控，最后才到机械轮控制器。</p>
+          <code>NavigateToPose → MPPI → localization_cmd_gate</code>
+          <a href="#implementation-source">docs/navigation-localization-implementation.md</a>
+        </article>
+      </div>
+      <p class="architecture-note">当前 AWS GUI 的 <code>VelocityControl</code> 是独立手动全向控制，<strong>不是 Nav2</strong>，不在此演示的动作路径中。</p>
+    </section>
+
+    <section class="section history" aria-labelledby="history-title">
+      <div class="section-title"><p class="kicker">02 / RECORDED NAVIGATION</p><h2 id="history-title">历史四目标路线</h2></div>
+      <div class="warning-line">历史记录，非当前实时运行。场景为简化、去家具、加宽开口的 house_floorplan，且从已知原点启动；不证明家具场景、任意初始位姿或硬件结果。</div>
+      <div class="table-wrap"><table><thead><tr><th>目标原始 ID</th><th>动作状态</th><th>定位终点误差</th><th>途中最大定位/真值差</th></tr></thead><tbody id="route-table"></tbody></table></div>
+      <p class="source-line">直接来源：<code id="nav-source">recovery/nav2-clean-41463f9/…/summary.json</code>（归档内保存的只读历史摘要）</p>
+    </section>
+
+    <section class="section memory" aria-labelledby="memory-title">
+      <div class="section-title"><p class="kicker">03 / LIVE ON REQUEST</p><h2 id="memory-title">离线语义记忆回放查询</h2></div>
+      <div class="memory-layout">
+        <div class="query-console">
+          <p>每次点击都调用已有持久化 store 的查询逻辑。仅允许公开归档中的固定类别与回放时间，且没有导航或执行端点。</p>
+          <fieldset><legend>类别</legend><div class="segmented" id="category-control"><button data-category="餐桌" class="selected">餐桌</button><button data-category="椅子">椅子</button><button data-category="不存在">不存在</button></div></fieldset>
+          <fieldset><legend>控制源回放时间</legend><div class="segmented" id="replay-control"><button data-replay="fresh" class="selected">鲜活 4.621 s</button><button data-replay="expired">过期 4.900 s</button></div></fieldset>
+          <button id="query-button" class="run-button">查询已导入记忆</button>
+          <p class="query-provenance">实现：<code>semantic_memory/core.py:query</code>；启动导入：<code>scripts/import_semantic_memory.py</code></p>
+        </div>
+        <article class="result-panel" aria-live="polite"><div class="result-heading"><span id="result-status">等待查询</span><code id="motion-state">motion_authorized: false</code></div><p id="result-reason">选择类别和回放时间后读取本地持久化记忆。</p><div id="candidate-list" class="candidate-list"></div></article>
+      </div>
+    </section>
+
+    <section class="section vlm" aria-labelledby="vlm-title">
+      <div class="section-title"><p class="kicker">04 / VLM EVIDENCE</p><h2 id="vlm-title">全图、裁剪与上下文比较</h2></div>
+      <div class="vlm-summary"><span><b id="strict-count">0/16</b> 严格格式有效</span><span><b id="adapter-count">16/16</b> 有限标签适配</span><span><b id="reversal-count">4/4</b> 反转标签改变选择</span><strong>尚未证实语义识别改善；不能据此执行动作</strong></div>
+      <div class="vlm-controls"><label>观测 <select id="observation-select"></select></label><div class="tab-list" role="tablist"><button role="tab" data-tab="full" class="selected">全图</button><button role="tab" data-tab="crops">裁剪</button><button role="tab" data-tab="context">上下文</button><button role="tab" data-tab="reversed">反转标签</button></div></div>
+      <div class="vlm-content"><figure><img id="vlm-image" alt="已保存的 VLM 比较证据"><figcaption id="vlm-file"></figcaption></figure><article class="raw-panel"><h3>保存的原始输出</h3><dl id="vlm-output"></dl><p id="vlm-candidates"></p><p id="vlm-budget"></p></article></div>
+      <p class="source-line">结果：<code>artifacts/companion-home-validation/evidence/vlm-crop-context-v1/results/results.json</code>；独立校验：<code>scripts/verify_vlm_crop_context_results.py</code></p>
+    </section>
+
+    <section class="section sources" id="implementation-source" aria-labelledby="source-title">
+      <div class="section-title"><p class="kicker">SOURCE INDEX</p><h2 id="source-title">已引用的实现与证据</h2></div>
+      <div class="source-grid"><code>docs/navigation-localization-implementation.md</code><code>semantic_memory/core.py</code><code>scripts/query_semantic_memory.py</code><code>scripts/verify_vlm_crop_context_results.py</code></div>
+    </section>
+  </main>
+  <footer>本地操作历史仅保存在当前页面内；不保存凭据，不暴露源文件系统。</footer>
+  <script src="/public/app.js"></script>
+</body>
+</html>

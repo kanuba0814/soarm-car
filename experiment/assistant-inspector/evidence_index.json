@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "semantic_memory": {
+    "public_input": "artifacts/companion-home-validation/evidence/vlm-grid-dev-v1/public-input",
+    "manifest_files_verified": 19,
+    "observation_records": 11,
+    "source": "artifacts/semantic-memory-validation/results.json"
+  },
+  "navigation_history": {
+    "source": "recovery/nav2-clean-41463f9/untracked-allowlist.tar.gz:artifacts/nav2-clean-direct-mppi-20260905T173147Z/summary.json",
+    "recorded_only": true,
+    "environment": "简化、去家具、加宽开口的 house_floorplan；已知原点启动",
+    "routes": [
+      {"id": "room-1", "status": 4, "status_name": "SUCCEEDED", "localization_goal_error_m": 0.14856709511427904, "localization_truth_error_max_m": 0.05991582711759469},
+      {"id": "room-2", "status": 4, "status_name": "SUCCEEDED", "localization_goal_error_m": 0.1415487360593602, "localization_truth_error_max_m": 0.05040339106496874},
+      {"id": "room-3", "status": 4, "status_name": "SUCCEEDED", "localization_goal_error_m": 0.1654187013144025, "localization_truth_error_max_m": 0.05652022180094544},
+      {"id": "mian", "status": 4, "status_name": "SUCCEEDED", "localization_goal_error_m": 0.14964295847494255, "localization_truth_error_max_m": 0.09412420081432717}
+    ]
+  },
+  "vlm_crop_context": {
+    "results": "artifacts/companion-home-validation/evidence/vlm-crop-context-v1/results/results.json",
+    "overlay_root": "artifacts/companion-home-validation/evidence/vlm-crop-context-v1/results/overlays",
+    "observations": 4,
+    "strict_format_valid": 0,
+    "finite_label_adapter_valid": 16,
+    "reversal_flips": 4,
+    "reversal_total": 4,
+    "semantic_conclusion": "NO semantic improvement",
+    "generation_calls": 16,
+    "generation_budget": 24
+  }
+}

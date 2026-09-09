@@ -1,0 +1,28 @@
+{
+    "date": "2026-09-09",
+    "scope": "Merged local offline inspector; not navigation execution",
+    "origin": "http://127.0.0.1:8766",
+    "browser_checks": {
+        "page_load": "passed",
+        "fresh_dining_table": "candidates; obs_003:1; motion_authorized=false",
+        "expired_dining_table": "needs_confirmation; expired",
+        "fresh_chairs": "needs_confirmation",
+        "absent_category": "not_found",
+        "reversed_label_tab": "obs_001_full_annotated_permuted.png displayed",
+        "public_images_loaded": true,
+        "console_page_network_qa": "passed"
+    },
+    "http_checks": {
+        "head_with_query": 400,
+        "path_traversal": 404,
+        "unknown_category": 400,
+        "extra_file_parameter": 400,
+        "overview": 200
+    },
+    "parent_corrections": [
+        "HEAD rejection now terminates response headers",
+        "UI says semantic improvement not established rather than proving no improvement"
+    ],
+    "screenshot": "parent-browser-verified.png",
+    "motion_commands_sent": false
+}
