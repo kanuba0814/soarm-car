@@ -9,5 +9,5 @@
     {"id": "Q5", "text_zh": "按本组观测到的物体表面间隙，找离餐桌最近的一把椅子。", "kind": "nearest_chair_table"},
     {"id": "Q6", "text_zh": "按本组观测到的物体表面间隙，找离餐桌最远的一把椅子。", "kind": "farthest_chair_table"}
   ],
-  "rules": {"tilt_limit_deg": 5.0, "track_xy_gate_m": 0.3, "duplicate_iou": 0.7, "top_two_margin": 0.05, "relation_ambiguity_m": 0.15, "detector_confidence": 0.1}
+  "rules": {"tilt_limit_deg": 5.0, "track_xy_gate_m": 0.3, "reprojection_gate": 0.5, "depth_compatibility_m": 0.1, "association_cost_margin": 0.2, "duplicate_iou": 0.7, "duplicate_component_overlap": 0.8, "component_depth_abs_m": 0.05, "component_depth_relative": 0.02, "component_min_pixels": 100, "component_min_valid_ratio": 0.05, "top_two_margin": 0.05, "relation_ambiguity_m": 0.15, "surface_voxel_m": 0.02, "detector_confidence": 0.1}
 }
