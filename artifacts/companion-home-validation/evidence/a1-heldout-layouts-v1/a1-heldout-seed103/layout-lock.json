@@ -1,0 +1,84 @@
+{
+  "scope": "PRIVATE_HELDOUT_LAYOUT_DESIGN_ONLY",
+  "scene_id": "a1-heldout-seed103",
+  "seed": 103,
+  "source_world_sha256": "eb25db9b0a7ca10574fa6f908a10a47a6467c8f805785b54c8f3fa74980d6816",
+  "generated_world_sha256": "8f1413cca7dbce9649d3d14fe2de8cfc64600306d6b8ae3746484b39403157fe",
+  "changed_transforms": [
+    {
+      "name": "ChairA_01_001",
+      "before_pose": [
+        7.11516,
+        0.209028,
+        0.024685,
+        1e-06,
+        -0.0,
+        -1.55607
+      ],
+      "after_pose": [
+        7.667859329415367,
+        0.12522196642362748,
+        0.024685,
+        1e-06,
+        -0.0,
+        -1.55607
+      ],
+      "radial_shift_m": 0.55,
+      "tangential_shift_m": -0.1
+    },
+    {
+      "name": "ChairA_01_002",
+      "before_pose": [
+        6.25506,
+        0.219468,
+        0.011308,
+        0.0,
+        0.0,
+        -1.50414
+      ],
+      "after_pose": [
+        6.5578563821713685,
+        0.43021512558877506,
+        0.011308,
+        0.0,
+        0.0,
+        -1.50414
+      ],
+      "radial_shift_m": 0.31,
+      "tangential_shift_m": 0.2
+    },
+    {
+      "name": "ChairA_01_003",
+      "before_pose": [
+        6.06678,
+        1.68075,
+        0.01,
+        0.0,
+        -0.0,
+        1.56986
+      ],
+      "after_pose": [
+        6.5415354582468,
+        1.6151203202440347,
+        0.01,
+        0.0,
+        -0.0,
+        1.56986
+      ],
+      "radial_shift_m": 0.44,
+      "tangential_shift_m": -0.19
+    }
+  ],
+  "geometry_checks": {
+    "chair_radius_m": 0.28,
+    "minimum_changed_pair_clearance_m": 0.08,
+    "world_xy_bounds_m": [
+      -8.0,
+      8.0,
+      -6.0,
+      4.0
+    ],
+    "limitation": "Checks only changed-chair disc separation and declared world bounds. They are not whole-house collision, wall clearance, reachability, or renderer feasibility certification."
+  },
+  "limitation": "Checks only changed-chair disc separation and declared world bounds. They are not whole-house collision, wall clearance, reachability, or renderer feasibility certification."
+}

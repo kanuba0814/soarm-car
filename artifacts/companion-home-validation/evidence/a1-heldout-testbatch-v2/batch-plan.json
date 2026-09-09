@@ -1,0 +1,72 @@
+{
+  "scope": "READY_FOR_CAPTURE_NOT_EXECUTED",
+  "layout_plan_sha256": "b69496d5faa1f1308003157f659ac5d5ae834014704e962cde508df44a11d811",
+  "a1_config_sha256": "255abe5defb420e2a2a3845ca7ac015feabda7f635b2173e910fa1eabe66ebb3",
+  "survey_pose_sha256": "942bd679366187f319448224984e235950596b1b97740df93127a4bfa32e6c13",
+  "planned_rows_total": 72,
+  "layouts": [
+    {
+      "scene_id": "a1-heldout-seed101",
+      "seed": 101,
+      "runtime_root": "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed101",
+      "refuse_if_exists": [
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed101/capture",
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed101/public-input",
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed101/method",
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed101/private-evaluation",
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed101/raw-archive"
+      ],
+      "steps": [
+        "generate locked world and evaluator runtime overlay",
+        "capture eight fixed survey poses with at most two attempts per view and retain all failures",
+        "archive raw capture",
+        "sanitize broker",
+        "bwrap public runner",
+        "private evaluator",
+        "aggregate per-layout paired rows and unknown counts"
+      ]
+    },
+    {
+      "scene_id": "a1-heldout-seed103",
+      "seed": 103,
+      "runtime_root": "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed103",
+      "refuse_if_exists": [
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed103/capture",
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed103/public-input",
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed103/method",
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed103/private-evaluation",
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed103/raw-archive"
+      ],
+      "steps": [
+        "generate locked world and evaluator runtime overlay",
+        "capture eight fixed survey poses with at most two attempts per view and retain all failures",
+        "archive raw capture",
+        "sanitize broker",
+        "bwrap public runner",
+        "private evaluator",
+        "aggregate per-layout paired rows and unknown counts"
+      ]
+    },
+    {
+      "scene_id": "a1-heldout-seed107",
+      "seed": 107,
+      "runtime_root": "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed107",
+      "refuse_if_exists": [
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed107/capture",
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed107/public-input",
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed107/method",
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed107/private-evaluation",
+        "artifacts/companion-home-validation/evidence/a1-heldout-testbatch-v2/a1-heldout-seed107/raw-archive"
+      ],
+      "steps": [
+        "generate locked world and evaluator runtime overlay",
+        "capture eight fixed survey poses with at most two attempts per view and retain all failures",
+        "archive raw capture",
+        "sanitize broker",
+        "bwrap public runner",
+        "private evaluator",
+        "aggregate per-layout paired rows and unknown counts"
+      ]
+    }
+  ]
+}

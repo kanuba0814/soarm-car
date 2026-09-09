@@ -1,5 +1,6 @@
 {
   "scope": "A1_DEVELOPMENT_V4_AXIS_AND_MISSING_TARGET_CORRECTION",
+  "superseded_by": "a1-visualconf-dev-v5: M now uses decorrelated camera/bearing viewgroups rather than observation IDs",
   "supersedes": {"a1-visualconf-dev-v3": "RIGHT/LEFT axis polarity and empty definite-target Top-1 denominator corrected"},
   "hashes": {"public_method.json.xz": "857a08befc6b02e86ca196e3afc556d36518878d9cf768cfaff8cb31436ffaeb", "private_evaluation.json.xz": "5624e54896473fb6c8efabbfe6e2355515b0a0e8461681b112c4a1dc937571f9", "config": "3ccdbaba6d21db0215ef807dc0f1b0c846e80eeef7dbef3cc0912ae25f6a359e"},
   "actual_dev_metrics": {"records": 24, "candidate_recall": 0.5, "forced_top1": 0.0, "mrr": 0.0, "mrr_lower_bound": 0.25, "mrr_upper_bound": 0.5, "known_score_counts": {"candidate_recall": 8, "forced_top1": 4, "mrr": 4, "accepted_correct": 0}, "relation_unknown_rows": 16},

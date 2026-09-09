@@ -51,7 +51,9 @@ def main():
             proposed = foreground(depth, invalid, info, transform, item["box_xyxy"], rules)
             if not proposed["failure"]:
                 add_sensitivity(depth, invalid, info, transform, item["box_xyxy"], proposed, rules)
-            detections.append({"observation_id": observation_id, "detection_index": item["detection_index"], "label": item["label"], "confidence": item["confidence"], "box_xyxy": item["box_xyxy"], "foreground": proposed})
+            center = transform[0][:2]
+            target = np.asarray(proposed.get("xy_median_m", center), dtype=float)
+            detections.append({"observation_id": observation_id, "detection_index": item["detection_index"], "label": item["label"], "confidence": item["confidence"], "box_xyxy": item["box_xyxy"], "camera_center_xy_m": center.tolist(), "camera_bearing_rad": float(math.atan2(target[1] - center[1], target[0] - center[0])), "foreground": proposed})
     tracks, association_audit = associate(detections, frames, rules)
     score_tracks(tracks, rules)
     reference = calibration.get("obs_001")

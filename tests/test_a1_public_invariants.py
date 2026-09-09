@@ -33,7 +33,26 @@ class PublicA1InvariantTests(unittest.TestCase):
         track = {"track_id": "track_001", "label": "chair", "detections": detections, "status": "active"}
         score_tracks([track], RULES)
         self.assertEqual(track["M"], 0.0)
-        self.assertEqual(track["M_evidence"]["distinct_observations"], 1)
+        self.assertEqual(track["M_evidence"]["decorrelated_viewgroups"], 1)
+
+    def test_same_pose_different_observation_ids_do_not_increase_m(self):
+        detections = [self.detection(f"obs_{index:03d}", index, [0, 0, 20, 20], [[0, 0]], [1.0, 1.0]) for index in range(20)]
+        for detection in detections:
+            detection["camera_center_xy_m"] = [0.0, 0.0]
+            detection["camera_bearing_rad"] = 0.0
+        track = {"track_id": "track_001", "label": "chair", "detections": detections, "status": "active"}
+        score_tracks([track], RULES)
+        self.assertEqual(track["M"], 0.0)
+        self.assertEqual(track["M_evidence"]["decorrelated_viewgroups"], 1)
+
+    def test_separated_views_create_multiple_m_groups(self):
+        detections = [self.detection("obs_001", 0, [0, 0, 20, 20], [[0, 0]], [1.0, 1.0]), self.detection("obs_002", 1, [0, 0, 20, 20], [[0, 0]], [1.0, 1.0])]
+        detections[0]["camera_center_xy_m"], detections[0]["camera_bearing_rad"] = [0.0, 0.0], 0.0
+        detections[1]["camera_center_xy_m"], detections[1]["camera_bearing_rad"] = [.31, 0.0], 0.0
+        track = {"track_id": "track_001", "label": "chair", "detections": detections, "status": "active"}
+        score_tracks([track], RULES)
+        self.assertEqual(track["M_evidence"]["decorrelated_viewgroups"], 2)
+        self.assertGreater(track["M"], 0.0)
 
     def test_missing_anchor_is_relation_unknown(self):
         chair = {"track_id": "track_001", "label": "chair", "detections": [self.detection("obs_001", 0, [0, 0, 20, 20], [[0, 0], [0, 1]], [1.0, 1.0])], "status": "active"}

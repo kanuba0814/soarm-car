@@ -14,7 +14,7 @@ MIN_COMPONENT_PIXELS = 100
 MIN_COMPONENT_RATIO = 0.05
 REQUIRED_RULES = {
     "tilt_limit_deg", "detector_confidence", "floor_z_m", "floor_clearance_m",
-    "track_xy_gate_m", "reprojection_gate", "depth_compatibility_m",
+    "track_xy_gate_m", "viewgroup_camera_center_m", "viewgroup_bearing_deg", "reprojection_gate", "depth_compatibility_m",
     "association_cost_margin", "duplicate_iou", "duplicate_component_overlap",
     "component_depth_abs_m", "component_depth_relative", "component_min_pixels",
     "component_min_valid_ratio", "central_support_ratio", "box_perturbation_fraction",
@@ -277,15 +277,35 @@ def voxelize(detections, rules):
     return voxelize_points(np.vstack(arrays), rules["surface_voxel_m"]) if arrays else []
 
 
+def view_groups(detections, rules):
+    groups = []
+    bearing_limit = math.radians(rules["viewgroup_bearing_deg"])
+    for detection in sorted(detections, key=lambda item: (item["observation_id"], item["detection_index"])):
+        center = np.asarray(detection.get("camera_center_xy_m", [0.0, 0.0]), dtype=float)
+        bearing = float(detection.get("camera_bearing_rad", 0.0))
+        separate = True
+        for group in groups:
+            center_delta = np.linalg.norm(center - np.asarray(group["camera_center_xy_m"]))
+            bearing_delta = abs((bearing - group["camera_bearing_rad"] + math.pi) % (2 * math.pi) - math.pi)
+            if center_delta < rules["viewgroup_camera_center_m"] and bearing_delta < bearing_limit:
+                group["detections"].append([detection["observation_id"], detection["detection_index"]])
+                separate = False
+                break
+        if separate:
+            groups.append({"group_id": f"viewgroup_{len(groups) + 1:03d}", "camera_center_xy_m": center.tolist(), "camera_bearing_rad": bearing, "detections": [[detection["observation_id"], detection["detection_index"]]]})
+    return groups
+
+
 def score_tracks(tracks, rules):
     for track in tracks:
         usable = [item for item in track["detections"] if not item["foreground"]["failure"]]
         positions = np.asarray([item["foreground"]["xy_median_m"] for item in usable], dtype=float)
         track["V"] = max(item["confidence"] for item in track["detections"])
-        distinct = len({item["observation_id"] for item in usable})
+        groups = view_groups(usable, rules)
+        distinct = len(groups)
         residual = float(np.median(np.linalg.norm(positions - np.median(positions, axis=0), axis=1))) if len(positions) > 1 else 0.0
         track["M"] = min(1.0, (distinct - 1) / 2) * math.exp(-residual / rules["depth_compatibility_m"]) if distinct > 1 else 0.0
-        track["M_evidence"] = {"distinct_observations": distinct, "median_xy_residual_m": residual}
+        track["M_evidence"] = {"decorrelated_viewgroups": distinct, "median_xy_residual_m": residual, "groups": groups}
         track["surface_voxels_2cm"] = voxelize(usable, rules)
         alternatives = [track["surface_voxels_2cm"]]
         failures = []

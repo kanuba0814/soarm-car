@@ -1,0 +1,8 @@
+{
+  "scope": "A1_DEVELOPMENT_V5_VIEWGROUP_CORRECTION",
+  "supersedes": "v4 counted distinct observation IDs rather than decorrelated camera/bearing viewgroups for M",
+  "hashes": {"public_method.json.xz": "8aee4dfb618fce24ca45bd1327988903a3b528828d976fb1216951f93103bd61", "private_evaluation.json.xz": "45b863f04cf6f831622cc28de97ab3c9cf101a902c2b734b0d49b537eacb7028", "config": "255abe5defb420e2a2a3845ca7ac015feabda7f635b2173e910fa1eabe66ebb3", "public_geometry": "d87f6d3b625aae377ffff671fc50f15af5b6e31d4de978491df5b228eec5190e"},
+  "viewgroup_rule": "new group only when camera-center separation >=0.30m OR relative bearing separation >=20deg; IDs alone do not add support",
+  "actual_dev": {"records": 24, "tracks": 12, "accepted": 12, "relation_unknown_rows": 16},
+  "heldout": "READY_FOR_CAPTURE_NOT_EXECUTED; locked worlds and batch plan are separate evidence artifacts."
+}
