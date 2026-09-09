@@ -1,0 +1,3 @@
+f930a35e03ad641d2ad25174afa19f6fe9d070e38ae1bfe63391a5f3afac9a12  /tmp/soarm-intel-nav-restore-20260909/artifacts/house_widened_reference.pcd
+7d9c0b348928d1cb11c3ae033191b05989d35078ae34f3527c5779e0b731e08b  /tmp/soarm-intel-nav-restore-20260909/ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm
+8a9a0ef7bbd9316a81cd7d6865d751e23698f15d8e51abad813897c0d5e16c9b  /tmp/soarm-intel-nav-restore-20260909/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/config/soarm_house_localization.yaml

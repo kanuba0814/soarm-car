@@ -1,0 +1,38 @@
+{
+  "authoritative_restore": {
+    "command_verified_by_parent": "python3 /home/gxxl/soarm-car-graduation/scripts/export_nav_baseline.py --verify --output /home/gxxl/soarm-car-graduation/recovery/nav2-clean-41463f9 --restore /tmp/soarm-intel-nav-restore-20260909",
+    "manifest": "/home/gxxl/soarm-car-graduation/recovery/nav2-clean-41463f9/manifest.json",
+    "head": "41463f9a07dc317eb837558ad55b137fb92e35eb",
+    "pcd": "house_widened_reference.pcd",
+    "pcd_sha256": "f930a35e03ad641d2ad25174afa19f6fe9d070e38ae1bfe63391a5f3afac9a12",
+    "pgm_sha256": "7d9c0b348928d1cb11c3ae033191b05989d35078ae34f3527c5779e0b731e08b"
+  },
+  "intel_runtime": {
+    "image": "sha256:1da9a18609c4664d7441d9f334c95e971f0795aa3815f6707ed761f2ce93d227",
+    "pci": "0000:00:02.0 Intel 8086:7d51",
+    "render_node": "/dev/dri/renderD128",
+    "renderer": "Mesa Intel(R) Graphics (ARL), direct accelerated, Mesa 25.1.7",
+    "resource_policy": "OMP, OPENBLAS, MKL, NUMEXPR threads=1 in existing route runner; no NVIDIA/CUDA runtime",
+    "cpu_ram": "unavailable: the existing runner automatically removed each container before docker stats could be sampled"
+  },
+  "baseline": {
+    "camera": "15Hz 640x480 RGB-D",
+    "route": "room-1 then hub (hub not attempted after room-1 prerequisite failed)",
+    "initial_localization": "ICP fitness 0.845, RMSE 0.095m",
+    "result": "CANCELED, zero progress",
+    "elapsed_sim_s": 0.016,
+    "elapsed_wall_s": 0.055387498,
+    "rtf_window": 0.288873
+  },
+  "camera_overlay": {
+    "only_change": "rgbd_camera update_rate 15->2Hz; image 640x480->320x240",
+    "camera_info_changed": true,
+    "lidar": "unchanged: gpu_lidar 10Hz, 720x16, range 0.1-20m",
+    "result": "CANCELED, 0.03564m truth progress",
+    "elapsed_sim_s": 0.354,
+    "elapsed_wall_s": 1.19720702,
+    "rtf_window": 0.295688
+  },
+  "root_cause": "The camera-only reduction improved the short action interval by 2.36%, but localization freshness still failed immediately after initial ICP. The failure is not sufficiently explained or remedied by RGB-D rendering; investigate LiDAR/FAST-LIO and Gazebo scheduling callback latency without altering health, freshness, controllers, or map inputs.",
+  "renderer_released": false
+}
