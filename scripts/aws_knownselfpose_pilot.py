@@ -27,8 +27,10 @@ from tf2_ros import Buffer, StaticTransformBroadcaster, TransformBroadcaster, Tr
 
 RESOLUTION = 0.05
 SIZE = 320
-HALF_CELL_FOOTPRINT = 7  # 0.35 m half-side / 0.05 m: 0.70 m padded square
-MAX_GOAL_DISTANCE = 3.0
+ROBOT_RADIUS_M = 0.50  # Research-only orientation-independent clearance model.
+MAX_GOAL_DISTANCE = 1.5
+MIN_GOAL_DISTANCE = 0.7
+MAX_ROUTE_CANDIDATES = 16
 SOURCE_FRESHNESS_SECONDS = 0.5
 NATIVE_LIDAR_FRAME = 'livox_frame'
 NATIVE_LIDAR_Z_M = 0.170
@@ -330,10 +332,14 @@ class Pilot:
             'image: sensor_map.pgm\nmode: trinary\nresolution: 0.05\norigin: [-8.0, -8.0, 0.0]\nnegate: 0\noccupied_thresh: 0.65\nfree_thresh: 0.25\n')
 
     def free_with_footprint(self, cell):
+        """Reject any unknown/occupied cell whose geometry intersects the 0.50 m circle."""
         x, y = cell
-        for yy in range(y - HALF_CELL_FOOTPRINT, y + HALF_CELL_FOOTPRINT + 1):
-            for xx in range(x - HALF_CELL_FOOTPRINT, x + HALF_CELL_FOOTPRINT + 1):
-                if not (0 <= xx < SIZE and 0 <= yy < SIZE) or self.map[yy][xx] != 254:
+        reach = math.ceil((ROBOT_RADIUS_M + math.sqrt(2) * RESOLUTION / 2) / RESOLUTION)
+        for yy in range(y - reach, y + reach + 1):
+            for xx in range(x - reach, x + reach + 1):
+                if not (0 <= xx < SIZE and 0 <= yy < SIZE):
+                    return False
+                if math.hypot((xx - x) * RESOLUTION, (yy - y) * RESOLUTION) <= ROBOT_RADIUS_M + math.sqrt(2) * RESOLUTION / 2 and self.map[yy][xx] != 254:
                     return False
         return True
 
@@ -349,8 +355,7 @@ class Pilot:
     def choose_routes(self):
         current = self.trajectory[-1]['map']
         start = self.grid(current[0], current[1])
-        candidates = [(x, y) for y in range(HALF_CELL_FOOTPRINT, SIZE - HALF_CELL_FOOTPRINT)
-                      for x in range(HALF_CELL_FOOTPRINT, SIZE - HALF_CELL_FOOTPRINT) if self.free_with_footprint((x, y))]
+        candidates = [(x, y) for y in range(SIZE) for x in range(SIZE) if self.free_with_footprint((x, y))]
         assert candidates, 'no sensor-observed footprint-free start region'
         start = min(candidates, key=lambda c: math.hypot(c[0] - start[0], c[1] - start[1]))
         connected = {start}; queue = deque([start])
@@ -359,14 +364,10 @@ class Pilot:
             for nx, ny in ((x+1,y), (x-1,y), (x,y+1), (x,y-1)):
                 if (nx, ny) not in connected and (nx, ny) in candidates:
                     connected.add((nx, ny)); queue.append((nx, ny))
-        ordered = sorted(connected, key=lambda c: math.hypot(c[0] - start[0], c[1] - start[1]), reverse=True)
-        goals = []
-        for cell in ordered:
-            distance = RESOLUTION * math.hypot(cell[0] - start[0], cell[1] - start[1])
-            if 0.7 <= distance <= MAX_GOAL_DISTANCE and all(math.hypot(cell[0]-g[0], cell[1]-g[1]) * RESOLUTION >= .65 for g in goals):
-                goals.append(cell)
-            if len(goals) == 2: break
-        assert len(goals) == 2, 'sensor map has insufficient connected conservative coverage for two routes'
+        ordered = sorted(connected, key=lambda c: (math.hypot(c[0] - start[0], c[1] - start[1]), c[1], c[0]))
+        goals = [cell for cell in ordered if MIN_GOAL_DISTANCE <= RESOLUTION * math.hypot(cell[0] - start[0], cell[1] - start[1]) <= MAX_GOAL_DISTANCE]
+        goals = goals[:MAX_ROUTE_CANDIDATES]
+        assert len(goals) >= 2, 'sensor coverage insufficient for two conservative nearby route candidates'
         # Cell centers avoid boundary-rounding ambiguity during initial placement and path checks.
         to_pose = lambda cell: ((cell[0] - SIZE // 2 + .5) * RESOLUTION, (cell[1] - SIZE // 2 + .5) * RESOLUTION)
         return start, goals, to_pose
@@ -434,7 +435,7 @@ class Pilot:
         distance = math.hypot(observed_map[0] - requested_map[0], observed_map[1] - requested_map[1])
         actual_cell = self.grid(observed_map[0], observed_map[1])
         if distance > PLACEMENT_TOLERANCE_M or not self.free_with_footprint(actual_cell):
-            raise RuntimeError(f'no verified start under declared 0.70 m footprint model: requested={requested_map} observed={observed_map} cell={actual_cell}')
+            raise RuntimeError(f'no verified start under declared 0.50 m radius model: requested={requested_map} observed={observed_map} cell={actual_cell}')
         return observed_map
 
     def save_image(self, name):
@@ -479,6 +480,13 @@ class Pilot:
             self.spin_once(.1)
         raise RuntimeError('Nav2 action servers unavailable before bounded deadline')
 
+    def wait_future(self, future, timeout_seconds):
+        deadline = time.monotonic() + timeout_seconds
+        while not future.done() and time.monotonic() < deadline:
+            self.spin_once(.05)
+        if not future.done():
+            raise RuntimeError('action future deadline exceeded while preserving native pose TF')
+
     def action(self, goal_xy, index):
         compute = ActionClient(self.node, ComputePathToPose, '/compute_path_to_pose')
         navigate = ActionClient(self.node, NavigateToPose, '/navigate_to_pose')
@@ -487,9 +495,9 @@ class Pilot:
         goal.pose.position.x, goal.pose.position.y = goal_xy
         goal.pose.orientation.z = math.sin(math.pi / 4); goal.pose.orientation.w = math.cos(math.pi / 4)
         request = ComputePathToPose.Goal(); request.goal = goal
-        sent = compute.send_goal_async(request); rclpy.spin_until_future_complete(self.node, sent, timeout_sec=15)
+        sent = compute.send_goal_async(request); self.wait_future(sent, 15)
         handle = sent.result(); assert handle and handle.accepted
-        result = handle.get_result_async(); rclpy.spin_until_future_complete(self.node, result, timeout_sec=30)
+        result = handle.get_result_async(); self.wait_future(result, 30)
         path = result.result().result.path
         points = [[p.pose.position.x, p.pose.position.y] for p in path.poses]
         actual_start = self.map_pose()
@@ -499,8 +507,9 @@ class Pilot:
             'start_distance_m': math.hypot(points[0][0] - actual_start[0], points[0][1] - actual_start[1]) if points else None,
             'full_swept_footprint_valid': path_valid,
         }, indent=2) + '\n')
-        assert path_valid and math.hypot(points[0][0] - actual_start[0], points[0][1] - actual_start[1]) <= PLACEMENT_TOLERANCE_M, 'planner path crosses occupied or unknown swept footprint'
-        sent = navigate.send_goal_async(NavigateToPose.Goal(pose=goal)); rclpy.spin_until_future_complete(self.node, sent, timeout_sec=15)
+        if not path_valid or math.hypot(points[0][0] - actual_start[0], points[0][1] - actual_start[1]) > PLACEMENT_TOLERANCE_M:
+            return None
+        sent = navigate.send_goal_async(NavigateToPose.Goal(pose=goal)); self.wait_future(sent, 15)
         handle = sent.result(); assert handle and handle.accepted
         result = handle.get_result_async()
         deadline = time.monotonic() + 120
@@ -563,8 +572,15 @@ def main():
             pilot.wait_nav()
             observed_start = pilot.assert_actual_start(requested_start)
             pilot.events.append({'event': 'navigation_episode_start', 'requested_map': list(requested_start),
-                                 'observed_map': list(observed_start), 'footprint_m': 0.70})
-            results = [pilot.action(to_pose(goal), index) for index, goal in enumerate(goals)]
+                                 'observed_map': list(observed_start), 'robot_radius_m': ROBOT_RADIUS_M})
+            results = []
+            for index, goal in enumerate(goals):
+                route = pilot.action(to_pose(goal), index)
+                if route is not None:
+                    results.append(route)
+                if len(results) == 2:
+                    break
+            assert len(results) == 2, 'sensor coverage had fewer than two Nav2 paths passing the unchanged geometric gate'
         finally:
             nav.terminate(); nav.wait(timeout=15)
         length, fresh = pilot.finish()

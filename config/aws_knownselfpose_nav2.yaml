@@ -64,8 +64,8 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_link
       resolution: 0.05
-      # Native 0.60 m chassis plus 0.05 m margin on each side: 0.70 m square.
-      footprint: "[[-0.35, -0.35], [-0.35, 0.35], [0.35, 0.35], [0.35, -0.35]]"
+      # Research-only orientation-independent clearance: conservative 0.50 m radius.
+      robot_radius: 0.50
       track_unknown_space: true
       plugins: [static_layer, inflation_layer]
       static_layer: {plugin: nav2_costmap_2d::StaticLayer, map_subscribe_transient_local: true}
@@ -80,7 +80,7 @@ local_costmap:
       width: 4
       height: 4
       resolution: 0.05
-      footprint: "[[-0.35, -0.35], [-0.35, 0.35], [0.35, 0.35], [0.35, -0.35]]"
+      robot_radius: 0.50
       plugins: [obstacle_layer, inflation_layer]
       obstacle_layer:
         plugin: nav2_costmap_2d::ObstacleLayer
