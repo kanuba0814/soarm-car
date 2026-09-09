@@ -1,0 +1,158 @@
+import sys
+import unittest
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
+from prior_map_assisted_exploration import ExplorationSupervisor, FreshnessGate, PointCloudAdapter, State
+
+MAP_ID = 'house_widened_reference.pcd'
+
+
+class Core:
+    def __init__(self):
+        self.revision = 0
+        self.observed = set()
+        self.reports = []
+
+    def apply_observation(self, observation):
+        self.revision = observation['revision']
+        self.observed.add(observation['id'])
+
+    def candidates(self, _pose):
+        return {
+            'status': 'ok', 'revision': self.revision,
+            'observed_area_cells': len(self.observed),
+            'reference_prior_connected_area_cells': 100,
+            'candidates': [{'cluster_id': 'frontier-1', 'goal': [1.0, 2.0]}],
+        }
+
+    def report_result(self, cluster_id, gained, succeeded):
+        self.reports.append((cluster_id, gained, succeeded))
+
+
+class Navigator:
+    def __init__(self):
+        self.busy = False
+        self.terminal = False
+        self.result = None
+        self.cancelled = False
+        self.sent = []
+
+    def compute_path(self, goal):
+        return {'accepted': True, 'status': 'SUCCEEDED', 'frame_id': 'map', 'poses': [goal]}
+
+    def safe(self, _goal):
+        return True
+
+    def send(self, goal):
+        self.busy = True
+        self.terminal = False
+        self.sent.append(goal)
+        return 'goal-uuid-1'
+
+    def poll(self):
+        if not self.terminal:
+            return None
+        self.busy = False
+        return self.result
+
+    def cancel(self):
+        self.cancelled = True
+
+
+class AsyncNavigator(Navigator):
+    def __init__(self):
+        super().__init__()
+        self.path_ready = False
+
+    def compute_path(self, _goal):
+        return None
+
+    def poll_path(self):
+        if not self.path_ready:
+            return None
+        return {'accepted': True, 'status': 'SUCCEEDED', 'frame_id': 'map', 'poses': [[1., 2.]]}
+
+
+class SupervisorTests(unittest.TestCase):
+    def record(self, adapter, identifier, revision, stamp, receipt, clock, tf=True):
+        return adapter.record(identifier, revision, stamp, [0., 0., .2], [0., 0., 0.], [(1., 0., .2)], receipt, clock, tf)
+
+    def test_watchdog_rejects_stale_replay_wrong_map_missing_tf_and_paused_clock(self):
+        adapter = PointCloudAdapter(MAP_ID, max_validated_rays=2)
+        gate = FreshnessGate(MAP_ID)
+        gate.health('HEALTHY', MAP_ID, 1.)
+        self.assertTrue(gate.source(self.record(adapter, 'a', 1, 1., 1., 1.)))
+        self.assertFalse(gate.source(self.record(adapter, 'replay', 2, 1., 2., 2.)))
+        wrong = self.record(adapter, 'wrong', 3, 3., 3., 3.)
+        wrong.observation['map_identity'] = 'other.pcd'
+        self.assertFalse(gate.source(wrong))
+        self.assertFalse(gate.source(self.record(adapter, 'tf', 4, 4., 4., 4., False)))
+        self.assertFalse(gate.source(self.record(adapter, 'clock', 5, 5., 5., 1.)))
+        split = FreshnessGate('house_widened_reference.pcd', 'core-map')
+        split.health('HEALTHY', 'house_widened_reference.pcd', 10.)
+        core_adapter = PointCloudAdapter('core-map')
+        self.assertTrue(split.source(self.record(core_adapter, 'identity', 1, 1., 1., 1.)))
+
+    def test_nonblocking_path_action_fsm_waits_before_navigation(self):
+        core, nav = Core(), AsyncNavigator()
+        supervisor = ExplorationSupervisor(core, nav, MAP_ID)
+        adapter = PointCloudAdapter(MAP_ID)
+        supervisor.start(0.)
+        supervisor.health('HEALTHY', MAP_ID, 1.)
+        supervisor.enqueue(self.record(adapter, 'one', 1, 1., 1., 1.))
+        supervisor.tick(1.)
+        supervisor.health('HEALTHY', MAP_ID, 2.)
+        supervisor.enqueue(self.record(adapter, 'two', 2, 2., 2., 2.))
+        supervisor.tick(2.)
+        self.assertEqual(supervisor.state, State.PLANNING)
+        self.assertEqual(nav.sent, [])
+        nav.path_ready = True
+        supervisor.tick(2.1)
+        self.assertEqual(supervisor.state, State.NAVIGATING)
+        self.assertEqual(nav.sent, [[1.0, 2.0]])
+
+    def test_latest_bounded_queue_and_path_then_navigation_then_coverage(self):
+        core, nav = Core(), Navigator()
+        supervisor = ExplorationSupervisor(core, nav, MAP_ID)
+        adapter = PointCloudAdapter(MAP_ID)
+        supervisor.start(1029.)
+        supervisor.health('HEALTHY', MAP_ID, 1030.)
+        for number in range(1030):
+            supervisor.enqueue(self.record(adapter, str(number), number + 1, number + 1., number + 1., number + 1.))
+        self.assertEqual(len(supervisor.records), 1024)
+        supervisor.tick(1030.1)
+        self.assertEqual(core.revision, 1030)
+        supervisor.health('HEALTHY', MAP_ID, 1031.)
+        supervisor.enqueue(self.record(adapter, 'fresh', 1031, 1031., 1031., 1031.))
+        supervisor.tick(1031.1)
+        self.assertEqual(supervisor.state, State.NAVIGATING)
+        self.assertEqual(nav.sent, [[1.0, 2.0]])
+        supervisor.enqueue(self.record(adapter, 'coverage', 1032, 1032., 1032., 1032.))
+        nav.terminal, nav.result = True, 'SUCCEEDED'
+        supervisor.tick(1032.)
+        self.assertEqual(supervisor.goals[0]['coverage_delta'], 1)
+        self.assertEqual(core.reports[0], ('frontier-1', 1, True))
+
+    def test_source_loss_cancels_and_waits_for_terminal_result(self):
+        core, nav = Core(), Navigator()
+        supervisor = ExplorationSupervisor(core, nav, MAP_ID)
+        adapter = PointCloudAdapter(MAP_ID)
+        supervisor.start(0.)
+        supervisor.health('HEALTHY', MAP_ID, 1.)
+        supervisor.enqueue(self.record(adapter, 'one', 1, 1., 1., 1.))
+        supervisor.tick(1.)
+        supervisor.health('HEALTHY', MAP_ID, 2.)
+        supervisor.enqueue(self.record(adapter, 'two', 2, 2., 2., 2.))
+        supervisor.tick(2.)
+        self.assertEqual(supervisor.state, State.NAVIGATING)
+        supervisor.tick(4.)
+        self.assertEqual(supervisor.state, State.CANCELLING)
+        self.assertTrue(nav.cancelled)
+        nav.terminal, nav.result = True, 'CANCELED'
+        supervisor.tick(4.1)
+        self.assertEqual(supervisor.state, State.SENSOR_FAULT)
+
+
+if __name__ == '__main__':
+    unittest.main()
