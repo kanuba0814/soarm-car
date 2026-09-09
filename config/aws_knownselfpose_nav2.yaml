@@ -48,6 +48,19 @@ controller_server:
       GoalAlign.scale: 12.0
       PathDist.scale: 24.0
       GoalDist.scale: 20.0
+velocity_smoother:
+  ros__parameters:
+    use_sim_time: true
+    smoothing_frequency: 20.0
+    scale_velocities: false
+    feedback: OPEN_LOOP
+    max_velocity: [0.15, 0.15, 0.5]
+    min_velocity: [-0.15, -0.15, -0.5]
+    max_accel: [0.4, 0.4, 0.8]
+    max_decel: [-0.4, -0.4, -0.8]
+    odom_topic: /known_self_pose/odom
+    odom_duration: 0.1
+    velocity_timeout: 1.0
 behavior_server:
   ros__parameters:
     use_sim_time: true

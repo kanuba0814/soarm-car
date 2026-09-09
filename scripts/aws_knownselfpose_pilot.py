@@ -109,6 +109,7 @@ class Pilot:
         self.node.create_subscription(Image, '/camera/image', lambda m: self.on_image('rgb', m), 10)
         self.node.create_subscription(Image, '/camera/depth_image', lambda m: self.on_image('depth', m), 10)
         self.node.create_subscription(Twist, '/cmd_vel', self.on_command, 30)
+        self.node.create_subscription(Twist, '/cmd_vel_nav', self.on_nav_command, 30)
         self.pose = None
         self.origin = None
         self.origin_model_z = None
@@ -131,6 +132,7 @@ class Pilot:
         self.images = {}
         self.trajectory = []
         self.commands = []
+        self.nav_commands = []
         self.map = [[205 for _ in range(SIZE)] for _ in range(SIZE)]
         self.pose_samples = []
         self.last_pose_wall = 0.0
@@ -259,6 +261,9 @@ class Pilot:
     def on_command(self, message):
         self.commands.append({'wall': time.monotonic(), 'x': message.linear.x, 'y': message.linear.y, 'z': message.angular.z})
 
+    def on_nav_command(self, message):
+        self.nav_commands.append({'wall': time.monotonic(), 'x': message.linear.x, 'y': message.linear.y, 'z': message.angular.z})
+
     def spin_once(self, timeout_sec=0.1):
         self.drain_native_pose()
         rclpy.spin_once(self.node, timeout_sec=timeout_sec)
@@ -288,6 +293,7 @@ class Pilot:
         while time.monotonic() < end:
             self.command_pub.publish(message)
             self.spin_once(.05)
+            time.sleep(.05)
         self.command_pub.publish(Twist())
 
     def grid(self, x, y):
@@ -519,8 +525,14 @@ class Pilot:
                 handle.cancel_goal_async(); self.command(); raise RuntimeError('source-pose telemetry watchdog expired')
         if not result.done():
             handle.cancel_goal_async(); self.command(); raise RuntimeError('goal watchdog expired')
-        return {'index': index, 'goal': [goal_xy[0], goal_xy[1], math.pi / 2], 'path_points': points,
-                'status': result.result().status, 'map_sha256': hashlib.sha256((self.output/'sensor_map.pgm').read_bytes()).hexdigest()}
+        status = result.result().status
+        receipt = {'index': index, 'goal': [goal_xy[0], goal_xy[1], math.pi / 2], 'path_points': points,
+                   'status': status, 'map_sha256': hashlib.sha256((self.output/'sensor_map.pgm').read_bytes()).hexdigest(),
+                   'nav_cmd_count': len(self.nav_commands), 'final_cmd_count': len(self.commands)}
+        (self.output / f'navigate_result_{index}.json').write_text(json.dumps(receipt, indent=2) + '\n')
+        if status != 4:
+            raise RuntimeError(f'NavigateToPose failed with status={status}: {receipt}')
+        return receipt
 
     def write_native_traces(self):
         records, errors = self.native_pose_stream.snapshot()
