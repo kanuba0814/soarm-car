@@ -1,0 +1,11 @@
+DRIVER MAPS
+opt/mesa/lib/x86_64-linux-gnu/libEGL_mesa.so.0.0.0
+opt/mesa/lib/x86_64-linux-gnu/libGLX_mesa.so.0.0.0
+opt/mesa/lib/x86_64-linux-gnu/libgallium-25.1.7.so
+usr/lib/x86_64-linux-gnu/libEGL.so.1.1.0
+usr/lib/x86_64-linux-gnu/libGLX.so.0.0.0
+DRI FDS
+lrwx------. 1 root root 64 Sep  9 16:06 59 -> /dev/dri/renderD128
+lrwx------. 1 root root 64 Sep  9 16:06 60 -> /dev/dri/renderD128
+lrwx------. 1 root root 64 Sep  9 16:06 61 -> /dev/dri/renderD128
+lrwx------. 1 root root 64 Sep  9 16:06 62 -> /dev/dri/renderD128
