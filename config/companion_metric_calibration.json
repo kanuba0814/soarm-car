@@ -5,8 +5,9 @@
     {"id": "panel_turn_90", "pose": [-6.90, 0.90, 0.08, 0.0, 0.0, 1.57079632679]}
   ],
   "notes": {
-    "scope": "Runtime-only known green panel calibration. It is not part of the furnished-home study, method input, target identity set, or evaluation ground truth.",
+    "scope": "Runtime-only fixed green-X and blue-Y panel calibration. It is not part of the furnished-home study, method input, target identity set, or evaluation ground truth.",
     "known_plane_world_x_m": -5.0,
+    "known_plane_world_y_m": 2.8,
     "teleport": "Diagnostic placement only; never navigation evidence."
   }
 }

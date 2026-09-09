@@ -35,7 +35,11 @@ def quaternion_matrix(x, y, z, w):
 
 
 def camera_transform(record):
-    if "native_pose_before_frame" in record:
+    if "native_pose_at_image" in record:
+        pose = record["native_pose_at_image"]["entity"]
+        translation = [pose["position"].get(axis, 0.0) for axis in ("x", "y", "z")]
+        quaternion = [pose["orientation"].get(axis, 0.0) for axis in ("x", "y", "z", "w")]
+    elif "native_pose_before_frame" in record:
         pose = record["native_pose_before_frame"]["entity"]
         translation = [pose["position"].get(axis, 0.0) for axis in ("x", "y", "z")]
         quaternion = [pose["orientation"].get(axis, 0.0) for axis in ("x", "y", "z", "w")]

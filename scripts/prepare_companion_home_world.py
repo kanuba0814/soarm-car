@@ -31,4 +31,19 @@ if options:
     collision_geometry = ET.SubElement(collision, 'geometry')
     collision_box = ET.SubElement(collision_geometry, 'box')
     ET.SubElement(collision_box, 'size').text = '0.02 2.0 2.0'
+    # Orthogonal blue panel: visible from the fixed 90-degree diagnostic heading.
+    panel_y = ET.SubElement(world, 'model', {'name': 'metric_calibration_panel_y'})
+    ET.SubElement(panel_y, 'static').text = 'true'
+    ET.SubElement(panel_y, 'pose').text = '-6.9 2.8 0.5 0 0 0'
+    link_y = ET.SubElement(panel_y, 'link', {'name': 'panel_link'})
+    visual_y = ET.SubElement(link_y, 'visual', {'name': 'panel_visual'})
+    geometry_y = ET.SubElement(visual_y, 'geometry')
+    box_y = ET.SubElement(geometry_y, 'box')
+    ET.SubElement(box_y, 'size').text = '2.0 0.02 2.0'
+    material_y = ET.SubElement(visual_y, 'material')
+    ET.SubElement(material_y, 'diffuse').text = '0.0 0.0 1.0 1.0'
+    collision_y = ET.SubElement(link_y, 'collision', {'name': 'panel_collision'})
+    collision_geometry_y = ET.SubElement(collision_y, 'geometry')
+    collision_box_y = ET.SubElement(collision_geometry_y, 'box')
+    ET.SubElement(collision_box_y, 'size').text = '2.0 0.02 2.0'
 tree.write(destination, encoding='utf-8', xml_declaration=True)

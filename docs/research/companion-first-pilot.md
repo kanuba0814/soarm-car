@@ -4,62 +4,59 @@
 
 ## 可恢复证据
 
-Git 跟踪的无损原始证据和 SHA-256 在 [MANIFEST.md](/home/gxxl/soarm-car-companion-validation/artifacts/companion-home-validation/evidence/MANIFEST.md)。其中包含原三视角小试、四视角新 home 小试和独立 panel 校准，因此 checkout 不依赖被忽略的 runtime 目录。首阶段合同副本在 [companion-metric-pilot-contract.md](/home/gxxl/soarm-car-companion-validation/docs/research/companion-metric-pilot-contract.md)。
+Git 跟踪的无损证据、consumer 输出和 SHA-256 在 [MANIFEST.md](/home/gxxl/soarm-car-companion-validation/artifacts/companion-home-validation/evidence/MANIFEST.md)。首阶段合同副本在 [companion-metric-pilot-contract.md](/home/gxxl/soarm-car-companion-validation/docs/research/companion-metric-pilot-contract.md)。
 
-成功的新 home 原始/消费者目录：
+当前 C3/C4 接受证据目录为：
 
 ```text
-artifacts/companion-home-validation/runtime/metric-pilot-cd88a17-retry2
+artifacts/companion-home-validation/runtime/metric-persistent-a27e139-final
+artifacts/companion-home-validation/runtime/metric-persistent-calibration-a27e139
 ```
 
-- 原始采集: `capture.json`, `raw_native_dynamic_pose_samples.json`, `raw_bridge_dynamic_pose_stream.json`, `frames/*/{rgb.png,depth_m_float32.npy,depth_invalid_mask.npy,camera_info.json}`
-- 修正后几何: `geometry/geometry.json` 和 12 张 directed visibility 图
-- 冻结检测器: `yolo/results.json` 和四张 overlay
-- 独立 runtime-only panel 校准: `artifacts/companion-home-validation/runtime/metric-calibration-cd88a17/panel-calibration/panel_calibration.json`
+对应的 tracked archives 包含 raw RGB、float32 meter depth、invalid mask、完整 CameraInfo、完整 native Pose_V stream、geometry/YOLO/panel consumer JSON 和图像。旧 `first-stage-pilot` 与 `metric-home-pilot-raw` archive 仍可恢复，但其 native Pose_V 只有约 1.1 秒间隔的 CLI endpoints，**已被明确 superseded，不能作为 C3 pose acceptance**。
 
 真实消费链为：
 
 ```text
 Gazebo Fortress rgbd_camera -> ros_gz_bridge -> rclpy persistence
--> raw float32 depth/CameraInfo/native Pose_V -> reload z-buffer diagnostic -> frozen YOLO-World
+-> persistent native Pose_V -> source-time interpolation -> reload z-buffer diagnostic -> frozen YOLO-World
 ```
 
 容器保持 `--network none`、`ROS_LOCALHOST_ONLY=1`、独占 `IGN_PARTITION`、`IGN_IP=127.0.0.1` 和 owned-ID cleanup。源世界和镜像身份保存在每次 `evidence.json`；Kuruma SDF 未改动。
 
-## C3: 原生姿态时间与稳定性
+## C3: 持续原生姿态流
 
-旧三视角 run 的 `TFMessage` bridge 丢失了 Pose_V source header（bridge header stamp 为零），其 0/1 ms receipt-clock 差不能证明采集时间同步。该限制已经更正。
+早期 bridge `TFMessage` 的 source header 为零，receipt-clock 差不能证明采集时间。新 run 启动独立、持续的 native `ign topic -e /world/default/dynamic_pose/info --json-output` stream，保存每条含 source timestamp 与 exact `kuruma` entity 的完整 envelope。
 
-新四视角 run 对每个图像都通过原生 `ign topic -e /world/default/dynamic_pose/info --json-output` 保存 `kuruma` 的前/后完整 Pose_V envelope。每个图像 ROS stamp 被两个**非零 native source stamp**夹住，且记录了精确实体、位移和旋转稳定区间；TF bridge receipt-clock 仍分开保存、不当作 source timestamp。四个稳定区间位移为 2.93--3.69 mm，旋转为 0.00860--0.01104 rad。此处采用的已知自身 simulator pose 仅是明确标记的受控研究条件，绝不进入 planner。
+冻结的 C3 阈值为：source image bracket gap <= 50 ms，image 前后各 250 ms 连续稳定窗，窗内 source gap <= 50 ms，至少 4 samples，任一样本到 image-time interpolated pose 的位移 <= 10 mm、旋转 <= 0.01 rad。每帧以 source-time tight bracket 线性插值位置、SLERP quaternion，并把 `native_pose_at_image` 保存为 geometry 唯一使用的 pose；不再使用 pre/post endpoint。四帧的 bracket 均为 17 ms，稳定窗各 31 samples，最大 stream gap 17--18 ms，最大位移 0.48--0.77 mm，最大旋转 0.00177--0.00317 rad。bridge receipt clocks只保留为诊断。
 
-## C4: 修正的几何解释
+已知 robot self simulator pose 仅为明确标记的受控研究条件（D2），绝不进入 planner。后续研究命名采用 **VisualConf**；目标身份/位姿/hidden meshes 始终仅供 evaluator，不能泄漏给方法。
 
-旧 `a -> c` 的 10.8957 m 不是可解释的几何准确度：旧实现把 in-bounds 投影直接称为对应且允许多个 source 点重复加权同一 target pixel。保存的旧数据中，34,186 个候选有 33,380 个（97.64%）在更近 target 深度之后。
+## C4: 几何和旋转校准
 
-新 reload 消费者使用完整 observed quaternion，先拒绝 nonfinite/behind-camera 点，再对每个 target pixel 留一个最近 source Z-buffer 点，并对所有 **12 个有向对**分别保存：in-bounds 数、unique target pixel 数、target-invalid 数、behind-nearer-surface 数、foreground 数、以及 depth-compatible 数。`depth-compatible` 只是一项描述性分类，不能证明同一静态表面或 accuracy。它不再使用 `verified_pairs` 或“coverage 即 overlap”的表述。
+旧 `a -> c` 的 10.8957 m 不是几何 accuracy：旧实现把 in-bounds 投影直接称为对应且重复加权 target pixel。新 reload 对所有有向对拒绝 nonfinite/behind-camera 点，为每个 target pixel 留一个最近 source Z-buffer 点，并分别报告 target-invalid、behind-nearer-surface、foreground 和 depth-compatible。`depth-compatible` 是描述性分类，不证明 same-surface 或 accuracy。
 
-新 home 的预先选择相邻对 `overlap_base -> overlap_forward` 有 56.74% supported unique-pixel coverage，6,144 behind、414 foreground、29,514 descriptive depth-compatible，absolute residual median 0.03589 m。反向 `overlap_forward -> overlap_base` 为 92.48% coverage，431 behind、9,686 foreground、50,379 compatible，median 0.04175 m。横移和转向方向仍含大量不可见/不兼容表面；全部 90 度方向无 projected support。这些事实支持“相邻视角有候选重叠”，不构成 home accuracy、地图或方法结论。
+新 persistent home run 有四个 development views 和 12 个有向对。预先选择的 `overlap_base -> overlap_forward` 有 56.82% supported unique-pixel coverage：245 behind、97 foreground、35,782 descriptive compatible，descriptive absolute median `0.000791 m`、P95 `0.02150 m`。这些数值由保存 raw 重新消费而来，仍不能扩展为 home accuracy、地图、导航或方法结论。
 
-为独立检查固定相机链和深度单位，runtime wrapper 仅在独立校准 run 中添加了已知世界 `x=-5.0 m` 的绿色 static panel；它不是 home target、planner 输入或 evaluator GT。预先固定的绿色颜色选择在 `panel_base` 和 `panel_forward` 分别得到 world-X median error `-0.00341 m`、`-0.01441 m`，P95 absolute `0.00821 m`、`0.01821 m`。90 度 view 没有 panel pixel，记录为 `NOT_VERIFIED`。这支持声明的轴/米制深度链在该受控诊断中可解释，但不替代 furnished-home 几何验证。
+为独立检查完整旋转/轴链，runtime wrapper 只在独立 calibration run 添加固定绿色 X-plane (`x=-5.0 m`) 和垂直的蓝色 Y-plane (`y=2.8 m`)。颜色 mask 在采集和残差之前固定：green `G>150,R/B<100`，blue `B>150,R/G<100`。persistent source-pose 校准后，green-X 在两个 yaw-zero views 均有超过 135k mask pixels，axis median error 为 `-0.00996 m`、`-0.01001 m`；blue-Y 在 90-degree view 有 97,824 mask pixels，median error `-0.00994 m`。两个独立 axes/headings 的 requirement 成立。它仅支持 runtime calibration 的声明 transform/depth convention，绝不替代 furnished-home accuracy 或提供方法目标。
 
-## 感知与后续边界
+冻结 YOLO-World 实际消费四张 persistent home RGB 并保留 9 个 raw boxes。没有目标 identity、关系 anchor、准确率或 test-split 声明。
 
-冻结的本地 `yolov8s-worldv2.pt` 实际消费四张新 RGB 并保留所有 10 个 raw boxes。此小试没有目标身份、关系 anchor、准确率或 test-split 结论。
+## 精确重放
 
-后续研究命名采用 **VisualConf**。已知 robot self simulator pose 可作为明确标记的受控条件（D2）；目标身份/位姿/hidden meshes 始终仅供 evaluator，不能泄漏给方法或 planner。当前阶段没有扩展到 A1 scoring、导航或 Nav2。
-
-## 重跑
+从 Git archive 恢复后，在含有解压后的 run 目录中执行：
 
 ```bash
-COMPANION_HOME_OUTPUT="$PWD/artifacts/companion-home-validation/runtime/metric-new" \
-  ./scripts/dev-companion-home-validation.sh
 python3 scripts/companion_reload_geometry.py \
-  --input-dir artifacts/companion-home-validation/runtime/metric-new \
-  --output-dir artifacts/companion-home-validation/runtime/metric-new/geometry
+  --input-dir artifacts/companion-home-validation/runtime/metric-persistent-a27e139-final \
+  --output-dir /tmp/metric-persistent-geometry-replay
 /home/gxxl/miniconda3/envs/yolo/bin/python scripts/run_companion_yoloworld_smoke.py \
-  --input-dir artifacts/companion-home-validation/runtime/metric-new \
-  --output-dir artifacts/companion-home-validation/runtime/metric-new/yolo \
+  --input-dir artifacts/companion-home-validation/runtime/metric-persistent-a27e139-final \
+  --output-dir /tmp/metric-persistent-yolo-replay \
   --model /home/gxxl/soarm-car/artifacts/perception-dev/models/yolov8s-worldv2.pt
+python3 scripts/companion_panel_calibration.py \
+  --input-dir artifacts/companion-home-validation/runtime/metric-persistent-calibration-a27e139 \
+  --output-dir /tmp/metric-persistent-panel-replay
 ```
 
-运行独立 panel 校准需额外设置 `COMPANION_CAPTURE_CONFIG=config/companion_metric_calibration.json` 和 `COMPANION_RUNTIME_CALIBRATION_PANEL=1`。该开关只能用于校准，不得作为 home study 或方法输入。
+新 capture 使用默认 `config/companion_metric_pilot.json`。独立 panel run 必须设置 `COMPANION_CAPTURE_CONFIG=config/companion_metric_calibration.json` 和 `COMPANION_RUNTIME_CALIBRATION_PANEL=1`；该开关不能作为 home study、planner 或方法输入。
