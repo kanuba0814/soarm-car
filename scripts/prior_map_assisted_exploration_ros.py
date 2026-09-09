@@ -4,6 +4,7 @@
 This node supplies only the stamped PointCloud2/TF, health, and Nav2 action
 boundary.  Frontier construction remains in exploration_core.py.
 """
+import json
 import math
 import os
 import sys
@@ -12,15 +13,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from exploration_core import ExplorationCore, load_pinned_prior
-from prior_map_assisted_exploration import ExplorationSupervisor, PointCloudAdapter
+from prior_map_assisted_exploration import ExplorationSupervisor, PointCloudAdapter, State
 from shared_nav2_transport import NavigationActionTransport
 
 import rclpy
 from action_msgs.msg import GoalStatus
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Twist
 from nav2_msgs.action import ComputePathToPose, NavigateToPose
 from rclpy.action import ActionClient
 from rclpy.node import Node
+from rclpy.parameter import Parameter
+from nav_msgs.msg import Odometry
 from sensor_msgs.msg import PointCloud2
 from sensor_msgs_py import point_cloud2
 from soarm_interfaces.msg import LocalizationHealth
@@ -52,17 +55,20 @@ class Nav2Adapter:
         self.path_client = ActionClient(node, ComputePathToPose, '/compute_path_to_pose')
         self.transport = NavigationActionTransport(self.navigate_client)
         self.path_handle_future = None
+        self.path_handle = None
         self.path_result_future = None
         self.path_result = None
+        self.path_cancel_requested = False
+        self.nav_started = False
         self.goal_sequence = 0
 
     @property
     def busy(self):
-        return self.transport.busy or self.path_handle_future is not None or self.path_result_future is not None
+        return self.transport.busy or self.path_handle_future is not None or self.path_handle is not None or self.path_result_future is not None
 
     @property
     def terminal(self):
-        return self.transport.terminal and self.path_handle_future is None and self.path_result_future is None
+        return (self.path_handle_future is None and self.path_handle is None and self.path_result_future is None and (not self.nav_started or self.transport.terminal))
 
     def _pose(self, goal):
         pose = PoseStamped()
@@ -79,6 +85,7 @@ class Nav2Adapter:
         if self.path_handle_future is None and self.path_result_future is None:
             request = ComputePathToPose.Goal()
             request.goal = self._pose(goal)
+            self.path_cancel_requested = False
             self.path_handle_future = self.path_client.send_goal_async(request)
         return None
 
@@ -97,6 +104,9 @@ class Nav2Adapter:
             self.path_handle_future = None
             if handle is None or not handle.accepted:
                 return {'accepted': False}
+            self.path_handle = handle
+            if self.path_cancel_requested:
+                handle.cancel_goal_async()
             self.path_result_future = handle.get_result_async()
         if self.path_result_future is None or not self.path_result_future.done():
             return None
@@ -107,12 +117,14 @@ class Nav2Adapter:
         except Exception:
             result = {'accepted': False}
         self.path_result_future = None
+        self.path_handle = None
         return result
 
     def safe(self, _goal):
         return True  # Nav2 costmaps remain the single runtime collision authority.
 
     def send(self, goal):
+        self.nav_started = True
         self.goal_sequence += 1
         action = NavigateToPose.Goal()
         action.pose = self._pose(goal)
@@ -125,21 +137,41 @@ class Nav2Adapter:
         return 'SUCCEEDED' if self.transport.result == GoalStatus.STATUS_SUCCEEDED else 'FAILED'
 
     def cancel(self):
+        self.path_cancel_requested = True
+        if self.path_handle is not None:
+            self.path_handle.cancel_goal_async()
         self.transport.cancel()
+
+    def poll_cancel(self):
+        if self.path_handle_future is not None or self.path_result_future is not None:
+            self.poll_path()
+        return self.terminal
 
 
 class PriorMapExplorationNode(Node):
     def __init__(self):
         super().__init__('prior_map_assisted_exploration')
+        self.set_parameters([Parameter('use_sim_time', Parameter.Type.BOOL, True)])
         self.declare_parameter('prior_manifest', str(Path(__file__).parents[1] / 'config/prior_map_assisted_exploration_input_lock.json'))
         self.declare_parameter('max_validated_rays', 1024)
+        self.declare_parameter('ground_z', 0.0)
+        self.declare_parameter('floor_tolerance', .10)
+        self.declare_parameter('navigation_z_min', -.30)
+        self.declare_parameter('navigation_z_max', .50)
+        self.declare_parameter('evidence_dir', '')
+        self.declare_parameter('named_request', '')
+        self.declare_parameter('asset_root', '/tmp/soarm-intel-nav-restore-20260909')
         self.declare_parameter('expected_health_map_id', 'house_widened_reference.pcd')
         manifest = self.get_parameter('prior_manifest').value
         prior = load_pinned_prior(manifest)
-        self.adapter = PointCloudAdapter(prior.map_identity, int(self.get_parameter('max_validated_rays').value))
+        self.adapter = PointCloudAdapter(
+            prior.map_identity, int(self.get_parameter('max_validated_rays').value),
+            float(self.get_parameter('ground_z').value), float(self.get_parameter('floor_tolerance').value),
+            float(self.get_parameter('navigation_z_min').value), float(self.get_parameter('navigation_z_max').value),
+        )
         self.nav = Nav2Adapter(self)
         self.supervisor = ExplorationSupervisor(
-            ExplorationCore(prior), self.nav,
+            ExplorationCore(prior, navigation_z_min=self.adapter.navigation_z_min, navigation_z_max=self.adapter.navigation_z_max), self.nav,
             self.get_parameter('expected_health_map_id').value,
             source_map_id=prior.map_identity,
         )
@@ -148,11 +180,21 @@ class PriorMapExplorationNode(Node):
         self.revision = 0
         self.create_subscription(LocalizationHealth, '/localization/health', self.health, 10)
         self.create_subscription(PointCloud2, '/mid360/points', self.cloud, 10)
+        self.create_subscription(Twist, '/safe_cmd_vel', self.safe_command, 10)
+        self.create_subscription(Odometry, '/odom', self.measured_pose, 10)
+        evidence_dir = self.get_parameter('evidence_dir').value
+        self.evidence_dir = Path(evidence_dir) if evidence_dir else None
+        self.event_index = self.observation_index = 0
+        self.stop_samples, self.pose_samples = [], []
+        self.named_status = {'state': 'not_requested'}
+        if self.evidence_dir:
+            self.evidence_dir.mkdir(parents=True, exist_ok=False)
+            (self.evidence_dir / 'metadata.json').write_text(json.dumps({'map_identity': prior.map_identity, 'health_map_id': self.get_parameter('expected_health_map_id').value, 'use_sim_time': True, 'wallclock_watchdog': 'time.monotonic', 'ground_z': self.adapter.ground_z, 'floor_tolerance': self.adapter.floor_tolerance, 'navigation_z_band': [self.adapter.navigation_z_min, self.adapter.navigation_z_max], 'point_sample_policy': 'uniform_index_across_full_message', 'max_validated_rays': self.adapter.max_validated_rays}, indent=2) + '\n')
         self.create_timer(.05, self.tick)
         self.supervisor.start(time.monotonic())
 
     def health(self, message):
-        self.supervisor.health('HEALTHY' if message.state == LocalizationHealth.HEALTHY else 'UNHEALTHY', Path(message.map_id).name, time.monotonic())
+        self.supervisor.health('HEALTHY' if message.state == LocalizationHealth.HEALTHY else 'UNHEALTHY', message.map_id, time.monotonic())
 
     def cloud(self, message):
         receipt = time.monotonic()
@@ -164,22 +206,58 @@ class PriorMapExplorationNode(Node):
             base_tf = self.tf_buffer.lookup_transform('map', 'base_footprint', rclpy.time.Time.from_msg(message.header.stamp))
             if seconds(cloud_tf.header.stamp) <= 0 or seconds(base_tf.header.stamp) <= 0:
                 raise RuntimeError('unstamped transform')
-            points = []
-            for point in point_cloud2.read_points(message, field_names=('x', 'y', 'z'), skip_nans=True):
-                if len(points) >= self.adapter.max_validated_rays:
-                    break
-                points.append(transform_point(point, cloud_tf.transform))
+            raw_points = list(point_cloud2.read_points(message, field_names=('x', 'y', 'z'), skip_nans=True))
+            stride = max(1, math.ceil(len(raw_points) / self.adapter.max_validated_rays))
+            sampled = raw_points[::stride][:self.adapter.max_validated_rays]
+            points = [transform_point(point, cloud_tf.transform) for point in sampled]
             self.revision += 1
             origin = cloud_tf.transform.translation
             base = base_tf.transform.translation
-            record = self.adapter.record('mid360-%d' % self.revision, self.revision, stamp, (origin.x, origin.y, origin.z), (base.x, base.y, base.z), points, receipt, self.get_clock().now().nanoseconds / 1e9, True)
+            record = self.adapter.record('mid360-%d' % self.revision, self.revision, stamp, (origin.x, origin.y, origin.z), (base.x, base.y, base.z), points, receipt, self.get_clock().now().nanoseconds / 1e9, True, 'uniform_index_across_full_message:%d/%d' % (len(sampled), len(raw_points)))
         except Exception as error:
             self.get_logger().warn('PointCloud2/TF rejected: %s' % error)
             return
         self.supervisor.enqueue(record)
 
+    def safe_command(self, message):
+        self.stop_samples.append({'receipt': time.monotonic(), 'linear_x': message.linear.x, 'linear_y': message.linear.y, 'angular_z': message.angular.z})
+
+    def measured_pose(self, message):
+        self.pose_samples.append({'receipt': time.monotonic(), 'frame_id': message.header.frame_id, 'x': message.pose.pose.position.x, 'y': message.pose.pose.position.y, 'linear_x': message.twist.twist.linear.x, 'linear_y': message.twist.twist.linear.y, 'angular_z': message.twist.twist.angular.z})
+
+    def _dispatch_named_task(self):
+        request = self.get_parameter('named_request').value
+        if not request or self.named_status['state'] != 'not_requested':
+            return
+        package_root = Path(__file__).parents[1] / 'ros2_ws' / 'src' / 'soarm_named_place_request'
+        sys.path.insert(0, str(package_root))
+        from soarm_named_place_request.prepare import prepare
+        prepared = prepare(Path(request), Path(self.get_parameter('asset_root').value))
+        if prepared['require_heading'] is not False:
+            raise RuntimeError('named task must remain position-only')
+        position = prepared['map_goal']['position']
+        self.named_status = {'state': 'active', 'place_id': prepared['place_id'], 'goal_uuid': self.nav.send([position['x'], position['y']])}
+
     def tick(self):
         self.supervisor.tick(time.monotonic())
+        if self.supervisor.state == State.FRONTIERS_EXHAUSTED:
+            self._dispatch_named_task()
+        if self.named_status['state'] == 'active':
+            result = self.nav.poll()
+            if result is not None:
+                self.named_status['state'] = 'succeeded' if result == 'SUCCEEDED' else 'failed'
+        if not self.evidence_dir:
+            return
+        with (self.evidence_dir / 'events.jsonl').open('a') as stream:
+            for event in self.supervisor.events[self.event_index:]:
+                stream.write(json.dumps(event, sort_keys=True) + '\n')
+            self.event_index = len(self.supervisor.events)
+        with (self.evidence_dir / 'observations.jsonl').open('a') as stream:
+            for observation in self.supervisor.consumed[self.observation_index:]:
+                stream.write(json.dumps(observation, sort_keys=True) + '\n')
+            self.observation_index = len(self.supervisor.consumed)
+        report = {'state': self.supervisor.state.value, 'reason': self.supervisor.reason, 'core_state': self.supervisor.core.export_state(), 'goals': self.supervisor.goals, 'named_task': self.named_status, 'safe_cmd_vel': self.stop_samples[-200:], 'measured_pose': self.pose_samples[-200:]}
+        (self.evidence_dir / 'report.json').write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
 
 
 def main():

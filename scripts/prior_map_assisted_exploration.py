@@ -98,20 +98,32 @@ class FreshnessGate:
 class PointCloudAdapter:
     """Build core observations from already TF-validated map-frame point samples."""
 
-    def __init__(self, map_id, max_validated_rays=1024):
+    def __init__(self, map_id, max_validated_rays=1024, ground_z=0.0,
+                 floor_tolerance=.10, navigation_z_min=-.30, navigation_z_max=.50):
         if not 1 <= max_validated_rays <= 1024:
             raise ValueError('max_validated_rays must be in [1, 1024]')
-        self.map_id = map_id
-        self.max_validated_rays = max_validated_rays
+        if not all(math.isfinite(value) for value in (ground_z, floor_tolerance, navigation_z_min, navigation_z_max)) or floor_tolerance < 0 or navigation_z_min > navigation_z_max:
+            raise ValueError('invalid prior-floor or navigation-band calibration')
+        self.map_id, self.max_validated_rays = map_id, max_validated_rays
+        self.ground_z, self.floor_tolerance = ground_z, floor_tolerance
+        self.navigation_z_min, self.navigation_z_max = navigation_z_min, navigation_z_max
 
-    def record(self, identifier, revision, sensor_stamp, sensor_origin, robot_pose, points, receipt, clock, tf_ok):
+    def classify(self, point):
+        """Floor/high samples add visibility only; only the declared band blocks Nav2."""
+        if abs(point[2] - self.ground_z) <= self.floor_tolerance:
+            return 'floor'
+        if self.navigation_z_min <= point[2] <= self.navigation_z_max:
+            return 'obstacle'
+        return 'floor'
+
+    def record(self, identifier, revision, sensor_stamp, sensor_origin, robot_pose, points, receipt, clock, tf_ok, sample_policy='full_message_uniform_index'):
         returns = []
         for point in points:
             if len(returns) >= self.max_validated_rays:
                 break
             if len(point) != 3 or not all(math.isfinite(value) for value in point):
                 raise ValueError('nonfinite PointCloud2 point')
-            returns.append({'xyz': list(point), 'kind': 'hit'})
+            returns.append({'xyz': list(point), 'kind': self.classify(point)})
         return SourceRecord({
             'id': identifier,
             'revision': revision,
@@ -121,6 +133,7 @@ class PointCloudAdapter:
             'sensor_origin': list(sensor_origin),
             'robot_pose': list(robot_pose),
             'returns': returns,
+            'sample_policy': sample_policy,
         }, receipt, clock, tf_ok)
 
 
@@ -133,6 +146,7 @@ class ExplorationSupervisor:
         self.navigator = navigator
         self.gate = FreshnessGate(expected_health_map_id, source_map_id)
         self.records = deque(maxlen=1024)
+        self.consumed = []
         self.max_goals, self.wall_limit, self.per_goal_wall = max_goals, wall_limit, per_goal_wall
         self.separation_m, self.arrival_tolerance = separation_m, arrival_tolerance
         self.state, self.reason = State.IDLE, 'not started'
@@ -158,6 +172,22 @@ class ExplorationSupervisor:
     def enqueue(self, record):
         self.records.append(record)
 
+    def pause(self, now):
+        if self.state in TERMINAL:
+            return None
+        checkpoint = self.core.export_state()
+        self._request_cancel(State.CANCELLED, 'pause requested', now)
+        return checkpoint
+
+    def resume(self, checkpoint, now):
+        if self.state != State.CANCELLED or self._pending_terminal is not None:
+            raise RuntimeError('resume requires confirmed cancellation')
+        self.core.import_state(checkpoint)
+        self.gate.consecutive = 0
+        self.records.clear()
+        self.active = None
+        self._transition(State.READY, 'resume requires fresh healthy source records and a new plan', now)
+
     def cancel(self, now):
         if self.state in TERMINAL:
             return
@@ -176,6 +206,9 @@ class ExplorationSupervisor:
             self._transition(terminal, reason, now)
 
     def _finish_cancel(self, now):
+        poll_cancel = getattr(self.navigator, 'poll_cancel', None)
+        if poll_cancel is not None:
+            poll_cancel()
         if self._pending_terminal is None or not self.navigator.terminal:
             return False
         state, reason = self._pending_terminal
@@ -228,6 +261,7 @@ class ExplorationSupervisor:
                     return self.state
                 self.robot_pose = newest.observation['robot_pose']
                 self.core.apply_observation(newest.observation)
+                self.consumed.append(newest.observation)
                 self._last_observation_receipt = newest.receipt
         if self.state == State.CANCELLING:
             self._finish_cancel(now)

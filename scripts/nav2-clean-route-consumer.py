@@ -81,6 +81,8 @@ def monotonic(values):
 
 
 def main():
+    if os.environ.get('NAV2_CLEAN_TASK') == 'prior_map_assisted_exploration':
+        os.execv(sys.executable, [sys.executable, str(pathlib.Path(__file__).with_name('prior_map_assisted_exploration_ros.py')), *sys.argv[1:]])
     metrics_path = pathlib.Path(sys.argv[1])
     metrics_path.parent.mkdir(parents=True, exist_ok=True)
     report = {

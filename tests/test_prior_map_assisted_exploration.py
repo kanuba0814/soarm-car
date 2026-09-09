@@ -78,6 +78,12 @@ class SupervisorTests(unittest.TestCase):
     def record(self, adapter, identifier, revision, stamp, receipt, clock, tf=True):
         return adapter.record(identifier, revision, stamp, [0., 0., .2], [0., 0., 0.], [(1., 0., .2)], receipt, clock, tf)
 
+    def test_explicit_floor_band_and_high_classification(self):
+        adapter = PointCloudAdapter(MAP_ID, ground_z=1., floor_tolerance=.1, navigation_z_min=1.2, navigation_z_max=1.8)
+        record = adapter.record('heights', 1, 1., [0., 0., 1.4], [0., 0., 1.], [(1., 0., 1.05), (1., 0., 1.5), (1., 0., 2.2)], 1., 1., True)
+        self.assertEqual([item['kind'] for item in record.observation['returns']], ['floor', 'obstacle', 'floor'])
+        self.assertEqual(record.observation['sample_policy'], 'full_message_uniform_index')
+
     def test_watchdog_rejects_stale_replay_wrong_map_missing_tf_and_paused_clock(self):
         adapter = PointCloudAdapter(MAP_ID, max_validated_rays=2)
         gate = FreshnessGate(MAP_ID)
@@ -133,6 +139,38 @@ class SupervisorTests(unittest.TestCase):
         supervisor.tick(1032.)
         self.assertEqual(supervisor.goals[0]['coverage_delta'], 1)
         self.assertEqual(core.reports[0], ('frontier-1', 1, True))
+
+    def test_named_catalog_preparation_is_position_only(self):
+        import json
+        import tempfile
+        package = Path(__file__).resolve().parents[1] / 'ros2_ws' / 'src' / 'soarm_named_place_request'
+        sys.path.insert(0, str(package))
+        from soarm_named_place_request.prepare import prepare
+        with tempfile.TemporaryDirectory() as temporary:
+            request = Path(temporary) / 'request.json'
+            request.write_text(json.dumps({'place_id': 'room-1', 'frame_id': 'map', 'require_heading': False}))
+            prepared = prepare(request, Path('/tmp/soarm-intel-nav-restore-20260909'))
+        self.assertEqual(prepared['status'], 'prepared_for_serialization')
+        self.assertFalse(prepared['require_heading'])
+        self.assertEqual(prepared['map_goal']['frame_id'], 'map')
+
+    def test_pause_resume_requires_confirmed_cancel_and_fresh_records(self):
+        core, nav = Core(), Navigator()
+        core.export_state = lambda: {'state_version': 1}
+        core.import_state = lambda state: self.assertEqual(state, {'state_version': 1})
+        supervisor = ExplorationSupervisor(core, nav, MAP_ID)
+        supervisor.start(0.)
+        nav.busy = True
+        checkpoint = supervisor.pause(1.)
+        self.assertEqual(supervisor.state, State.CANCELLING)
+        with self.assertRaisesRegex(RuntimeError, 'confirmed'):
+            supervisor.resume(checkpoint, 1.1)
+        nav.terminal, nav.busy = True, False
+        supervisor.tick(1.2)
+        self.assertEqual(supervisor.state, State.CANCELLED)
+        supervisor.resume(checkpoint, 1.3)
+        self.assertEqual(supervisor.state, State.READY)
+        self.assertEqual(supervisor.gate.consecutive, 0)
 
     def test_source_loss_cancels_and_waits_for_terminal_result(self):
         core, nav = Core(), Navigator()
