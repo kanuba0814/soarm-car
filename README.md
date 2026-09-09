@@ -2,6 +2,8 @@
 
 以树莓派 5 为主控的 Kuruma 四轮麦克纳姆底盘项目。
 
+> 多分支开发请先读 [`WORKSPACE_INDEX.md`](WORKSPACE_INDEX.md)：已有导航基线、球轮仿真演示、VL/栅格实验的工作区和复用边界。不要依据某个研究支线的失败记录重新实现已有导航。
+
 > 当前阶段：Kuruma chassis-first。活动模型来自 `artifacts/kuruma.STEP`，默认描述/仿真/导航不安装机械臂，不能报告抓取或任务成功。机械臂安装尺寸和位置是下一项机械 study；传感器安装仍是 provisional。旧 WHEELTEC 底盘状态保留在 `backup/wheeltec-chassis`。
 
 ## 已确定
