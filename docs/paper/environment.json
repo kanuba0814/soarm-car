@@ -1,0 +1,14 @@
+{
+    "python": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:19:41) [GCC 14.3.0]",
+    "executable": "/home/gxxl/miniconda3/bin/python3",
+    "platform": "Linux-7.1.13-200.fc44.x86_64-x86_64-with-glibc2.43",
+    "paper_packages": {
+        "numpy": "2.5.1",
+        "matplotlib": "3.11.1",
+        "markdown-it-py": "4.0.0",
+        "Pillow": "12.3.0"
+    },
+    "bwrap": "/usr/bin/bwrap",
+    "pdfinfo": "/usr/bin/pdfinfo",
+    "scope": "Paper build only; inference and ROS image identities are retained in experiment archives."
+}

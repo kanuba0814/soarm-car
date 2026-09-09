@@ -6,7 +6,10 @@
 
 | Path | Purpose |
 |---|---|
+| `thesis.pdf` | Browser-rendered, visually checked reading edition |
 | `thesis.md` | Editable manuscript and numerical traceability appendix |
+| `publication-verification.json` | Document hashes, browser QA, archive receipt checks and test record |
+| `environment.json` / `requirements-paper.txt` | Recorded environment and minimal paper-build dependencies |
 | `references.bib` | Eight primary citations used by the manuscript |
 | `results/a1-heldout-raw-rows.csv` | 72 evaluator rows, including unknown fields |
 | `results/a1-heldout-by-variant.csv` | Separate V, V+R, V+M and V+R+M summaries |
@@ -27,7 +30,7 @@ python3 scripts/generate_companion_paper_results.py
 python3 scripts/build_companion_paper_html.py
 ```
 
-The generator requires Python 3, `matplotlib`, and an installed local font. It checks exactly three archives, 24 evaluator rows per archive, four frozen variants, 72 unique scene/variant/query rows, 24 views, and 18 query-layout conditions. Results use `private-evaluation/evaluation.json.rows`, not only `paired-summary.json`.
+The generator requires Python 3, `matplotlib`, and an installed local font; the HTML builder additionally requires `markdown-it-py`. Recorded versions are in `environment.json` and `requirements-paper.txt`. To rebuild the PDF, open the generated local `paper.html` in Chromium and print to PDF; the retained PDF was created with agent-browser and checked with Poppler. It checks exactly three archives, 24 evaluator rows per archive, four frozen variants, 72 unique scene/variant/query rows, 24 views, and 18 query-layout conditions. Results use `private-evaluation/evaluation.json.rows`, not only `paired-summary.json`.
 
 ## Archive Inspection And Replay Boundary
 
@@ -45,7 +48,7 @@ Scene regeneration is a separate, renderer-owned operation: `scripts/prepare_a1_
 
 ## Locks, Assets, And Licenses
 
-The frozen A1 query/rule version is `config/a1_visualconf_dev_v1.json` (`a1-visualconf-dev-v6-mrr-bound-correction`). Source and asset provenance are recorded in `docs/upstream-manifest.yaml`, `docs/research/sources/SHA256SUMS`, `ros2_ws/src/soarm_simulation/models/house_floorplan/SOURCE.md`, and `ros2_ws/src/soarm_simulation/models/house_furniture/SOURCE.md`. Vendor licensing is retained with its source, including `vendor/wheeltec/SOURCE.md`, `vendor/wheeltec/SHA256SUMS`, and upstream LICENSE files. No additional model or asset is fetched by either paper script.
+The frozen A1 query/rule version is `config/a1_visualconf_dev_v1.json` (`a1-visualconf-dev-v6-mrr-bound-correction`). The AWS source pin is in `config/aws_small_house_companion.json`; `config/aws_small_house_companion_assets.json` locks the 370 consumed source files, not the total Git file count. The pinned fork LICENSE is MIT. Raw sensor/calibration archives are indexed by `artifacts/companion-home-validation/evidence/MANIFEST.md`; held-out archives and their hashes are indexed by `results/a1-heldout-results.json`. The YOLO-World weight URL, release identity and enforced hash are in `scripts/run_companion_yoloworld_smoke.py` and each archived `yolo/results.json`; its AGPL-3.0 licensing requires attention before redistribution or deployment. Original `house_floorplan` geometry/maps are not the AWS study maps. No additional model or asset is fetched by either paper script.
 
 ## Traceability
 
