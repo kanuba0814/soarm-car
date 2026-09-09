@@ -10,3 +10,7 @@ resource_snapshot=CPU 299.00%; memory 728.9MiB / 30.83GiB
 rtf=unavailable: /world/navigation_room/stats did not publish in this Fortress image
 excluded=NVIDIA/CUDA runtime and --gpus were not used
 compose_glx=not completed: existing entrypoint remained in workspace rebuild past 240 seconds; no renderer claim from Compose probe
+nav2_run=existing scripts/dev-fastlio-house-nav2-smoke.sh invoked through scripts/intel-runtime-nav2.sh
+nav2_result=not successful: first goal status 5 (canceled); no successful navigation result asserted
+nav2_metrics=rtf 0.1299529428213826; active_twist_samples 0; first goal error 1.4228516760203518m
+nav2_root_cause=repeated /mid360/points observation-buffer delays (0.20-0.46s) caused localization health loss and the existing safety gate latched zero output
