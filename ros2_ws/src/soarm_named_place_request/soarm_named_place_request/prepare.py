@@ -99,11 +99,19 @@ def validate_assets(lock: dict[str, Any], asset_root: Path) -> None:
     for name, expected in assets.items():
         expected = require_object(expected, f"lock assets.{name}")
         relative_path = require_string(expected.get("path"), f"lock assets.{name}.path")
-        expected_hash = require_string(expected.get("sha256"), f"lock assets.{name}.sha256")
         path = asset_root / relative_path
         if not path.is_file():
             fail(f"locked asset missing: {relative_path}")
-        if sha256(path) != expected_hash:
+        actual_hash = sha256(path)
+        compatible = expected.get("compatible_sha256")
+        if compatible is not None:
+            if name != "house_fastlio_nav2_launch" or not isinstance(compatible, list) or compatible != [
+                    "c88daf45e9627d79fc13812b27795f57dd9936ebb39b40ba475aba3bbb7a3273",
+                    "a520fa54f04feb26b2ceb8da8723046b89c2c8ab1d4cb1444cba63df17ec94d5"]:
+                fail("invalid trusted launch compatibility lock")
+            if actual_hash not in compatible:
+                fail(f"locked asset changed: {relative_path}")
+        elif actual_hash != require_string(expected.get("sha256"), f"lock assets.{name}.sha256"):
             fail(f"locked asset changed: {relative_path}")
 
     config_path = asset_root / assets["house_nav2_mppi_yaml"]["path"]

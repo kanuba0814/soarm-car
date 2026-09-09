@@ -211,6 +211,45 @@ class SupervisorTests(unittest.TestCase):
         self.assertEqual(supervisor.goals[0]['coverage_delta'], 1)
         self.assertEqual(core.reports[0], ('frontier-1', 1, True))
 
+    def test_named_lock_accepts_only_two_launch_digests_and_locked_yaml(self):
+        import json
+        import shutil
+        import tempfile
+        package = Path(__file__).resolve().parents[1] / 'ros2_ws' / 'src' / 'soarm_named_place_request'
+        sys.path.insert(0, str(package))
+        from soarm_named_place_request.prepare import RequestError, prepare
+        baseline = Path('/home/gxxl/soarm-car-nav2-clean')
+        paths = [
+            'ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm',
+            'ros2_ws/src/soarm_simulation/maps/house_floorplan.yaml',
+            'artifacts/house_widened_reference.pcd',
+            'ros2_ws/src/soarm_navigation/soarm_navigation/launch/house_fastlio_nav2.launch.py',
+            'ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml',
+            'ros2_ws/src/soarm_navigation/behavior_trees/navigate_position_only_holonomic.xml',
+            'ros2_ws/src/soarm_navigation/behavior_trees/navigate_through_poses_holonomic.xml',
+        ]
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary) / 'root'
+            for relative in paths:
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(baseline / relative, target)
+            request = Path(temporary) / 'request.json'
+            request.write_text(json.dumps({'place_id': 'room-1', 'frame_id': 'map', 'require_heading': False}))
+            self.assertEqual(prepare(request, root)['status'], 'prepared_for_serialization')
+            launch = root / paths[3]
+            corrected = Path('/home/gxxl/soarm-car-sensor-pipeline') / paths[3]
+            shutil.copy2(corrected, launch)
+            self.assertEqual(prepare(request, root)['status'], 'prepared_for_serialization')
+            launch.write_text('selector overlay only')
+            with self.assertRaisesRegex(RequestError, 'locked asset changed'):
+                prepare(request, root)
+            launch.write_text((baseline / paths[3]).read_text())
+            yaml_path = root / paths[1]
+            yaml_path.write_text(yaml_path.read_text().replace('origin: [-8.0, -7.25, 0.0]', 'origin: [0.0, 0.0, 0.0]'))
+            with self.assertRaisesRegex(RequestError, 'locked asset changed'):
+                prepare(request, root)
+
     def test_named_catalog_preparation_is_position_only(self):
         import json
         import tempfile

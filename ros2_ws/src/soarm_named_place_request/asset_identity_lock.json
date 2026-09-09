@@ -6,13 +6,20 @@
       "path": "ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm",
       "sha256": "7d9c0b348928d1cb11c3ae033191b05989d35078ae34f3527c5779e0b731e08b"
     },
+    "house_floorplan_yaml": {
+      "path": "ros2_ws/src/soarm_simulation/maps/house_floorplan.yaml",
+      "sha256": "9e8c673f3cb612a31ca8223c8a2deb44afff4f8b65ec1cfae080f7c7613f39b2"
+    },
     "house_widened_reference_pcd": {
       "path": "artifacts/house_widened_reference.pcd",
       "sha256": "f930a35e03ad641d2ad25174afa19f6fe9d070e38ae1bfe63391a5f3afac9a12"
     },
     "house_fastlio_nav2_launch": {
       "path": "ros2_ws/src/soarm_navigation/soarm_navigation/launch/house_fastlio_nav2.launch.py",
-      "sha256": "c88daf45e9627d79fc13812b27795f57dd9936ebb39b40ba475aba3bbb7a3273"
+      "compatible_sha256": [
+        "c88daf45e9627d79fc13812b27795f57dd9936ebb39b40ba475aba3bbb7a3273",
+        "a520fa54f04feb26b2ceb8da8723046b89c2c8ab1d4cb1444cba63df17ec94d5"
+      ]
     },
     "house_nav2_mppi_yaml": {
       "path": "ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml",
