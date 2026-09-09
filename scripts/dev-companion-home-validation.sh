@@ -6,6 +6,8 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 lock="$root/config/aws_small_house_companion.json"
 capture_config="${COMPANION_CAPTURE_CONFIG:-$root/config/companion_metric_pilot.json}"
 runtime_calibration_panel="${COMPANION_RUNTIME_CALIBRATION_PANEL:-0}"
+evaluator_segmentation="${COMPANION_EVALUATOR_SEGMENTATION:-0}"
+segmentation_smoke="${COMPANION_SEGMENTATION_OCCLUSION_SMOKE:-0}"
 asset_dir="${AWS_SMALL_HOUSE_DIR:-$root/artifacts/baselines/aws_small_house_world}"
 image="${SOARM_TEST_IMAGE:-soarm-car-ros2-dev:hm3d}"
 run_dir="${COMPANION_HOME_OUTPUT:?Set COMPANION_HOME_OUTPUT to a new output directory}"
@@ -54,13 +56,18 @@ set -e; mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root
 source /opt/ros/humble/setup.bash; source /workspaces/soarm-car/install/setup.bash
 colcon --log-base /tmp/companion/log build --base-paths /feature/ros2_ws/src/soarm_simulation --build-base /tmp/companion/build --install-base /tmp/companion/install --symlink-install
 source /tmp/companion/install/setup.bash
-if [ "'"$runtime_calibration_panel"'" = 1 ]; then panel_option="--metric-calibration-panel"; else panel_option=""; fi
-python3 /feature/scripts/prepare_companion_home_world.py /asset/worlds/small_house.world /runtime.sdf $panel_option
-export IGN_GAZEBO_RESOURCE_PATH=/asset/models:/tmp/companion/install/soarm_simulation/share/soarm_simulation/models; export GZ_SIM_RESOURCE_PATH=$IGN_GAZEBO_RESOURCE_PATH
+runtime_options=""
+if [ "'"$runtime_calibration_panel"'" = 1 ]; then runtime_options="$runtime_options --metric-calibration-panel"; fi
+if [ "'"$evaluator_segmentation"'" = 1 ]; then runtime_options="$runtime_options --evaluator-segmentation"; fi
+if [ "'"$segmentation_smoke"'" = 1 ]; then runtime_options="$runtime_options --segmentation-occlusion-smoke"; fi
+python3 /feature/scripts/prepare_companion_home_world.py /asset/worlds/small_house.world /runtime.sdf $runtime_options
+export IGN_GAZEBO_RESOURCE_PATH=/tmp/companion-evaluator-models:/asset/models:/tmp/companion/install/soarm_simulation/share/soarm_simulation/models; export GZ_SIM_RESOURCE_PATH=$IGN_GAZEBO_RESOURCE_PATH
 printf "%s\\n" "{\\"file_format_version\\":\\"1.0.0\\",\\"ICD\\":{\\"library_path\\":\\"libEGL_nvidia.so.0\\"}}" > /tmp/nvidia-egl.json
 { nvidia-smi -L; glxinfo -B; eglinfo -B || true; } > /output/renderer.txt 2>&1
 stdbuf -oL -eL ign gazebo -r -s /runtime.sdf > /output/gazebo.log 2>&1 &
-exec ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock /camera/image@sensor_msgs/msg/Image[gz.msgs.Image /camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo /camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image /world/default/dynamic_pose/info@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V
+bridge_topics="/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock /camera/image@sensor_msgs/msg/Image[gz.msgs.Image /camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo /camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image /world/default/dynamic_pose/info@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V"
+if [ "'"$evaluator_segmentation"'" = 1 ]; then bridge_topics="$bridge_topics /eval_segmentation/labels_map@sensor_msgs/msg/Image[gz.msgs.Image /eval_segmentation/colored_map@sensor_msgs/msg/Image[gz.msgs.Image"; fi
+exec ros2 run ros_gz_bridge parameter_bridge $bridge_topics
 ')"
 ros_setup='source /opt/ros/humble/setup.bash; source /workspaces/soarm-car/install/setup.bash; source /tmp/companion/install/setup.bash; export ROS_DOMAIN_ID='"$ros_domain_id"
 ready=false
@@ -71,7 +78,7 @@ done
 $ready || { docker logs "$container_name" >"$run_dir/container.log" 2>&1 || true; exit 1; }
 docker exec "$container_name" bash -lc "$ros_setup; ros2 topic type /world/default/dynamic_pose/info; ros2 topic type /camera/image; ros2 topic type /camera/depth_image; ros2 topic type /camera/camera_info" >"$run_dir/topic-types.txt"
 capture_config_in_container="/feature/${capture_config#$root/}"
-docker exec -i "$container_name" bash -lc "$ros_setup; timeout 900 python3 /feature/scripts/companion_capture.py /output '$capture_config_in_container'"
+docker exec -i "$container_name" bash -lc "$ros_setup; COMPANION_EVALUATOR_CAPTURE='$evaluator_segmentation' timeout 900 python3 /feature/scripts/companion_capture.py /output '$capture_config_in_container'"
 docker exec "$container_name" bash -lc "IGN_PARTITION='$ign_partition' ign model --list" >"$run_dir/models.txt"
 docker logs "$container_name" >"$run_dir/container.log" 2>&1 || true
 ! grep -Eqi 'invalid mesh|failed to load geometry|missing texture|unable to find.*(mesh|texture)' "$run_dir/gazebo.log" "$run_dir/container.log"

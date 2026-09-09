@@ -1,0 +1,10 @@
+{
+  "development_viewpoints": [
+    {"id": "smoke_front", "pose": [-6.90, 0.90, 0.08, 0.0, 0.0, 0.00]},
+    {"id": "smoke_offset", "pose": [-6.70, 0.90, 0.08, 0.0, 0.0, 0.00]},
+    {"id": "smoke_turn", "pose": [-6.90, 0.90, 0.08, 0.0, 0.0, 1.57079632679]}
+  ],
+  "notes": {
+    "scope": "Evaluator-only segmentation byte/occlusion smoke; generated front label 251 must block rear label 250 where their projections overlap."
+  }
+}

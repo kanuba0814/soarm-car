@@ -2,6 +2,7 @@
 """Persist bounded diagnostic RGB-D views with source-time native Pose_V interpolation."""
 import json
 import math
+import os
 import struct
 import subprocess
 import sys
@@ -192,7 +193,8 @@ def main():
         raise SystemExit(f"Refusing to overwrite capture artifacts in {output}")
     output.mkdir(parents=True, exist_ok=True)
     (output / "frames").mkdir()
-    state = {"clock_ns": 0, "rgb": None, "depth": None, "info": None, "target_ns": None, "stale": {"rgb": 0, "depth": 0}, "poses": []}
+    evaluator_capture = os.environ.get("COMPANION_EVALUATOR_CAPTURE") == "1"
+    state = {"clock_ns": 0, "rgb": None, "depth": None, "info": None, "labels": None, "colored": None, "target_ns": None, "stale": {"rgb": 0, "depth": 0, "labels": 0, "colored": 0}, "poses": []}
     rclpy.init()
     node = rclpy.create_node("companion_home_pilot_capture")
     pose_stream = NativePoseStream()
@@ -215,6 +217,9 @@ def main():
     node.create_subscription(Image, "/camera/image", lambda msg: receive_image("rgb", msg), 20)
     node.create_subscription(Image, "/camera/depth_image", lambda msg: receive_image("depth", msg), 20)
     node.create_subscription(CameraInfo, "/camera/camera_info", lambda msg: state.__setitem__("info", msg), 20)
+    if evaluator_capture:
+        node.create_subscription(Image, "/eval_segmentation/labels_map", lambda msg: receive_image("labels", msg), 20)
+        node.create_subscription(Image, "/eval_segmentation/colored_map", lambda msg: receive_image("colored", msg), 20)
     node.create_subscription(TFMessage, "/world/default/dynamic_pose/info", receive_tf, 50)
 
     def spin(seconds):
@@ -223,7 +228,7 @@ def main():
             rclpy.spin_once(node, timeout_sec=.1)
 
     def receive_after_pose():
-        state.update(target_ns=None, rgb=None, depth=None, info=None, stale={"rgb": 0, "depth": 0})
+        state.update(target_ns=None, rgb=None, depth=None, info=None, labels=None, colored=None, stale={"rgb": 0, "depth": 0, "labels": 0, "colored": 0})
         spin(.5)
         fence = state["clock_ns"]
         if fence <= 0:
@@ -233,10 +238,13 @@ def main():
         while time.monotonic() < deadline:
             rclpy.spin_once(node, timeout_sec=.1)
             rgb, depth, info = state["rgb"], state["depth"], state["info"]
-            if rgb is not None and depth is not None and info is not None:
-                if abs(stamp_ns(rgb) - stamp_ns(depth)) <= 50_000_000 and stamp_ns(info) > state["target_ns"]:
-                    return rgb, depth, info, fence
-                state["rgb"] = state["depth"] = None
+            labels, colored = state["labels"], state["colored"]
+            required = (rgb, depth, info) if not evaluator_capture else (rgb, depth, info, labels, colored)
+            if all(message is not None for message in required):
+                stamps = [stamp_ns(message) for message in required if hasattr(message, "header")]
+                if max(stamps) - min(stamps) <= 50_000_000 and stamp_ns(info) > state["target_ns"]:
+                    return rgb, depth, info, labels, colored, fence
+                state["rgb"] = state["depth"] = state["labels"] = state["colored"] = None
         raise AssertionError(f"no fresh synchronized RGB-D after fence {fence}: stale={state['stale']}")
 
     try:
@@ -253,7 +261,7 @@ def main():
             if response.returncode or "data: true" not in response.stdout:
                 raise AssertionError(response.stdout + response.stderr)
             spin(1.0)
-            rgb, depth, info, fence = receive_after_pose()
+            rgb, depth, info, labels, colored, fence = receive_after_pose()
             image_stamp = stamp_ns(rgb)
             selected_native_pose, stability = pose_stream.select_at_image(image_stamp)
             pixels, meters = image_array(rgb), depth_array(depth)
@@ -271,7 +279,15 @@ def main():
             png(frame / "depth_preview.png", preview[:, :, None])
             calibration = {"width": info.width, "height": info.height, "k": list(info.k), "p": list(info.p), "d": list(info.d), "r": list(info.r), "distortion_model": info.distortion_model, "header_stamp_ns": stamp_ns(info), "frame_id": info.header.frame_id, "rgb_encoding": rgb.encoding, "rgb_step": rgb.step, "rgb_is_bigendian": bool(rgb.is_bigendian), "depth_encoding": depth.encoding, "depth_step": depth.step, "depth_is_bigendian": bool(depth.is_bigendian), "depth_unit": "m"}
             (frame / "camera_info.json").write_text(json.dumps(calibration, indent=2) + "\n")
-            records.append({"id": point["id"], "diagnostic_teleport": True, "requested_pose_world": point["pose"], "native_pose_at_image": selected_native_pose, "native_pose_stability": stability, "bridge_pose_observation": bridge, "post_pose_clock_fence_ns": fence, "post_pose_accept_after_ns": state["target_ns"], "rgb_stamp_ns": image_stamp, "depth_stamp_ns": stamp_ns(depth), "camera_info_stamp_ns": stamp_ns(info), "rgb_depth_sync_delta_ns": abs(stamp_ns(rgb) - stamp_ns(depth)), "stale_messages_discarded": state["stale"], "frames": [rgb.header.frame_id, depth.header.frame_id, info.header.frame_id], "depth_finite_positive_ratio": float(valid.mean()), "depth_min_m": float(finite.min()), "depth_max_m": float(finite.max())})
+            evaluator_record = None
+            if evaluator_capture:
+                labels_meta = {"width": labels.width, "height": labels.height, "encoding": labels.encoding, "step": labels.step, "is_bigendian": bool(labels.is_bigendian), "stamp_ns": stamp_ns(labels), "frame_id": labels.header.frame_id}
+                (frame / "labels_map.raw").write_bytes(bytes(labels.data))
+                (frame / "labels_map.json").write_text(json.dumps(labels_meta, indent=2) + "\n")
+                colored_pixels = image_array(colored)
+                png(frame / "labels_colored.png", colored_pixels)
+                evaluator_record = {"labels_map": labels_meta, "colored_map": {"encoding": colored.encoding, "step": colored.step, "stamp_ns": stamp_ns(colored), "frame_id": colored.header.frame_id}, "rgb_label_delta_ns": abs(stamp_ns(rgb) - stamp_ns(labels)), "rgb_colored_delta_ns": abs(stamp_ns(rgb) - stamp_ns(colored))}
+            records.append({"id": point["id"], "diagnostic_teleport": True, "evaluator_private": evaluator_record, "requested_pose_world": point["pose"], "native_pose_at_image": selected_native_pose, "native_pose_stability": stability, "bridge_pose_observation": bridge, "post_pose_clock_fence_ns": fence, "post_pose_accept_after_ns": state["target_ns"], "rgb_stamp_ns": image_stamp, "depth_stamp_ns": stamp_ns(depth), "camera_info_stamp_ns": stamp_ns(info), "rgb_depth_sync_delta_ns": abs(stamp_ns(rgb) - stamp_ns(depth)), "stale_messages_discarded": state["stale"], "frames": [rgb.header.frame_id, depth.header.frame_id, info.header.frame_id], "depth_finite_positive_ratio": float(valid.mean()), "depth_min_m": float(finite.min()), "depth_max_m": float(finite.max())})
         (output / "raw_native_dynamic_pose_stream.json").write_text(json.dumps({"records": pose_stream.snapshot(), "parse_errors": pose_stream.errors}, indent=2) + "\n")
         (output / "raw_bridge_dynamic_pose_stream.json").write_text(json.dumps(state["poses"], indent=2) + "\n")
         report = {"capture_run_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"), "consumer_seam": "Gazebo rgbd_camera -> bridge -> rclpy persistence -> source-time native Pose_V interpolation", "transport_isolation": {"docker_network": "none", "ros_localhost_only": True, "ign_ip": "127.0.0.1"}, "camera_chain": CAMERA_CHAIN, "pose_thresholds": POSE_THRESHOLDS, "viewpoints": records, "navigation_claim": "NONE; diagnostic teleports only.", "observed_pose_source": "Persistent native Pose_V source stream with strict source-time interpolation and continuous stability-window checks; bridge receipt clocks are diagnostic only."}

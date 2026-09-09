@@ -11,3 +11,8 @@ These lossless archives are tracked so a Git checkout can restore raw RGB, metri
 | `metric-persistent-panel-calibration.tar.gz` | `8be9cda8badd724a490db29e28e85d6a4941200ec8df89b2b9fc65a86ed0a1c9` | Accepted C4 rotation replacement: persistent-stream three-view two-axis green-X/blue-Y calibration and panel calibration JSON. |
 
 The original and earlier metric archives remain retained, but their endpoint-only native samples are **superseded for C3 pose acceptance**. The two persistent archives include both raw inputs and the measured consumer outputs required for review.
+
+| `segmentation-occlusion-smoke-e8974b6.tar.gz` | `51d9abaebf7c565004dbf03f5c9602c3da8432e266462ee4c95bd3e5a2ec5241` | Runtime-only front/rear label occlusion smoke, including native-source pose, raw `rgb8` labels bytes, and synchronization evidence. |
+| `instance-survey-e8974b6.tar.gz` | `f89bec0a7eef59f7aaee016704b2716cb3149c20389dc62eb9863e376b578e69` | Eight-view development survey with raw RGB-D/source pose/labels, frozen YOLO output, evaluator-private masks/instance mapping/matching summary, and separate public package. |
+| `segmentation-smoke-overlay-e8974b6.tar.gz` | `63d90844fc7acfda01ac7af2b2d93cb65a9860b4501da63d537153f13c1a6db9` | Replacement direct occlusion smoke including generated-overlay model/label hashes, source furniture labels, and front label 251 blocking rear label 250. |
+| `instance-survey-label-propagation-failure-e8974b6.tar.gz` | `d025858c936973428607b4a945ee2a465601eb3ca8b75ad2edcf33ed9de1145b` | Retained first eight-view survey failure: direct model-attached labels decoded as background only, proving why generated source models were flattened to world includes before retry. |
