@@ -1,0 +1,149 @@
+diff --git a/ros2_ws/src/soarm_navigation/soarm_navigation/localization_cmd_gate.py b/ros2_ws/src/soarm_navigation/soarm_navigation/localization_cmd_gate.py
+index 448413a..1585f1d 100644
+--- a/ros2_ws/src/soarm_navigation/soarm_navigation/localization_cmd_gate.py
++++ b/ros2_ws/src/soarm_navigation/soarm_navigation/localization_cmd_gate.py
+@@ -1,6 +1,8 @@
+ #!/usr/bin/env python3
+ 
++import json
+ import math
++import os
+ import time
+ 
+ import rclpy
+@@ -88,6 +90,7 @@ class LocalizationCommandGate(Node):
+         if not math.isfinite(publish_rate) or publish_rate <= 0.0:
+             raise ValueError('publish_rate must be finite and positive')
+         self.latest_command = Twist()
++        self.trace_path = os.environ.get('SOARM_RUNTIME_TRACE_GATE', '')
+         self.output = self.create_publisher(Twist, '/safe_cmd_vel', 1)
+         self.create_subscription(Twist, '/cmd_vel', self.save_command, 1)
+         self.create_subscription(
+@@ -108,6 +111,16 @@ class LocalizationCommandGate(Node):
+             self.save_navigation_status, 10)
+         self.create_timer(1.0 / publish_rate, self.publish_command)
+ 
++    def trace(self, event, **fields):
++        if not self.trace_path:
++            return
++        try:
++            record = {'event': event, 'monotonic': time.monotonic(), **fields}
++            with open(self.trace_path, 'a', buffering=1, encoding='utf-8') as output:
++                output.write(json.dumps(record, allow_nan=True, sort_keys=True) + '\n')
++        except Exception:
++            pass
++
+     def save_command(self, message):
+         now = time.monotonic()
+         if not self.policy.latched:
+@@ -115,7 +128,18 @@ class LocalizationCommandGate(Node):
+         self.policy.update_command(now)
+ 
+     def save_health(self, message):
+-        self.policy.update_health(message.state, time.monotonic())
++        receipt = time.monotonic()
++        self.policy.update_health(message.state, receipt)
++        node_clock = self.get_clock().now().nanoseconds / 1.0e9
++        health_stamp = message.stamp.sec + message.stamp.nanosec / 1.0e9
++        accepted_stamp = (message.last_accepted_correction_stamp.sec +
++                          message.last_accepted_correction_stamp.nanosec / 1.0e9)
++        self.trace('health_receipt', receipt=receipt, node_clock=node_clock,
++                   state=message.state, reason_mask=message.reason_mask,
++                   sequence=message.sequence, map_id=message.map_id,
++                   health_stamp=health_stamp, accepted_stamp=accepted_stamp,
++                   consecutive_rejections=message.consecutive_rejections,
++                   fitness=message.fitness, rmse=message.rmse)
+ 
+     def save_navigation_status(self, message):
+         active = any(status.status in (
+@@ -161,6 +185,11 @@ class LocalizationCommandGate(Node):
+     def publish_command(self):
+         allowed, newly_latched = self.policy.evaluate(time.monotonic())
+         if newly_latched:
++            receipt = self.policy.health_receipt
++            self.trace('first_latch', evaluation_monotonic=time.monotonic(),
++                       receipt=receipt, receipt_age=(None if receipt is None else time.monotonic() - receipt),
++                       state=self.policy.health_state, health_timeout=self.policy.health_timeout,
++                       ever_healthy=self.policy.ever_healthy, last_health_valid=self.policy.last_health_valid)
+             self.get_logger().error(
+                 'Localization health lost: stopping and latching actuator output.')
+             self.begin_cancellation()
+diff --git a/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/scripts/global_localization.py b/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/scripts/global_localization.py
+index 47b16b8..1e4390d 100755
+--- a/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/scripts/global_localization.py
++++ b/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/scripts/global_localization.py
+@@ -2,7 +2,10 @@
+ # coding=utf-8
+ 
+ import copy
++import json
++import os
+ import threading
++import time
+ import numpy as np
+ import open3d as o3d
+ 
+@@ -100,6 +103,7 @@ class GlobalLocalizationNode(Node):
+         if self.health_heartbeat_rate <= 0.0:
+             raise ValueError('health_heartbeat_rate must be positive')
+         self.map_id = self.get_parameter('map_id').value
++        self.trace_path = os.environ.get('SOARM_RUNTIME_TRACE_LOCALIZATION', '')
+ 
+         # ─── State Variables ─────────────────────────────────────
+         self.global_map    = None
+@@ -107,6 +111,7 @@ class GlobalLocalizationNode(Node):
+         self.T_map_to_odom = np.eye(4)
+         self.cur_odom      = None
+         self.cur_scan      = None
++        self.last_scan_stamp = None
+         self.localization_timer = None
+         self.last_verified_odom = None
+         self.last_verified_stamp_ns = 0
+@@ -132,6 +137,23 @@ class GlobalLocalizationNode(Node):
+         self.create_timer(1.0 / self.health_heartbeat_rate, self.publish_health)
+         self.get_logger().info('GlobalLocalizationNode initialized.')
+ 
++    def trace(self, event, **fields):
++        if not self.trace_path:
++            return
++        try:
++            record = {'event': event, 'monotonic': time.monotonic(), **fields}
++            with open(self.trace_path, 'a', buffering=1, encoding='utf-8') as output:
++                output.write(json.dumps(record, allow_nan=True, sort_keys=True) + '\n')
++        except Exception:
++            pass
++
++    @staticmethod
++    def trace_stamp(message):
++        if message is None:
++            return None
++        stamp = message.header.stamp
++        return stamp.sec + stamp.nanosec / 1.0e9
++
+     def pc2_to_array(self, pc_msg: PointCloud2) -> np.ndarray:
+         """PointCloud2 → (N×3) NumPy array"""
+         pts = []
+@@ -183,6 +205,7 @@ class GlobalLocalizationNode(Node):
+         self.cur_odom = msg
+ 
+     def cb_save_cur_scan(self, msg: PointCloud2):
++        self.last_scan_stamp = msg.header.stamp.sec + msg.header.stamp.nanosec / 1.0e9
+         msg.header.frame_id = 'camera_init'
+         msg.header.stamp    = self.get_clock().now().to_msg()
+         self.pub_pc_in_map.publish(msg)
+@@ -214,6 +237,15 @@ class GlobalLocalizationNode(Node):
+         message.rmse = self.health_tracker.last_rmse
+         message.map_id = self.map_id
+         self.pub_health.publish(message)
++        self.trace(
++            'health_publish', node_clock=self.get_clock().now().nanoseconds / 1.0e9,
++            state=message.state, reason_mask=message.reason_mask, sequence=message.sequence,
++            map_id=message.map_id, health_stamp=message.stamp.sec + message.stamp.nanosec / 1.0e9,
++            accepted_stamp=message.last_accepted_correction_stamp.sec +
++            message.last_accepted_correction_stamp.nanosec / 1.0e9,
++            scan_stamp=self.last_scan_stamp, odom_stamp=self.trace_stamp(self.cur_odom),
++            initialized=self.initialized,
++            consecutive_rejections=message.consecutive_rejections, fitness=message.fitness, rmse=message.rmse)
+ 
+     def record_rejection(self, reason_mask):
+         previous_state = self.health_tracker.state

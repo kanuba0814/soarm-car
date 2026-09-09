@@ -1,0 +1,13 @@
+{
+  "restore": "/tmp/soarm-intel-nav-trace-20260909",
+  "restore_head": "41463f9a07dc317eb837558ad55b137fb92e35eb",
+  "pcd_sha256": "f930a35e03ad641d2ad25174afa19f6fe9d070e38ae1bfe63391a5f3afac9a12",
+  "trace_policy": "Optional only: SOARM_RUNTIME_TRACE_GATE and SOARM_RUNTIME_TRACE_LOCALIZATION enable line-buffered JSONL; all trace errors are swallowed.",
+  "policy_invariant": "Gate health_timeout and command_timeout AST assignment values matched the uninstrumented restored source before launch.",
+  "run": "Existing direct-MPPI room-1 consumer, valid ROS domain 211, unchanged restored map, PCD, LiDAR, camera, Nav2 and health parameters; Intel-only image sha256:1da9a18609c4664d7441d9f334c95e971f0795aa3815f6707ed761f2ce93d227.",
+  "finding": "Gate receipt is not stale due to ROS transport. Localization health publishes were received promptly, but publisher monotonic intervals repeatedly exceeded the unchanged 0.5 second gate timeout while health state remained HEALTHY. The first latch had receipt_age 0.5100516849997803 seconds and state 1 (HEALTHY).",
+  "cause_supported": "Localization health heartbeat callback scheduling/publishing is delayed in wall time relative to the 10Hz simulated heartbeat, causing the fail-closed gate timeout.",
+  "cause_not_proven": "This trace does not attribute the publisher callback delay to Gazebo rendering, GPU, LiDAR, FAST-LIO, or CPU contention. Actual OGRE driver maps/DRI FDs were not captured during this run.",
+  "renderer": "Host/container GLX Intel ARL identity is established in prior evidence, but actual Gazebo renderer identity remains unverified in this instrumented run.",
+  "next_justified_change": "Measure the global-localization process callback scheduling and Gazebo renderer process only, after startup, before changing any resource or navigation setting."
+}
