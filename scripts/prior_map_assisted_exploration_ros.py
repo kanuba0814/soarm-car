@@ -21,12 +21,14 @@ from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import PoseStamped, Twist
 from nav2_msgs.action import ComputePathToPose, NavigateToPose
 from rclpy.action import ActionClient
+from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import PointCloud2
 from sensor_msgs_py import point_cloud2
 from soarm_interfaces.msg import LocalizationHealth
+from std_srvs.srv import Trigger
 from tf2_ros import Buffer, TransformListener
 
 
@@ -131,6 +133,23 @@ class Nav2Adapter:
         self.transport.send(action)
         return 'exploration-%d' % self.goal_sequence
 
+    def send_prepared(self, goal):
+        self.nav_started = True
+        self.goal_sequence += 1
+        action = NavigateToPose.Goal()
+        action.pose = PoseStamped()
+        action.pose.header.frame_id = goal['frame_id']
+        action.pose.header.stamp = self.node.get_clock().now().to_msg()
+        action.pose.pose.position.x = goal['position']['x']
+        action.pose.pose.position.y = goal['position']['y']
+        action.pose.pose.position.z = goal['position']['z']
+        action.pose.pose.orientation.x = goal['orientation']['x']
+        action.pose.pose.orientation.y = goal['orientation']['y']
+        action.pose.pose.orientation.z = goal['orientation']['z']
+        action.pose.pose.orientation.w = goal['orientation']['w']
+        self.transport.send(action)
+        return 'named-%d' % self.goal_sequence
+
     def poll(self):
         if not self.transport.terminal:
             return None
@@ -184,19 +203,27 @@ class PriorMapExplorationNode(Node):
         self.create_subscription(Odometry, '/odom', self.measured_pose, 10)
         evidence_dir = self.get_parameter('evidence_dir').value
         self.evidence_dir = Path(evidence_dir) if evidence_dir else None
-        self.event_index = self.observation_index = 0
         self.stop_samples, self.pose_samples = [], []
         self.named_status = {'state': 'not_requested'}
+        self.paused_checkpoint = None
+        self.drop_source = False
+        self.last_checkpoint, self.last_report, self.last_state = 0.0, 0.0, None
         if self.evidence_dir:
             self.evidence_dir.mkdir(parents=True, exist_ok=False)
             (self.evidence_dir / 'metadata.json').write_text(json.dumps({'map_identity': prior.map_identity, 'health_map_id': self.get_parameter('expected_health_map_id').value, 'use_sim_time': True, 'wallclock_watchdog': 'time.monotonic', 'ground_z': self.adapter.ground_z, 'floor_tolerance': self.adapter.floor_tolerance, 'navigation_z_band': [self.adapter.navigation_z_min, self.adapter.navigation_z_max], 'point_sample_policy': 'uniform_index_across_full_message', 'max_validated_rays': self.adapter.max_validated_rays}, indent=2) + '\n')
-        self.create_timer(.05, self.tick)
+        self.create_service(Trigger, '~/pause', self.pause)
+        self.create_service(Trigger, '~/resume', self.resume)
+        self.create_service(Trigger, '~/stop', self.stop)
+        self.create_service(Trigger, '~/inject_source_drop', self.inject_source_drop)
+        self.create_timer(.05, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
         self.supervisor.start(time.monotonic())
 
     def health(self, message):
         self.supervisor.health('HEALTHY' if message.state == LocalizationHealth.HEALTHY else 'UNHEALTHY', message.map_id, time.monotonic())
 
     def cloud(self, message):
+        if self.drop_source:
+            return
         receipt = time.monotonic()
         stamp = seconds(message.header.stamp)
         try:
@@ -219,11 +246,37 @@ class PriorMapExplorationNode(Node):
             return
         self.supervisor.enqueue(record)
 
+    def pause(self, _request, response):
+        self.paused_checkpoint = self.supervisor.pause(time.monotonic())
+        response.success = self.paused_checkpoint is not None
+        response.message = 'cancellation requested; resume requires confirmed cancellation'
+        return response
+
+    def resume(self, _request, response):
+        try:
+            self.supervisor.resume(self.paused_checkpoint, time.monotonic())
+            response.success, response.message = True, 'fresh source and a new plan are required'
+        except Exception as error:
+            response.success, response.message = False, str(error)
+        return response
+
+    def stop(self, _request, response):
+        self.supervisor.cancel(time.monotonic())
+        response.success, response.message = True, 'cancellation requested'
+        return response
+
+    def inject_source_drop(self, _request, response):
+        self.drop_source = not self.drop_source
+        response.success, response.message = True, 'source drop=' + str(self.drop_source)
+        return response
+
     def safe_command(self, message):
         self.stop_samples.append({'receipt': time.monotonic(), 'linear_x': message.linear.x, 'linear_y': message.linear.y, 'angular_z': message.angular.z})
+        del self.stop_samples[:-200]
 
     def measured_pose(self, message):
         self.pose_samples.append({'receipt': time.monotonic(), 'frame_id': message.header.frame_id, 'x': message.pose.pose.position.x, 'y': message.pose.pose.position.y, 'linear_x': message.twist.twist.linear.x, 'linear_y': message.twist.twist.linear.y, 'angular_z': message.twist.twist.angular.z})
+        del self.pose_samples[:-200]
 
     def _dispatch_named_task(self):
         request = self.get_parameter('named_request').value
@@ -231,16 +284,19 @@ class PriorMapExplorationNode(Node):
             return
         package_root = Path(__file__).parents[1] / 'ros2_ws' / 'src' / 'soarm_named_place_request'
         sys.path.insert(0, str(package_root))
-        from soarm_named_place_request.prepare import prepare
-        prepared = prepare(Path(request), Path(self.get_parameter('asset_root').value))
+        from soarm_named_place_request.prepare import prepare, verify_prepared
+        asset_root = Path(self.get_parameter('asset_root').value)
+        prepared = prepare(Path(request), asset_root)
+        verified = verify_prepared(prepared, asset_root)
         if prepared['require_heading'] is not False:
             raise RuntimeError('named task must remain position-only')
-        position = prepared['map_goal']['position']
-        self.named_status = {'state': 'active', 'place_id': prepared['place_id'], 'goal_uuid': self.nav.send([position['x'], position['y']])}
+        if not self.supervisor.gate.ready(time.monotonic()) or self.nav.busy or self.supervisor.state not in (State.FRONTIERS_EXHAUSTED, State.BUDGET_EXHAUSTED):
+            return
+        self.named_status = {'state': 'active', 'place_id': prepared['place_id'], 'map_goal': verified, 'goal_uuid': self.nav.send_prepared(verified)}
 
     def tick(self):
         self.supervisor.tick(time.monotonic())
-        if self.supervisor.state == State.FRONTIERS_EXHAUSTED:
+        if self.supervisor.state in (State.FRONTIERS_EXHAUSTED, State.BUDGET_EXHAUSTED):
             self._dispatch_named_task()
         if self.named_status['state'] == 'active':
             result = self.nav.poll()
@@ -248,16 +304,25 @@ class PriorMapExplorationNode(Node):
                 self.named_status['state'] = 'succeeded' if result == 'SUCCEEDED' else 'failed'
         if not self.evidence_dir:
             return
-        with (self.evidence_dir / 'events.jsonl').open('a') as stream:
-            for event in self.supervisor.events[self.event_index:]:
-                stream.write(json.dumps(event, sort_keys=True) + '\n')
-            self.event_index = len(self.supervisor.events)
-        with (self.evidence_dir / 'observations.jsonl').open('a') as stream:
-            for observation in self.supervisor.consumed[self.observation_index:]:
-                stream.write(json.dumps(observation, sort_keys=True) + '\n')
-            self.observation_index = len(self.supervisor.consumed)
-        report = {'state': self.supervisor.state.value, 'reason': self.supervisor.reason, 'core_state': self.supervisor.core.export_state(), 'goals': self.supervisor.goals, 'named_task': self.named_status, 'safe_cmd_vel': self.stop_samples[-200:], 'measured_pose': self.pose_samples[-200:]}
-        (self.evidence_dir / 'report.json').write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
+        for filename, values in (('events.jsonl', self.supervisor.drain_events()), ('observations.jsonl', self.supervisor.drain_consumed())):
+            if values:
+                with (self.evidence_dir / filename).open('a') as stream:
+                    for value in values:
+                        stream.write(json.dumps(value, sort_keys=True) + '\n')
+        wall_now = time.monotonic()
+        state_changed = self.last_state != self.supervisor.state
+        if wall_now - self.last_checkpoint >= 5.0 or state_changed:
+            checkpoint = self.evidence_dir / 'checkpoint.json'
+            temporary = checkpoint.with_suffix('.tmp')
+            temporary.write_text(json.dumps(self.supervisor.core.export_state(), sort_keys=True) + '\n')
+            os.replace(temporary, checkpoint)
+            self.last_checkpoint = wall_now
+        if wall_now - self.last_report >= 1.0 or state_changed:
+            report = {'state': self.supervisor.state.value, 'reason': self.supervisor.reason, 'core_state_checkpoint': 'checkpoint.json', 'goals': self.supervisor.goals, 'named_task': self.named_status, 'safe_cmd_vel': self.stop_samples, 'measured_pose': self.pose_samples, 'cadence': {'fsm_hz': 20, 'progress_report_hz_max': 1, 'checkpoint_seconds': 5}}
+            temporary = self.evidence_dir / 'report.json.tmp'
+            temporary.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
+            os.replace(temporary, self.evidence_dir / 'report.json')
+            self.last_report, self.last_state = wall_now, self.supervisor.state
 
 
 def main():

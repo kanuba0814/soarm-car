@@ -146,7 +146,7 @@ class ExplorationSupervisor:
         self.navigator = navigator
         self.gate = FreshnessGate(expected_health_map_id, source_map_id)
         self.records = deque(maxlen=1024)
-        self.consumed = []
+        self.consumed = deque(maxlen=1024)
         self.max_goals, self.wall_limit, self.per_goal_wall = max_goals, wall_limit, per_goal_wall
         self.separation_m, self.arrival_tolerance = separation_m, arrival_tolerance
         self.state, self.reason = State.IDLE, 'not started'
@@ -155,7 +155,7 @@ class ExplorationSupervisor:
         self.active = None
         self.goals = []
         self.failures = 0
-        self.events = []
+        self.events = deque(maxlen=256)
         self._last_progress = None
         self._last_observation_receipt = None
         self._pending_terminal = None
@@ -192,6 +192,16 @@ class ExplorationSupervisor:
         if self.state in TERMINAL:
             return
         self._request_cancel(State.CANCELLED, 'operator cancellation', now)
+
+    def drain_events(self):
+        items = list(self.events)
+        self.events.clear()
+        return items
+
+    def drain_consumed(self):
+        items = list(self.consumed)
+        self.consumed.clear()
+        return items
 
     def _transition(self, state, reason, now):
         self.state, self.reason = state, reason
