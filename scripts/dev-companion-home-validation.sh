@@ -4,6 +4,8 @@ set -euo pipefail
 # Runs bounded renderer/sensor diagnostic capture only. It never publishes /cmd_vel or evaluates navigation.
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 lock="$root/config/aws_small_house_companion.json"
+capture_config="${COMPANION_CAPTURE_CONFIG:-$root/config/companion_metric_pilot.json}"
+runtime_calibration_panel="${COMPANION_RUNTIME_CALIBRATION_PANEL:-0}"
 asset_dir="${AWS_SMALL_HOUSE_DIR:-$root/artifacts/baselines/aws_small_house_world}"
 image="${SOARM_TEST_IMAGE:-soarm-car-ros2-dev:hm3d}"
 run_dir="${COMPANION_HOME_OUTPUT:?Set COMPANION_HOME_OUTPUT to a new output directory}"
@@ -13,7 +15,7 @@ ign_partition="${IGN_PARTITION:-${container_name}-ign}"
 host_display="${DISPLAY:?DISPLAY must name an existing local X server for Fortress Ogre2}"
 host_xauthority="${XAUTHORITY:?XAUTHORITY must name local X credentials for Fortress Ogre2}"
 
-[[ -f "$lock" && -d "$asset_dir/.git" ]] || { printf 'Acquire the pinned asset first with scripts/acquire-aws-small-house.sh\n' >&2; exit 2; }
+[[ -f "$lock" && -f "$capture_config" && -d "$asset_dir/.git" ]] || { printf 'Acquire the pinned asset/config first with scripts/acquire-aws-small-house.sh\n' >&2; exit 2; }
 [[ -S /tmp/.X11-unix/X0 && -f "$host_xauthority" ]] || { printf 'Required local X socket or Xauthority is unavailable\n' >&2; exit 2; }
 [[ ! -e "$run_dir" ]] || { printf 'Refusing to overwrite output: %s\n' "$run_dir" >&2; exit 2; }
 docker container inspect "$container_name" >/dev/null 2>&1 && { printf 'Refusing to use existing container name: %s\n' "$container_name" >&2; exit 2; }
@@ -52,7 +54,8 @@ set -e; mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root
 source /opt/ros/humble/setup.bash; source /workspaces/soarm-car/install/setup.bash
 colcon --log-base /tmp/companion/log build --base-paths /feature/ros2_ws/src/soarm_simulation --build-base /tmp/companion/build --install-base /tmp/companion/install --symlink-install
 source /tmp/companion/install/setup.bash
-python3 /feature/scripts/prepare_companion_home_world.py /asset/worlds/small_house.world /runtime.sdf
+if [ "'"$runtime_calibration_panel"'" = 1 ]; then panel_option="--metric-calibration-panel"; else panel_option=""; fi
+python3 /feature/scripts/prepare_companion_home_world.py /asset/worlds/small_house.world /runtime.sdf $panel_option
 export IGN_GAZEBO_RESOURCE_PATH=/asset/models:/tmp/companion/install/soarm_simulation/share/soarm_simulation/models; export GZ_SIM_RESOURCE_PATH=$IGN_GAZEBO_RESOURCE_PATH
 printf "%s\\n" "{\\"file_format_version\\":\\"1.0.0\\",\\"ICD\\":{\\"library_path\\":\\"libEGL_nvidia.so.0\\"}}" > /tmp/nvidia-egl.json
 { nvidia-smi -L; glxinfo -B; eglinfo -B || true; } > /output/renderer.txt 2>&1
@@ -67,7 +70,8 @@ for _ in {1..120}; do
 done
 $ready || { docker logs "$container_name" >"$run_dir/container.log" 2>&1 || true; exit 1; }
 docker exec "$container_name" bash -lc "$ros_setup; ros2 topic type /world/default/dynamic_pose/info; ros2 topic type /camera/image; ros2 topic type /camera/depth_image; ros2 topic type /camera/camera_info" >"$run_dir/topic-types.txt"
-docker exec -i "$container_name" bash -lc "$ros_setup; timeout 900 python3 /feature/scripts/companion_capture.py /output /feature/config/aws_small_house_companion.json"
+capture_config_in_container="/feature/${capture_config#$root/}"
+docker exec -i "$container_name" bash -lc "$ros_setup; timeout 900 python3 /feature/scripts/companion_capture.py /output '$capture_config_in_container'"
 docker exec "$container_name" bash -lc "IGN_PARTITION='$ign_partition' ign model --list" >"$run_dir/models.txt"
 docker logs "$container_name" >"$run_dir/container.log" 2>&1 || true
 ! grep -Eqi 'invalid mesh|failed to load geometry|missing texture|unable to find.*(mesh|texture)' "$run_dir/gazebo.log" "$run_dir/container.log"

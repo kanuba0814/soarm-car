@@ -1,62 +1,65 @@
-# 首阶段真实 RGB-D / 观测位姿开发小试
+# 真实 RGB-D / 观测位姿开发小试
 
-本记录是开发集诊断，不是导航、方法精度、地图对应、任务成功或实物实验结论。使用的三个位置都是 `set_pose` 诊断放置，未调用 `/cmd_vel`、Nav2 或任何 scored method；请求位姿与独立观测位姿分别保存，前者不作为路径或实际位姿。
+本记录只覆盖隔离的开发集传感器与几何诊断。所有 `set_pose` 都是诊断放置，不是导航路径；没有调用 `/cmd_vel`、Nav2、scored method 或导航完成接口。原始模型、资产锁、FAST-LIO、安全链和网络隔离未改动。
 
-## 可恢复结果
+## 可恢复证据
 
-成功小试目录（大型原始数据保持本地、被 Git 忽略）：
+Git 跟踪的无损原始证据和 SHA-256 在 [MANIFEST.md](/home/gxxl/soarm-car-companion-validation/artifacts/companion-home-validation/evidence/MANIFEST.md)。其中包含原三视角小试、四视角新 home 小试和独立 panel 校准，因此 checkout 不依赖被忽略的 runtime 目录。首阶段合同副本在 [companion-metric-pilot-contract.md](/home/gxxl/soarm-car-companion-validation/docs/research/companion-metric-pilot-contract.md)。
 
-```text
-artifacts/companion-home-validation/runtime/pilot-481eed1-retry5
-```
-
-- `capture.json` SHA-256 `5c434b8432d1a007cb9f00de520cba62a05eda81cbaa830dcf8dfb4a405e4d63`
-- `evidence.json` SHA-256 `924699fd7dc8d0b2671e64bc1dab0ef11ce06f407a3e5d1d88179cbaf0df8acb`
-- `raw_dynamic_pose_stream.json` SHA-256 `827a28bcb52fc8402b81ca052264e778c98464493d6510b40828845d392560c8`
-- `geometry/geometry.json` SHA-256 `cb2dcf4b7a27f2dec3b658f248a9899aeb47736b8859b011a136d95b2fdced7c`
-- `yolo/results.json` SHA-256 `a79cf4ac9ca8cc51fadb2038be9e7b2fa31cc8dfb1a90a771778876992098eb6`
-
-每个视角保留原 RGB PNG、`float32` 米制 `depth_m_float32.npy`、单独无效掩码、深度预览、全部 `CameraInfo` K/P/D/R/encoding/step/endianness 和帧级时间关联。源世界、许可证、全内容 manifest 和容器镜像身份由 `evidence.json` 固定；运行时 Kuruma 模型 `ros2_ws/src/soarm_simulation/models/kuruma/model.sdf` SHA-256 为 `143dd22a0047cdce511ac0b5c99dc5b96a7c3cc1a75116c585531f963de609fa`。未修改原模型、资产锁、安全链或网络隔离。
-
-## 实测小试
-
-隔离容器使用 `--network none`、`ROS_LOCALHOST_ONLY=1`、独占 `IGN_PARTITION` 和 `IGN_IP=127.0.0.1`。真实消费链为：
+成功的新 home 原始/消费者目录：
 
 ```text
-Gazebo Fortress rgbd_camera -> ros_gz_bridge -> rclpy subscriber
--> metric depth/calibration/observed pose persistence -> reload/projective geometry -> frozen YOLO-World
+artifacts/companion-home-validation/runtime/metric-pilot-cd88a17-retry2
 ```
 
-三个不同开发视角为 `diagnostic_a`、`diagnostic_b`、`diagnostic_c`。它们包含非共线平移和约 90 度以上的朝向变化。各 RGB/depth 对时间差为 0 ns，深度有效比率依次为 83.21%、70.86%、70.01%。所有图像在放置确认后至少 0.5 秒仿真时间的 fence 后接收。
+- 原始采集: `capture.json`, `raw_native_dynamic_pose_samples.json`, `raw_bridge_dynamic_pose_stream.json`, `frames/*/{rgb.png,depth_m_float32.npy,depth_invalid_mask.npy,camera_info.json}`
+- 修正后几何: `geometry/geometry.json` 和 12 张 directed visibility 图
+- 冻结检测器: `yolo/results.json` 和四张 overlay
+- 独立 runtime-only panel 校准: `artifacts/companion-home-validation/runtime/metric-calibration-cd88a17/panel-calibration/panel_calibration.json`
 
-`/world/default/dynamic_pose/info` 实际可用，并通过 `gz.msgs.Pose_V -> tf2_msgs/msg/TFMessage` 桥接。Fortress 此消息在桥后没有源 header stamp（原始记录为零/空）；因此采集器在同一隔离 rclpy executor 中为每一条观测记录接收时的 `/clock`，并以此关联图像。三帧位姿-图像差分别为 0、1、1 ms。该缺口和原始流均保留，不能将请求坐标替代为观测值。
+真实消费链为：
 
-相机链严格按当前模型：model -> base `z=.0763`，base -> `camera_link` 为 `(.180, 0, .150)`。离线消费者明确使用 optical `+Z` 前、`+X` 右、`+Y` 下约定，并输出 world 点云及逐对 projective-depth 残差图。三对都有实际 projective 对应，但建议阈值均未通过：
+```text
+Gazebo Fortress rgbd_camera -> ros_gz_bridge -> rclpy persistence
+-> raw float32 depth/CameraInfo/native Pose_V -> reload z-buffer diagnostic -> frozen YOLO-World
+```
 
-| 视角对 | 覆盖率 | median m | P95 m | 状态 |
-| --- | ---: | ---: | ---: | --- |
-| a -> b | 14.78% | 0.0619 | 1.5740 | 未通过 |
-| a -> c | 53.46% | 10.8957 | 11.1282 | 未通过 |
-| b -> c | 69.74% | 0.2298 | 7.1374 | 未通过 |
+容器保持 `--network none`、`ROS_LOCALHOST_ONLY=1`、独占 `IGN_PARTITION`、`IGN_IP=127.0.0.1` 和 owned-ID cleanup。源世界和镜像身份保存在每次 `evidence.json`；Kuruma SDF 未改动。
 
-这些数值来自跨视角投影到目标深度的对应，不是同一平面拟合或最近邻伪匹配。结果暴露相机轴/姿态链或放置后物理稳定性仍需诊断，不能作为几何准确性证据。
+## C3: 原生姿态时间与稳定性
 
-冻结的本地 `yolov8s-worldv2.pt`（SHA-256 `9b2c17ab6124a913e9b3a5c170617920d91b0f01111a8479da69f00e2cf27792`）实际消费三个新 RGB，保存全部 8 个原始框和叠图。`diagnostic_c` 有四个 `chair` 输出，但高度重叠，不能当成两个独立椅子；没有 `dining table`、`couch` 或其他独立关系锚点。因此 A1 的“两个不同椅子及桌/沙发等锚点”先决条件**不成立**，没有生成任何替代检测或精度分数。
+旧三视角 run 的 `TFMessage` bridge 丢失了 Pose_V source header（bridge header stamp 为零），其 0/1 ms receipt-clock 差不能证明采集时间同步。该限制已经更正。
+
+新四视角 run 对每个图像都通过原生 `ign topic -e /world/default/dynamic_pose/info --json-output` 保存 `kuruma` 的前/后完整 Pose_V envelope。每个图像 ROS stamp 被两个**非零 native source stamp**夹住，且记录了精确实体、位移和旋转稳定区间；TF bridge receipt-clock 仍分开保存、不当作 source timestamp。四个稳定区间位移为 2.93--3.69 mm，旋转为 0.00860--0.01104 rad。此处采用的已知自身 simulator pose 仅是明确标记的受控研究条件，绝不进入 planner。
+
+## C4: 修正的几何解释
+
+旧 `a -> c` 的 10.8957 m 不是可解释的几何准确度：旧实现把 in-bounds 投影直接称为对应且允许多个 source 点重复加权同一 target pixel。保存的旧数据中，34,186 个候选有 33,380 个（97.64%）在更近 target 深度之后。
+
+新 reload 消费者使用完整 observed quaternion，先拒绝 nonfinite/behind-camera 点，再对每个 target pixel 留一个最近 source Z-buffer 点，并对所有 **12 个有向对**分别保存：in-bounds 数、unique target pixel 数、target-invalid 数、behind-nearer-surface 数、foreground 数、以及 depth-compatible 数。`depth-compatible` 只是一项描述性分类，不能证明同一静态表面或 accuracy。它不再使用 `verified_pairs` 或“coverage 即 overlap”的表述。
+
+新 home 的预先选择相邻对 `overlap_base -> overlap_forward` 有 56.74% supported unique-pixel coverage，6,144 behind、414 foreground、29,514 descriptive depth-compatible，absolute residual median 0.03589 m。反向 `overlap_forward -> overlap_base` 为 92.48% coverage，431 behind、9,686 foreground、50,379 compatible，median 0.04175 m。横移和转向方向仍含大量不可见/不兼容表面；全部 90 度方向无 projected support。这些事实支持“相邻视角有候选重叠”，不构成 home accuracy、地图或方法结论。
+
+为独立检查固定相机链和深度单位，runtime wrapper 仅在独立校准 run 中添加了已知世界 `x=-5.0 m` 的绿色 static panel；它不是 home target、planner 输入或 evaluator GT。预先固定的绿色颜色选择在 `panel_base` 和 `panel_forward` 分别得到 world-X median error `-0.00341 m`、`-0.01441 m`，P95 absolute `0.00821 m`、`0.01821 m`。90 度 view 没有 panel pixel，记录为 `NOT_VERIFIED`。这支持声明的轴/米制深度链在该受控诊断中可解释，但不替代 furnished-home 几何验证。
+
+## 感知与后续边界
+
+冻结的本地 `yolov8s-worldv2.pt` 实际消费四张新 RGB 并保留所有 10 个 raw boxes。此小试没有目标身份、关系 anchor、准确率或 test-split 结论。
+
+后续研究命名采用 **VisualConf**。已知 robot self simulator pose 可作为明确标记的受控条件（D2）；目标身份/位姿/hidden meshes 始终仅供 evaluator，不能泄漏给方法或 planner。当前阶段没有扩展到 A1 scoring、导航或 Nav2。
 
 ## 重跑
 
-新目录不能覆盖旧 run：
-
 ```bash
-COMPANION_HOME_OUTPUT="$PWD/artifacts/companion-home-validation/runtime/pilot-new" \
+COMPANION_HOME_OUTPUT="$PWD/artifacts/companion-home-validation/runtime/metric-new" \
   ./scripts/dev-companion-home-validation.sh
 python3 scripts/companion_reload_geometry.py \
-  --input-dir artifacts/companion-home-validation/runtime/pilot-new \
-  --output-dir artifacts/companion-home-validation/runtime/pilot-new/geometry
+  --input-dir artifacts/companion-home-validation/runtime/metric-new \
+  --output-dir artifacts/companion-home-validation/runtime/metric-new/geometry
 /home/gxxl/miniconda3/envs/yolo/bin/python scripts/run_companion_yoloworld_smoke.py \
-  --input-dir artifacts/companion-home-validation/runtime/pilot-new \
-  --output-dir artifacts/companion-home-validation/runtime/pilot-new/yolo \
+  --input-dir artifacts/companion-home-validation/runtime/metric-new \
+  --output-dir artifacts/companion-home-validation/runtime/metric-new/yolo \
   --model /home/gxxl/soarm-car/artifacts/perception-dev/models/yolov8s-worldv2.pt
 ```
 
-下一阶段 A1 的实际输入条件是：先确认相机 optical 轴与 `dynamic_pose` model-origin 定义，处理放置后的物理稳定性，再以冻结的可见实例标注确认真实关系锚点。不得把本小试扩展解释为 Nav2、SLAM、全场景 GT 或方法研究完成。
+运行独立 panel 校准需额外设置 `COMPANION_CAPTURE_CONFIG=config/companion_metric_calibration.json` 和 `COMPANION_RUNTIME_CALIBRATION_PANEL=1`。该开关只能用于校准，不得作为 home study 或方法输入。

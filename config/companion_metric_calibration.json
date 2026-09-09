@@ -1,0 +1,12 @@
+{
+  "development_viewpoints": [
+    {"id": "panel_base", "pose": [-6.90, 0.90, 0.08, 0.0, 0.0, 0.00]},
+    {"id": "panel_forward", "pose": [-6.70, 0.90, 0.08, 0.0, 0.0, 0.00]},
+    {"id": "panel_turn_90", "pose": [-6.90, 0.90, 0.08, 0.0, 0.0, 1.57079632679]}
+  ],
+  "notes": {
+    "scope": "Runtime-only known green panel calibration. It is not part of the furnished-home study, method input, target identity set, or evaluation ground truth.",
+    "known_plane_world_x_m": -5.0,
+    "teleport": "Diagnostic placement only; never navigation evidence."
+  }
+}

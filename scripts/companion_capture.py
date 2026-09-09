@@ -3,6 +3,7 @@
 import json
 import math
 import struct
+import subprocess
 import sys
 import time
 import zlib
@@ -11,7 +12,6 @@ from pathlib import Path
 
 import numpy as np
 import rclpy
-from geometry_msgs.msg import TransformStamped
 from rosgraph_msgs.msg import Clock
 from sensor_msgs.msg import CameraInfo, Image
 from tf2_msgs.msg import TFMessage
@@ -65,7 +65,7 @@ def yaw_from_quaternion(q):
 
 def pose_record(transform, observed_clock_ns):
     return {
-        "source_header_stamp_ns": stamp_ns(transform), "observed_clock_ns": observed_clock_ns, "parent_frame": transform.header.frame_id,
+        "bridge_tf_header_stamp_ns": stamp_ns(transform), "observed_clock_ns": observed_clock_ns, "parent_frame": transform.header.frame_id,
         "child_frame": transform.child_frame_id,
         "translation_m": [transform.transform.translation.x, transform.transform.translation.y, transform.transform.translation.z],
         "quaternion_xyzw": [transform.transform.rotation.x, transform.transform.rotation.y, transform.transform.rotation.z, transform.transform.rotation.w],
@@ -73,9 +73,49 @@ def pose_record(transform, observed_clock_ns):
     }
 
 
+def gazebo_stamp_ns(message):
+    header = message.get("header", {})
+    stamp = header.get("stamp", {})
+    if not isinstance(stamp, dict):
+        return 0
+    return int(stamp.get("sec", 0)) * 1_000_000_000 + int(stamp.get("nsec", stamp.get("nanosec", 0)))
+
+
+def native_pose_sample(label):
+    response = subprocess.run(
+        ["ign", "topic", "-e", "-t", "/world/default/dynamic_pose/info", "-n", "1", "--json-output"],
+        text=True, capture_output=True, timeout=15)
+    if response.returncode:
+        raise AssertionError(f"native Pose_V sample failed for {label}: {response.stderr}")
+    decoder = json.JSONDecoder()
+    remaining = response.stdout.lstrip()
+    envelopes = []
+    while remaining:
+        envelope, consumed = decoder.raw_decode(remaining)
+        envelopes.append(envelope)
+        remaining = remaining[consumed:].lstrip()
+    envelope = envelopes[-1]
+    source_stamp = gazebo_stamp_ns(envelope)
+    entity = next((pose for pose in envelope.get("pose", []) if pose.get("name") == "kuruma"), None)
+    if not source_stamp or entity is None:
+        raise AssertionError(f"native Pose_V lacks source stamp or exact kuruma entity for {label}")
+    return {"label": label, "source_stamp_ns": source_stamp, "entity": entity, "envelope": envelope, "all_envelopes_returned": envelopes}
+
+
+def entity_stationarity(before, after):
+    start, end = before["entity"], after["entity"]
+    first = start.get("position", {}); second = end.get("position", {})
+    translation_delta = math.sqrt(sum((float(second.get(axis, 0)) - float(first.get(axis, 0))) ** 2 for axis in ("x", "y", "z")))
+    q1, q2 = start.get("orientation", {}), end.get("orientation", {})
+    dot = abs(sum(float(q1.get(axis, 0)) * float(q2.get(axis, 0)) for axis in ("x", "y", "z", "w")))
+    angle = 2 * math.acos(min(1.0, max(-1.0, dot)))
+    return {"source_interval_ns": [before["source_stamp_ns"], after["source_stamp_ns"]], "translation_delta_m": translation_delta, "rotation_delta_rad": angle, "stationary": translation_delta <= .02 and angle <= .02}
+
+
 def main():
     output, lock_path = map(Path, sys.argv[1:])
-    viewpoints = json.loads(lock_path.read_text(encoding="utf-8"))["diagnostic_viewpoints"]
+    capture_config = json.loads(lock_path.read_text(encoding="utf-8"))
+    viewpoints = capture_config.get("development_viewpoints", capture_config.get("diagnostic_viewpoints", []))
     if not 3 <= len(viewpoints) <= 12:
         raise SystemExit("pilot requires between 3 and 12 viewpoints")
     if (output / "frames").exists() or (output / "capture.json").exists():
@@ -138,13 +178,19 @@ def main():
         raise AssertionError("no /clock received within bounded startup wait")
 
     records = []
+    native_samples = []
     for point in viewpoints:
         x, y, z, _, _, yaw = point["pose"]
         request = ("name: \"kuruma\" position { x: %s y: %s z: %s } orientation { x: 0 y: 0 z: %s w: %s }" % (x, y, z, math.sin(yaw / 2), math.cos(yaw / 2)))
-        response = __import__("subprocess").run(["ign", "service", "-s", "/world/default/set_pose", "--reqtype", "ignition.msgs.Pose", "--reptype", "ignition.msgs.Boolean", "--timeout", "3000", "--req", request], text=True, capture_output=True)
+        response = subprocess.run(["ign", "service", "-s", "/world/default/set_pose", "--reqtype", "ignition.msgs.Pose", "--reptype", "ignition.msgs.Boolean", "--timeout", "3000", "--req", request], text=True, capture_output=True)
         if response.returncode or "data: true" not in response.stdout:
             raise AssertionError(response.stdout + response.stderr)
+        # Do not use the early post-set_pose pose as a stationarity endpoint.
+        spin(1.0)
+        pre_source = native_pose_sample(point["id"] + "_before_frame")
         rgb, depth, info, fence, sync_delta = receive_after_pose()
+        post_source = native_pose_sample(point["id"] + "_after_frame")
+        native_samples.extend([pre_source, post_source])
         pixels, meters = image_array(rgb), depth_array(depth)
         if info.width != rgb.width or info.height != rgb.height or meters.shape != (rgb.height, rgb.width):
             raise AssertionError("RGB, depth, and CameraInfo dimensions differ")
@@ -152,6 +198,11 @@ def main():
         if valid.mean() <= .2 or info.k[0] <= 0 or info.k[4] <= 0:
             raise AssertionError(f"invalid metric depth or calibration at {point['id']}")
         image_stamp = stamp_ns(rgb)
+        stationarity = entity_stationarity(pre_source, post_source)
+        if not (pre_source["source_stamp_ns"] <= image_stamp <= post_source["source_stamp_ns"]):
+            raise AssertionError(f"native Pose_V source stamps do not bracket image for {point['id']}")
+        if not stationarity["stationary"]:
+            raise AssertionError(f"kuruma did not remain stationary around {point['id']}: {stationarity}")
         eligible = [pose for pose in state["poses"] if abs(pose["observed_clock_ns"] - image_stamp) <= 100_000_000]
         if not eligible:
             (output / "raw_dynamic_pose_stream.failure.json").write_text(json.dumps(state["poses"], indent=2) + "\n")
@@ -169,11 +220,13 @@ def main():
         calibration = {"width": info.width, "height": info.height, "k": list(info.k), "p": list(info.p), "d": list(info.d), "r": list(info.r), "distortion_model": info.distortion_model,
                        "header_stamp_ns": stamp_ns(info), "frame_id": info.header.frame_id, "rgb_encoding": rgb.encoding, "rgb_step": rgb.step, "rgb_is_bigendian": bool(rgb.is_bigendian), "depth_encoding": depth.encoding, "depth_step": depth.step, "depth_is_bigendian": bool(depth.is_bigendian), "depth_unit": "m"}
         (frame / "camera_info.json").write_text(json.dumps(calibration, indent=2) + "\n")
-        record = {"id": point["id"], "diagnostic_teleport": True, "requested_pose_world": point["pose"], "observed_model_pose": observed,
-                  "pose_image_delta_ns": abs(observed["observed_clock_ns"] - image_stamp), "post_pose_clock_fence_ns": fence, "post_pose_accept_after_ns": state["target_ns"], "rgb_stamp_ns": image_stamp, "depth_stamp_ns": stamp_ns(depth), "camera_info_stamp_ns": stamp_ns(info), "rgb_depth_sync_delta_ns": sync_delta, "stale_messages_discarded": state["stale"], "frames": [rgb.header.frame_id, depth.header.frame_id, info.header.frame_id], "depth_finite_positive_ratio": float(valid.mean()), "depth_min_m": float(finite.min()), "depth_max_m": float(finite.max())}
+        record = {"id": point["id"], "diagnostic_teleport": True, "requested_pose_world": point["pose"], "observed_model_pose_bridge": observed,
+                  "native_pose_before_frame": {"source_stamp_ns": pre_source["source_stamp_ns"], "entity": pre_source["entity"]}, "native_pose_after_frame": {"source_stamp_ns": post_source["source_stamp_ns"], "entity": post_source["entity"]}, "native_pose_stationarity": stationarity,
+                  "bridge_receipt_clock_delta_ns": abs(observed["observed_clock_ns"] - image_stamp), "bridge_tf_header_stamp_ns": observed["bridge_tf_header_stamp_ns"], "post_pose_clock_fence_ns": fence, "post_pose_accept_after_ns": state["target_ns"], "rgb_stamp_ns": image_stamp, "depth_stamp_ns": stamp_ns(depth), "camera_info_stamp_ns": stamp_ns(info), "rgb_depth_sync_delta_ns": sync_delta, "stale_messages_discarded": state["stale"], "frames": [rgb.header.frame_id, depth.header.frame_id, info.header.frame_id], "depth_finite_positive_ratio": float(valid.mean()), "depth_min_m": float(finite.min()), "depth_max_m": float(finite.max())}
         records.append(record)
-    (output / "raw_dynamic_pose_stream.json").write_text(json.dumps(state["poses"], indent=2) + "\n")
-    report = {"capture_run_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"), "consumer_seam": "Gazebo rgbd_camera -> ros_gz_bridge -> rclpy subscriber -> metric depth/calibration/observed pose persistence", "transport_isolation": {"docker_network": "none", "ros_localhost_only": True, "ign_ip": "127.0.0.1"}, "camera_chain": CAMERA_CHAIN, "viewpoints": records, "navigation_claim": "NONE; diagnostic teleports only.", "observed_pose_source": "Gazebo /world/default/dynamic_pose/info bridged as TFMessage; requests are retained separately."}
+    (output / "raw_bridge_dynamic_pose_stream.json").write_text(json.dumps(state["poses"], indent=2) + "\n")
+    (output / "raw_native_dynamic_pose_samples.json").write_text(json.dumps(native_samples, indent=2) + "\n")
+    report = {"capture_run_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"), "consumer_seam": "Gazebo rgbd_camera -> ros_gz_bridge -> rclpy subscriber -> metric depth/calibration/native Pose_V persistence", "transport_isolation": {"docker_network": "none", "ros_localhost_only": True, "ign_ip": "127.0.0.1"}, "camera_chain": CAMERA_CHAIN, "viewpoints": records, "navigation_claim": "NONE; diagnostic teleports only.", "observed_pose_source": "Exact kuruma Pose_V native envelopes bracket each image; TFMessage bridge receipt clocks are retained separately and not treated as source acquisition timestamps."}
     (output / "capture.json").write_text(json.dumps(report, indent=2) + "\n")
     node.destroy_node()
     rclpy.shutdown()

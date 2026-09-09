@@ -34,6 +34,8 @@ artifacts/*.json
 *.tar.zst
 artifacts/baselines/
 artifacts/companion-home-validation/runtime/
+!artifacts/companion-home-validation/evidence/
+!artifacts/companion-home-validation/evidence/**
 
 # Original third-party workspace archives (source manifests/snapshots are tracked separately)
 temple/*.zip

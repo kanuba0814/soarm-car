@@ -1,0 +1,14 @@
+{
+  "asset_lock": "config/aws_small_house_companion.json",
+  "development_viewpoints": [
+    {"id": "overlap_base", "pose": [-6.90, 0.90, 0.08, 0.0, 0.0, 0.00]},
+    {"id": "overlap_forward", "pose": [-6.70, 0.90, 0.08, 0.0, 0.0, 0.00]},
+    {"id": "overlap_lateral", "pose": [-6.90, 1.10, 0.08, 0.0, 0.0, 0.00]},
+    {"id": "turn_90", "pose": [-6.90, 0.90, 0.08, 0.0, 0.0, 1.57079632679]}
+  ],
+  "notes": {
+    "split": "Development-only diagnostic capture; all views are already seen development data and never a held-out test split.",
+    "teleport": "Diagnostic set_pose placement only, never navigation evidence or a safety-approved path.",
+    "geometry": "Adjacent positions are selected before residual evaluation to provide candidate static overlap. The 90-degree turn is a transform/coverage diagnostic, not a correspondence assertion."
+  }
+}
