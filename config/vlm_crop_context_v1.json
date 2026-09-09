@@ -1,0 +1,15 @@
+{
+  "scope": "DEV_ONLY_SMOLVLM_CROP_CONTEXT_COMPARISON_V1",
+  "model": {
+    "id": "HuggingFaceTB/SmolVLM-500M-Instruct",
+    "revision": "a7da5b986cb59b408707209984f360a5f4ad7e47",
+    "dtype": "float16",
+    "max_new_tokens": 32,
+    "do_sample": false
+  },
+  "observations": ["obs_001", "obs_002", "obs_003", "obs_004"],
+  "presentation_modes": ["full_annotated", "crop_contact_sheet", "full_plus_crop_context"],
+  "candidate_prompt": "The image shows candidate boxes with integer labels. Which visible candidate is a chair? Answer exactly one integer label, or NONE. No other text.",
+  "context_transport": "two images supplied to the processor in order: annotated full view, then crop contact sheet; this has a larger visual-token budget than a single image and is not a pure presentation-method gain.",
+  "label_permutation": "reverse the candidate display-label order once on the full annotated view; it is a positional-bias robustness control, not an accuracy measurement."
+}
