@@ -1,0 +1,1444 @@
+diff --git a/ros2_ws/src/soarm_navigation/behavior_trees/navigate_through_poses_holonomic.xml b/ros2_ws/src/soarm_navigation/behavior_trees/navigate_through_poses_holonomic.xml
+index 3bfb7b8..007187d 100644
+--- a/ros2_ws/src/soarm_navigation/behavior_trees/navigate_through_poses_holonomic.xml
++++ b/ros2_ws/src/soarm_navigation/behavior_trees/navigate_through_poses_holonomic.xml
+@@ -1 +1 @@
+-<root main_tree_to_execute="NavigateThroughPoses"><BehaviorTree ID="NavigateThroughPoses"><PipelineSequence name="NavigateThroughPosesHolonomic"><ComputePathThroughPoses goals="{goals}" path="{path}" planner_id="{planner_id}"/><FollowPath path="{path}" controller_id="{controller_id}"/></PipelineSequence></BehaviorTree></root>
++<root main_tree_to_execute="NavigateThroughPoses"><BehaviorTree ID="NavigateThroughPoses"><PipelineSequence name="NavigateThroughPosesHolonomic"><ComputePathThroughPoses goals="{goals}" path="{path}" planner_id="GridBased"/><FollowPath path="{path}" controller_id="FollowPath" goal_checker_id="position_only_goal_checker"/></PipelineSequence></BehaviorTree></root>
+diff --git a/ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml b/ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml
+index d154dca..7d2d992 100644
+--- a/ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml
++++ b/ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml
+@@ -28,7 +28,7 @@ controller_server:
+     min_theta_velocity_threshold: 0.01
+     failure_tolerance: 0.3
+     progress_checker_plugin: progress_checker
+-    goal_checker_plugins: [goal_checker]
++    goal_checker_plugins: [goal_checker, position_only_goal_checker]
+     controller_plugins: [FollowPath]
+     progress_checker:
+       plugin: nav2_controller::SimpleProgressChecker
+@@ -39,16 +39,13 @@ controller_server:
+       xy_goal_tolerance: 0.20
+       yaw_goal_tolerance: 0.20
+       stateful: false
++    position_only_goal_checker:
++      plugin: nav2_controller::SimpleGoalChecker
++      xy_goal_tolerance: 0.20
++      yaw_goal_tolerance: 3.141592653589793
++      stateful: false
+     FollowPath:
+-      plugin: nav2_rotation_shim_controller::RotationShimController
+-      primary_controller: nav2_mppi_controller::MPPIController
+-      angular_dist_threshold: 0.785
+-      angular_disengage_threshold: 0.3925
+-      forward_sampling_distance: 0.5
+-      rotate_to_heading_angular_vel: 0.8
+-      max_angular_accel: 2.0
+-      simulate_ahead_time: 1.0
+-      rotate_to_goal_heading: false
++      plugin: nav2_mppi_controller::MPPIController
+       closed_loop: true
+       time_steps: 56
+       model_dt: 0.05
+@@ -97,7 +94,7 @@ controller_server:
+         max_path_occupancy_ratio: 0.05
+         trajectory_point_step: 3
+         threshold_to_consider: 0.5
+-        offset_from_furthest: 20
++        offset_from_furthest: 5
+         use_path_orientations: false
+       PathFollowCritic:
+         enabled: true
+diff --git a/ros2_ws/src/soarm_navigation/soarm_navigation/launch/house_fastlio_nav2.launch.py b/ros2_ws/src/soarm_navigation/soarm_navigation/launch/house_fastlio_nav2.launch.py
+index 101a21f..321a3ad 100644
+--- a/ros2_ws/src/soarm_navigation/soarm_navigation/launch/house_fastlio_nav2.launch.py
++++ b/ros2_ws/src/soarm_navigation/soarm_navigation/launch/house_fastlio_nav2.launch.py
+@@ -16,12 +16,14 @@ def generate_launch_description():
+     localization_share = get_package_share_directory('fast_lio_localization')
+     shadow_share = get_package_share_directory('soarm_fixed_map_localization')
+     nav2_share = get_package_share_directory('nav2_bringup')
+-    params_file = os.path.join(navigation_share, 'config', 'house_nav2_mppi.yaml')
++    default_params_file = os.path.join(navigation_share, 'config', 'house_nav2_mppi.yaml')
++    default_nav_to_pose_bt_xml = os.path.join(
++        navigation_share, 'behavior_trees', 'navigate_position_only_holonomic.xml')
+     map_file = os.path.join(simulation_share, 'maps', 'house_floorplan.yaml')
+     configured_params = RewrittenYaml(
+-        source_file=params_file,
++        source_file=LaunchConfiguration('nav2_params_file'),
+         param_rewrites={
+-            'default_nav_to_pose_bt_xml': os.path.join(navigation_share, 'behavior_trees', 'navigate_holonomic.xml'),
++            'default_nav_to_pose_bt_xml': LaunchConfiguration('nav_to_pose_bt_xml'),
+             'default_nav_through_poses_bt_xml': os.path.join(navigation_share, 'behavior_trees', 'navigate_through_poses_holonomic.xml'),
+         },
+         convert_types=False,
+@@ -29,6 +31,8 @@ def generate_launch_description():
+     return LaunchDescription([
+         DeclareLaunchArgument('gz_args', default_value='-r -s'),
+         DeclareLaunchArgument('rviz', default_value='false'),
++        DeclareLaunchArgument('nav2_params_file', default_value=default_params_file),
++        DeclareLaunchArgument('nav_to_pose_bt_xml', default_value=default_nav_to_pose_bt_xml),
+         DeclareLaunchArgument('fixed_map_shadow', default_value='false'),
+         IncludeLaunchDescription(
+             PythonLaunchDescriptionSource(PathJoinSubstitution([simulation_share, 'launch', 'kuruma_ros2_control.launch.py'])),
+diff --git a/ros2_ws/src/soarm_simulation/config/kuruma_ros2_control_controllers.yaml b/ros2_ws/src/soarm_simulation/config/kuruma_ros2_control_controllers.yaml
+index fa019e2..4dd9ad2 100644
+--- a/ros2_ws/src/soarm_simulation/config/kuruma_ros2_control_controllers.yaml
++++ b/ros2_ws/src/soarm_simulation/config/kuruma_ros2_control_controllers.yaml
+@@ -16,7 +16,8 @@ mecanum_drive_controller:
+     rear_right_wheel_command_joint_name: rear_right_wheel_joint
+     kinematics:
+       base_frame_offset: {x: 0.0, y: 0.0, theta: 0.0}
+-      wheels_radius: 0.0763
++      # Diagonal contact axes project wheel motion by 1/sqrt(2); compensate in simulated kinematics.
++      wheels_radius: 0.1079045
+       sum_of_robot_center_projection_on_X_Y_axis: 0.3964
+     base_frame_id: base_link
+     odom_frame_id: wheel_odom
+diff --git a/ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm b/ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm
+index dd24adab260b5acb579baab7ce3663271a875638..7bf512342d67cbaa99ac719fcdf354d86a538740 100644
+GIT binary patch
+literal 92815
+zcmeI*L24U86b9j}b&4FpC}@#e<o<^-L2`_-8^iRQA_bzpwfmL-N%sD8yZpMo{Jj2t
+zxm<6z%WIM(Ns=Uq?#B}`KIRjBzP{f{{r@}1`hMrT_uZ2#(|0TG(jKNey)u2b;x6rB
+zy3;GucPsAF9;Q3JGJUt=F708u(<{?=EAG-BraQedeYfH+?P0ppE7Nx??$REnJH0Y}
+zx8g4CVY<^R(|0TG(jKNey)u2b;x6rBy3;GucPsAF9;Q3JGJUt=F72_pG;4>|rCB?y
+zF3s9ub!pZPt4p(XSY4X6!|Kwk9afiS?XbEuYlqdPSv#yQ&DvpgY1R&_OS5)ZU7EGS
+z>e8$oR+nb&u(~vBht;K7JFG6v+F^BR)()#nvvycrnzh5~(ySd;muBs-x-@Ht)umZG
+ztS-&kVRdQN4y#MEc354SwZrPttQ}UDX6>-LG;4>|rCB?yF3s9ub!pZPt4p(XSY4X6
+z!|Kwk9afiS?XbEuYlqdPSv#yQ&DvpgY1R&_OS5)ZU7EGS>e8$oR+nb&u(~vBht;K7
+zJFG6v+F^BR)()#nvvycrnzh5~(ySd;muBs-x-@Ht)umZGtS-&kVRdQN4y#MEc354S
+zwZrPttQ}UDX6?9lKRG(=)1wb3pFd1*9DPUnSpLt^<L^KJ#mVOn(;G+Mk-p47{$~`H
+zhi{JlZr?nAnBF-0j<oDJdVG2K=H&B->5ZfBNcUfuyl1g?SY4X6!|Kwk9afiS?XbEu
+zYlqdPSv#yQ&DvpgY1R&_OS5)ZU7EGS>e8$oR+nb&u(~vBht;K7JFG6v+F^BR)()#n
+zvvycrnzh5~(ySd;muBs-x-@Ht)umZGtS-&kVRdQN4y#MEc354SwZrPttQ}UDX6>-L
+zG;4>|rCB?yF3s9ub!pZPt4p(XSY4X6!|Kwk9afiS?XbEuYlqdPSv#yQ&DvpgY1R&_
+zOS5)ZU7EGS>e8$oR+nb&u(~vBht;K7JFG6v+F^BR)()#nvvycrnzh5~(ySd;muBs-
+zx-@Ht)umZGtS-&kVRdQN4y#MEc354SwZrPttQ}UDX6>-LG;4>|rCB?yF3s9ub!pZP
+zt4p(XSY4X6<KBH1^uNgw&+_f=j_jrN{m$w8B}tMbNs=T<k|arzBuSDaNs=T<k|arz
+oBuSDaNs=T<k|arzBuSDaNs=T<k|arzBuSDaNs=T<lKfA90VtVT<p2Nx
+
+literal 92815
+zcmeI*U2@tm6hL8~vx+XElTIGGi*CGI>U0DlW5m5i){*&%&iB;8Kax*vLJc&3KHh%4
+z|NQa(`{&#H$H&`WNs=T<9S&+1<Za$oheHt1EL&WkfLpef{g}Alzdam=?e@^MtFDdK
+zl=AlLXFtY%jQtq<G4^BZ$JmdtA7ekpevJJX`!V)o?8n%Tu^(eU#(s?b82d5yW9-M+
+zkFg(PKgNEH{TTZ(_G9eF*pIOvV?V}zjQtq<G4^BZ$JmdtA7ekpe#`^<1>al?9=fG$
+z5^NScwDkJle>++pQgM2;$L2lN8$e~wcm4k0Q9bFNa-Dmshla{5?$__e)wRDDzkcn<
+z*bf^0^t09Qzrg!G|2>@j82d5ydoq(f{|#q9#(s?b82d5yW9-M+kFg(PKgNE{eftf+
+zeg1Iw?)T^$sH54B3Hy}?_mWI^@Nmf}<CS?|y?;6QU@jzwaIp@Tj8cZl7WFApz3O)i
+z*tfr@kVmp#3;Qu^{n(zbOn3cW6=3YgOxJG*bN&1sZ?1mqdaaee4g2+*tlx0<W9-M+
+zkFg(PKgNEH{TTZ(_G9eF*pIOvV?V}z%xwJz-#(qKpYNZySbP6>@Ci8C_3Qc9B0tIU
+zC7q@_|2jKm?8n%Tu^(eU#(s?bnErlc%M&((9pta_@+F;0fxgcVo$C#s5|>XYU(#vk
+ze#7V6Bp)?j(#d{|{TTZ(_G9eF*pIOvV?V}zjQtq<G4^BZ$2_2488X5SWGTPPk}v60
+z4rIssf6;uSc17nA1oD05OFG$)u^(eU#(s?bnErlEqMvtV$Vk%;n?$3Y<V!l01L=GH
+z(j=O1)UIgSVUv7c`I1idW9-M+kFg(PKgNEH{Z2}UHCg4djj#W1{|4Bp`sLpeOkY2*
+zoqNSx{ZeTN`!%s2V?V}zjQyDJ(C?A#$JmdtA7ekpevJJX`!Tm}6Lh)r{l7=*>T`?z
+zn2GvbTDdRUs+6~1Kl?HEW9-M+kIDPBT8`hk%~s1XYT>@>m14X8{B5<ETI(j;Ee5H@
+zJFC|U*)RR%K-jDHZ2gjRfvXREDc<{Xjnr=aHv9(V%gMzDgIx|%3HM&D6Wg!fODjR+
+zV3pSOR+O<`I#$4bjQtq<G4^BZ$JmdtA7ekpevJJX`!V)o?8n%Tu^(eU#(s?b82d5y
+zW9-M+kFg(PKgNEH{TTZ(_G9eF*pIOvV?V}zjQtq<G4^Ac`wjR2c^Qk%_W88;;{hk{
+zhXc;uj|QB+9}H+e7SMhyp#4}t`>}xbV*%~=6|n6)uNC`!Dk08)-oSomeF5$F#q;k|
+z-<j0M^N+C~V?V}zjQtq<G4^BZ$JmdtU##^XbM_0BEa8Hh{bKfm8UuR%W!eJTFICbs
+zIo~(?F3LftRW@jfH}~hSR@skfIg362a`r=-o<%+XQuc$qe)s3~%h->xA7ekpevJJX
+z`!V)o?8n%Tu^(eU#(s?b82jZ~-o&$C%KOiZ{UGn(Gc)&FcinY;{dM2vb1!G>M_br$
+ajr|z=LAL^4U%tox#H16PtRzX2G^zgqG#IS_
+
+diff --git a/ros2_ws/src/soarm_simulation/models/house_floorplan/model.sdf b/ros2_ws/src/soarm_simulation/models/house_floorplan/model.sdf
+index 176ce96..6ef7a56 100644
+--- a/ros2_ws/src/soarm_simulation/models/house_floorplan/model.sdf
++++ b/ros2_ws/src/soarm_simulation/models/house_floorplan/model.sdf
+@@ -1,1208 +1,31 @@
+-<?xml version='1.0' encoding='utf-8'?>
++<?xml version="1.0"?>
+ <sdf version="1.9">
+   <model name="house_floorplan">
+     <static>true</static>
+     <link name="structure">
+-      <collision name="wall_0">
+-        <pose>6.05435 -6.66916 1.21920 0 0 3.1415927</pose>
+-        <geometry>
+-          <box>
+-            <size>2.79960 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_0">
+-        <pose>6.05435 -6.66916 1.21920 0 0 3.1415927</pose>
+-        <geometry>
+-          <box>
+-            <size>2.79960 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_1">
+-        <pose>2.79675 -6.66916 1.21920 0 0 3.1415927</pose>
+-        <geometry>
+-          <box>
+-            <size>1.47560 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_1">
+-        <pose>2.79675 -6.66916 1.21920 0 0 3.1415927</pose>
+-        <geometry>
+-          <box>
+-            <size>1.47560 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_2">
+-        <pose>2.05895 -4.19790 1.21920 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>4.94253 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_2">
+-        <pose>2.05895 -4.19790 1.21920 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>4.94253 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_3">
+-        <pose>1.61318 -1.72663 1.21920 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.89154 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_3">
+-        <pose>1.61318 -1.72663 1.21920 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.89154 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_4">
+-        <pose>-2.54653 -1.72663 1.21920 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>4.22788 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_4">
+-        <pose>-2.54653 -1.72663 1.21920 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>4.22788 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_5">
+-        <pose>-6.45731 -1.72663 1.21920 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>1.99369 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_5">
+-        <pose>-6.45731 -1.72663 1.21920 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>1.99369 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_6">
+-        <pose>-7.45415 2.47127 1.21920 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>8.39579 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_6">
+-        <pose>-7.45415 2.47127 1.21920 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>8.39579 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_7">
+-        <pose>7.45415 -0.00000 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>13.33833 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_7">
+-        <pose>7.45415 -0.00000 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>13.33833 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_8">
+-        <pose>-5.30097 3.06270 1.21920 0 0 0.0000000</pose>
+-        <geometry>
+-          <box>
+-            <size>4.48785 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_8">
+-        <pose>-5.30097 3.06270 1.21920 0 0 0.0000000</pose>
+-        <geometry>
+-          <box>
+-            <size>4.48785 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_9">
+-        <pose>5.38690 2.70142 1.21920 0 0 -3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>4.06221 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_9">
+-        <pose>5.38690 2.70142 1.21920 0 0 -3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>4.06221 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_10">
+-        <pose>5.40497 -1.22834 1.21920 0 0 -0.0000002</pose>
+-        <geometry>
+-          <box>
+-            <size>4.09836 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_10">
+-        <pose>5.40497 -1.22834 1.21920 0 0 -0.0000002</pose>
+-        <geometry>
+-          <box>
+-            <size>4.09836 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_11">
+-        <pose>0.67565 5.41390 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>2.33385 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_11">
+-        <pose>0.67565 5.41390 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>2.33385 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_12">
+-        <pose>2.05895 1.31419 1.21920 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>3.47000 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_12">
+-        <pose>2.05895 1.31419 1.21920 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>3.47000 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_13">
+-        <pose>-3.84489 -0.28151 1.21920 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>2.67000 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_13">
+-        <pose>-3.84489 -0.28151 1.21920 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>2.67000 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_14">
+-        <pose>4.08212 -2.46124 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>2.46581 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_14">
+-        <pose>4.08212 -2.46124 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>2.46581 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_15">
+-        <pose>0.12530 3.04919 1.21920 0 0 3.1415927</pose>
+-        <geometry>
+-          <box>
+-            <size>3.86731 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_15">
+-        <pose>0.12530 3.04919 1.21920 0 0 3.1415927</pose>
+-        <geometry>
+-          <box>
+-            <size>3.86731 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_16">
+-        <pose>3.35579 2.81015 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.37517 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_16">
+-        <pose>3.35579 2.81015 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.37517 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_17">
+-        <pose>3.35579 0.24011 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>2.93690 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_17">
+-        <pose>3.35579 0.24011 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>2.93690 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_18">
+-        <pose>0.00000 6.66916 1.21920 0 0 3.1415927</pose>
+-        <geometry>
+-          <box>
+-            <size>14.90831 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_18">
+-        <pose>0.00000 6.66916 1.21920 0 0 3.1415927</pose>
+-        <geometry>
+-          <box>
+-            <size>14.90831 0.23000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_19">
+-        <pose>3.35579 5.28409 1.21920 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>2.74471 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_19">
+-        <pose>3.35579 5.28409 1.21920 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>2.74471 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_20">
+-        <pose>-3.05704 5.33282 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>2.49600 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_20">
+-        <pose>-3.05704 5.33282 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>2.49600 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_21">
+-        <pose>-3.05704 3.11676 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.10813 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_21">
+-        <pose>-3.05704 3.11676 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.10813 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_22">
+-        <pose>-2.93989 4.24698 1.21920 0 0 0.0000000</pose>
+-        <geometry>
+-          <box>
+-            <size>0.25709 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_22">
+-        <pose>-2.93989 4.24698 1.21920 0 0 0.0000000</pose>
+-        <geometry>
+-          <box>
+-            <size>0.25709 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_23">
+-        <pose>-0.50631 4.24698 1.21920 0 0 0.0000000</pose>
+-        <geometry>
+-          <box>
+-            <size>2.78206 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_23">
+-        <pose>-0.50631 4.24698 1.21920 0 0 0.0000000</pose>
+-        <geometry>
+-          <box>
+-            <size>2.78206 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_24">
+-        <pose>2.57156 4.24698 1.21920 0 0 0.0000000</pose>
+-        <geometry>
+-          <box>
+-            <size>1.54567 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_24">
+-        <pose>2.57156 4.24698 1.21920 0 0 0.0000000</pose>
+-        <geometry>
+-          <box>
+-            <size>1.54567 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_25">
+-        <pose>5.60469 -5.34470 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.25598 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_25">
+-        <pose>5.60469 -5.34470 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.25598 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_26">
+-        <pose>5.60469 -6.51424 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.25509 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_26">
+-        <pose>5.60469 -6.51424 1.21920 0 0 -1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.25509 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_27">
+-        <pose>5.49298 -5.10501 1.21920 0 0 2.3561942</pose>
+-        <geometry>
+-          <box>
+-            <size>0.31595 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_27">
+-        <pose>5.49298 -5.10501 1.21920 0 0 2.3561942</pose>
+-        <geometry>
+-          <box>
+-            <size>0.31595 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_28">
+-        <pose>4.40855 -4.02058 1.21920 0 0 2.3561942</pose>
+-        <geometry>
+-          <box>
+-            <size>0.92328 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_28">
+-        <pose>4.40855 -4.02058 1.21920 0 0 2.3561942</pose>
+-        <geometry>
+-          <box>
+-            <size>0.92328 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="wall_29">
+-        <pose>6.52942 -5.21671 1.21920 0 0 0.0000000</pose>
+-        <geometry>
+-          <box>
+-            <size>1.84947 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="wall_visual_29">
+-        <pose>6.52942 -5.21671 1.21920 0 0 0.0000000</pose>
+-        <geometry>
+-          <box>
+-            <size>1.84947 0.12000 2.43840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.82 0.83 0.80 1</diffuse>
+-          <ambient>0.82 0.83 0.80 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_0_a">
+-        <pose>-3.08487 4.10983 1.04150 0 0 -1.5707964</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_0_a">
+-        <pose>-3.08487 4.10983 1.04150 0 0 -1.5707964</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_0_b">
+-        <pose>-3.08487 3.14583 1.04150 0 0 -1.5707964</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_0_b">
+-        <pose>-3.08487 3.14583 1.04150 0 0 -1.5707964</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_header_0">
+-        <pose>-3.08487 3.62783 2.26070 0 0 -1.5707964</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.35540</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_header_visual_0">
+-        <pose>-3.08487 3.62783 2.26070 0 0 -1.5707964</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.35540</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_1_a">
+-        <pose>5.42783 -4.98211 1.04150 0 0 2.3561946</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_1_a">
+-        <pose>5.42783 -4.98211 1.04150 0 0 2.3561946</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_1_b">
+-        <pose>4.74618 -4.30045 1.04150 0 0 2.3561946</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_1_b">
+-        <pose>4.74618 -4.30045 1.04150 0 0 2.3561946</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_header_1">
+-        <pose>5.08701 -4.64128 2.26070 0 0 2.3561946</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.35540</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_header_visual_1">
+-        <pose>5.08701 -4.64128 2.26070 0 0 2.3561946</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.35540</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_2_a">
+-        <pose>3.39311 1.68356 1.04150 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_2_a">
+-        <pose>3.39311 1.68356 1.04150 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_2_b">
+-        <pose>3.39312 2.64756 1.04150 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_2_b">
+-        <pose>3.39312 2.64756 1.04150 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_header_2">
+-        <pose>3.39311 2.16556 2.26070 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.35540</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_header_visual_2">
+-        <pose>3.39311 2.16556 2.26070 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.35540</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_3_a">
+-        <pose>3.39663 2.97273 1.04150 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_3_a">
+-        <pose>3.39663 2.97273 1.04150 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_3_b">
+-        <pose>3.39663 3.93673 1.04150 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_3_b">
+-        <pose>3.39663 3.93673 1.04150 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_header_3">
+-        <pose>3.39663 3.45473 2.26070 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.35540</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_header_visual_3">
+-        <pose>3.39663 3.45473 2.26070 0 0 1.5707963</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.35540</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_4_a">
+-        <pose>-1.87234 4.27291 1.04150 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_4_a">
+-        <pose>-1.87234 4.27291 1.04150 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_4_b">
+-        <pose>-2.83634 4.27291 1.04150 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_4_b">
+-        <pose>-2.83634 4.27291 1.04150 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_header_4">
+-        <pose>-2.35434 4.27291 2.26070 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.35540</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_header_visual_4">
+-        <pose>-2.35434 4.27291 2.26070 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.35540</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_5_a">
+-        <pose>1.82372 4.27291 1.04150 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_5_a">
+-        <pose>1.82372 4.27291 1.04150 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_5_b">
+-        <pose>0.85972 4.27291 1.04150 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_5_b">
+-        <pose>0.85972 4.27291 1.04150 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.08300</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_header_5">
+-        <pose>1.34172 4.27291 2.26070 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.35540</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_header_visual_5">
+-        <pose>1.34172 4.27291 2.26070 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.35540</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_6_a">
+-        <pose>1.19241 -1.70599 1.05000 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.25000 2.10000</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_6_a">
+-        <pose>1.19241 -1.70599 1.05000 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.25000 2.10000</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_6_b">
+-        <pose>-0.45759 -1.70599 1.05000 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.25000 2.10000</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_6_b">
+-        <pose>-0.45759 -1.70599 1.05000 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.25000 2.10000</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_header_6">
+-        <pose>0.36741 -1.70599 2.26920 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>1.60000 0.25000 0.33840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_header_visual_6">
+-        <pose>0.36741 -1.70599 2.26920 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>1.60000 0.25000 0.33840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_7_a">
+-        <pose>3.50955 -6.65208 1.08000 0 0 -0.0000002</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.25000 2.16000</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_7_a">
+-        <pose>3.50955 -6.65208 1.08000 0 0 -0.0000002</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.25000 2.16000</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_7_b">
+-        <pose>4.67955 -6.65208 1.08000 0 0 -0.0000002</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.25000 2.16000</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_7_b">
+-        <pose>4.67955 -6.65208 1.08000 0 0 -0.0000002</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.25000 2.16000</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_header_7">
+-        <pose>4.09455 -6.65208 2.29920 0 0 -0.0000002</pose>
+-        <geometry>
+-          <box>
+-            <size>1.12000 0.25000 0.27840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_header_visual_7">
+-        <pose>4.09455 -6.65208 2.29920 0 0 -0.0000002</pose>
+-        <geometry>
+-          <box>
+-            <size>1.12000 0.25000 0.27840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_8_a">
+-        <pose>5.58656 -5.44769 1.06850 0 0 -1.5707964</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.13700</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_8_a">
+-        <pose>5.58656 -5.44769 1.06850 0 0 -1.5707964</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.13700</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_8_b">
+-        <pose>5.58656 -6.41169 1.06850 0 0 -1.5707964</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.13700</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_8_b">
+-        <pose>5.58656 -6.41169 1.06850 0 0 -1.5707964</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.14000 2.13700</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_header_8">
+-        <pose>5.58656 -5.92969 2.28770 0 0 -1.5707964</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.30140</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_header_visual_8">
+-        <pose>5.58656 -5.92969 2.28770 0 0 -1.5707964</pose>
+-        <geometry>
+-          <box>
+-            <size>0.91400 0.14000 0.30140</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_9_a">
+-        <pose>-4.63547 -1.70599 1.05000 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.25000 2.10000</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_9_a">
+-        <pose>-4.63547 -1.70599 1.05000 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.25000 2.10000</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_frame_9_b">
+-        <pose>-5.48547 -1.70599 1.05000 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.25000 2.10000</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_frame_visual_9_b">
+-        <pose>-5.48547 -1.70599 1.05000 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.05000 0.25000 2.10000</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
+-      <collision name="door_header_9">
+-        <pose>-5.06047 -1.70599 2.26920 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.80000 0.25000 0.33840</size>
+-          </box>
+-        </geometry>
+-      </collision>
+-      <visual name="door_header_visual_9">
+-        <pose>-5.06047 -1.70599 2.26920 0 0 3.1415926</pose>
+-        <geometry>
+-          <box>
+-            <size>0.80000 0.25000 0.33840</size>
+-          </box>
+-        </geometry>
+-        <material>
+-          <diffuse>0.45 0.31 0.18 1</diffuse>
+-          <ambient>0.45 0.31 0.18 1</ambient>
+-        </material>
+-      </visual>
++      <!-- Outer shell: x [-3, 7], y [-1, 6.5]. -->
++      <collision name="outer_south"><pose>2 -1 1.2 0 0 0</pose><geometry><box><size>10.2 0.2 2.4</size></box></geometry></collision>
++      <collision name="outer_north"><pose>2 6.5 1.2 0 0 0</pose><geometry><box><size>10.2 0.2 2.4</size></box></geometry></collision>
++      <collision name="outer_west"><pose>-3 2.75 1.2 0 0 0</pose><geometry><box><size>0.2 7.5 2.4</size></box></geometry></collision>
++      <collision name="outer_east"><pose>7 2.75 1.2 0 0 0</pose><geometry><box><size>0.2 7.5 2.4</size></box></geometry></collision>
++      <!-- Main/room boundary with 2 m openings centered on each room goal. -->
++      <collision name="boundary_0"><pose>-2.625 2.5 1.2 0 0 0</pose><geometry><box><size>0.75 0.2 2.4</size></box></geometry></collision>
++      <collision name="boundary_1"><pose>0.325 2.5 1.2 0 0 0</pose><geometry><box><size>1.15 0.2 2.4</size></box></geometry></collision>
++      <collision name="boundary_2"><pose>3.6 2.5 1.2 0 0 0</pose><geometry><box><size>1.4 0.2 2.4</size></box></geometry></collision>
++      <collision name="boundary_3"><pose>6.65 2.5 1.2 0 0 0</pose><geometry><box><size>0.7 0.2 2.4</size></box></geometry></collision>
++      <!-- Short north-wall dividers identify three room bays without constricting travel. -->
++      <collision name="partition_12"><pose>0.5 6.15 1.2 0 0 0</pose><geometry><box><size>0.2 0.7 2.4</size></box></geometry></collision>
++      <collision name="partition_23"><pose>3.3 6.15 1.2 0 0 0</pose><geometry><box><size>0.2 0.7 2.4</size></box></geometry></collision>
++      <visual name="outer_south_visual"><pose>2 -1 1.2 0 0 0</pose><geometry><box><size>10.2 0.2 2.4</size></box></geometry></visual>
++      <visual name="outer_north_visual"><pose>2 6.5 1.2 0 0 0</pose><geometry><box><size>10.2 0.2 2.4</size></box></geometry></visual>
++      <visual name="outer_west_visual"><pose>-3 2.75 1.2 0 0 0</pose><geometry><box><size>0.2 7.5 2.4</size></box></geometry></visual>
++      <visual name="outer_east_visual"><pose>7 2.75 1.2 0 0 0</pose><geometry><box><size>0.2 7.5 2.4</size></box></geometry></visual>
++      <visual name="boundary_0_visual"><pose>-2.625 2.5 1.2 0 0 0</pose><geometry><box><size>0.75 0.2 2.4</size></box></geometry></visual>
++      <visual name="boundary_1_visual"><pose>0.325 2.5 1.2 0 0 0</pose><geometry><box><size>1.15 0.2 2.4</size></box></geometry></visual>
++      <visual name="boundary_2_visual"><pose>3.6 2.5 1.2 0 0 0</pose><geometry><box><size>1.4 0.2 2.4</size></box></geometry></visual>
++      <visual name="boundary_3_visual"><pose>6.65 2.5 1.2 0 0 0</pose><geometry><box><size>0.7 0.2 2.4</size></box></geometry></visual>
++      <visual name="partition_12_visual"><pose>0.5 6.15 1.2 0 0 0</pose><geometry><box><size>0.2 0.7 2.4</size></box></geometry></visual>
++      <visual name="partition_23_visual"><pose>3.3 6.15 1.2 0 0 0</pose><geometry><box><size>0.2 0.7 2.4</size></box></geometry></visual>
+     </link>
+   </model>
+-</sdf>
+\ No newline at end of file
++</sdf>
+diff --git a/ros2_ws/src/soarm_simulation/worlds/house_floorplan.sdf b/ros2_ws/src/soarm_simulation/worlds/house_floorplan.sdf
+index 4add78e..bdf93c5 100644
+--- a/ros2_ws/src/soarm_simulation/worlds/house_floorplan.sdf
++++ b/ros2_ws/src/soarm_simulation/worlds/house_floorplan.sdf
+@@ -30,7 +30,6 @@
+       </link>
+     </model>
+     <include><uri>model://house_floorplan</uri></include>
+-    <include><uri>model://house_furniture</uri></include>
+     <!-- The source-plan centre is clear by more than one metre. -->
+     <include>
+       <uri>model://kuruma</uri>
+diff --git a/ros2_ws/src/soarm_simulation/worlds/house_floorplan_ros2_control.sdf b/ros2_ws/src/soarm_simulation/worlds/house_floorplan_ros2_control.sdf
+index 6ce7212..3fdc6f5 100644
+--- a/ros2_ws/src/soarm_simulation/worlds/house_floorplan_ros2_control.sdf
++++ b/ros2_ws/src/soarm_simulation/worlds/house_floorplan_ros2_control.sdf
+@@ -30,7 +30,6 @@
+       </link>
+     </model>
+     <include><uri>model://house_floorplan</uri></include>
+-    <include><uri>model://house_furniture</uri></include>
+     <include>
+       <uri>model://kuruma_ros2_control</uri>
+       <name>kuruma</name>
+diff --git a/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/config/soarm_house_localization.yaml b/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/config/soarm_house_localization.yaml
+index 82cc367..a1a57b8 100644
+--- a/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/config/soarm_house_localization.yaml
++++ b/vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/config/soarm_house_localization.yaml
+@@ -25,7 +25,7 @@
+         max_unverified_rotation: 3.0
+         max_unverified_seconds: 40.0
+         health_heartbeat_rate: 10.0
+-        map_id: fastlio_house_floorplan.pcd
++        map_id: house_widened_reference.pcd
+ 
+ /transform_fusion:
+     ros__parameters:
+@@ -38,11 +38,11 @@
+         base_to_body_rpy: [0.0, 0.0, 0.0]
+         require_localization_health: true
+         localization_health_timeout: 0.5
+-        localization_map_id: fastlio_house_floorplan.pcd
++        localization_map_id: house_widened_reference.pcd
+ 
+ /global_map_publisher:
+     ros__parameters:
+-        map_file_path: "/workspaces/soarm-car/artifacts/fastlio_house_floorplan.pcd"
++        map_file_path: "/workspaces/soarm-car/artifacts/house_widened_reference.pcd"
+         interval: 1
+ 
+ /**:
+@@ -54,7 +54,7 @@
+         filter_size_map: 0.5
+         cube_side_length: 1000.0
+         runtime_pos_log_enable: false
+-        map_file_path: "/workspaces/soarm-car/artifacts/fastlio_house_floorplan.pcd"
++        map_file_path: "/workspaces/soarm-car/artifacts/house_widened_reference.pcd"
+ 
+         common:
+             lid_topic: "/livox/lidar"

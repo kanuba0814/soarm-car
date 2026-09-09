@@ -1,0 +1,1101 @@
+{
+  "archive": {
+    "budget_bytes": 104857600,
+    "bytes": 333707,
+    "path": "untracked-allowlist.tar.gz",
+    "sha256": "0016369d2c87e5d887b3fa2d001139c1d209b87345bd069f490504dcfcc77630"
+  },
+  "base": "41463f9a07dc317eb837558ad55b137fb92e35eb",
+  "consumer_sources": [
+    {
+      "bytes": 4013,
+      "path": "ros2_ws/src/soarm_navigation/soarm_navigation/launch/house_fastlio_nav2.launch.py",
+      "reason": "must match restored consumer seam",
+      "sha256": "c88daf45e9627d79fc13812b27795f57dd9936ebb39b40ba475aba3bbb7a3273"
+    },
+    {
+      "bytes": 6481,
+      "path": "ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml",
+      "reason": "must match restored consumer seam",
+      "sha256": "b5c4a85a389a77bda2308665aea81d80749fb04a66ad643d1ed0520662da1c1f"
+    },
+    {
+      "bytes": 3100,
+      "path": "ros2_ws/src/soarm_simulation/models/house_floorplan/model.sdf",
+      "reason": "must match restored consumer seam",
+      "sha256": "c1e8568b4c44460d47b86fa27cb329689a3910cc2505d307d40ce7c18cdc7398"
+    },
+    {
+      "bytes": 7839,
+      "path": "ros2_ws/src/soarm_simulation/models/kuruma_ros2_control/model.sdf",
+      "reason": "must match restored consumer seam",
+      "sha256": "a8d8f3c3ad114ebd7ac99408de5e3d382c06342ca98a4a13eea8658e404307eb"
+    },
+    {
+      "bytes": 1609,
+      "path": "ros2_ws/src/soarm_simulation/worlds/house_floorplan_ros2_control.sdf",
+      "reason": "must match restored consumer seam",
+      "sha256": "6f6bc249c8d89afa493e9f53fa1bbc717820fe0150a02f99ab0573025ec980d1"
+    },
+    {
+      "bytes": 135,
+      "path": "ros2_ws/src/soarm_simulation/maps/house_floorplan.yaml",
+      "reason": "must match restored consumer seam",
+      "sha256": "9e8c673f3cb612a31ca8223c8a2deb44afff4f8b65ec1cfae080f7c7613f39b2"
+    },
+    {
+      "bytes": 92815,
+      "path": "ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm",
+      "reason": "must match restored consumer seam",
+      "sha256": "7d9c0b348928d1cb11c3ae033191b05989d35078ae34f3527c5779e0b731e08b"
+    },
+    {
+      "bytes": 959,
+      "path": "ros2_ws/src/soarm_simulation/config/kuruma_ros2_control_controllers.yaml",
+      "reason": "must match restored consumer seam",
+      "sha256": "ba725376efa0530744b6f9f02321a287186daec87a6310b8c3c1ef1630929477"
+    },
+    {
+      "bytes": 2946,
+      "path": "vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/config/soarm_house_localization.yaml",
+      "reason": "must match restored consumer seam",
+      "sha256": "8a9a0ef7bbd9316a81cd7d6865d751e23698f15d8e51abad813897c0d5e16c9b"
+    },
+    {
+      "bytes": 7573,
+      "path": "ros2_ws/src/soarm_navigation/soarm_navigation/localization_cmd_gate.py",
+      "reason": "must match restored consumer seam",
+      "sha256": "68bfd03be02da837178d87cbb82fdd0f24b74ee4a045f15aed4171c9d2781ad7"
+    },
+    {
+      "bytes": 15987,
+      "path": "scripts/nav2-clean-route-consumer.py",
+      "reason": "must match restored consumer seam",
+      "sha256": "48c79b8dfba6890a9db3fc5c32fe62b064e576e00dad1e4c8d4f44f78a01de33"
+    },
+    {
+      "bytes": 799097,
+      "path": "artifacts/house_widened_reference.pcd",
+      "reason": "must match restored consumer seam",
+      "sha256": "f930a35e03ad641d2ad25174afa19f6fe9d070e38ae1bfe63391a5f3afac9a12"
+    },
+    {
+      "bytes": 1644,
+      "path": "artifacts/rooms-complete-reference.json",
+      "reason": "must match restored consumer seam",
+      "sha256": "742399c8fb8150fb55d78d230f9d90785193dff466c9e79690314266a49859d5"
+    }
+  ],
+  "excluded_files": [
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124015Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124015Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 47953,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124015Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124015Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 1995,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124015Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124210Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124210Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 102316,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124210Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124210Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 1995,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124210Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124554Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124554Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 756306,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124554Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124554Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 1995,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T124554Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T130314Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T130314Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 132725,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T130314Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T130314Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3159,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T130314Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T130850Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T130850Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 169410,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T130850Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 494216,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T130850Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T130850Z/rotation_shim/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T130850Z/rotation_shim/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3159,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T130850Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T132301Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T132301Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 154846,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T132301Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 413600,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T132301Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T132301Z/rotation_shim/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T132301Z/rotation_shim/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3159,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T132301Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T133808Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T133808Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 309035,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T133808Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 448939,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T133808Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T133808Z/rotation_shim/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T133808Z/rotation_shim/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3159,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T133808Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 363486,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T135559Z/cleanup/soarm-nav2-clean-direct_mppi-664807.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 73131746,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T135559Z/cleanup/soarm-nav2-clean-rotation_shim-597764.log",
+      "reason": "unrelated raw log/container output",
+      "required_dependency": false,
+      "sha256": "2eb232be687f0346b80c9bebbeb07d7c766ae849741fd67f4236c5acb1bd0868"
+    },
+    {
+      "bytes": 19518069,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T135559Z/cleanup/soarm-nav2-clean-rotation_shim-618877.log",
+      "reason": "unrelated raw log/container output",
+      "required_dependency": false,
+      "sha256": "c7767b9069f0c11c54533b4e7c2d0a152f141aef892a907f34046e070c408b2e"
+    },
+    {
+      "bytes": 10276013,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T135559Z/cleanup/soarm-nav2-clean-rotation_shim-634747.log",
+      "reason": "unrelated raw log/container output",
+      "required_dependency": false,
+      "sha256": "afe83f57221179eb1c3aecbc23bceea055bf301e51ec0b8e60c784e15988d911"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T135559Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T135559Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T135559Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3159,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T135559Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T141436Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T141436Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T141436Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 179467,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T141436Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 107353,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T141436Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T141436Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3972,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T141436Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T142544Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T142544Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T142544Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 228333,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T142544Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 139913,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T142544Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T142544Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3971,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T142544Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T143656Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T143656Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T143656Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 230886,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T143656Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 142210,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T143656Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T143656Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3957,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T143656Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145011Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145011Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145011Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 169259,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145011Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 100794,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145011Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145011Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3969,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145011Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145908Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145908Z/rotation_shim/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145908Z/rotation_shim/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 200387,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145908Z/rotation_shim/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 121630,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145908Z/rotation_shim/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145908Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3962,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T145908Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T151114Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T151114Z/dwb/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T151114Z/dwb/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 187483,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T151114Z/dwb/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 113568,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T151114Z/dwb/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3505,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T151114Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3947,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T151114Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T153904Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T153904Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T153904Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 147012,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T153904Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 86785,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T153904Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3505,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T153904Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3963,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T153904Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T154658Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T154658Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T154658Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 236498,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T154658Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 157288,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T154658Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 4645,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T154658Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 5759,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T154658Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T160701Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T160701Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T160701Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 95198,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T160701Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 82693,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T160701Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T160701Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 23026,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T160701Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T161415Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T161415Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T161415Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 276524,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T161415Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 193140,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T161415Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T161415Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 24131,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T161415Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163343Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163343Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163343Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 85626,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163343Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 40152,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163343Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163343Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 4304,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163343Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163804Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163804Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163804Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 181942,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163804Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 130753,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163804Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163804Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 22971,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T163804Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T164802Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T164802Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T164802Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 265410,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T164802Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 199623,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T164802Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T164802Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 29189,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T164802Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170031Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170031Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170031Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 125096,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170031Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 85923,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170031Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170031Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 21327,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170031Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170640Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170640Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170640Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 313149,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170640Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 241972,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170640Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170640Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 36671,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T170640Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T172657Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T172657Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T172657Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 93143,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T172657Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 48227,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T172657Z/direct_mppi/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T172657Z/snapshot.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 6629,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T172657Z/summary.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 816,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T173147Z/direct-vs-shim.diff",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 0,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T173147Z/direct_mppi/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T173147Z/direct_mppi/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 112616,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T173147Z/direct_mppi/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 1170,
+      "path": "artifacts/nav2-clean-planar-probe-20260905T162925Z/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-planar-probe-20260905T162925Z/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 41797,
+      "path": "artifacts/nav2-clean-planar-probe-20260905T162925Z/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 1170,
+      "path": "artifacts/nav2-clean-planar-probe-20260905T162925Z/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 553,
+      "path": "artifacts/nav2-clean-yaw-probe-20260905T153438Z/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-yaw-probe-20260905T153438Z/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 41060,
+      "path": "artifacts/nav2-clean-yaw-probe-20260905T153438Z/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 553,
+      "path": "artifacts/nav2-clean-yaw-probe-20260905T153438Z/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 550,
+      "path": "artifacts/nav2-clean-yaw-probe-20260905T153705Z/consumer.log",
+      "reason": "not in explicit recovery allowlist"
+    },
+    {
+      "bytes": 65,
+      "path": "artifacts/nav2-clean-yaw-probe-20260905T153705Z/container-id.txt",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 41267,
+      "path": "artifacts/nav2-clean-yaw-probe-20260905T153705Z/container.log",
+      "reason": "unrelated raw log/container output"
+    },
+    {
+      "bytes": 550,
+      "path": "artifacts/nav2-clean-yaw-probe-20260905T153705Z/metrics.json",
+      "reason": "not in explicit recovery allowlist"
+    }
+  ],
+  "format": 1,
+  "head": "41463f9a07dc317eb837558ad55b137fb92e35eb",
+  "image": {
+    "id": "sha256:1da9a18609c4664d7441d9f334c95e971f0795aa3815f6707ed761f2ce93d227",
+    "inspection": "docker image inspect (read-only)",
+    "name": "soarm-car-ros2-dev"
+  },
+  "included_files": [
+    {
+      "bytes": 1577,
+      "path": "ros2_ws/src/soarm_navigation/behavior_trees/navigate_position_only_holonomic.xml",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "6e2bb8a2c847aad9f6b76ea31eb9c674d65d637ecc99c3a27f8641831f675c08"
+    },
+    {
+      "bytes": 6813,
+      "path": "ros2_ws/src/soarm_navigation/config/house_nav2_mppi_shim.yaml",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "ad131e623840dffc359d6beaeffa57e9983ab8404700071505d723c33f05fa28"
+    },
+    {
+      "bytes": 5839,
+      "path": "scripts/generate_house_reference_pcd.py",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "7efb21fafd144d37989e8c51e61b6f21973f8bcc9dab51149af78cf4a18a7cde"
+    },
+    {
+      "bytes": 6726,
+      "path": "scripts/nav2-clean-planar-probe.py",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "083ee4961ba208e0906206c2e46130981176e81109d98c635ea715867385eb26"
+    },
+    {
+      "bytes": 15987,
+      "path": "scripts/nav2-clean-route-consumer.py",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "48c79b8dfba6890a9db3fc5c32fe62b064e576e00dad1e4c8d4f44f78a01de33"
+    },
+    {
+      "bytes": 6391,
+      "path": "scripts/nav2-clean-yaw-probe.py",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "ccc32e75ed6d29982c1c72271d0b1995e911965d1f522149418ce97c87dbca11"
+    },
+    {
+      "bytes": 7549,
+      "path": "scripts/run-nav2-clean-comparison.sh",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "2e471c5befc343690c9e124bd4e7de392fce771bc8049a512389cbf66f7fd61b"
+    },
+    {
+      "bytes": 2070,
+      "path": "scripts/run-nav2-clean-planar-probe.sh",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "1eab0d7460b27ba9e6c22fece343502419711b8c0d6841617f6fb12c6dd0ce1a"
+    },
+    {
+      "bytes": 2062,
+      "path": "scripts/run-nav2-clean-yaw-probe.sh",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "64c0bff61aa7806dc9a3b5776e24c1b9c4e9a78bf87724e24231748a0a2f8511"
+    },
+    {
+      "bytes": 799097,
+      "path": "artifacts/house_widened_reference.pcd",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "f930a35e03ad641d2ad25174afa19f6fe9d070e38ae1bfe63391a5f3afac9a12"
+    },
+    {
+      "bytes": 2373241,
+      "path": "artifacts/house_current_reference.pcd",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "c465cedfce0a56bb9fa2bb4517c9e45ccbaeb24ee1a723cc5f0f27b9c93fd2a9"
+    },
+    {
+      "bytes": 1644,
+      "path": "artifacts/rooms-complete-reference.json",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "742399c8fb8150fb55d78d230f9d90785193dff466c9e79690314266a49859d5"
+    },
+    {
+      "bytes": 8484,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T173147Z/summary.json",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "6a67a58ce0103a6d8c8277750d4c998621d73172443f5a67a4c8fdde9e8ca1da"
+    },
+    {
+      "bytes": 3329,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T173147Z/snapshot.json",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "84f4388061c061359fdd8ab7c90cbaf6afd24fd9af7c6be951a33868611f7e48"
+    },
+    {
+      "bytes": 64782,
+      "path": "artifacts/nav2-clean-direct-mppi-20260905T173147Z/direct_mppi/metrics.json",
+      "reason": "explicit consumed implementation/input allowlist",
+      "sha256": "daf29cd8ccec9a1be24de02646749bfe1feb1845af8f788634755afd16d4b84c"
+    }
+  ],
+  "receipt": {
+    "expected_completed_goals": 4,
+    "path": "artifacts/nav2-clean-direct-mppi-20260905T173147Z/summary.json",
+    "status": "recorded only; no rerun"
+  },
+  "source": "/home/gxxl/soarm-car-nav2-clean",
+  "source_status_after": {
+    "porcelain_v1": " M ros2_ws/src/soarm_navigation/behavior_trees/navigate_through_poses_holonomic.xml\n M ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml\n M ros2_ws/src/soarm_navigation/soarm_navigation/launch/house_fastlio_nav2.launch.py\n M ros2_ws/src/soarm_simulation/config/kuruma_ros2_control_controllers.yaml\n M ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm\n M ros2_ws/src/soarm_simulation/models/house_floorplan/model.sdf\n M ros2_ws/src/soarm_simulation/worlds/house_floorplan.sdf\n M ros2_ws/src/soarm_simulation/worlds/house_floorplan_ros2_control.sdf\n M vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/config/soarm_house_localization.yaml\n?? artifacts/\n?? ros2_ws/src/soarm_navigation/behavior_trees/navigate_position_only_holonomic.xml\n?? ros2_ws/src/soarm_navigation/config/house_nav2_mppi_shim.yaml\n?? scripts/generate_house_reference_pcd.py\n?? scripts/nav2-clean-planar-probe.py\n?? scripts/nav2-clean-route-consumer.py\n?? scripts/nav2-clean-yaw-probe.py\n?? scripts/run-nav2-clean-comparison.sh\n?? scripts/run-nav2-clean-planar-probe.sh\n?? scripts/run-nav2-clean-yaw-probe.sh\n",
+    "staged_porcelain_v1": ""
+  },
+  "source_status_before": {
+    "porcelain_v1": " M ros2_ws/src/soarm_navigation/behavior_trees/navigate_through_poses_holonomic.xml\n M ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml\n M ros2_ws/src/soarm_navigation/soarm_navigation/launch/house_fastlio_nav2.launch.py\n M ros2_ws/src/soarm_simulation/config/kuruma_ros2_control_controllers.yaml\n M ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm\n M ros2_ws/src/soarm_simulation/models/house_floorplan/model.sdf\n M ros2_ws/src/soarm_simulation/worlds/house_floorplan.sdf\n M ros2_ws/src/soarm_simulation/worlds/house_floorplan_ros2_control.sdf\n M vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/config/soarm_house_localization.yaml\n?? artifacts/\n?? ros2_ws/src/soarm_navigation/behavior_trees/navigate_position_only_holonomic.xml\n?? ros2_ws/src/soarm_navigation/config/house_nav2_mppi_shim.yaml\n?? scripts/generate_house_reference_pcd.py\n?? scripts/nav2-clean-planar-probe.py\n?? scripts/nav2-clean-route-consumer.py\n?? scripts/nav2-clean-yaw-probe.py\n?? scripts/run-nav2-clean-comparison.sh\n?? scripts/run-nav2-clean-planar-probe.sh\n?? scripts/run-nav2-clean-yaw-probe.sh\n",
+    "staged_porcelain_v1": ""
+  },
+  "source_unchanged": true,
+  "tracked_patch": {
+    "bytes": 52609,
+    "path": "tracked-head.patch",
+    "sha256": "69d6e27eb531287254e7abeae9b23bd70b62682a1ad4de3696fec9d8bafc5e6c"
+  }
+}
