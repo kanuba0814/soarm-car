@@ -63,6 +63,7 @@ class Pilot:
         self.previous_pose = None
         self.body_twist = (0.0, 0.0, 0.0)
         self.lidar_frames = set()
+        self.lidar_extrinsic_frames = {NATIVE_LIDAR_FRAME}
         self.lifecycle_clients = {
             name: self.node.create_client(GetState, f'{name}/get_state')
             for name in ('/planner_server', '/controller_server', '/bt_navigator')
@@ -79,14 +80,15 @@ class Pilot:
         self.publish_native_lidar_extrinsic()
         self.node.create_timer(0.05, self.publish_pose)
 
-    def publish_native_lidar_extrinsic(self):
+    def publish_native_lidar_extrinsic(self, child_frame=NATIVE_LIDAR_FRAME):
         transform = TransformStamped()
         transform.header.stamp = self.node.get_clock().now().to_msg()
         transform.header.frame_id = 'base_link'
-        transform.child_frame_id = NATIVE_LIDAR_FRAME
+        transform.child_frame_id = child_frame
         transform.transform.translation.z = NATIVE_LIDAR_Z_M
         transform.transform.rotation.w = 1.0
         self.static_tf_pub.sendTransform(transform)
+        self.lidar_extrinsic_frames.add(child_frame)
 
     @staticmethod
     def wrap_angle(angle):
@@ -153,10 +155,21 @@ class Pilot:
         if self.pose is None or self.origin is None or len(self.clouds) >= 120:
             return
         self.lidar_frames.add(message.header.frame_id)
+        (self.output / 'raw_cloud_frames.json').write_text(json.dumps({
+            'observed_frames': sorted(self.lidar_frames),
+            'native_link_frame': NATIVE_LIDAR_FRAME,
+            'native_extrinsic_m': [0.0, 0.0, NATIVE_LIDAR_Z_M],
+            'published_extrinsic_frames': sorted(self.lidar_extrinsic_frames),
+        }, indent=2) + '\n')
         fields = {field.name: field for field in message.fields}
-        if message.header.frame_id != NATIVE_LIDAR_FRAME:
-            self.node.get_logger().error('raw LiDAR frame %r does not match native extrinsic %r', message.header.frame_id, NATIVE_LIDAR_FRAME)
-            return
+        if message.header.frame_id not in self.lidar_extrinsic_frames:
+            if NATIVE_LIDAR_FRAME not in message.header.frame_id:
+                self.node.get_logger().error(f'raw LiDAR frame {message.header.frame_id!r} is not qualified by native {NATIVE_LIDAR_FRAME!r}')
+                return
+            # Fortress may qualify a sensor frame. The native model fixes the link pose,
+            # so publish the same measured base_link-to-LiDAR-link extrinsic under the
+            # exact observed frame name and retain that name in the run provenance.
+            self.publish_native_lidar_extrinsic(message.header.frame_id)
         if not {'x', 'y', 'z'} <= fields.keys() or message.is_bigendian:
             return
         points = []
@@ -342,6 +355,19 @@ class Pilot:
         return {'index': index, 'goal': [goal_xy[0], goal_xy[1], math.pi / 2], 'path_points': points,
                 'status': result.result().status, 'map_sha256': hashlib.sha256((self.output/'sensor_map.pgm').read_bytes()).hexdigest()}
 
+    def runtime_diagnostics(self):
+        stamps = [sample['source_stamp'] for sample in self.pose_samples]
+        return {
+            'clock_stamp': stamp_seconds(self.node.get_clock().now().to_msg()),
+            'source_pose_count': len(stamps),
+            'source_stamp_range': [min(stamps), max(stamps)] if stamps else None,
+            'max_source_gap_seconds': max((later - earlier for earlier, later in zip(stamps, stamps[1:])), default=None),
+            'observed_lidar_frames': sorted(self.lidar_frames),
+            'published_lidar_extrinsic_frames': sorted(self.lidar_extrinsic_frames),
+            'lifecycle_attempts': self.lifecycle_attempts,
+            'lifecycle_pending': sorted(name for name, future in self.lifecycle_futures.items() if not future.done()),
+        }
+
     def finish(self):
         self.command()
         self.spin(.6)
@@ -380,7 +406,7 @@ def main():
         print(json.dumps({'status': 'completed', 'routes': len(results), 'path_length_m': length, 'collision': 'UNKNOWN'}))
     except Exception as error:
         pilot.command()
-        (output / 'pilot_failure.json').write_text(json.dumps({'error': str(error), 'collision_assessment': 'UNKNOWN'}) + '\n')
+        (output / 'pilot_failure.json').write_text(json.dumps({'error': str(error), 'runtime_diagnostics': pilot.runtime_diagnostics(), 'collision_assessment': 'UNKNOWN'}, indent=2) + '\n')
         # A failed bounded run remains recoverable for inspection.
         with tarfile.open(output / 'knownselfpose_physicalsim_evidence.tar.gz', 'w:gz') as archive:
             for path in output.iterdir():
