@@ -1,0 +1,80 @@
+{
+  "wall_interval": 2.01758512699962,
+  "processes": [
+    {
+      "pid": "3196",
+      "cpu_percent": 182.4,
+      "command": "ign gazebo -r -s /tmp/soarm_ros2/install/soarm_simulation/share/soarm_simulation/worlds/house_floorplan_ros2_control.sdf                                 "
+    },
+    {
+      "pid": "3200",
+      "cpu_percent": 99.13,
+      "command": "/usr/bin/python3 /tmp/soarm_ros2/install/soarm_simulation/lib/soarm_simulation/sim_adapter --ros-args --params-file /tmp/launch_params_bir_88ky --params-file /tmp/launch_params_d25dhupf --params-file /tmp/launch_params_x"
+    },
+    {
+      "pid": "3202",
+      "cpu_percent": 99.13,
+      "command": "/usr/bin/python3 /tmp/soarm_ros2/install/soarm_simulation/lib/soarm_simulation/odom_path --ros-args "
+    },
+    {
+      "pid": "3214",
+      "cpu_percent": 72.36,
+      "command": "python3 /tmp/soarm_ros2/install/fast_lio_localization/lib/fast_lio_localization/transform_fusion.py --ros-args -r __node:=transform_fusion --params-file /tmp/soarm_ros2/install/fast_lio_localization/share/fast_lio_locali"
+    },
+    {
+      "pid": "3212",
+      "cpu_percent": 64.93,
+      "command": "python3 /tmp/soarm_ros2/install/fast_lio_localization/lib/fast_lio_localization/global_localization.py --ros-args -r __node:=global_localization --params-file /tmp/soarm_ros2/install/fast_lio_localization/share/fast_lio_"
+    },
+    {
+      "pid": "3216",
+      "cpu_percent": 59.48,
+      "command": "python3 /tmp/soarm_ros2/install/fast_lio_localization/lib/fast_lio_localization/global_map_publisher.py --ros-args -r __node:=global_map_publisher --params-file /tmp/soarm_ros2/install/fast_lio_localization/share/fast_li"
+    },
+    {
+      "pid": "3198",
+      "cpu_percent": 46.59,
+      "command": "/opt/ros/humble/lib/ros_gz_bridge/parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock /ground_truth/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry /gazebo/imu@sensor_msgs/msg/Imu[gz.msgs.IMU /gazebo/livox_imu@sens"
+    },
+    {
+      "pid": "3210",
+      "cpu_percent": 25.77,
+      "command": "/tmp/soarm_ros2/install/fast_lio_localization/lib/fast_lio_localization/fastlio_mapping --ros-args -r __node:=fast_lio_mapping --params-file /tmp/soarm_ros2/install/fast_lio_localization/share/fast_lio_localization/confi"
+    },
+    {
+      "pid": "3220",
+      "cpu_percent": 23.79,
+      "command": "/opt/ros/humble/lib/nav2_controller/controller_server --ros-args --log-level info --ros-args --params-file /tmp/launch_params_oqj9ld34 -r /tf:=tf -r /tf_static:=tf_static -r cmd_vel:=cmd_vel_nav "
+    },
+    {
+      "pid": "3224",
+      "cpu_percent": 17.84,
+      "command": "/opt/ros/humble/lib/nav2_planner/planner_server --ros-args --log-level info --ros-args -r __node:=planner_server --params-file /tmp/launch_params_oqj9ld34 -r /tf:=tf -r /tf_static:=tf_static "
+    },
+    {
+      "pid": "3252",
+      "cpu_percent": 15.36,
+      "command": "/opt/ros/humble/lib/nav2_lifecycle_manager/lifecycle_manager --ros-args --log-level info --ros-args -r __node:=lifecycle_manager_navigation --params-file /tmp/launch_params_kjg8qxfg --params-file /tmp/launch_params_eu8a6"
+    },
+    {
+      "pid": "3206",
+      "cpu_percent": 14.87,
+      "command": "/opt/ros/humble/lib/nav2_map_server/map_server --ros-args -r __node:=map_server --params-file /tmp/launch_params_3_7n8acj "
+    },
+    {
+      "pid": "3230",
+      "cpu_percent": 14.37,
+      "command": "/opt/ros/humble/lib/nav2_bt_navigator/bt_navigator --ros-args --log-level info --ros-args -r __node:=bt_navigator --params-file /tmp/launch_params_oqj9ld34 -r /tf:=tf -r /tf_static:=tf_static "
+    },
+    {
+      "pid": "3195",
+      "cpu_percent": 13.88,
+      "command": "/opt/ros/humble/lib/robot_state_publisher/robot_state_publisher --ros-args -r __node:=robot_state_publisher --params-file /tmp/launch_params_sz6pcbi9 "
+    },
+    {
+      "pid": "3208",
+      "cpu_percent": 13.88,
+      "command": "/opt/ros/humble/lib/nav2_lifecycle_manager/lifecycle_manager --ros-args -r __node:=lifecycle_manager_map --params-file /tmp/launch_params__qwhkcjm "
+    }
+  ]
+}

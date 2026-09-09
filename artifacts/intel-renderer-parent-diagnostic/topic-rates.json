@@ -1,0 +1,23 @@
+{
+  "wall_seconds": 10.025109607000559,
+  "counts": {
+    "clock": 3214,
+    "odom": 180,
+    "points": 22
+  },
+  "source_stamps": {
+    "clock": {
+      "first": 125.211,
+      "last": 128.8
+    },
+    "odom": {
+      "first": 124.199999999,
+      "last": 127.5
+    },
+    "points": {
+      "first": 124.5,
+      "last": 127.6
+    }
+  },
+  "observed_rtf": 0.3580010733741809
+}
