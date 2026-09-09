@@ -1,0 +1,1 @@
+/root/.ignition/rendering/ogre2.log

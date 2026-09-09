@@ -27,15 +27,24 @@ class InputFreshnessTest(unittest.TestCase):
         freshness = InputFreshness(0.5)
         self.assertFalse(freshness.update('scan', 100_000_000_000, 10_000_000_000, 1.0))
         self.assertIsNone(freshness.source_ns['scan'])
+        self.assertEqual(freshness.diagnostics(1.0)['scan']['last_attempt'], {
+            'source_stamp_ns': 100_000_000_000,
+            'node_clock_ns': 10_000_000_000,
+            'accepted': False,
+            'reason': 'future',
+        })
         self.assertTrue(freshness.update('scan', 10_100_000_000, 10_100_000_000, 1.1))
+        self.assertEqual(freshness.diagnostics(1.1)['scan']['last_attempt']['reason'], 'accepted')
 
     def test_duplicate_keeps_receipt_but_rollback_invalidates_input(self):
         freshness = InputFreshness(0.5)
         self.assertTrue(freshness.update('scan', 100, 100, 1.0))
         self.assertTrue(freshness.update('odom', 100, 100, 1.0))
         self.assertFalse(freshness.update('scan', 100, 100, 1.1))
+        self.assertEqual(freshness.diagnostics(1.1)['scan']['last_attempt']['reason'], 'duplicate')
         self.assertTrue(freshness.fresh(1.49))
         self.assertFalse(freshness.update('scan', 99, 100, 1.2))
+        self.assertEqual(freshness.diagnostics(1.2)['scan']['last_attempt']['reason'], 'rollback')
         self.assertEqual(freshness.source_ns['scan'], 100)
         self.assertIsNone(freshness.receipt['scan'])
         self.assertFalse(freshness.fresh(1.2))

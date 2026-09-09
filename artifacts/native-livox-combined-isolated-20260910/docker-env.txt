@@ -1,0 +1,16 @@
+ROS_DOMAIN_ID=97
+ROS_LOCALHOST_ONLY=1
+IGN_PARTITION=soarm-combined-97
+IGN_IP=127.0.0.1
+LIBGL_ALWAYS_SOFTWARE=0
+XDG_RUNTIME_DIR=/tmp/runtime-root
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+LANG=C.UTF-8
+LC_ALL=C.UTF-8
+ROS_DISTRO=humble
+DEBIAN_FRONTEND=noninteractive
+ARC140T_MESA_VERSION=25.1.7
+LD_LIBRARY_PATH=/opt/mesa/lib/x86_64-linux-gnu:/opt/spirv-llvm/lib/x86_64-linux-gnu:/opt/spirv-tools/lib/x86_64-linux-gnu:/usr/lib/llvm-18/lib
+LIBGL_DRIVERS_PATH=/opt/mesa/lib/x86_64-linux-gnu/dri
+__EGL_VENDOR_LIBRARY_FILENAMES=/opt/mesa/share/glvnd/egl_vendor.d/50_arc140t_mesa.json
+__GLX_VENDOR_LIBRARY_NAME=mesa

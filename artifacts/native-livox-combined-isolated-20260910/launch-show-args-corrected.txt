@@ -1,0 +1,101 @@
+Arguments (pass arguments as '<name>:=<value>'):
+
+    'gz_args':
+        no description given
+        (default: '-r -s')
+
+    'rviz':
+        no description given
+        (default: 'false')
+
+    'nav2_params_file':
+        no description given
+        (default: '/tmp/soarm_ros2/install/soarm_navigation/share/soarm_navigation/config/house_nav2_mppi.yaml')
+
+    'nav_to_pose_bt_xml':
+        no description given
+        (default: '/tmp/soarm_ros2/install/soarm_navigation/share/soarm_navigation/behavior_trees/navigate_position_only_holonomic.xml')
+
+    'fixed_map_shadow':
+        no description given
+        (default: 'false')
+
+    'use_native_livox_converter':
+        no description given
+        (default: 'false')
+
+    'throttle_odom_path':
+        no description given
+        (default: 'false')
+
+    'world':
+        ros2_control world basename from share/soarm_simulation/worlds.
+        (default: 'kuruma_ros2_control')
+
+    'gz_version':
+        Gazebo Sim's major version
+        (default: '6')
+
+    'ign_args':
+        Deprecated: Arguments to be passed to Gazebo Sim
+        (default: '')
+
+    'ign_version':
+        Deprecated: Gazebo Sim's major version
+        (default: '')
+
+    'debugger':
+        Run in Debugger
+        (default: 'false')
+
+    'debug_env':
+        Debug environment variables
+        (default: 'false')
+
+    'on_exit_shutdown':
+        Shutdown on gz-sim exit
+        (default: 'false')
+
+    'use_sim_time':
+        Use simulation (Gazebo) clock if true
+        (default: 'true')
+
+    'config_path':
+        Yaml config file path
+        (default: '/tmp/soarm_ros2/install/fast_lio_localization/share/fast_lio_localization/config')
+
+    'config_file':
+        Config file
+        (default: 'velodyne_test.yaml')
+
+    'rviz_cfg':
+        RViz config file path
+        (default: '/tmp/soarm_ros2/install/fast_lio_localization/share/fast_lio_localization/rviz/fastlio_localization.rviz')
+
+    'namespace':
+        Top-level namespace
+        (default: '')
+
+    'params_file':
+        Full path to the ROS2 parameters file to use for all launched nodes
+        (default: '/opt/ros/humble/share/nav2_bringup/params/nav2_params.yaml')
+
+    'autostart':
+        Automatically startup the nav2 stack
+        (default: 'true')
+
+    'use_composition':
+        Use composed bringup if True
+        (default: 'False')
+
+    'container_name':
+        the name of conatiner that nodes will load in if use composition
+        (default: 'nav2_container')
+
+    'use_respawn':
+        Whether to respawn if a node crashes. Applied when composition is disabled.
+        (default: 'False')
+
+    'log_level':
+        log level
+        (default: 'info')

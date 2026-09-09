@@ -1,0 +1,19 @@
+--- /tmp/soarm-intel-nav-restore-20260909/ros2_ws/src/soarm_navigation/soarm_navigation/launch/house_fastlio_nav2.launch.py	2026-09-09 23:49:46.799701842 +0900
++++ /tmp/soarm-nav2-native-runtime-41463f9/ros2_ws/src/soarm_navigation/soarm_navigation/launch/house_fastlio_nav2.launch.py	2026-09-10 02:42:05.332924980 +0900
+@@ -34,12 +34,16 @@
+         DeclareLaunchArgument('nav2_params_file', default_value=default_params_file),
+         DeclareLaunchArgument('nav_to_pose_bt_xml', default_value=default_nav_to_pose_bt_xml),
+         DeclareLaunchArgument('fixed_map_shadow', default_value='false'),
++        DeclareLaunchArgument('use_native_livox_converter', default_value='false'),
++        DeclareLaunchArgument('throttle_odom_path', default_value='false'),
+         IncludeLaunchDescription(
+             PythonLaunchDescriptionSource(PathJoinSubstitution([simulation_share, 'launch', 'kuruma_ros2_control.launch.py'])),
+             launch_arguments={
+                 'world': 'house_floorplan_ros2_control',
+                 'gz_args': LaunchConfiguration('gz_args'),
+                 'rviz': LaunchConfiguration('rviz'),
++                'use_native_livox_converter': LaunchConfiguration('use_native_livox_converter'),
++                'throttle_odom_path': LaunchConfiguration('throttle_odom_path'),
+             }.items()),
+         Node(
+             package='nav2_map_server', executable='map_server', name='map_server',

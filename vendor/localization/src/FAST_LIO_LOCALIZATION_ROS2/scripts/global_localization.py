@@ -34,26 +34,39 @@ class InputFreshness:
         self.timeout = float(timeout)
         self.source_ns = {'scan': None, 'odom': None}
         self.receipt = {'scan': None, 'odom': None}
+        self.attempt = {'scan': None, 'odom': None}
 
     @staticmethod
     def valid_stamp(value):
         return isinstance(value, int) and not isinstance(value, bool) and value > 0
 
     def update(self, name, stamp_ns, node_clock_ns, now):
-        if not self.valid_stamp(stamp_ns) or not self.valid_stamp(node_clock_ns):
-            return False
-        if stamp_ns > node_clock_ns:
-            return False
-        previous = self.source_ns[name]
-        if previous is not None:
-            if stamp_ns == previous:
-                return False
-            if stamp_ns < previous:
+        attempt = {
+            'source_stamp_ns': stamp_ns,
+            'node_clock_ns': node_clock_ns,
+            'accepted': False,
+            'reason': None,
+        }
+        if not self.valid_stamp(stamp_ns):
+            attempt['reason'] = 'invalid_source_stamp'
+        elif not self.valid_stamp(node_clock_ns):
+            attempt['reason'] = 'invalid_node_clock'
+        elif stamp_ns > node_clock_ns:
+            attempt['reason'] = 'future'
+        else:
+            previous = self.source_ns[name]
+            if previous is not None and stamp_ns == previous:
+                attempt['reason'] = 'duplicate'
+            elif previous is not None and stamp_ns < previous:
                 self.receipt[name] = None
-                return False
-        self.source_ns[name] = stamp_ns
-        self.receipt[name] = now
-        return True
+                attempt['reason'] = 'rollback'
+            else:
+                self.source_ns[name] = stamp_ns
+                self.receipt[name] = now
+                attempt['accepted'] = True
+                attempt['reason'] = 'accepted'
+        self.attempt[name] = attempt
+        return attempt['accepted']
 
     def fresh(self, now):
         return all(receipt is not None and 0.0 <= now - receipt <= self.timeout
@@ -62,7 +75,8 @@ class InputFreshness:
     def diagnostics(self, now):
         return {name: {'accepted_source_ns': self.source_ns[name],
                        'last_receipt_monotonic': self.receipt[name],
-                       'age_seconds': None if self.receipt[name] is None else now - self.receipt[name]}
+                       'age_seconds': None if self.receipt[name] is None else now - self.receipt[name],
+                       'last_attempt': self.attempt[name]}
                 for name in self.receipt}
 
 

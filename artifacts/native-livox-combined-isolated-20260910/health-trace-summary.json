@@ -1,0 +1,11 @@
+{
+  "heartbeat_count": 4132,
+  "max_publish_gap_seconds": 0.49596489800023846,
+  "attempt_reasons": {
+    "accepted": 8220
+  },
+  "max_accepted_age_seconds": {
+    "scan": 1.29470527400008,
+    "odom": 1.2877476589983416
+  }
+}

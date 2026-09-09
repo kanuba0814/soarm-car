@@ -1,0 +1,132 @@
+Local model/resource URI audit:
+ros2_ws/src/soarm_description/urdf/soarm_car_layout.urdf.xacro:2:<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="kuruma">
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:55:git clone https://github.com/myeongw002/FAST_LIO_LOCALIZATION_ROS2.git
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:115:- Custom FAST-LIO Localization Demo: https://youtu.be/B4wITcrR04A
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:123:> ROS2 Fork repo maintainer: [Ericsiii](https://github.com/Ericsii)
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:129:1. [ikd-Tree](https://github.com/hku-mars/ikd-Tree): A state-of-art dynamic KD-Tree for 3D kNN search.
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:130:2. [R2LIVE](https://github.com/hku-mars/r2live): A high-precision LiDAR-inertial-Vision fusion work using FAST-LIO as LiDAR-inertial front-end.
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:131:3. [LI_Init](https://github.com/hku-mars/LiDAR_IMU_Init): A robust, real-time LiDAR-IMU extrinsic initialization and synchronization package..
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:132:4. [FAST-LIO-LOCALIZATION](https://github.com/HViktorTsoi/FAST_LIO_LOCALIZATION): The integration of FAST-LIO with **Re-localization** function module.
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:136:1. [IKFOM](https://github.com/hku-mars/IKFoM): A Toolbox for fast and high-precision on-manifold Kalman filter.
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:137:2. [UAV Avoiding Dynamic Obstacles](https://github.com/hku-mars/dyn_small_obs_avoidance): One of the implementation of FAST-LIO in robot's planning.
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:138:3. [UGV Demo](https://www.youtube.com/watch?v=wikgrQbE6Cs): Model Predictive Control for Trajectory Tracking on Differentiable Manifolds.
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:139:4. [Bubble Planner](https://arxiv.org/abs/2202.12177): Planning High-speed Smooth Quadrotor Trajectories using Receding Corridors.
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:141:<!-- 10. [**FAST-LIVO**](https://github.com/hku-mars/FAST-LIVO): Fast and Tightly-coupled Sparse-Direct LiDAR-Inertial-Visual Odometry. -->
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:151:<!-- [![Watch the video](doc/real_exp_2.png)](https://youtu.be/2OvjGnxszf8) -->
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:157:**Related video:**  [FAST-LIO2](https://youtu.be/2OvjGnxszf8),  [FAST-LIO1](https://youtu.be/iYCY6T79oNU)
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:165:1. Incremental mapping using [ikd-Tree](https://github.com/hku-mars/ikd-Tree), achieve faster speed and over 100Hz LiDAR rate.
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:175:[FAST-LIO: A Fast, Robust LiDAR-inertial Odometry Package by Tightly-Coupled Iterated Kalman Filter](https://arxiv.org/abs/2010.08196)
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:179:[Wei Xu 徐威](https://github.com/XW-HKU)，[Yixi Cai 蔡逸熙](https://github.com/Ecstasy-EC)，[Dongjiao He 贺东娇](https://github.com/Joanna-HE)，[Fangcheng Zhu 朱方程](https://github.com/zfc-zfc)，[Jiarong Lin 林家荣](https://github.com/ziv-lin)，[Zheng Liu 刘政](https://github.com/Zale-Liu), [Borong Yuan](https://github.com/borongyuan)
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:192:ROS >= Foxy (Recommend to use ROS-Humble). [ROS Installation](https://docs.ros.org/en/humble/Installation.html)
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:195:PCL    >= 1.8,   Follow [PCL Installation](https://pointclouds.org/downloads/#linux).
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:197:Eigen  >= 3.3.4, Follow [Eigen Installation](http://eigen.tuxfamily.org/index.php?title=Main_Page).
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:200:Follow [livox_ros_driver2 Installation](https://github.com/Livox-SDK/livox_ros_driver2).
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:202:You can also use the one I modified [livox_ros_driver2](https://github.com/Ericsii/livox_ros_driver2/tree/feature/use-standard-unit)
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:214:    git clone https://github.com/Ericsii/FAST_LIO.git --recursive
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:230:C. We recommend to set the **extrinsic_est_en** to false if the extrinsic is give. As for the extrinsic initiallization, please refer to our recent work: [**Robust Real-time LiDAR-inertial Initialization**](https://github.com/hku-mars/LiDAR_IMU_Init).
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:233:Connect to your PC to Livox LiDAR by following  [Livox-ros-driver2 installation](https://github.com/Livox-SDK/livox_ros_driver2), then
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:249:- If you want to change the frame rate, please modify the **publish_freq** parameter in the [livox_lidar_msg.launch](https://github.com/Livox-SDK/livox_ros_driver/blob/master/livox_ros_driver2/launch/livox_lidar_msg.launch) of [Livox-ros-driver](https://github.com/Livox-SDK/livox_ros_driver2) before make the livox_ros_driver pakage.
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:284:Files: Can be downloaded from [google drive](https://drive.google.com/drive/folders/1CGYEJ9-wWjr8INyan6q1BZz_5VtGB-fP?usp=sharing)**!!!This ros1 bag should be convert to ros2!!!**
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:295:**NCLT Dataset**: Original bin file can be found [here](http://robots.engin.umich.edu/nclt/).
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:297:We produce [Rosbag Files](https://drive.google.com/drive/folders/1VBK5idI1oyW0GC_I_Hxh63aqam3nocNK?usp=sharing) and [a python script](https://drive.google.com/file/d/1leh7DxbHx29DyS1NJkvEfeNJoccxH7XM/view) to generate Rosbag files: ```python3 sensordata_to_rosbag_fastlio.py bin_file_dir bag_name.bag```**!!!This ros1 bag should be convert to ros2!!!** To convert ros1 bag to ros2 bag, please follow the documentation [Convert rosbag versions](https://ternaris.gitlab.io/rosbags/topics/convert.html)
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/README.md:317:Thanks for LOAM(J. Zhang and S. Singh. LOAM: Lidar Odometry and Mapping in Real-time), [Livox_Mapping](https://github.com/Livox-SDK/livox_mapping), [LINS](https://github.com/ChaoqinRobotics/LINS---LiDAR-inertial-SLAM) and [Loam_Livox](https://github.com/hku-mars/loam_livox).
+ros2_ws/src/soarm_simulation/models/house_floorplan/SOURCE.md:5:- Repository: <https://github.com/xtrinch/sweethome3d-house-plans.git>
+ros2_ws/src/soarm_simulation/models/house_floorplan/SOURCE.md:27:git clone https://github.com/xtrinch/sweethome3d-house-plans.git /tmp/sweethome3d-house-plans
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/IKFoM_toolkit/mtk/build_manifold.hpp:4://    CoRR,  vol.  abs/1107.1119,  2011.[Online]. Available: http://arxiv.org/abs/1107.1119
+ros2_ws/src/soarm_simulation/models/kuruma/model.sdf:2:<sdf version="1.9" xmlns:ignition="http://ignitionrobotics.org/schema">
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/IKFoM_toolkit/mtk/src/SubManifold.hpp:4://    CoRR,  vol.  abs/1107.1119,  2011.[Online]. Available: http://arxiv.org/abs/1107.1119
+ros2_ws/src/soarm_simulation/tools/generate_house_floorplan.py:18:SOURCE_URL = "https://github.com/xtrinch/sweethome3d-house-plans.git"
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/IKFoM_toolkit/mtk/src/mtkmath.hpp:4://    CoRR,  vol.  abs/1107.1119,  2011.[Online]. Available: http://arxiv.org/abs/1107.1119
+ros2_ws/src/soarm_simulation/models/kuruma_ros2_control/model.sdf:2:<sdf version="1.9" xmlns:ignition="http://ignitionrobotics.org/schema">
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/IKFoM_toolkit/mtk/startIdx.hpp:4://    CoRR,  vol.  abs/1107.1119,  2011.[Online]. Available: http://arxiv.org/abs/1107.1119
+ros2_ws/src/soarm_simulation/worlds/kuruma.sdf:2:<sdf version="1.9"><world name="kuruma_lab"><physics name="1ms" type="dart"><max_step_size>0.001</max_step_size><real_time_factor>1</real_time_factor></physics><plugin filename="ignition-gazebo-physics-system" name="ignition::gazebo::systems::Physics"/><plugin filename="ignition-gazebo-user-commands-system" name="ignition::gazebo::systems::UserCommands"/><plugin filename="ignition-gazebo-scene-broadcaster-system" name="ignition::gazebo::systems::SceneBroadcaster"/><plugin filename="ignition-gazebo-sensors-system" name="ignition::gazebo::systems::Sensors"><render_engine>ogre2</render_engine></plugin><plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu"/><include><uri>model://kuruma</uri><name>kuruma</name></include><light type="directional" name="sun"><pose>0 0 10 0 0 0</pose><direction>-0.5 0.1 -0.9</direction></light><model name="ground"><static>true</static><link name="link"><collision name="collision"><geometry><plane><normal>0 0 1</normal></plane></geometry><surface><friction><ode><mu>50</mu></ode></friction></surface></collision><visual name="visual"><geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry></visual></link></model></world></sdf>
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/IKFoM_toolkit/mtk/types/S2.hpp:4://    CoRR,  vol.  abs/1107.1119,  2011.[Online]. Available: http://arxiv.org/abs/1107.1119
+ros2_ws/src/soarm_simulation/worlds/kuruma_ros2_control.sdf:2:<sdf version="1.9"><world name="kuruma_ros2_control_lab"><physics name="1ms" type="dart"><max_step_size>0.001</max_step_size><real_time_factor>1</real_time_factor></physics><plugin filename="ignition-gazebo-physics-system" name="ignition::gazebo::systems::Physics"/><plugin filename="ignition-gazebo-user-commands-system" name="ignition::gazebo::systems::UserCommands"/><plugin filename="ignition-gazebo-scene-broadcaster-system" name="ignition::gazebo::systems::SceneBroadcaster"/><plugin filename="ignition-gazebo-sensors-system" name="ignition::gazebo::systems::Sensors"><render_engine>ogre2</render_engine></plugin><plugin filename="ignition-gazebo-imu-system" name="ignition::gazebo::systems::Imu"/><include><uri>model://kuruma_ros2_control</uri><name>kuruma_ros2_control</name></include><light type="directional" name="sun"><pose>0 0 10 0 0 0</pose><direction>-0.5 0.1 -0.9</direction></light><model name="ground"><static>true</static><link name="link"><collision name="collision"><geometry><plane><normal>0 0 1</normal></plane></geometry><surface><friction><ode><mu>50</mu></ode></friction></surface></collision><visual name="visual"><geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry></visual></link></model></world></sdf>
+ros2_ws/src/soarm_simulation/worlds/navigation_room.sdf:12:    <include><uri>model://navigation_room</uri></include>
+ros2_ws/src/soarm_simulation/worlds/navigation_room.sdf:14:    <include><uri>model://kuruma</uri><name>kuruma</name><pose>0 0 0 0 0 0</pose></include>
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/IKFoM_toolkit/mtk/types/SOn.hpp:4://    CoRR,  vol.  abs/1107.1119,  2011.[Online]. Available: http://arxiv.org/abs/1107.1119
+ros2_ws/src/soarm_simulation/worlds/house_floorplan.sdf:32:    <include><uri>model://house_floorplan</uri></include>
+ros2_ws/src/soarm_simulation/worlds/house_floorplan.sdf:35:      <uri>model://kuruma</uri>
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/IKFoM_toolkit/mtk/types/vect.hpp:4://    CoRR,  vol.  abs/1107.1119,  2011.[Online]. Available: http://arxiv.org/abs/1107.1119
+ros2_ws/src/soarm_simulation/worlds/house_floorplan_ros2_control.sdf:32:    <include><uri>model://house_floorplan</uri></include>
+ros2_ws/src/soarm_simulation/worlds/house_floorplan_ros2_control.sdf:34:      <uri>model://kuruma_ros2_control</uri>
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/ikd-Tree/README.md:20:- Browse the [User Manual](https://github.com/hku-mars/ikd-Tree/blob/main/documents/UserManual.pdf) for using our ikd-Tree.
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/ikd-Tree/README.md:24:- [Yixi CAI 蔡逸熙](https://github.com/Ecstasy-EC): Data structure design and implementation
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/ikd-Tree/README.md:26:- [Wei XU 徐威](https://github.com/XW-HKU): Incorporation into  [LiDAR-inertial odometry package FAST_LIO2 (TRO, 2022)](https://github.com/hku-mars/FAST_LIO)
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/ikd-Tree/README.md:31:- [ikd-Tree: An Incremental K-D Tree for robotic applications](https://arxiv.org/abs/2102.10808)
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/ikd-Tree/README.md:33:- [FAST-LIO2: Fast Direct LiDAR-Inertial Odometry](https://ieeexplore.ieee.org/abstract/document/9697912)
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/ikd-Tree/README.md:67:**Note: To run Example 2 & 3, please download the PCD file ([HKU_demo_pointcloud](https://drive.google.com/file/d/1tMYiBIFn-fcjisaoIrmIKA09NICGG9KJ/view?usp=sharing))  into`${Your own directory}/ikd-Tree/materials`**
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/ikd-Tree/README.md:105:- Thanks [Marcus Davi](https://github.com/Marcus-Davi) for helps in templating the ikd-Tree for more general applications.
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/ikd-Tree/README.md:107:- Thanks [Hyungtae Lim 임형태](https://github.com/LimHyungTae) for providing application examples on point clouds.
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/ikd-Tree/README.md:111:The source code of ikd-Tree is released under [GPLv2](http://www.gnu.org/licenses/old-licenses/gpl-2.0.html) license. For commercial use, please contact Mr. Yixi CAI (<yixicai@connect.hku.hk>) or Dr. Fu ZHANG (<fuzhang@hku.hk>).
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/matplotlibcpp.h:106:        http://bytes.com/topic/python/answers/793370-multiple-independent-python-interpreters-c-c-program
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/matplotlibcpp.h:264:/// See also: https://matplotlib.org/2.0.2/api/matplotlib_configuration_api.html#matplotlib.use
+vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/include/matplotlibcpp.h:403:/// See: https://matplotlib.org/3.2.1/api/_as_gen/matplotlib.pyplot.plot.html
+vendor/localization/src/livox_ros_driver2/README.md:22:  How to install colcon: [Colcon installation instructions](https://docs.ros.org/en/foxy/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html)
+vendor/localization/src/livox_ros_driver2/README.md:27:[ROS Melodic installation instructions](https://wiki.ros.org/melodic/Installation)
+vendor/localization/src/livox_ros_driver2/README.md:30:[ROS Noetic installation instructions](https://wiki.ros.org/noetic/Installation)
+vendor/localization/src/livox_ros_driver2/README.md:33:[ROS Foxy installation instructions](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html)
+vendor/localization/src/livox_ros_driver2/README.md:36:[ROS Humble installation instructions](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
+vendor/localization/src/livox_ros_driver2/README.md:39:[ROS Jazzy installation instructions](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debians.html)
+vendor/localization/src/livox_ros_driver2/README.md:49:git clone https://github.com/Livox-SDK/livox_ros_driver2.git ws_livox/src/livox_ros_driver2
+vendor/localization/src/livox_ros_driver2/README.md:60:  Please follow the guidance of installation in the [Livox-SDK2/README.md](https://github.com/Livox-SDK/Livox-SDK2/blob/master/README.md)
+vendor/localization/src/livox_ros_driver2/README.md:267:[HAP Config File Description](https://github.com/Livox-SDK/Livox-SDK2/wiki/hap-config-file-description)
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/ostreamwrapper.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/allocators.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/cursorstreamwrapper.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/package_ROS2.xml:2:<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/pointer.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/pointer.h:62:    (https://tools.ietf.org/html/rfc6901).
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/prettywriter.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/rapidjson.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/rapidjson.h:219:   https://gcc.gnu.org/onlinedocs/gcc-4.6.0/cpp/Common-Predefined-Macros.html
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/rapidjson.h:220:    \li http://www.boost.org/doc/libs/1_42_0/boost/detail/endian.hpp
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/document.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/document.h:69:    https://code.google.com/p/rapidjson/issues/detail?id=64
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/writer.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/encodedstream.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/reader.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/encodings.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/encodings.h:96:/*! http://en.wikipedia.org/wiki/UTF-8
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/encodings.h:97:    http://tools.ietf.org/html/rfc3629
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/encodings.h:270:    // Referring to DFA of http://bjoern.hoehrmann.de/utf-8/decoder/dfa/
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/encodings.h:338:/*! http://en.wikipedia.org/wiki/UTF-16
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/encodings.h:339:    http://tools.ietf.org/html/rfc2781
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/encodings.h:494:/*! http://en.wikipedia.org/wiki/UTF-32
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/encodings.h:622:/*! http://en.wikipedia.org/wiki/ASCII
+vendor/localization/src/livox_ros_driver2/LICENSE.txt:1:The following portions of the LIVOX’s Livox ROS Driver2 (“Software” referred to in the terms below) are made available to you under the terms of the MIT License provided below and is also available at https://opensource.org/licenses/MIT.
+vendor/localization/src/livox_ros_driver2/LICENSE.txt:99:LIVOX’s Livox ROS Driver2 uses unmodified source code of RapidJSON (https://github.com/Tencent/rapidjson), which is also licensed under MIT license. A copy of the MIT license is provided below and is also available at https://opensource.org/licenses/MIT.
+vendor/localization/src/livox_ros_driver2/LICENSE.txt:157:http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/LICENSE.txt:167:LIVOX’s Livox ROS Driver2 uses unmodified libraries and interfaces of ROS (https://www.ros.org/), which is also licensed under 3-Clause-BSD license. A copy of the 3-Clause-BSD license is provided below and is also available at https://opensource.org/licenses/BSD-3-Clause.
+vendor/localization/src/livox_ros_driver2/LICENSE.txt:208:LIVOX’s Livox ROS Driver2 uses unmodified libraries and interfaces of ROS2-rclcpp (https://github.com/ros2), which is also licensed under Apache License 2.0. A copy of the Apache License 2.0 is provided below and is also available at https://www.apache.org/licenses/LICENSE-2.0.
+vendor/localization/src/livox_ros_driver2/LICENSE.txt:214:                        http://www.apache.org/licenses/
+vendor/localization/src/livox_ros_driver2/LICENSE.txt:406:       http://www.apache.org/licenses/LICENSE-2.0
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/stringbuffer.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/package_ROS1.xml:22:  <!-- <url type="website">http://wiki.ros.org/lidar_sdk</url> -->
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/error/en.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/stream.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/error/error.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/istreamwrapper.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/fwd.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/filereadstream.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/schema.h:11:// http://opensource->org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/schema.h:342:    // FNV-1a from http://isthe.com/chongo/tech/comp/fnv/
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/filewritestream.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/memorybuffer.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/memorystream.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/biginteger.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/clzll.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/diyfp.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/dtoa.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/dtoa.h:37:// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=59124
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/regex.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/regex.h:112:        https://swtch.com/~rsc/regexp/regexp1.html
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/ieee754.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/strtod.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/strtod.h:122:  // http://www.exploringbinary.com/fast-path-decimal-to-floating-point-conversion/
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/itoa.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/swap.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/stack.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/pow10.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/strfunc.h:11:// http://opensource.org/licenses/MIT
+vendor/localization/src/livox_ros_driver2/3rdparty/rapidjson/internal/meta.h:11:// http://opensource.org/licenses/MIT
