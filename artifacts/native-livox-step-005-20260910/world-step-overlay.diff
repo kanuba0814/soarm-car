@@ -1,0 +1,11 @@
+--- /home/gxxl/soarm-car-sensor-pipeline/ros2_ws/src/soarm_simulation/worlds/house_floorplan_ros2_control.sdf	2026-09-10 01:18:05.302792052 +0900
++++ /tmp/soarm-nav2-native-runtime-41463f9/ros2_ws/src/soarm_simulation/worlds/house_floorplan_ros2_control.sdf	2026-09-10 03:35:25.527927941 +0900
+@@ -2,7 +2,7 @@
+ <sdf version="1.9">
+   <world name="house_floorplan_ros2_control">
+     <physics name="1ms" type="dart">
+-      <max_step_size>0.001</max_step_size>
++      <max_step_size>0.005</max_step_size>
+       <real_time_factor>1</real_time_factor>
+     </physics>
+     <plugin filename="ignition-gazebo-physics-system" name="ignition::gazebo::systems::Physics"/>

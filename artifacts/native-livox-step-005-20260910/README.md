@@ -1,0 +1,13 @@
+# Single .005 Second Physics-Step Experiment
+
+This is the one authorized follow-up resolution experiment. The matched corrected house launch SHA-256 is `a520fa54f04feb26b2ceb8da8723046b89c2c8ab1d4cb1444cba63df17ec94d5`. `world-step-overlay.diff` proves that the disposable runtime world differs from the checked-in matched `.001` world only by `max_step_size` changing to `.005`. The real-time factor remains one, all original furniture/models remain included, and no input sensor FOV, range, rate, geometry, field contents, Nav2, health policy, control rate, or gate tolerance changed.
+
+The environment is exactly `run-step-005.sh`: `ROS_DOMAIN_ID=101`, `ROS_LOCALHOST_ONLY=1`, `IGN_PARTITION=soarm-step-005-101`, `IGN_IP=127.0.0.1`, private IPC, `--network none`, `--shm-size 256m`, and Intel `/dev/dri/renderD128` only. OGRE reports Intel Mesa ARL.
+
+The pre-goal observer ran 35.005446302 wall seconds. Simulation advanced 20.745 seconds. It received 207 unique raw source stamps with maximum source-step 0.1 seconds, median source-clock lag 0.03 seconds, maximum lag 0.07 seconds, three receipt gaps greater than 0.5 wall seconds, and maximum receipt gap 0.746777707 seconds. Static truth dynamics were stable: max absolute roll 1.6555726e-06 rad and pitch 2.2354228e-08 rad. Localization is intentionally unavailable before the original bootstrap.
+
+The original six zero-origin initialpose bootstrap was retained. The bounded runtime consumer overlay retained its prior two-wall-second healthy interval and made one existing `/localization_cmd_gate/arm` Trigger call. It was accepted after 2.006749424 seconds. The original room-1 body then produced a 107-point, 5.738150499 m plan. Its accepted goal remained active for 1.08 sim seconds / 2.33174875 wall seconds, traveled 0.135366879 m, maintained zero Z range, roll at most 1.6555726e-06 rad, pitch at most 2.7444925e-08 rad, and maximum localization-to-truth error 0.045058760 m. It nevertheless ended `CANCELED` after health states included tracking and unhealthy; hub was not attempted because the original consumer stops at the first failed prerequisite.
+
+`health-dedup-summary.json` corrects the repeated-heartbeat interpretation: 1,886 trace heartbeats correspond to 996 unique scan and 997 unique odom accepted source stamps. Every deduplicated attempt reason is `accepted`; no future, duplicate, or rollback rejection was observed. Worst receipt gaps are 1.436860814 s scan and 1.444008380 s odom, with matching 0.2 s maximum source and node-clock steps. This is runtime clock/source progression behavior, not native-converter backlog or future-guard rejection.
+
+The route did not pass, so no runtime is retained and no release handoff was made. No `.01` step or sensor change was attempted.

@@ -1,0 +1,29 @@
+{
+  "duration_wall_seconds": 35.005446301998745,
+  "clock": {
+    "count": 4150,
+    "start_sim": 21.435,
+    "end_sim": 42.18,
+    "sim_progress_seconds": 20.745,
+    "max_wall_gap_seconds": 0.5929294720008329
+  },
+  "raw_source": {
+    "count": 207,
+    "unique_source_stamps": 207,
+    "max_wall_gap_seconds": 0.7467777070014563,
+    "gaps_over_0_5_seconds": 3,
+    "max_source_gap_seconds": 0.10000000000000142,
+    "median_clock_minus_source_seconds": 0.030000000000001137,
+    "max_clock_minus_source_seconds": 0.07000000000000028
+  },
+  "truth_dynamics": {
+    "count": 1033,
+    "max_abs_roll_rad": 1.6555726258533294e-06,
+    "max_abs_pitch_rad": 2.2354228011832676e-08
+  },
+  "localization_truth": {
+    "count": 0,
+    "max_position_error_m": null,
+    "median_position_error_m": null
+  }
+}

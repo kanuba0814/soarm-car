@@ -1,0 +1,32 @@
+{
+  "step_002": {
+  "status_name": "CANCELED",
+  "elapsed_sim_s": 0.027999999999998693,
+  "elapsed_wall_s": 0.42239633099961793,
+  "truth_xy_progress_m": 0.00028044752703494576,
+  "truth_goal_error_m": 5.537048064514816,
+  "localization_goal_error_m": 5.495528675317854,
+  "localization_truth_error_max_m": null,
+  "health_states": [
+    2
+  ]
+}
+,
+  "step_005": {
+  "status_name": "CANCELED",
+  "elapsed_sim_s": 1.0799999999999983,
+  "elapsed_wall_s": 2.331748750002589,
+  "truth_xy_progress_m": 0.13536687850046408,
+  "truth_z_range_m": 0.0,
+  "truth_max_abs_roll_rad": 0.0000016555726258533294,
+  "truth_max_abs_pitch_rad": 2.7444924772228554E-8,
+  "truth_goal_error_m": 5.420456463959032,
+  "localization_goal_error_m": 5.419494475911584,
+  "localization_truth_error_max_m": 0.04505876016304833,
+  "health_states": [
+    1,
+    2
+  ]
+}
+
+}

@@ -1,0 +1,27 @@
+{
+  "heartbeat_count": 1886,
+  "channels": {
+    "scan": {
+      "unique_accepted_source_stamps": 996,
+      "all_attempt_reasons": [
+        "accepted"
+      ],
+      "max_receipt_gap_wall_seconds": 1.436860813999374,
+      "gaps_over_0_5_wall_seconds": 30,
+      "max_source_step_seconds": 0.2,
+      "max_node_clock_step_seconds": 0.2,
+      "median_source_to_node_lag_seconds": 0.035
+    },
+    "odom": {
+      "unique_accepted_source_stamps": 997,
+      "all_attempt_reasons": [
+        "accepted"
+      ],
+      "max_receipt_gap_wall_seconds": 1.4440083800000139,
+      "gaps_over_0_5_wall_seconds": 30,
+      "max_source_step_seconds": 0.2,
+      "max_node_clock_step_seconds": 0.2,
+      "median_source_to_node_lag_seconds": 0.030018067
+    }
+  }
+}
