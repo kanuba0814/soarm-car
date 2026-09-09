@@ -14,6 +14,8 @@
 
 | 本机路径（均在 `/home/gxxl/`） | 分支 / 核对 HEAD | 用途与使用边界 |
 |---|---|---|
+| `soarm-car-graduation` | `integration/graduation-assistant` / `b7f09b7` | 无人值守毕业设计集成分支；只合并已检查实验，保留原导航复用边界。批次说明 `docs/research/unattended-graduation-experiments.md`。 |
+| `soarm-car-nav-recovery` | `experiment/nav-baseline-recovery` / 基点 `5c58bb1` | 在不修改原导航工作区的前提下制作可恢复快照与离线恢复验证；进行中。 |
 | `soarm-car-nav2-clean` | `experiment/nav2-clean-baseline` / `41463f9` | **现有自主导航优先复用基线**：球轮 `kuruma_ros2_control`、FAST-LIO、Smac、全向 MPPI；有多房间成功记录。当前有修改及未跟踪脚本，不能仅凭 HEAD 还原当前成功实现。 |
 | `soarm-car-companion-validation` | `research/companion-home-validation` / `08f5eb2` | 家具住宅 GUI、RGB-D、论文包及手动演示。最新演示是球轮 + Fortress `VelocityControl` 运动学近似，不是上述 ros2_control 导航基线。 |
 | `soarm-car-vlm-grid` | `research/vlm-grid-design` / `5c58bb1` | 小型 VL + 公开 RGB-D 栅格开发小试；五项几何检查及有限ID适配已运行。不拥有导航/仿真进程；未接通端到端导航。设计说明 `docs/research/graduation-hybrid-design.md`；模型权重在独立缓存，输入输出和恢复锁由本分支记录。 |
