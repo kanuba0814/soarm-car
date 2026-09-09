@@ -25,7 +25,7 @@ from std_msgs.msg import Header
 from soarm_interfaces.msg import LocalizationHealth
 
 class InputFreshness:
-    """Tracks only strictly advancing source timestamps against wall time."""
+    """Tracks strictly advancing source stamps against captured ROS clock and wall time."""
 
     def __init__(self, timeout):
         if not np.isfinite(timeout) or timeout <= 0.0:
@@ -34,10 +34,22 @@ class InputFreshness:
         self.source_ns = {'scan': None, 'odom': None}
         self.receipt = {'scan': None, 'odom': None}
 
-    def update(self, name, stamp_ns, now):
-        previous = self.source_ns[name]
-        if not isinstance(stamp_ns, int) or stamp_ns <= 0 or previous is not None and stamp_ns <= previous:
+    @staticmethod
+    def valid_stamp(value):
+        return isinstance(value, int) and not isinstance(value, bool) and value > 0
+
+    def update(self, name, stamp_ns, node_clock_ns, now):
+        if not self.valid_stamp(stamp_ns) or not self.valid_stamp(node_clock_ns):
             return False
+        if stamp_ns > node_clock_ns:
+            return False
+        previous = self.source_ns[name]
+        if previous is not None:
+            if stamp_ns == previous:
+                return False
+            if stamp_ns < previous:
+                self.receipt[name] = None
+                return False
         self.source_ns[name] = stamp_ns
         self.receipt[name] = now
         return True
@@ -45,6 +57,12 @@ class InputFreshness:
     def fresh(self, now):
         return all(receipt is not None and 0.0 <= now - receipt <= self.timeout
                    for receipt in self.receipt.values())
+
+    def diagnostics(self, now):
+        return {name: {'accepted_source_ns': self.source_ns[name],
+                       'last_receipt_monotonic': self.receipt[name],
+                       'age_seconds': None if self.receipt[name] is None else now - self.receipt[name]}
+                for name in self.receipt}
 
 
 from localization_health import (
@@ -210,12 +228,14 @@ class GlobalLocalizationNode(Node):
 
     def cb_save_cur_odom(self, msg: Odometry):
         stamp_ns = self.stamp_to_nanoseconds(msg.header.stamp)
-        if self.input_freshness.update('odom', stamp_ns, time.monotonic()):
+        node_clock_ns = self.get_clock().now().nanoseconds
+        if self.input_freshness.update('odom', stamp_ns, node_clock_ns, time.monotonic()):
             self.cur_odom = msg
 
     def cb_save_cur_scan(self, msg: PointCloud2):
         source_stamp_ns = self.stamp_to_nanoseconds(msg.header.stamp)
-        if not self.input_freshness.update('scan', source_stamp_ns, time.monotonic()):
+        node_clock_ns = self.get_clock().now().nanoseconds
+        if not self.input_freshness.update('scan', source_stamp_ns, node_clock_ns, time.monotonic()):
             return
         msg.header.frame_id = 'camera_init'
         msg.header.stamp    = self.get_clock().now().to_msg()

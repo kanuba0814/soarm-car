@@ -23,18 +23,30 @@ InputFreshness = MODULE.InputFreshness
 
 
 class InputFreshnessTest(unittest.TestCase):
-    def test_requires_strictly_advancing_and_fresh_inputs(self):
+    def test_future_source_stamp_is_rejected_without_poisoning_high_watermark(self):
         freshness = InputFreshness(0.5)
-        self.assertTrue(freshness.update('scan', 100, 1.0))
-        self.assertTrue(freshness.update('odom', 100, 1.0))
-        self.assertTrue(freshness.fresh(1.5))
-        self.assertFalse(freshness.update('scan', 100, 1.1))
-        self.assertFalse(freshness.update('odom', 99, 1.1))
+        self.assertFalse(freshness.update('scan', 100_000_000_000, 10_000_000_000, 1.0))
+        self.assertIsNone(freshness.source_ns['scan'])
+        self.assertTrue(freshness.update('scan', 10_100_000_000, 10_100_000_000, 1.1))
+
+    def test_duplicate_keeps_receipt_but_rollback_invalidates_input(self):
+        freshness = InputFreshness(0.5)
+        self.assertTrue(freshness.update('scan', 100, 100, 1.0))
+        self.assertTrue(freshness.update('odom', 100, 100, 1.0))
+        self.assertFalse(freshness.update('scan', 100, 100, 1.1))
+        self.assertTrue(freshness.fresh(1.49))
+        self.assertFalse(freshness.update('scan', 99, 100, 1.2))
+        self.assertEqual(freshness.source_ns['scan'], 100)
+        self.assertIsNone(freshness.receipt['scan'])
+        self.assertFalse(freshness.fresh(1.2))
+
+    def test_invalid_clock_and_paused_inputs_are_unhealthy(self):
+        freshness = InputFreshness(0.5)
+        self.assertFalse(freshness.update('scan', True, 100, 1.0))
+        self.assertFalse(freshness.update('scan', 100, False, 1.0))
+        self.assertTrue(freshness.update('scan', 100, 100, 1.0))
+        self.assertTrue(freshness.update('odom', 100, 100, 1.0))
         self.assertFalse(freshness.fresh(1.500001))
-        self.assertFalse(freshness.fresh(0.9))
-        self.assertTrue(freshness.update('scan', 101, 1.6))
-        self.assertTrue(freshness.update('odom', 101, 1.6))
-        self.assertTrue(freshness.fresh(1.8))
 
 
 class GlobalLocalizationRegistrationTest(unittest.TestCase):
