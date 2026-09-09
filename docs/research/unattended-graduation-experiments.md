@@ -33,8 +33,14 @@
 - 合并后回归：A1、地图准备、栅格、记忆、裁剪共33项unittest通过；ROS消息消费测试独立通过。
 - 原始开发结果：小型 VL/GPU 与栅格比较见 `docs/research/graduation-hybrid-design.md`；Qwen2B未完成下载，不能宣称已运行。
 
-## 正在进行的原导航复用检查
+## 原导航复用检查结果
 
-`experiment/reuse-nav-service` 只允许在恢复副本运行原始 `run-nav2-clean-comparison.sh`，选择既有 `room-1` 往返路线；不新增导航调用实现，不修改原源工作区，不把AWS视觉坐标当原导航map坐标。仅一次有界运行，保存成功或失败原因，再恢复原GUI。完成前不宣称有新导航成功记录。
+`experiment/reuse-nav-service` 在独立恢复副本复用原始 `run-nav2-clean-comparison.sh` 和消费者，选择既有 `room-1 → hub/mian` 往返。前两次分别因非法DDS Domain ID 246和无界面EGL初始化失败而未发送目标，记录均保留。第三次只对运行副本添加已验证的NVIDIA/X11/EGL启动环境补丁，不改导航、定位、地图、控制器或动作消费者。
+
+有效运行使用原固定镜像、Domain ID 211，两目标均status=4 SUCCEEDED，无取消；43.516s和20.101s仿真用时。最大定位/真值位置差分别0.0572m与0.0901m。结果来自简化、无家具、已知原点场景，不是AWS语义目标导航或硬件验证。
+
+三次记录及环境补丁以 `7c4046e` 合并。父进程核对metrics及26个证据文件哈希；原成功记录的hash清单误将自身包含在内，保留原文件并添加外部 `artifacts/evidence/nav-reuse-parent-verification.json`，不覆盖原证据。球轮GUI与本地工作台均恢复在线。
+
+工作台新增最近往返/历史四目标记录选择。最近两条SUCCEEDED已由浏览器快照确认、附加QA通过；选择旧记录后最后一次页面读取因权限检查服务502被阻断，未绕过，因此该切换后的最终复核尚未完成。
 
 源码快照恢复、消息序列化、离线查询、历史导航和本次实际运行分别记录，不相互代替。用户界面不使用毕业/论文包装，研究用途只留在文档中。

@@ -213,11 +213,24 @@ def main():
     store_path = output / "semantic-memory-store.json"
     import_result = import_public_archive(PUBLIC_INPUT, store_path)
     index = read_json(INSPECTOR / "evidence_index.json")
+    latest_path = ROOT / "artifacts/evidence/nav2-clean-renderer-parity-20260909T091000Z/metrics.json"
+    latest = read_json(latest_path)
+    latest_record = {
+        "label": "2026-09-09 · room-1 往返",
+        "source": str(latest_path.relative_to(ROOT)),
+        "routes": [{
+            "id": route["room_id"], "status": route["status"],
+            "status_name": "SUCCEEDED" if route["status"] == 4 else f"STATUS_{route['status']}",
+            "localization_goal_error_m": route["localization_goal_error_m"],
+            "localization_truth_error_max_m": route["localization_truth_error_max_m"],
+        } for route in latest["route"]],
+    }
     overview = {
         "offline": True,
         "motion_authorized": False,
         "semantic_memory": {**index["semantic_memory"], "import_result": import_result},
         "navigation_history": index["navigation_history"],
+        "navigation_runs": [latest_record, {**index["navigation_history"], "label": "2026-09-05 · 四目标路线"}],
         "sources": {
             "implementation": "docs/navigation-localization-implementation.md",
             "memory_core": "semantic_memory/core.py",

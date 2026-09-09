@@ -1,5 +1,5 @@
 (() => {
-    const state = { category: "餐桌", replay: "fresh", tab: "full", observation: "obs_001", vlm: null };
+    const state = { category: "餐桌", replay: "fresh", tab: "full", observation: "obs_001", vlm: null, navigationRuns: [] };
     const $ = (selector) => document.querySelector(selector);
     const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", "\"":"&quot;", "'":"&#039;"}[character]));
 
@@ -60,8 +60,10 @@
             state.vlm = await vlmResponse.json();
             if (!overviewResponse.ok || !vlmResponse.ok) throw new Error("初始化证据读取失败");
             $("#record-count").textContent = overview.semantic_memory.import_result.records;
-            $("#nav-source").textContent = overview.navigation_history.source;
-            renderRoutes(overview.navigation_history.routes);
+            state.navigationRuns = overview.navigation_runs;
+            $("#navigation-run-select").innerHTML = state.navigationRuns.map((run, index) => `<option value="${index}">${escapeHtml(run.label)}</option>`).join("");
+            $("#nav-source").textContent = state.navigationRuns[0].source;
+            renderRoutes(state.navigationRuns[0].routes);
             $("#strict-count").textContent = `${state.vlm.summary.strict_format_valid}/16`;
             $("#adapter-count").textContent = `${state.vlm.summary.finite_label_adapter_valid}/16`;
             $("#reversal-count").textContent = `${state.vlm.summary.reversal_flips}/${state.vlm.summary.reversal_total}`;
@@ -76,6 +78,12 @@
 
     $("#category-control").addEventListener("click", (event) => { const value = event.target.dataset.category; if (!value) return; state.category = value; selectButton(event.currentTarget, "category", value); });
     $("#replay-control").addEventListener("click", (event) => { const value = event.target.dataset.replay; if (!value) return; state.replay = value; selectButton(event.currentTarget, "replay", value); });
+    $("#navigation-run-select").addEventListener("change", (event) => {
+        const run = state.navigationRuns[Number(event.target.value)];
+        if (!run) return;
+        $("#nav-source").textContent = run.source;
+        renderRoutes(run.routes);
+    });
     $("#query-button").addEventListener("click", queryMemory);
     $("#observation-select").addEventListener("change", (event) => { state.observation = event.target.value; renderVlm(); });
     $(".tab-list").addEventListener("click", (event) => { const value = event.target.dataset.tab; if (!value) return; state.tab = value; selectButton(event.currentTarget, "tab", value); renderVlm(); });

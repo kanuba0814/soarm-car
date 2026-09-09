@@ -46,8 +46,9 @@
     <section class="section history" aria-labelledby="history-title">
       <div class="section-title"><p class="kicker">02 / ACTIVITY</p><h2 id="history-title">导航运行记录</h2></div>
       <div class="warning-line">历史记录，非当前实时运行。场景为简化、去家具、加宽开口的 house_floorplan，且从已知原点启动；不证明家具场景、任意初始位姿或硬件结果。</div>
+      <label>选择运行记录 <select id="navigation-run-select"></select></label>
       <div class="table-wrap"><table><thead><tr><th>目标原始 ID</th><th>动作状态</th><th>定位终点误差</th><th>途中最大定位/真值差</th></tr></thead><tbody id="route-table"></tbody></table></div>
-      <p class="source-line">直接来源：<code id="nav-source">recovery/nav2-clean-41463f9/…/summary.json</code>（归档内保存的只读历史摘要）</p>
+      <p class="source-line">直接来源：<code id="nav-source">recovery/nav2-clean-41463f9/…/summary.json</code>（已完成运行的只读记录，不是实时状态；hub 对应目录 mian）</p>
     </section>
 
     <section class="section memory" aria-labelledby="memory-title">
