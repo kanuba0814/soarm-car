@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Prior map assisted exploration request",
+  "type": "object",
+  "required": ["prior_manifest", "robot_pose", "observations"],
+  "properties": {
+    "prior_manifest": {"type": "string"},
+    "robot_pose": {"$ref": "#/$defs/xyz"},
+    "config": {"type": "object", "properties": {"max_rays": {"type": "integer", "minimum": 1, "maximum": 2048}, "max_candidates": {"type": "integer", "minimum": 1, "maximum": 128}, "max_attempts": {"type": "integer", "minimum": 1, "maximum": 16}}, "additionalProperties": false},
+    "observations": {"type": "array", "items": {"$ref": "#/$defs/observation"}}
+  },
+  "$defs": {
+    "number": {"type": "number"},
+    "xyz": {"type": "array", "items": {"$ref": "#/$defs/number"}, "minItems": 3, "maxItems": 3},
+    "observation": {"type": "object", "required": ["id", "revision", "map_identity", "frame", "sensor_origin", "robot_pose", "returns"], "properties": {"id": {"type": "string", "minLength": 1}, "revision": {"type": "integer", "minimum": 1}, "map_identity": {"type": "string"}, "frame": {"const": "map"}, "source_stamp": {}, "sensor_origin": {"$ref": "#/$defs/xyz"}, "robot_pose": {"$ref": "#/$defs/xyz"}, "returns": {"type": "array", "items": {"type": "object", "required": ["kind"], "properties": {"kind": {"enum": ["obstacle", "floor", "hit", "no_return"]}, "xyz": {"$ref": "#/$defs/xyz"}}}}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}

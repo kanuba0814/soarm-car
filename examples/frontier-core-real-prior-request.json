@@ -1,0 +1,21 @@
+{
+  "prior_manifest": "config/prior_map_assisted_exploration_input_lock.json",
+  "robot_pose": [-7.0, -6.0, 0.0],
+  "config": {"max_rays": 8, "max_candidates": 4, "max_attempts": 2},
+  "observations": [
+    {
+      "id": "real-prior-fixture-001",
+      "revision": 1,
+      "map_identity": "house_floorplan-v1-7d9c0b34",
+      "frame": "map",
+      "source_stamp": "fixture-not-wall-clock",
+      "sensor_origin": [-7.0, -6.0, 0.2],
+      "robot_pose": [-7.0, -6.0, 0.0],
+      "returns": [
+        {"xyz": [-6.5, -6.0, 0.2], "kind": "hit"},
+        {"xyz": [-7.0, -5.5, 1.0], "kind": "floor"},
+        {"kind": "no_return"}
+      ]
+    }
+  ]
+}
