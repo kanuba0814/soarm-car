@@ -1,0 +1,26 @@
+{
+  "error": "planner path crosses occupied or unknown swept footprint",
+  "runtime_diagnostics": {
+    "clock_stamp": 44.135,
+    "source_pose_count": 2635,
+    "source_stamp_range": [
+      0.003,
+      44.119
+    ],
+    "max_source_gap_seconds": 0.019000000000001904,
+    "observed_lidar_frames": [
+      "kuruma/livox_frame/mid360"
+    ],
+    "published_lidar_extrinsic_frames": [
+      "kuruma/livox_frame/mid360",
+      "livox_frame"
+    ],
+    "lifecycle_attempts": {
+      "/planner_server": 1389,
+      "/controller_server": 1170,
+      "/bt_navigator": 1410
+    },
+    "lifecycle_pending": []
+  },
+  "collision_assessment": "UNKNOWN"
+}

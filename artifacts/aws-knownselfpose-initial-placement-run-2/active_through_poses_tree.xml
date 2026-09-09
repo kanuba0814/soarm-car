@@ -1,0 +1,8 @@
+<root main_tree_to_execute="KnownSelfPoseNavigateThroughPoses">
+  <BehaviorTree ID="KnownSelfPoseNavigateThroughPoses">
+    <PipelineSequence name="KnownSelfPoseBoundedNavigateThroughPoses">
+      <ComputePathThroughPoses goals="{goals}" path="{path}" planner_id="GridBased"/>
+      <FollowPath path="{path}" controller_id="FollowPath"/>
+    </PipelineSequence>
+  </BehaviorTree>
+</root>

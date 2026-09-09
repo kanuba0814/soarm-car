@@ -1,0 +1,68 @@
+{
+  "error": "planner path crosses occupied or unknown swept footprint",
+  "runtime_diagnostics": {
+    "clock_stamp": 44.412,
+    "source_pose_count": 2652,
+    "source_stamp_range": [
+      0.001,
+      44.391
+    ],
+    "max_source_gap_seconds": 0.018000000000000682,
+    "observed_lidar_frames": [
+      "kuruma/livox_frame/mid360"
+    ],
+    "published_lidar_extrinsic_frames": [
+      "kuruma/livox_frame/mid360",
+      "livox_frame"
+    ],
+    "lifecycle_attempts": {
+      "/planner_server": 627,
+      "/controller_server": 415,
+      "/bt_navigator": 665
+    },
+    "lifecycle_pending": [],
+    "initial_placement": {
+      "requested_map": [
+        0.525,
+        0.07500000000000001
+      ],
+      "requested_source_world_model": [
+        0.525,
+        0.07500000000000001,
+        0.07999019999999998,
+        -6.711626361158681e-33
+      ],
+      "request": "name: \"kuruma\" position { x: 0.525 y: 0.07500000000000001 z: 0.07999019999999998 } orientation { x: 0 y: 0 z: -3.3558131805793404e-33 w: 1.0 }",
+      "response_stdout": "data: true\n\n",
+      "response_stderr": "",
+      "returncode": 0,
+      "observed_map": [
+        0.525,
+        0.07500000000000001,
+        3.588092532817907e-21
+      ],
+      "observed_source_stamp_ns": 42484000000,
+      "stationary_body_twist": [
+        0.0,
+        0.0,
+        1.8832407641415628e-19
+      ]
+    },
+    "events": [
+      {
+        "event": "navigation_episode_start",
+        "requested_map": [
+          0.525,
+          0.07500000000000001
+        ],
+        "observed_map": [
+          0.5250000000000228,
+          0.07500000000000061,
+          -1.998748005741884e-18
+        ],
+        "footprint_m": 0.7
+      }
+    ]
+  },
+  "collision_assessment": "UNKNOWN"
+}

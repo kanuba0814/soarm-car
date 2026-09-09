@@ -1,0 +1,1 @@
+{"error": "Nav2 lifecycle activation deadline exceeded; active=[] pending=['/controller_server', '/planner_server']", "collision_assessment": "UNKNOWN"}

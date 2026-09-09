@@ -1,0 +1,15 @@
+{
+  "observed_frames": [
+    "kuruma/livox_frame/mid360"
+  ],
+  "native_link_frame": "livox_frame",
+  "native_extrinsic_m": [
+    0.0,
+    0.0,
+    0.17
+  ],
+  "published_extrinsic_frames": [
+    "kuruma/livox_frame/mid360",
+    "livox_frame"
+  ]
+}

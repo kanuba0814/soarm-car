@@ -1,0 +1,57 @@
+{
+  "error": "no verified start under declared 0.70 m footprint model: requested=(0.5, 0.0) observed=(0.4999999999999553, 2.0749199593566804e-18, -2.9083002642431938e-18) cell=(169, 160)",
+  "runtime_diagnostics": {
+    "clock_stamp": 44.504,
+    "source_pose_count": 2661,
+    "source_stamp_range": [
+      0.003,
+      44.49
+    ],
+    "max_source_gap_seconds": 0.019000000000000128,
+    "observed_lidar_frames": [
+      "kuruma/livox_frame/mid360"
+    ],
+    "published_lidar_extrinsic_frames": [
+      "kuruma/livox_frame/mid360",
+      "livox_frame"
+    ],
+    "lifecycle_attempts": {
+      "/planner_server": 1479,
+      "/controller_server": 1266,
+      "/bt_navigator": 1516
+    },
+    "lifecycle_pending": [
+      "/controller_server",
+      "/planner_server"
+    ],
+    "initial_placement": {
+      "requested_map": [
+        0.5,
+        0.0
+      ],
+      "requested_source_world_model": [
+        0.5,
+        -2.3195837915147817e-32,
+        0.07994119999999996,
+        -4.026975849702924e-32
+      ],
+      "request": "name: \"kuruma\" position { x: 0.5 y: -2.3195837915147817e-32 z: 0.07994119999999996 } orientation { x: 0 y: 0 z: -2.013487924851462e-32 w: 1.0 }",
+      "response_stdout": "data: true\n\n",
+      "response_stderr": "",
+      "returncode": 0,
+      "observed_map": [
+        0.5,
+        -5.441440105227986e-20,
+        1.5078479926704193e-20
+      ],
+      "observed_source_stamp_ns": 42466000000,
+      "stationary_body_twist": [
+        -2.2789066136233924e-38,
+        -1.5113636286330854e-18,
+        4.4846021374708235e-19
+      ]
+    },
+    "events": []
+  },
+  "collision_assessment": "UNKNOWN"
+}
