@@ -1,0 +1,88 @@
+    PID    PPID STAT %CPU COMMAND         WCHAN                            COMMAND
+      1       0 Ssl   1.9 ros2            ep_poll                          /usr/bin/python3 /opt/ros/humble/bin/ros2 launch soarm_navigation house_fastlio_nav2.launch.py rviz:=false use_native_livox_converter:=true throttle_odom_path:=true
+   3680       1 S     0.0 sh              do_wait                          /bin/sh -c ruby /usr/bin/ign gazebo -r -s /tmp/soarm_ros2/install/soarm_simulation/share/soarm_simulation/worlds/house_floorplan_ros2_control.sdf --force-version 6
+   3682       1 Sl    9.4 robot_state_pub futex_do_wait                    /opt/ros/humble/lib/robot_state_publisher/robot_state_publisher --ros-args -r __node:=robot_state_publisher --params-file /tmp/launch_params_xjk_5l8d
+   3683    3680 Rl    140 ruby            -                                ign gazebo -r -s /tmp/soarm_ros2/install/soarm_simulation/share/soarm_simulation/worlds/house_floorplan_ros2_control.sdf
+   3685       1 Sl   37.9 parameter_bridg futex_do_wait                    /opt/ros/humble/lib/ros_gz_bridge/parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock /ground_truth/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry /gazebo/imu@sensor_msgs/msg/Imu[gz.msgs.IMU /gazebo/livox_imu@sensor_msgs/msg/Imu[gz.msgs.IMU /camera/image@sensor_msgs/msg/Image[gz.msgs.Image /camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo /camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image /mid360/scan/points/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked --ros-args
+   3687       1 Sl   12.9 sim_adapter     futex_do_wait                    /usr/bin/python3 /tmp/soarm_ros2/install/soarm_simulation/lib/soarm_simulation/sim_adapter --ros-args --params-file /tmp/launch_params_xbe90cs2 --params-file /tmp/launch_params_6tee29wm --params-file /tmp/launch_params_hyggnn7j --params-file /tmp/launch_params_ciecnrvy
+   3689       1 Sl    7.2 native_livox_co futex_do_wait                    /tmp/soarm_ros2/install/soarm_native_livox_converter/lib/soarm_native_livox_converter/native_livox_converter --ros-args
+   3691       1 Sl    8.7 odom_path       futex_do_wait                    /usr/bin/python3 /tmp/soarm_ros2/install/soarm_simulation/lib/soarm_simulation/odom_path --ros-args --params-file /tmp/launch_params_03hyy7p2
+   3695       1 Sl   13.1 map_server      futex_do_wait                    /opt/ros/humble/lib/nav2_map_server/map_server --ros-args -r __node:=map_server --params-file /tmp/launch_params_29pdcpb5
+   3697       1 Sl   12.9 lifecycle_manag futex_do_wait                    /opt/ros/humble/lib/nav2_lifecycle_manager/lifecycle_manager --ros-args -r __node:=lifecycle_manager_map --params-file /tmp/launch_params_ft4un6y5
+   3699       1 Sl   80.7 fastlio_mapping futex_do_wait                    /tmp/soarm_ros2/install/fast_lio_localization/lib/fast_lio_localization/fastlio_mapping --ros-args -r __node:=fast_lio_mapping --params-file /tmp/soarm_ros2/install/fast_lio_localization/share/fast_lio_localization/config/soarm_house_localization.yaml --params-file /tmp/launch_params_2fdyni45
+   3701       1 Rl   65.5 python3         -                                python3 /tmp/soarm_ros2/install/fast_lio_localization/lib/fast_lio_localization/global_localization.py --ros-args -r __node:=global_localization --params-file /tmp/soarm_ros2/install/fast_lio_localization/share/fast_lio_localization/config/soarm_house_localization.yaml --params-file /tmp/launch_params_3iudqo_d
+   3703       1 Rl   53.6 python3         -                                python3 /tmp/soarm_ros2/install/fast_lio_localization/lib/fast_lio_localization/transform_fusion.py --ros-args -r __node:=transform_fusion --params-file /tmp/soarm_ros2/install/fast_lio_localization/share/fast_lio_localization/config/soarm_house_localization.yaml --params-file /tmp/launch_params_59w9gz68
+   3705       1 Rl   37.1 python3         -                                python3 /tmp/soarm_ros2/install/fast_lio_localization/lib/fast_lio_localization/global_map_publisher.py --ros-args -r __node:=global_map_publisher --params-file /tmp/soarm_ros2/install/fast_lio_localization/share/fast_lio_localization/config/soarm_house_localization.yaml --params-file /tmp/launch_params_4jlk69f8
+   3707       1 Sl   10.0 localization_cm futex_do_wait                    /usr/bin/python3 /tmp/soarm_ros2/install/soarm_navigation/lib/soarm_navigation/localization_cmd_gate --ros-args -r __node:=localization_cmd_gate --params-file /tmp/launch_params_2hmow9lc
+   3709       1 Sl    100 controller_serv futex_do_wait                    /opt/ros/humble/lib/nav2_controller/controller_server --ros-args --log-level info --ros-args --params-file /tmp/launch_params_4lv2khr6 -r /tf:=tf -r /tf_static:=tf_static -r cmd_vel:=cmd_vel_nav
+   3711       1 Sl    9.0 smoother_server futex_do_wait                    /opt/ros/humble/lib/nav2_smoother/smoother_server --ros-args --log-level info --ros-args -r __node:=smoother_server --params-file /tmp/launch_params_4lv2khr6 -r /tf:=tf -r /tf_static:=tf_static
+   3717       1 Sl   16.7 planner_server  futex_do_wait                    /opt/ros/humble/lib/nav2_planner/planner_server --ros-args --log-level info --ros-args -r __node:=planner_server --params-file /tmp/launch_params_4lv2khr6 -r /tf:=tf -r /tf_static:=tf_static
+   3737       1 Sl   14.2 behavior_server futex_do_wait                    /opt/ros/humble/lib/nav2_behaviors/behavior_server --ros-args --log-level info --ros-args -r __node:=behavior_server --params-file /tmp/launch_params_4lv2khr6 -r /tf:=tf -r /tf_static:=tf_static
+   3749       1 Sl   16.1 bt_navigator    futex_do_wait                    /opt/ros/humble/lib/nav2_bt_navigator/bt_navigator --ros-args --log-level info --ros-args -r __node:=bt_navigator --params-file /tmp/launch_params_4lv2khr6 -r /tf:=tf -r /tf_static:=tf_static
+   3760       1 Sl    5.0 waypoint_follow futex_do_wait                    /opt/ros/humble/lib/nav2_waypoint_follower/waypoint_follower --ros-args --log-level info --ros-args -r __node:=waypoint_follower --params-file /tmp/launch_params_4lv2khr6 -r /tf:=tf -r /tf_static:=tf_static
+   3763       1 Sl   10.7 velocity_smooth futex_do_wait                    /opt/ros/humble/lib/nav2_velocity_smoother/velocity_smoother --ros-args --log-level info --ros-args -r __node:=velocity_smoother --params-file /tmp/launch_params_4lv2khr6 -r /tf:=tf -r /tf_static:=tf_static -r cmd_vel:=cmd_vel_nav -r cmd_vel_smoothed:=cmd_vel
+   3770       1 Sl   17.6 lifecycle_manag futex_do_wait                    /opt/ros/humble/lib/nav2_lifecycle_manager/lifecycle_manager --ros-args --log-level info --ros-args -r __node:=lifecycle_manager_navigation --params-file /tmp/launch_params_btyrxodj --params-file /tmp/launch_params_jrfm3pie --params-file /tmp/launch_params_5o0azicb
+   4219       0 Ss    0.0 bash            do_wait                          bash -lc ps -eo pid,ppid,stat,pcpu,comm,wchan:32,args; ign topic -l; ign service -l
+   4227    4219 R     0.0 ps              -                                ps -eo pid,ppid,stat,pcpu,comm,wchan:32,args
+/camera/camera_info
+/camera/depth_image
+/camera/image
+/camera/points
+/clock
+/gazebo/imu
+/gazebo/livox_imu
+/gazebo/resource_paths
+/ground_truth/odom
+/mid360/scan/points
+/mid360/scan/points/points
+/model/kuruma/odometry_with_covariance
+/model/kuruma/pose
+/sensors/marker
+/stats
+/world/house_floorplan_ros2_control/clock
+/world/house_floorplan_ros2_control/dynamic_pose/info
+/world/house_floorplan_ros2_control/pose/info
+/world/house_floorplan_ros2_control/scene/deletion
+/world/house_floorplan_ros2_control/scene/info
+/world/house_floorplan_ros2_control/state
+/world/house_floorplan_ros2_control/stats
+/camera/set_rate
+/gazebo/imu/set_rate
+/gazebo/livox_imu/set_rate
+/gazebo/resource_paths/add
+/gazebo/resource_paths/get
+/gazebo/resource_paths/resolve
+/gazebo/worlds
+/mid360/scan/points/set_rate
+/sensors/marker
+/sensors/marker/list
+/sensors/marker_array
+/server_control
+/world/house_floorplan_ros2_control/control
+/world/house_floorplan_ros2_control/control/state
+/world/house_floorplan_ros2_control/create
+/world/house_floorplan_ros2_control/create_multiple
+/world/house_floorplan_ros2_control/declare_parameter
+/world/house_floorplan_ros2_control/disable_collision
+/world/house_floorplan_ros2_control/enable_collision
+/world/house_floorplan_ros2_control/entity/system/add
+/world/house_floorplan_ros2_control/generate_world_sdf
+/world/house_floorplan_ros2_control/get_parameter
+/world/house_floorplan_ros2_control/gui/info
+/world/house_floorplan_ros2_control/level/set_performer
+/world/house_floorplan_ros2_control/light_config
+/world/house_floorplan_ros2_control/list_parameters
+/world/house_floorplan_ros2_control/playback/control
+/world/house_floorplan_ros2_control/remove
+/world/house_floorplan_ros2_control/scene/graph
+/world/house_floorplan_ros2_control/scene/info
+/world/house_floorplan_ros2_control/set_parameter
+/world/house_floorplan_ros2_control/set_physics
+/world/house_floorplan_ros2_control/set_pose
+/world/house_floorplan_ros2_control/set_pose_vector
+/world/house_floorplan_ros2_control/set_spherical_coordinates
+/world/house_floorplan_ros2_control/state
+/world/house_floorplan_ros2_control/state_async
+/world/house_floorplan_ros2_control/system/info
+/world/house_floorplan_ros2_control/visual_config
+/world/house_floorplan_ros2_control/wheel_slip

@@ -1,0 +1,26 @@
+{
+  "step_001": {
+  "status_name": "CANCELED",
+  "elapsed_sim_s": 0.021000000000000796,
+  "elapsed_wall_s": 0.07336962099907396,
+  "truth_xy_progress_m": 0.0,
+  "truth_goal_error_m": 5.537264692101362,
+  "localization_goal_error_m": 5.487666513993257,
+  "localization_truth_error_max_m": null,
+  "health_states": []
+}
+,
+  "step_002": {
+  "status_name": "CANCELED",
+  "elapsed_sim_s": 0.027999999999998693,
+  "elapsed_wall_s": 0.42239633099961793,
+  "truth_xy_progress_m": 0.00028044752703494576,
+  "truth_goal_error_m": 5.537048064514816,
+  "localization_goal_error_m": 5.495528675317854,
+  "localization_truth_error_max_m": null,
+  "health_states": [
+    2
+  ]
+}
+
+}

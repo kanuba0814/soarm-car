@@ -1,0 +1,39 @@
+--- nav2-clean-route-consumer.py (recovered original)
++++ nav2-clean-route-consumer.py (step-002 runtime overlay)
+@@
+ from rosgraph_msgs.msg import Clock
+ from soarm_interfaces.msg import LocalizationHealth
++from std_srvs.srv import Trigger
+@@
+     client = ActionClient(node, NavigateToPose, '/navigate_to_pose')
++    arm_client = node.create_client(Trigger, '/localization_cmd_gate/arm')
+@@
+         if (not state['localization'] or not state['health'] or
+                 state['health'][-1]['state'] != LocalizationHealth.HEALTHY):
+             raise RuntimeError('initial localization did not become healthy')
++
++        # Require a bounded continuous healthy interval before the one explicit gate arm.
++        stability_deadline = time.monotonic() + 60
++        healthy_since = time.monotonic()
++        while time.monotonic() < stability_deadline:
++            rclpy.spin_once(node, timeout_sec=0.1)
++            if state['health'] and state['health'][-1]['state'] == LocalizationHealth.HEALTHY:
++                if time.monotonic() - healthy_since >= 2.0:
++                    break
++            else:
++                healthy_since = time.monotonic()
++        else:
++            raise RuntimeError('localization was not continuously healthy for 2 wall seconds')
++        if not arm_client.wait_for_service(timeout_sec=15):
++            raise RuntimeError('localization command-gate arm service unavailable')
++        arm_future = arm_client.call_async(Trigger.Request())
++        rclpy.spin_until_future_complete(node, arm_future, timeout_sec=15)
++        arm_response = arm_future.result()
++        if arm_response is None or not arm_response.success:
++            message = None if arm_response is None else arm_response.message
++            raise RuntimeError(f'localization command-gate arm rejected: {message}')
+@@
+             'initial_clock_s': state['clock'],
++            'continuous_healthy_wall_s': time.monotonic() - healthy_since,
++            'localization_cmd_gate_arm_response': arm_response.message,
+         }

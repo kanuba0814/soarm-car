@@ -1,0 +1,266 @@
+{
+  "classification": "room-1 failed; route stopped at first failed prerequisite",
+  "complete": true,
+  "error": null,
+  "limits": {
+    "sim_seconds_per_goal": 120.0,
+    "wall_seconds_per_goal": 180.0
+  },
+  "passed": false,
+  "raw_health_samples": [
+    {
+      "fitness": null,
+      "rejections": 0,
+      "rmse": null,
+      "sim_time": 47.088,
+      "state": 0
+    },
+    {
+      "fitness": 0.8342105150222778,
+      "rejections": 0,
+      "rmse": 0.10109449177980423,
+      "sim_time": 47.192,
+      "state": 1
+    },
+    {
+      "fitness": 0.8342105150222778,
+      "rejections": 0,
+      "rmse": 0.10109449177980423,
+      "sim_time": 47.2,
+      "state": 2
+    },
+    {
+      "fitness": 0.8342105150222778,
+      "rejections": 0,
+      "rmse": 0.10109449177980423,
+      "sim_time": 47.3,
+      "state": 1
+    },
+    {
+      "fitness": 0.8342105150222778,
+      "rejections": 0,
+      "rmse": 0.10109449177980423,
+      "sim_time": 47.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.8342105150222778,
+      "rejections": 0,
+      "rmse": 0.10109463334083557,
+      "sim_time": 48.246,
+      "state": 2
+    },
+    {
+      "fitness": 0.8342105150222778,
+      "rejections": 0,
+      "rmse": 0.10109463334083557,
+      "sim_time": 48.382,
+      "state": 1
+    },
+    {
+      "fitness": 0.8342105150222778,
+      "rejections": 0,
+      "rmse": 0.10109463334083557,
+      "sim_time": 48.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8342105150222778,
+      "rejections": 0,
+      "rmse": 0.10131771117448807,
+      "sim_time": 49.192,
+      "state": 2
+    },
+    {
+      "fitness": 0.8342105150222778,
+      "rejections": 0,
+      "rmse": 0.10131771117448807,
+      "sim_time": 49.258,
+      "state": 1
+    },
+    {
+      "fitness": 0.8342105150222778,
+      "rejections": 0,
+      "rmse": 0.10131771117448807,
+      "sim_time": 49.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.8342105150222778,
+      "rejections": 0,
+      "rmse": 0.10109657794237137,
+      "sim_time": 50.344,
+      "state": 1
+    },
+    {
+      "fitness": 0.8342105150222778,
+      "rejections": 0,
+      "rmse": 0.10109657794237137,
+      "sim_time": 50.4,
+      "state": 2
+    }
+  ],
+  "raw_status_samples": [
+    {
+      "sim_time": 50.4,
+      "statuses": [
+        2
+      ]
+    },
+    {
+      "sim_time": 50.4,
+      "statuses": [
+        3
+      ]
+    }
+  ],
+  "route": [
+    {
+      "actual_plan": {
+        "length_m": 5.850283769508951,
+        "point_count": 109,
+        "sampled_xy": [
+          [
+            0.02500011958181858,
+            0.025000108405947685
+          ],
+          [
+            -0.22499445810531418,
+            0.275000112131238
+          ],
+          [
+            -0.4748808605365168,
+            0.5250001158565283
+          ],
+          [
+            -0.7229540902349042,
+            0.7750001195818186
+          ],
+          [
+            -0.9514867058228765,
+            1.0250001233071089
+          ],
+          [
+            -1.089334607359024,
+            1.2750001270323992
+          ],
+          [
+            -1.1215320640015365,
+            1.5250001307576895
+          ],
+          [
+            -1.1247847662300627,
+            1.7750001344829798
+          ],
+          [
+            -1.1249896745486108,
+            2.02500013820827
+          ],
+          [
+            -1.1249994885266996,
+            2.2750001419335604
+          ],
+          [
+            -1.124999883028027,
+            2.5250001456588507
+          ],
+          [
+            -1.1249998970816844,
+            2.775000149384141
+          ],
+          [
+            -1.1249998975401736,
+            3.0250001531094313
+          ],
+          [
+            -1.124999897556189,
+            3.2750001568347216
+          ],
+          [
+            -1.124999897624846,
+            3.525000160560012
+          ],
+          [
+            -1.124999899770557,
+            3.775000164285302
+          ],
+          [
+            -1.1249999618962931,
+            4.0250001680105925
+          ],
+          [
+            -1.1250015744576938,
+            4.275000171735883
+          ],
+          [
+            -1.1250374193391963,
+            4.525000175461173
+          ],
+          [
+            -1.1256663893219516,
+            4.775000179186463
+          ],
+          [
+            -1.1330930046990717,
+            5.025000182911754
+          ],
+          [
+            -1.1757210251941606,
+            5.275000186637044
+          ]
+        ]
+      },
+      "actual_yaw_travel_rad": 0.0002149901185357419,
+      "cancelled_at_bound": false,
+      "commanded_angular_integral_rad": 0.0,
+      "elapsed_sim_s": 0.027999999999998693,
+      "elapsed_wall_s": 0.42239633099961793,
+      "fitness_min": 0.8342105150222778,
+      "goal": [
+        -1.2240907573593973,
+        5.400267829207922,
+        0.0
+      ],
+      "health_states": [
+        2
+      ],
+      "localization_goal_error_m": 5.495528675317854,
+      "localization_truth_error_max_m": null,
+      "max_rejections": 0,
+      "requested_poses": [
+        [
+          -1.2240907573593973,
+          5.400267829207922,
+          0.0
+        ]
+      ],
+      "rmse_max": 0.10109657794237137,
+      "room_id": "room-1",
+      "status": 5,
+      "status_name": "CANCELED",
+      "truth_end": [
+        -0.00021906940547186424,
+        0.00017159301248971355,
+        0.00021479530813555648
+      ],
+      "truth_goal_error_m": 5.537048064514816,
+      "truth_goal_yaw_error_rad": 0.00021479530813555648,
+      "truth_start": [
+        1.456453617491676e-09,
+        -3.5034548511302087e-06,
+        -1.9481040018541406e-07
+      ],
+      "truth_xy_progress_m": 0.00028044752703494576
+    }
+  ],
+  "selected_route": "room-1",
+  "telemetry": {
+    "clock_positive": true,
+    "continuous_healthy_wall_s": 2.039838551001594,
+    "fastlio_stamp_positive": true,
+    "initial_clock_s": 50.4,
+    "localization_cmd_gate_arm_response": "Gate armed; waiting for a fresh navigation command.",
+    "odom_stamps_positive": true,
+    "stamps_monotonic_at_initialization": true
+  }
+}
