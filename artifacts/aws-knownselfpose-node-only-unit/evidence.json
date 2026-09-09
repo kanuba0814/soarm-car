@@ -1,0 +1,5 @@
+{
+  "scope": "CPU_ONLY_NODE_DIAGNOSTIC_NO_GAZEBO_NO_RENDERER",
+  "command": "bash scripts/test-aws-knownselfpose-node-only.sh",
+  "sha256": "b964adf120ba58e3fa46fa73e51c2ff56b0a435f464b609342fe94bea53287ec"
+}

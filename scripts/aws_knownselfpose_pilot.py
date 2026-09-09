@@ -17,14 +17,20 @@ from geometry_msgs.msg import PoseStamped, TransformStamped, Twist
 from nav2_msgs.action import ComputePathToPose, NavigateToPose
 from nav_msgs.msg import Odometry, Path as NavPath
 from rclpy.action import ActionClient
+from rclpy.parameter import Parameter
+from lifecycle_msgs.msg import State
+from lifecycle_msgs.srv import GetState
 from sensor_msgs.msg import Image, PointCloud2
 from tf2_msgs.msg import TFMessage
-from tf2_ros import TransformBroadcaster
+from tf2_ros import StaticTransformBroadcaster, TransformBroadcaster
 
 RESOLUTION = 0.05
 SIZE = 320
 HALF_CELL_FOOTPRINT = 7  # 0.35 m half-side / 0.05 m: 0.70 m padded square
 MAX_GOAL_DISTANCE = 3.0
+SOURCE_FRESHNESS_SECONDS = 0.5
+NATIVE_LIDAR_FRAME = 'livox_frame'
+NATIVE_LIDAR_Z_M = 0.170
 
 
 def yaw(q):
@@ -40,8 +46,11 @@ class Pilot:
         self.output = Path(output)
         self.output.mkdir(parents=True, exist_ok=True)
         rclpy.init()
-        self.node = rclpy.create_node('aws_knownselfpose_pilot')
+        self.node = rclpy.create_node(
+            'aws_knownselfpose_pilot',
+            parameter_overrides=[Parameter('use_sim_time', value=True)])
         self.tf_pub = TransformBroadcaster(self.node)
+        self.static_tf_pub = StaticTransformBroadcaster(self.node)
         self.command_pub = self.node.create_publisher(Twist, '/cmd_vel', 10)
         self.odom_pub = self.node.create_publisher(Odometry, '/known_self_pose/odom', 10)
         self.node.create_subscription(TFMessage, '/world/default/dynamic_pose/info', self.on_source_pose, 30)
@@ -51,6 +60,15 @@ class Pilot:
         self.node.create_subscription(Twist, '/cmd_vel', self.on_command, 30)
         self.pose = None
         self.origin = None
+        self.previous_pose = None
+        self.body_twist = (0.0, 0.0, 0.0)
+        self.lidar_frames = set()
+        self.lifecycle_clients = {
+            name: self.node.create_client(GetState, f'{name}/get_state')
+            for name in ('/planner_server', '/controller_server', '/bt_navigator')
+        }
+        self.lifecycle_futures = {}
+        self.lifecycle_attempts = {name: 0 for name in self.lifecycle_clients}
         self.clouds = []
         self.images = {}
         self.trajectory = []
@@ -58,7 +76,21 @@ class Pilot:
         self.map = [[205 for _ in range(SIZE)] for _ in range(SIZE)]
         self.pose_samples = []
         self.last_pose_wall = 0.0
+        self.publish_native_lidar_extrinsic()
         self.node.create_timer(0.05, self.publish_pose)
+
+    def publish_native_lidar_extrinsic(self):
+        transform = TransformStamped()
+        transform.header.stamp = self.node.get_clock().now().to_msg()
+        transform.header.frame_id = 'base_link'
+        transform.child_frame_id = NATIVE_LIDAR_FRAME
+        transform.transform.translation.z = NATIVE_LIDAR_Z_M
+        transform.transform.rotation.w = 1.0
+        self.static_tf_pub.sendTransform(transform)
+
+    @staticmethod
+    def wrap_angle(angle):
+        return math.atan2(math.sin(angle), math.cos(angle))
 
     def on_source_pose(self, message):
         for transform in message.transforms:
@@ -67,7 +99,18 @@ class Pilot:
             tr = transform.transform.translation
             orientation = transform.transform.rotation
             observed = (tr.x, tr.y, yaw(orientation), stamp_seconds(transform.header.stamp))
+            if self.pose is not None and observed[3] <= self.pose[3]:
+                return
+            if self.previous_pose is not None:
+                previous_x, previous_y, previous_yaw, previous_stamp = self.previous_pose
+                dt = observed[3] - previous_stamp
+                if dt > 0.0:
+                    dx, dy = observed[0] - previous_x, observed[1] - previous_y
+                    c, s = math.cos(observed[2]), math.sin(observed[2])
+                    self.body_twist = ((c * dx + s * dy) / dt, (-s * dx + c * dy) / dt,
+                                       self.wrap_angle(observed[2] - previous_yaw) / dt)
             self.pose = observed
+            self.previous_pose = observed
             self.last_pose_wall = time.monotonic()
             if self.origin is None:
                 self.origin = observed[:3]
@@ -78,13 +121,18 @@ class Pilot:
     def publish_pose(self):
         if self.pose is None or self.origin is None:
             return
-        x, y, heading, _ = self.pose
+        x, y, heading, source_stamp = self.pose
+        now = stamp_seconds(self.node.get_clock().now().to_msg())
+        if now < source_stamp or now - source_stamp > SOURCE_FRESHNESS_SECONDS:
+            return
         ox, oy, oh = self.origin
         dx, dy = x - ox, y - oy
         c, s = math.cos(-oh), math.sin(-oh)
         mx, my = c * dx - s * dy, s * dx + c * dy
         transform = TransformStamped()
-        transform.header.stamp = self.node.get_clock().now().to_msg()
+        # Preserve the source observation timestamp; never make stale SELF-pose fresh by restamping.
+        transform.header.stamp.sec = int(source_stamp)
+        transform.header.stamp.nanosec = int((source_stamp % 1.0) * 1_000_000_000)
         transform.header.frame_id = 'map'
         transform.child_frame_id = 'base_link'
         transform.transform.translation.x = mx
@@ -97,14 +145,18 @@ class Pilot:
         odom.child_frame_id = 'base_link'
         odom.pose.pose.position.x, odom.pose.pose.position.y = mx, my
         odom.pose.pose.orientation = transform.transform.rotation
-        # Twist is deliberately source-pose-derived by finite differences below.
+        odom.twist.twist.linear.x, odom.twist.twist.linear.y, odom.twist.twist.angular.z = self.body_twist
         self.odom_pub.publish(odom)
         self.trajectory.append({'wall': time.monotonic(), 'map': [mx, my, heading - oh]})
 
     def on_cloud(self, message):
         if self.pose is None or self.origin is None or len(self.clouds) >= 120:
             return
+        self.lidar_frames.add(message.header.frame_id)
         fields = {field.name: field for field in message.fields}
+        if message.header.frame_id != NATIVE_LIDAR_FRAME:
+            self.node.get_logger().error('raw LiDAR frame %r does not match native extrinsic %r', message.header.frame_id, NATIVE_LIDAR_FRAME)
+            return
         if not {'x', 'y', 'z'} <= fields.keys() or message.is_bigendian:
             return
         points = []
@@ -230,21 +282,43 @@ class Pilot:
         return {'path': path.name, 'stamp': stamp_seconds(image.header.stamp), 'encoding': image.encoding,
                 'width': image.width, 'height': image.height, 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
 
-    def wait_nav(self):
-        end = time.monotonic() + 70
-        required = ('/planner_server', '/controller_server', '/bt_navigator')
-        while time.monotonic() < end:
-            states = [subprocess.run(['ros2', 'lifecycle', 'get', name], capture_output=True, text=True).stdout
-                      for name in required]
-            if all('active' in state.lower() for state in states):
+    def wait_nav(self, timeout_seconds=70.0):
+        deadline = time.monotonic() + timeout_seconds
+        active = set()
+        while time.monotonic() < deadline:
+            for name, client in self.lifecycle_clients.items():
+                future = self.lifecycle_futures.get(name)
+                if future is None:
+                    if client.service_is_ready():
+                        self.lifecycle_futures[name] = client.call_async(GetState.Request())
+                        self.lifecycle_attempts[name] += 1
+                    continue
+                if future.done():
+                    response = future.result()
+                    self.lifecycle_futures.pop(name, None)
+                    if response.current_state.id == State.PRIMARY_STATE_ACTIVE:
+                        active.add(name)
+                    else:
+                        active.discard(name)
+            if len(active) == len(self.lifecycle_clients):
                 return
-            self.spin(.5)
-        raise RuntimeError('Nav2 lifecycle nodes did not become active')
+            # This is the sole executor owner: servicing callbacks keeps source TF alive.
+            rclpy.spin_once(self.node, timeout_sec=0.1)
+        pending = sorted(name for name, future in self.lifecycle_futures.items() if not future.done())
+        raise RuntimeError(f'Nav2 lifecycle activation deadline exceeded; active={sorted(active)} pending={pending}')
+
+    def wait_for_action_servers(self, clients, timeout_seconds=30.0):
+        deadline = time.monotonic() + timeout_seconds
+        while time.monotonic() < deadline:
+            if all(client.server_is_ready() for client in clients):
+                return
+            rclpy.spin_once(self.node, timeout_sec=0.1)
+        raise RuntimeError('Nav2 action servers unavailable before bounded deadline')
 
     def action(self, goal_xy, index):
         compute = ActionClient(self.node, ComputePathToPose, '/compute_path_to_pose')
         navigate = ActionClient(self.node, NavigateToPose, '/navigate_to_pose')
-        assert compute.wait_for_server(timeout_sec=30) and navigate.wait_for_server(timeout_sec=30)
+        self.wait_for_action_servers((compute, navigate))
         goal = PoseStamped(); goal.header.frame_id = 'map'; goal.header.stamp = self.node.get_clock().now().to_msg()
         goal.pose.position.x, goal.pose.position.y = goal_xy
         goal.pose.orientation.z = math.sin(math.pi / 4); goal.pose.orientation.w = math.cos(math.pi / 4)
@@ -298,7 +372,7 @@ def main():
         finally:
             nav.terminate(); nav.wait(timeout=15)
         length, fresh = pilot.finish()
-        report = {'label': 'knownselfpose physicalsim research-only', 'map_frame': {'definition': 'initial source-stamped simulator self pose', 'initial_world_pose': pilot.origin, 'tf_owner': 'aws_knownselfpose_pilot'}, 'map_provenance': {'source': 'PointCloud2 LiDAR raycasts', 'cloud_count': len(pilot.clouds), 'unknown_value': 205, 'height_limit_m': [0.10, 1.50]}, 'source_frames': sorted(set(c['frame'] for c in pilot.clouds)), 'source_poses': pilot.pose_samples, 'routes': results, 'trajectory': pilot.trajectory, 'trajectory_path_length_m': length, 'commands': pilot.commands, 'fresh_images': fresh, 'negative_checks': {'unknown_goal_rejected': True, 'occupied_goal_rejected': True, 'corner_obstacle_rejected': True}, 'collision_assessment': {'status': 'UNKNOWN', 'reason': 'no runtime contact stream/instrumentation was supplied; absence is not treated as zero collision'}}
+        report = {'label': 'knownselfpose physicalsim research-only', 'map_frame': {'definition': 'initial source-stamped simulator self pose', 'initial_world_pose': pilot.origin, 'tf_owner': 'aws_knownselfpose_pilot'}, 'map_provenance': {'source': 'PointCloud2 LiDAR raycasts', 'cloud_count': len(pilot.clouds), 'unknown_value': 205, 'height_limit_m': [0.10, 1.50]}, 'source_frames': sorted(set(c['frame'] for c in pilot.clouds)), 'observed_lidar_frames': sorted(pilot.lidar_frames), 'lidar_extrinsic': {'parent': 'base_link', 'child': NATIVE_LIDAR_FRAME, 'translation_m': [0.0, 0.0, NATIVE_LIDAR_Z_M], 'source': 'native kuruma model.sdf'},  'source_poses': pilot.pose_samples, 'routes': results, 'trajectory': pilot.trajectory, 'trajectory_path_length_m': length, 'commands': pilot.commands, 'fresh_images': fresh, 'negative_checks': {'unknown_goal_rejected': True, 'occupied_goal_rejected': True, 'corner_obstacle_rejected': True}, 'collision_assessment': {'status': 'UNKNOWN', 'reason': 'no runtime contact stream/instrumentation was supplied; absence is not treated as zero collision'}}
         (output / 'pilot_report.json').write_text(json.dumps(report, indent=2) + '\n')
         with tarfile.open(output / 'knownselfpose_physicalsim_evidence.tar.gz', 'w:gz') as archive:
             for path in output.iterdir():

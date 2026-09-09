@@ -1,0 +1,2 @@
+[INFO] [1788924451.643255192] [aws_knownselfpose_pilot]: known source-pose origin measured from dynamic pose stream
+PASS node diagnostic: pending lifecycle calls preserved TF, inactive rejected, deadline bounded, source-time TF fresh, stale blocked, body twist nonzero
