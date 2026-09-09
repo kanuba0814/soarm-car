@@ -1,0 +1,32 @@
+{
+    "checked_at_utc": "2026-09-09T04:21:43.148311+00:00",
+    "scope": "Publication artifact and offline consumer verification; not navigation or hardware success",
+    "files": {
+        "docs/paper/thesis.md": "44ec1c0b026207ca8b52538db1ccfec027d1807b27aa62609581f950a22fae98",
+        "docs/paper/paper.html": "d487b31d3f172e651685828689ee3ce06ea462313b8ff0aacc8e9759b8d5c5f8",
+        "docs/paper/thesis.pdf": "2fa3a57ad9eab3ba9335cfcb751e98853341ae7a7209c0cace8cc43ced7eb339"
+    },
+    "browser_qa": {
+        "page_load": true,
+        "console_errors": false,
+        "page_errors": false,
+        "failed_network_requests": false,
+        "expected_sections": [
+            "结论",
+            "参考文献"
+        ],
+        "pdf_artifact_verified": true
+    },
+    "unit_tests": {
+        "count": 21,
+        "passed": true
+    },
+    "heldout_archives": {
+        "count": 3,
+        "receipt_hashes_verified_per_archive": 7,
+        "rows_per_archive": 24,
+        "capture_views_per_archive": 8,
+        "generated_override_hashes_match_receipts": true
+    },
+    "pdfinfo": "Title:           面向家庭服务机器人的关系与多视角视觉目标辨识\nCreator:         Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/152.0.0.0 Safari/537.36\nProducer:        Skia/PDF m152\nCreationDate:    Wed Sep  9 13:21:14 2026 JST\nModDate:         Wed Sep  9 13:21:14 2026 JST\nCustom Metadata: no\nMetadata Stream: no\nTagged:          yes\nUserProperties:  no\nSuspects:        no\nForm:            none\nJavaScript:      no\nPages:           5\nEncrypted:       no\nPage size:       612 x 792 pts (letter)\nPage rot:        0\nFile size:       864463 bytes\nOptimized:       no\nPDF version:     1.4\n"
+}
