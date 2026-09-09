@@ -1,0 +1,213 @@
+{
+  "scope": "PRIVATE_EVALUATOR_ONLY",
+  "taxonomy_version": "a1-taxonomy-v1-explicit-tablet-coffee-correction",
+  "taxonomy": {
+    "KitchenTable_01": "dining table",
+    "CoffeeTable_01": "coffee table",
+    "Tablet_01": "tablet"
+  },
+  "rows": [
+    {
+      "variant": "V",
+      "query_id": "Q1",
+      "gt_status": "definite",
+      "accepted_track_id": "t001",
+      "correct": false,
+      "abstain_reason": null
+    },
+    {
+      "variant": "V",
+      "query_id": "Q2",
+      "gt_status": "definite",
+      "accepted_track_id": null,
+      "correct": false,
+      "abstain_reason": "no_public_candidate"
+    },
+    {
+      "variant": "V",
+      "query_id": "Q3",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": "t001",
+      "correct": null,
+      "abstain_reason": null
+    },
+    {
+      "variant": "V",
+      "query_id": "Q4",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": "t001",
+      "correct": null,
+      "abstain_reason": null
+    },
+    {
+      "variant": "V",
+      "query_id": "Q5",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": "t001",
+      "correct": null,
+      "abstain_reason": null
+    },
+    {
+      "variant": "V",
+      "query_id": "Q6",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": "t001",
+      "correct": null,
+      "abstain_reason": null
+    },
+    {
+      "variant": "V+R",
+      "query_id": "Q1",
+      "gt_status": "definite",
+      "accepted_track_id": "t001",
+      "correct": false,
+      "abstain_reason": null
+    },
+    {
+      "variant": "V+R",
+      "query_id": "Q2",
+      "gt_status": "definite",
+      "accepted_track_id": null,
+      "correct": false,
+      "abstain_reason": "no_public_candidate"
+    },
+    {
+      "variant": "V+R",
+      "query_id": "Q3",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": null,
+      "correct": null,
+      "abstain_reason": "relation_unknown"
+    },
+    {
+      "variant": "V+R",
+      "query_id": "Q4",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": null,
+      "correct": null,
+      "abstain_reason": "relation_unknown"
+    },
+    {
+      "variant": "V+R",
+      "query_id": "Q5",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": null,
+      "correct": null,
+      "abstain_reason": "relation_unknown"
+    },
+    {
+      "variant": "V+R",
+      "query_id": "Q6",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": null,
+      "correct": null,
+      "abstain_reason": "relation_unknown"
+    },
+    {
+      "variant": "V+M",
+      "query_id": "Q1",
+      "gt_status": "definite",
+      "accepted_track_id": "t001",
+      "correct": false,
+      "abstain_reason": null
+    },
+    {
+      "variant": "V+M",
+      "query_id": "Q2",
+      "gt_status": "definite",
+      "accepted_track_id": null,
+      "correct": false,
+      "abstain_reason": "no_public_candidate"
+    },
+    {
+      "variant": "V+M",
+      "query_id": "Q3",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": "t001",
+      "correct": null,
+      "abstain_reason": null
+    },
+    {
+      "variant": "V+M",
+      "query_id": "Q4",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": "t001",
+      "correct": null,
+      "abstain_reason": null
+    },
+    {
+      "variant": "V+M",
+      "query_id": "Q5",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": "t001",
+      "correct": null,
+      "abstain_reason": null
+    },
+    {
+      "variant": "V+M",
+      "query_id": "Q6",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": "t001",
+      "correct": null,
+      "abstain_reason": null
+    },
+    {
+      "variant": "V+R+M",
+      "query_id": "Q1",
+      "gt_status": "definite",
+      "accepted_track_id": "t001",
+      "correct": false,
+      "abstain_reason": null
+    },
+    {
+      "variant": "V+R+M",
+      "query_id": "Q2",
+      "gt_status": "definite",
+      "accepted_track_id": null,
+      "correct": false,
+      "abstain_reason": "no_public_candidate"
+    },
+    {
+      "variant": "V+R+M",
+      "query_id": "Q3",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": null,
+      "correct": null,
+      "abstain_reason": "relation_unknown"
+    },
+    {
+      "variant": "V+R+M",
+      "query_id": "Q4",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": null,
+      "correct": null,
+      "abstain_reason": "relation_unknown"
+    },
+    {
+      "variant": "V+R+M",
+      "query_id": "Q5",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": null,
+      "correct": null,
+      "abstain_reason": "relation_unknown"
+    },
+    {
+      "variant": "V+R+M",
+      "query_id": "Q6",
+      "gt_status": "ambiguous_or_insufficient_geometry",
+      "accepted_track_id": null,
+      "correct": null,
+      "abstain_reason": "relation_unknown"
+    }
+  ],
+  "metrics": {
+    "records": 24,
+    "definite_gt_denominator": 8,
+    "coverage": 0.5,
+    "wrong_accepted": 4,
+    "candidate_recall": "NOT_COMPUTED: no GT identity is supplied to public tracks",
+    "top1": "NOT_COMPUTED: private one-to-one constituent box assignment required for identity credit",
+    "mrr": "NOT_COMPUTED: private one-to-one constituent box assignment required for identity credit"
+  },
+  "warning": "No majority vote or GT repair is applied to public tracks. Relation GT is ambiguous/insufficient under observed-surface evidence and preserved as such."
+}

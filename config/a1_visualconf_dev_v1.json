@@ -1,0 +1,13 @@
+{
+  "version": "a1-visualconf-dev-v1",
+  "taxonomy": {"ChairA_01": "chair", "ChairD_01": "chair", "KitchenTable_01": "dining table", "SofaC_01": "couch", "CoffeeTable_01": "coffee table", "Tablet_01": "tablet"},
+  "queries": [
+    {"id": "Q1", "text_zh": "找一把椅子。", "kind": "chair"},
+    {"id": "Q2", "text_zh": "找到沙发。", "kind": "couch"},
+    {"id": "Q3", "text_zh": "以观测 obs_001 的朝向为准，找餐桌左侧最靠左的一把椅子。", "kind": "leftmost_chair_left_table"},
+    {"id": "Q4", "text_zh": "以观测 obs_001 的朝向为准，找餐桌右侧最靠右的一把椅子。", "kind": "rightmost_chair_right_table"},
+    {"id": "Q5", "text_zh": "按本组观测到的物体表面间隙，找离餐桌最近的一把椅子。", "kind": "nearest_chair_table"},
+    {"id": "Q6", "text_zh": "按本组观测到的物体表面间隙，找离餐桌最远的一把椅子。", "kind": "farthest_chair_table"}
+  ],
+  "rules": {"tilt_limit_deg": 5.0, "track_xy_gate_m": 0.3, "duplicate_iou": 0.7, "top_two_margin": 0.05, "relation_ambiguity_m": 0.15, "detector_confidence": 0.1}
+}

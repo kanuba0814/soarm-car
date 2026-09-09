@@ -1,0 +1,15 @@
+{
+    "base_commit": "e8974b6",
+    "archive": "artifacts/companion-home-validation/evidence/metric-persistent-home-pilot.tar.gz",
+    "archive_sha256": "bbf63d3360a4a567a22152c3a2209b45289e905d8393341e306fe804291f963d",
+    "replay_directory": "/tmp/companion-independent-replay-1sj25k3u",
+    "consumer_source": "git show e8974b6:scripts/companion_reload_geometry.py",
+    "python": "/home/gxxl/miniconda3/envs/yolo/bin/python",
+    "exit_code": 0,
+    "views": 4,
+    "directed_pairs": 12,
+    "archived_and_replayed_directed_pairs_exactly_equal": true,
+    "archived_and_replayed_reload_invariants_exactly_equal": true,
+    "all_other_fields_equal_except_absolute_input_path": true,
+    "claim": "Independent archived raw-data replay matches recorded descriptive geometry output; this is reproducibility, not method or navigation accuracy."
+}

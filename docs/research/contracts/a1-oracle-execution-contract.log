@@ -1,0 +1,728 @@
+Warning: Model "gpt-6-astra" not found for provider "gpt-team". Using custom model id.
+Task: Bounded <=4 tools <=3 turns: now actual evaluator-only semantic instance labels work. Repo /home/gxxl/soarm-car-companion-validation @9bfe230, docs/research/companion-visible-instance-gt.md and scripts/companion_evaluator_gt.py. Public/private dataset artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final; frozen YOLO raw results same root/yolo/results.json. Chairs detected across obs1-4 plus one dining-table detection obs3, sofa GT visible but YOLO misses. D1 baseline VisualConf, D2 known-self-pose explicitly. Need concrete NEXT executable A1 method+dev/evaluation contract, not more capture-only. Independently stamped poses,2-axis calibration now available. Define robust foreground from box depth (not private mask), association preserving chair identities, V/R/M score ablations and relation unknown abstention, independent GT matching and fixed Chinese queries. Recommend feasible relation semantics without using arbitrary model-origin distance as truth; exact source/private masks visible point geometry can be used evaluator-only, with uncertainty/ambiguity margin. Need held-out physical layouts later; do not declare dev8views test. Return smallest implementation/run acceptance matrix that can produce honest real measured dev outcome then freeze before test. No repo writes/simulator or major architecture/no grand300run prerequisite. G4 attitude validity5deg must be checked; stable tilted camera not legal nav. Parent requires positive or negative results equally, no success manufacturing.
+## Acceptance Contract
+Acceptance level: attested
+Completion is not accepted from prose alone. End with a structured acceptance report.
+Criteria:
+- criterion-1: Return concrete findings with file paths and severity when applicable
+Required evidence: review-findings, residual-risks
+Finish with a fenced JSON block tagged `acceptance-report` in this shape:
+Use empty arrays when no items apply; array fields contain strings unless object entries are shown.
+Empty-string entries (`[""]`) are ignored; use `[]` when nothing applies.
+`criteriaSatisfied[].status` must be exactly one of: satisfied, not-satisfied, not-applicable.
+`commandsRun[].result` must be exactly one of: passed, failed, not-run.
+`manualNotes` and `notes` are optional strings; an empty string means no note and does not satisfy `manual-notes` evidence.
+```acceptance-report
+{
+  "criteriaSatisfied": [
+    {
+      "id": "criterion-1",
+      "status": "satisfied",
+      "evidence": "specific proof"
+    }
+  ],
+  "changedFiles": [
+    "src/file.ts"
+  ],
+  "testsAddedOrUpdated": [
+    "test/file.test.ts"
+  ],
+  "commandsRun": [
+    {
+      "command": "command",
+      "result": "passed",
+      "summary": "short result"
+    }
+  ],
+  "validationOutput": [
+    "validation output or concise summary"
+  ],
+  "residualRisks": [
+    "none"
+  ],
+  "noStagedFiles": true,
+  "diffSummary": "short description of the diff",
+  "reviewFindings": [
+    "blocker: file.ts:12 - issue found, or no blockers"
+  ],
+  "manualNotes": "anything else the parent should know"
+}
+```
+I’ll review the evaluator notes, label script, and frozen artifacts, then define a bounded A1 development contract covering public depth geometry, chair identity, relation abstention, and evaluator-only scoring. Both positive and negative measured results will count; held-out layouts remain a later test.
+bash: cd /home/gxxl/soarm-car-companion-validation && git rev-p...
+9bfe230
+   52 docs/research/companion-visible-instance-gt.md
+  108 scripts/companion_evaluator_gt.py
+  160 total
+# Furnished House Visible-Instance GT Protocol
+This is an evaluator-only development acquisition seam. It does not implement VisualConf, A1 scoring, navigation, or a policy input containing simulator labels. The continuous native source-time self-pose interpolation and two-axis camera calibration remain required from the prior stage.
+## Runtime Overlay
+The native Kuruma model and pinned asset clone are never edited. Only the generated runtime wrapper:
+1. flattens the source world's 87 embedded model includes into equivalent runtime world includes;
+2. attaches `ignition::gazebo::systems::Label` directly to each generated include with a stable unique semantic label ID 1-87;
+3. mounts a generated `kuruma_eval` model copy that adds a segmentation sensor co-located with the RGB-D sensor, sharing FOV 1.047, 640x480, near 0.1 m, far 8 m, and 15 Hz;
+4. bridges `/eval_segmentation/labels_map` and `/eval_segmentation/colored_map` only inside the evaluator capture container.
+The official Fortress seam evidence is retained at [companion-segmentation-seam.md](/home/gxxl/soarm-car-companion-validation/docs/research/sources/companion-segmentation-seam.md). The SAP-Nav overlap warning is retained at [companion-sapnav-overlap-note.md](/home/gxxl/soarm-car-companion-validation/docs/research/companion-sapnav-overlap-note.md).
+## Actual Smoke
+`segmentation-smoke-overlay-e8974b6.tar.gz` proves the downstream decoder seam, not merely the topic declaration. `labels_map` was observed as `rgb8`, step 1920 for 640 pixels, with every semantic ID repeated in all three byte channels. The direct runtime front model label 251 is present while rear model label 250 is absent at the same alignment, including when real source furniture labels remain visible around the smoke models. This is the expected physical occlusion result: the foreground blocks the rear label rather than exposing a box-derived pseudo-mask. Its evaluator-private overlay manifest records native Kuruma SDF SHA-256 `143dd22a0047cdce511ac0b5c99dc5b96a7c3cc1a75116c585531f963de609fa`, generated `kuruma_eval` SHA-256 `926bc4cc8c0c8eb814df5f04a10c5f1c3c25ea303a1c7cad0d0780a9a8510e88`, 87-label map SHA-256 `e15c83d1d6b8f30eae91cbe05f7f0cc87130d7aeeeea52969ae3a03a9d565b13`, and exact sensor settings.
+## Development Survey
+`instance-survey-e8974b6.tar.gz` contains eight opaque observation IDs (`obs_001` through `obs_008`) declared in `config/companion_instance_survey.json` before detector inference. Positions were selected offline from source geometry around dining chairs/table and SofaC; this privileged evaluator survey design is never a policy search, detector-driven selection, navigation trajectory, or held-out test split.
+For all eight saved observations, RGB/depth/CameraInfo/labels/colored-map timestamps are equal (0 ns RGB-label and RGB-colored deltas), and each source-time self pose passes the persistent interpolation/stability gate. The evaluator decoder rejects any labels map that is not exact replicated-channel `rgb8`, rejects unknown label IDs, and stores source identity/pose only in the private package.
+Observed feasibility is real but development-only: `obs_001` through `obs_004` contain multiple distinct `ChairA` labels and `KitchenTable_01_001`; `SofaC_01_001` appears in `obs_003`, `obs_005`, `obs_007`, and `obs_008`. This does not create a relation score or claim a detector found two chairs.
+## Public/Private Split
+The exporter produces:
+- `evaluator-package-final/public/`: RGB, metric depth, invalid mask, CameraInfo, source-time self pose, and opaque observation IDs only.
+- `evaluator-package-final/private/`: decoded masks, stable label-ID to source model/URI/pose mapping, GT overlays, and detector-vs-visible-GT matching summary.
+A negative leakage check confirms the public tree has no label files, private paths, source instance names, source poses, or GT mask payloads. The private detector summary uses only visible reporting-class masks as its denominator and greedy class-matched IoU >=0.5 boxes. It is visibility accounting only, not relation/navigation/task/accuracy scoring.
+## Reproduction
+After extracting the tracked archive under `artifacts/companion-home-validation/runtime/`:
+```bash
+/home/gxxl/miniconda3/envs/yolo/bin/python scripts/run_companion_yoloworld_smoke.py \
+  --input-dir artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1 \
+  --output-dir /tmp/instance-survey-yolo-replay \
+  --model /home/gxxl/soarm-car/artifacts/perception-dev/models/yolov8s-worldv2.pt
+python3 scripts/companion_evaluator_gt.py \
+  --input-dir artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1 \
+  --yolo-results artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/yolo/results.json \
+  --output-dir /tmp/instance-survey-evaluator-replay
+```
+The evaluator process may access private labels during acquisition/export. Future policy/model processes must be mounted with the public package only, never the label topics, private package, source world, or source instance metadata.
+#!/usr/bin/env python3
+"""Decode evaluator-only segmentation labels and export separated public/private survey packages."""
+import argparse
+import json
+import shutil
+from pathlib import Path
+import numpy as np
+from PIL import Image, ImageDraw
+def decode_labels(frame):
+    metadata = json.loads((frame / "labels_map.json").read_text())
+    raw = (frame / "labels_map.raw").read_bytes()
+    if metadata["encoding"] != "rgb8" or metadata["step"] != metadata["width"] * 3 or len(raw) != metadata["height"] * metadata["step"]:
+        raise RuntimeError(f"unsupported labels_map encoding/layout: {metadata}")
+    pixels = np.frombuffer(raw, np.uint8).reshape(metadata["height"], metadata["width"], 3)
+    if not np.array_equal(pixels[:, :, 0], pixels[:, :, 1]) or not np.array_equal(pixels[:, :, 0], pixels[:, :, 2]):
+        raise RuntimeError("ambiguous RGB label encoding: channels are not replicated instance IDs")
+    return pixels[:, :, 0], metadata
+def source_class(name):
+    lower = name.lower()
+    if "chair" in lower:
+        return "chair"
+    if "table" in lower or "bench" in lower:
+        return "dining table"
+    if "sofa" in lower:
+        return "couch"
+    return None
+def bbox(mask):
+    rows, columns = np.nonzero(mask)
+    return [int(columns.min()), int(rows.min()), int(columns.max() + 1), int(rows.max() + 1)]
+def iou(first, second):
+    left, top = max(first[0], second[0]), max(first[1], second[1])
+    right, bottom = min(first[2], second[2]), min(first[3], second[3])
+    overlap = max(0, right - left) * max(0, bottom - top)
+    union = (first[2] - first[0]) * (first[3] - first[1]) + (second[2] - second[0]) * (second[3] - second[1]) - overlap
+    return overlap / union if union else 0.0
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input-dir", type=Path, required=True)
+    parser.add_argument("--yolo-results", type=Path, required=True)
+    parser.add_argument("--output-dir", type=Path, required=True)
+    args = parser.parse_args()
+    if args.output_dir.exists():
+        raise SystemExit(f"Refusing to overwrite output: {args.output_dir}")
+    capture = json.loads((args.input_dir / "capture.json").read_text())
+    labels = json.loads((args.input_dir / "private_instance_labels.json").read_text())["labels"]
+    label_map = {item["label_id"]: item for item in labels}
+    yolo = json.loads(args.yolo_results.read_text())
+    yolo_by_observation = {Path(item["input"]["path"]).parent.name: item for item in yolo["frames"]}
+    public_root, private_root = args.output_dir / "public", args.output_dir / "private"
+    public_root.mkdir(parents=True); private_root.mkdir(); (private_root / "masks").mkdir()
+    public_observations, private_observations, summary = [], [], []
+    for record in capture["viewpoints"]:
+        observation_id = record["id"]
+        frame = args.input_dir / "frames" / observation_id
+        values, metadata = decode_labels(frame)
+        public_frame = public_root / observation_id; public_frame.mkdir()
+        for filename in ("rgb.png", "depth_m_float32.npy", "depth_invalid_mask.npy", "camera_info.json"):
+            shutil.copy2(frame / filename, public_frame / filename)
+        public_observations.append({"observation_id": observation_id, "rgb_stamp_ns": record["rgb_stamp_ns"], "depth_stamp_ns": record["depth_stamp_ns"], "self_pose": record["native_pose_at_image"], "files": [filename for filename in ("rgb.png", "depth_m_float32.npy", "depth_invalid_mask.npy", "camera_info.json")]})
+        visible = []
+        overlay = Image.open(frame / "rgb.png").convert("RGB"); draw = ImageDraw.Draw(overlay)
+        for label_id in np.unique(values):
+            if label_id == 0:
+                continue
+            if int(label_id) not in label_map:
+                raise RuntimeError(f"private label {int(label_id)} has no stable source mapping")
+            mask = values == label_id
+            pixels = int(mask.sum())
+            if pixels < 100:
+                continue
+            item = label_map[int(label_id)]
+            entry = {"label_id": int(label_id), "source_name": item["source_name"], "source_uri": item["source_uri"], "source_pose": item["source_pose"], "reporting_class": source_class(item["source_name"]), "visible_pixels": pixels, "bbox_xyxy": bbox(mask)}
+            visible.append(entry)
+            mask_dir = private_root / "masks" / observation_id
+            mask_dir.mkdir(exist_ok=True)
+            Image.fromarray((mask.astype(np.uint8) * 255), mode="L").save(mask_dir / f"{int(label_id):03d}.png")
+            draw.rectangle(entry["bbox_xyxy"], outline=(255, 0, 255), width=2)
+        overlay.save(private_root / f"{observation_id}_gt_overlay.png")
+        private_observations.append({"observation_id": observation_id, "labels_metadata": metadata, "visible_instances": visible})
+        predictions = yolo_by_observation.get(observation_id, {}).get("raw_boxes", [])
+        eligible_gt = [item for item in visible if item["reporting_class"]]
+        matched_gt, matches = set(), []
+        for prediction in sorted(predictions, key=lambda item: item["confidence"], reverse=True):
+            candidates = [(iou(prediction["xyxy_pixels"], target["bbox_xyxy"]), index) for index, target in enumerate(eligible_gt) if target["reporting_class"] == prediction["label"] and index not in matched_gt]
+            if candidates:
+                score, index = max(candidates)
+                if score >= .5:
+                    matched_gt.add(index); matches.append({"prediction_label": prediction["label"], "confidence": prediction["confidence"], "gt_label_id": eligible_gt[index]["label_id"], "iou": score})
+        summary.append({"observation_id": observation_id, "visible_gt_reporting_instances_denominator": len(eligible_gt), "yolo_raw_boxes": len(predictions), "iou_threshold": .5, "class_matched_iou_matches": matches, "warning": "Detector-vs-GT visibility accounting only; not a relation, navigation, or accuracy score."})
+    (public_root / "manifest.json").write_text(json.dumps({"scope": "PUBLIC_POLICY_INPUT_ONLY", "observations": public_observations, "forbidden": ["labels_map", "source instance names", "source poses", "private GT"]}, indent=2) + "\n")
+    (private_root / "instances.json").write_text(json.dumps({"scope": "EVALUATOR_PRIVATE_ONLY", "observations": private_observations}, indent=2) + "\n")
+    (private_root / "detector_gt_visibility.json").write_text(json.dumps({"scope": "EVALUATOR_PRIVATE_ONLY", "summary": summary}, indent=2) + "\n")
+    print(json.dumps({"observations": len(public_observations), "visible_instances": sum(len(item["visible_instances"]) for item in private_observations), "public_has_labels": False}))
+if __name__ == "__main__":
+    main()
+bash: cd /home/gxxl/soarm-car-companion-validation && rg -n 'Vi...
+docs/research/companion-visible-instance-gt.md:3:This is an evaluator-only development acquisition seam. It does not implement VisualConf, A1 scoring, navigation, or a policy input containing simulator labels. The continuous native source-time self-pose interpolation and two-axis camera calibration remain required from the prior stage.
+docs/research/companion-metric-pilot-contract.md:3:根据主代理最新 steering，完整 A1/A2 合同仅作后续参考，当前只执行以下有界阶段。不把完整论文架构、Nav2 接入或完善全场景 GT 作为首个真实小试的前置条件。
+docs/research/companion-metric-pilot-contract.md:16:这是主代理最新收缩：先一个真实小试，再迭代研究。当前不实现 Nav2、新地图、全场景实例分割评分器、300 条实验或论文结论。保留后续 A1/A2 目标，不将本阶段声称为其完成。
+docs/research/companion-metric-pilot-contract.md:30:8. 输出一份简短中文开发小试报告：哪些数据/几何证据通过，哪些失败，原始图像/深度/位姿/推理结果链接与哈希，准确重跑命令，以及下一步 A1 的实际输入条件。保留相机安装、模型及源世界 hash 和环境版本。检查最终 diff；只跑直接相关消费端验证，不新建通用测试框架。
+docs/research/companion-metric-pilot-contract.md:46:位姿主题/时钟无法核验、RGB-D消费失败、坐标约定无可靠证据，优先做局部诊断并保留输出；涉及更换传感器、加入新编码器、Nav2/SLAM、依赖全场景 GT 才能继续时，返回主代理具体选择，不扩大本阶段。若检测不到锚点，完成采集/几何结果并报告 A1 先决条件失败，不能制造目标。
+docs/research/companion-metric-pilot-contract.md:49:由小试决定 A1 的真实任务类别/关系锚点及 GT 标注规模；确认 VisualConf 基线命名与是否允许明确标注的已知自身位姿条件。A2 仍需 AWS 传感器地图、正确 footprint、真实 ComputePathToPose 路径和物理驱动/碰撞/停稳证据。完整候选后续合同见 /tmp/companion-oracle-contract-481eed1-u8l89e7u.md；其中 300 条均为未执行计划，不能作为启动首阶段前的全部门槛。
+docs/research/companion-first-pilot.md:33:已知 robot self simulator pose 仅为明确标记的受控研究条件（D2），绝不进入 planner。后续研究命名采用 **VisualConf**；目标身份/位姿/hidden meshes 始终仅供 evaluator，不能泄漏给方法。
+docs/research/companion-visual-navigation-sources.md:46:5. 当前所选 A1/A2 仍需在正式验证前对最近邻方法进行更细的公式/实现比较；可以验证一个具体优化是否有效，但不能预先承诺论文创新或性能增益。
+docs/research/companion-visual-navigation-design.md:21:**方法点 A1：关系与多视角证据约束的视觉目标定位。** 从任务提取目标、属性、空间关系及房间约束；对对象候选图做软约束重排序。将视觉相似度、多帧一致性、关系证据及缺失证据分开记录，不把语言模型自评当校准置信度。关系缺失应保留未知，不能判为满足。与同一视觉编码器的纯相似度检索比较。
+docs/research/companion-visual-navigation-design.md:25:研究假设：多同类物体和遮挡场景下，A1 减少错目标；A2 提高可见终点成功率，并降低无效路程。**尚未证明有效或具有足够新颖性**。如果收益仅来自多调用模型或多走路，不能归因为方法本身。
+docs/research/companion-visual-navigation-design.md:52:**推荐选 A，最多两个贡献点 A1+A2；B/C 是备选，不是三个方向一起做。** 暂定题目：《面向家庭服务机器人的关系约束视觉目标定位与可达观察位选择方法》。论文创新声明需继续围绕最相近方法核查，不能仅凭模块组合成立。
+docs/research/companion-visual-navigation-design.md:62:  → A1 视觉候选与证据重排序
+docs/research/companion-visual-navigation-design.md:82:复用现有候选与证据，不先重跑所有视觉系统。人工冻结一个有界任务集，涵盖唯一目标、同类歧义、关系约束、遮挡、移动和不存在；现有数据不支持的类别标为待采集。先比较纯视觉相似度与 A1，报告 Top-1、MRR、弃权率与接受样本上的错目标率。检索率不是导航成功率。
+docs/research/companion-visual-navigation-design.md:93:| A1 | 关系/多视角重排序 | 同 B0 |
+docs/research/companion-visual-navigation-design.md:95:| A1+A2 | 完整定位 | 完整观察策略 |
+docs/research/companion-visual-navigation-design.md:110:- 若 A1 在关系任务不改善、A2 在等预算下无增益、或收益仅出现在有 GT 泄漏的设置，则假设不成立；保留失败结果并收缩贡献，不追加无关模块掩盖失败。
+FILE artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final/public/manifest.json exists True
+keys ['scope', 'observations', 'forbidden']
+[{"observation_id": "obs_001", "rgb_stamp_ns": 925000000, "depth_stamp_ns": 925000000, "self_pose": {"source_stamp_ns": 925000000, "interpolation": {"lower_source_stamp_ns": 925000000, "upper_source_stamp_ns": 925000000, "bracket_gap_ns": 0, "fraction": 0.0}, "entity": {"name": "kuruma", "position": {"x": 6.0, "y": 2.5000000000000724, "z": -0.00019761581308272436}, "orientation": {"x": 1.4738420486285043e-09, "y": 1.4738384095356097e-09, "z": -0.7071067811848163, "w": 0.7071067811882787}}}, "files": ["rgb.png", "depth_m_float32.npy", "depth_invalid_mask.npy", "camera_info.json"]}, {"observation_id": "obs_002", "rgb_stamp_ns": 2113000000, "depth_stamp_ns": 2113000000, "self_pose": {"source_stamp_ns": 2113000000, "interpolation": {"lower_source_stamp_ns": 2109000000, "upper_source_stamp_ns": 2114000000, "bracket_gap_ns": 5000000, "fraction": 0.8}, "entity": {"name": "kuruma", "position": {"x": 5.100870574701707, "y": 2.400376781999081, "z": -4.166866874749931e-05}, "orientation": {"x": -8.82472347265968e-06, "y": 5.2586244170686885e-05, "z": -0.522706848034806, "w": 0.8525124915063294}}}, "files": ["rgb.png", "depth_m_float32.npy", "depth_invalid_mask.npy", "camera_info.json"]}]
+FILE artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final/public/obs_001/camera_info.json exists True
+keys ['width', 'height', 'k', 'p', 'd', 'r', 'distortion_model', 'header_stamp_ns', 'frame_id', 'rgb_encoding', 'rgb_step', 'rgb_is_bigendian', 'depth_encoding', 'depth_step', 'depth_is_bigendian', 'depth_unit']
+{"width": 640, "height": 480, "k": [554.3827128226441, 0.0, 320.0, 0.0, 554.3827128226441, 240.0, 0.0, 0.0, 1.0], "p": [554.3827128226441, 0.0, 320.0, 0.0, 0.0, 554.3827128226441, 240.0, 0.0, 0.0, 0.0, 1.0, 0.0], "d": [0.0, 0.0, 0.0, 0.0, 0.0], "r": [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0], "distortion_model": "plumb_bob", "header_stamp_ns": 925000000, "frame_id": "kuruma/camera_link/camera", "rgb_encoding": "rgb8", "rgb_step": 1920, "rgb_is_bigendian": false, "depth_encoding": "32FC1", "depth_step": 2560, "depth_is_bigendian": false, "depth_unit": "m"}
+FILE artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final/private/instances.json exists True
+keys ['scope', 'observations']
+obs_001 [(9, 'ChairA_01_001', 6755, '7.11516 0.209028 0.024685 1e-06 -0 -1.55607'), (10, 'ChairA_01_002', 10450, '6.25506 0.219468 0.011308 0 0 -1.50414'), (11, 'ChairA_01_003', 100379, '6.06678 1.68075 0.01 0 -0 1.56986'), (27, 'KitchenTable_01_001', 11351, '6.55269 0.951173 -0.000006 0 -0 -1.564130')]
+obs_002 [(9, 'ChairA_01_001', 7712, '7.11516 0.209028 0.024685 1e-06 -0 -1.55607'), (10, 'ChairA_01_002', 5517, '6.25506 0.219468 0.011308 0 0 -1.50414'), (11, 'ChairA_01_003', 37179, '6.06678 1.68075 0.01 0 -0 1.56986'), (27, 'KitchenTable_01_001', 44962, '6.55269 0.951173 -0.000006 0 -0 -1.564130')]
+obs_003 [(9, 'ChairA_01_001', 2465, '7.11516 0.209028 0.024685 1e-06 -0 -1.55607'), (10, 'ChairA_01_002', 12842, '6.25506 0.219468 0.011308 0 0 -1.50414'), (11, 'ChairA_01_003', 15588, '6.06678 1.68075 0.01 0 -0 1.56986'), (12, 'ChairA_01_004', 114585, '7.00277 1.67074 0 0 -0 1.52363'), (24, 'CoffeeTable_01_001', 605, '1.512301 -1.733438 0.041983 0.000000 0.000000 0.01000'), (27, 'KitchenTable_01_001', 10769, '6.55269 0.951173 -0.000006 0 -0 -1.564130'), (69, 'SofaC_01_001', 4301, '0.330699 -1.902792 0.065992 0.000000 0.000000 1.571733')]
+obs_004 [(10, 'ChairA_01_002', 64349, '6.25506 0.219468 0.011308 0 0 -1.50414'), (11, 'ChairA_01_003', 11747, '6.06678 1.68075 0.01 0 -0 1.56986'), (12, 'ChairA_01_004', 10822, '7.00277 1.67074 0 0 -0 1.52363'), (27, 'KitchenTable_01_001', 29228, '6.55269 0.951173 -0.000006 0 -0 -1.564130')]
+obs_005 [(24, 'CoffeeTable_01_001', 19225, '1.512301 -1.733438 0.041983 0.000000 0.000000 0.01000'), (69, 'SofaC_01_001', 130634, '0.330699 -1.902792 0.065992 0.000000 0.000000 1.571733')]
+obs_006 [(24, 'CoffeeTable_01_001', 282880, '1.512301 -1.733438 0.041983 0.000000 0.000000 0.01000'), (32, 'Tablet_01_001', 16693, '1.572830 -1.775857 0.401790 -0.020625 -0.000080 -0.006317')]
+obs_007 [(69, 'SofaC_01_001', 291569, '0.330699 -1.902792 0.065992 0.000000 0.000000 1.571733')]
+obs_008 [(69, 'SofaC_01_001', 307200, '0.330699 -1.902792 0.065992 0.000000 0.000000 1.571733')]
+FILE artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final/private/detector_gt_visibility.json exists True
+keys ['scope', 'summary']
+{"scope": "EVALUATOR_PRIVATE_ONLY", "summary": [{"observation_id": "obs_001", "visible_gt_reporting_instances_denominator": 4, "yolo_raw_boxes": 2, "iou_threshold": 0.5, "class_matched_iou_matches": [{"prediction_label": "chair", "confidence": 0.8520731925964355, "gt_label_id": 10, "iou": 0.9816805026199256}, {"prediction_label": "chair", "confidence": 0.1348864883184433, "gt_label_id": 9, "iou": 0.9704232801351727}], "warning": "Detector-vs-GT visibility accounting only; not a relation, navigation, or accuracy score."}, {"observation_id": "obs_002", "visible_gt_reporting_instances_denominator": 4, "yolo_raw_boxes": 4, "iou_threshold": 0.5, "class_matched_iou_matches": [{"prediction_label": "chair", "confidence": 0.6734814047813416, "gt_label_id": 9, "iou": 0.7042556882182334}, {"prediction_label": "chair", "confidence": 0.5207833647727966, "gt_label_id": 11, "iou": 0.9589602579551969}, {"prediction_label": "chair", "confidence": 0.23255710303783417, "gt_label_id": 10, "iou": 0.7138840894993587}], "warning": "Detector-vs-GT visibility accounting only; not a relation, navigation, or accuracy score."}, {"observation_id": "obs_003", "visible_gt_reporting_instances_denominator": 7, "yolo_raw_boxes": 5, "iou_threshold": 0.5, "class_matched_iou_matches": [{"prediction_label": "chair", "confidence": 0.8427027463912964, "gt_label_id": 10, "iou": 0.9991495168790945}], "warning": "Detector-vs-GT visibility accounting only; not a relation, navigation, or accuracy score."}, {"observation_id": "obs_004", "visible_gt_reporting_instances_denominator": 4, "yolo_raw_boxes": 3, "iou_threshold": 0.5, "class_matched_iou_matches": [{"prediction_label": "chair", "confidence": 0.42947566509246826, "gt_label_id": 12, "iou": 0.9820801844633497}, {"prediction_label": "chair", "confidence": 0.13439542055130005, "gt_label_id": 11, "iou": 0.5353667505918263}], "warning": "Detector-vs-GT visibility accounting only; not a relation, navigation, or accuracy score."}, {"observation_id": "obs_005", "visible_gt_reporting_instances_denominator": 2, "yolo_raw_boxes": 4, "iou_threshold": 0.5, "class_matched_iou_matches": [], "warning": "Detector-vs-GT visibility accounting only; not a relation, navigation, or accuracy score."}, {"observation_id": "obs_006", "visible_gt_reporting_instances_denominator": 2, "yolo_raw_boxes": 0, "iou_threshold": 0.5, "class_matched_iou_matches": [], "warning": "Detector-vs-GT visibility accounting only; not a relation, navigation, or accuracy score."}, {"observation_id": "obs_007", "visible_gt_reporting_instances_denominator": 1, "yolo_raw_boxes": 0, "iou_threshold": 0.5, "class_matched_iou_matches": [], "warning": "Detector-vs-GT visibility accounting only; not a relation, navigation, or accuracy score."}, {"observation_id": "obs_008", "visible_gt_reporting_instances_denominator": 1, "yolo_raw_boxes": 0, "iou_threshold": 0.5, "class_matched_iou_matches": [], "warning": "Detector-vs-GT visibility accounting only; not a relation, navigation, or accuracy score."}]}
+FILE artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/yolo/results.json exists True
+keys ['run_utc', 'scope', 'model', 'runtime', 'inference', 'household_reporting_classes', 'frames', 'license_caveat']
+meta {"run_utc": "2026-09-09T01:48:03.089869Z", "scope": "Boxes-only pretrained fixed-COCO-vocabulary smoke on saved RGB frames; not ground truth, accuracy, navigation, or task-success evidence.", "model": {"url": "https://github.com/ultralytics/assets/releases/download/v8.4.0/yolov8s-worldv2.pt", "release_api": "https://api.github.com/repos/ultralytics/assets/releases/tags/v8.4.0", "release_asset_id": 340060641, "expected_bytes": 25923032, "sha256": "9b2c17ab6124a913e9b3a5c170617920d91b0f01111a8479da69f00e2cf27792", "local_path": "/home/gxxl/soarm-car/artifacts/perception-dev/models/yolov8s-worldv2.pt"}, "runtime": {"python": "3.10.20", "torch": "2.12.0+cu130", "cuda_available": true, "cuda_device": "NVIDIA GeForce RTX 3070", "ultralytics": "8.4.57", "opencv": "4.13.0", "numpy": "2.2.6", "pillow": "12.2.0"}, "inference": {"confidence_threshold": 0.1, "device": 0, "custom_vocabulary": false}, "household_reporting_classes": ["bed", "chair", "clock", "couch", "dining table", "laptop", "microwave", "oven", "potted plant", "refrigerator", "sink", "toaster", "tv", "vase"], "license_caveat": "Ultralytics is AGPL-3.0 unless separately commercially licensed; this local smoke makes no deployment claim."}
+{"input": {"path": "artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/frames/obs_001/rgb.png", "sha256": "c0fa412b88d8042c4297415bcccc6373b6ba4893efefc8534bdec0ea2f5d5828"}, "raw_boxes": [{"class_id": 56, "label": "chair", "confidence": 0.8520731925964355, "xyxy_pixels": [178.81243896484375, 150.55426025390625, 319.9261779785156, 308.11181640625], "household_reporting_class": true}, {"class_id": 56, "label": "chair", "confidence": 0.1348864883184433, "xyxy_pixels": [33.55000305175781, 119.67544555664062, 105.96876525878906, 304.733154296875], "household_reporting_class": true}]}
+{"input": {"path": "artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/frames/obs_002/rgb.png", "sha256": "5cdac207162eb71f66ba402e6c0b7e0a6429527db15ab08c0fa8ed4e173ad1d6"}, "raw_boxes": [{"class_id": 56, "label": "chair", "confidence": 0.6734814047813416, "xyxy_pixels": [82.7333755493164, 102.34384155273438, 216.12454223632812, 368.509521484375], "household_reporting_class": true}, {"class_id": 56, "label": "chair", "confidence": 0.5207833647727966, "xyxy_pixels": [0.029754638671875, 0.10919189453125, 194.564453125, 355.8265075683594], "household_reporting_class": true}, {"class_id": 56, "label": "chair", "confidence": 0.4762606918811798, "xyxy_pixels": [83.26020812988281, 102.12661743164062, 215.91600036621094, 285.820068359375], "household_reporting_class": true}, {"class_id": 56, "label": "chair", "confidence": 0.23255710303783417, "xyxy_pixels": [233.84474182128906, 28.993988037109375, 372.22021484375, 321.42425537109375], "household_reporting_class": true}]}
+{"input": {"path": "artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/frames/obs_003/rgb.png", "sha256": "59f3819c12ca7e6c646948ed47509e4abe57c2b1344f672af54fa69a59acc2f2"}, "raw_boxes": [{"class_id": 56, "label": "chair", "confidence": 0.8427027463912964, "xyxy_pixels": [169.01654052734375, 133.9405517578125, 326.01190185546875, 307.05645751953125], "household_reporting_class": true}, {"class_id": 60, "label": "dining table", "confidence": 0.3398299813270569, "xyxy_pixels": [100.3009033203125, 0.0, 579.3627319335938, 388.79913330078125], "household_reporting_class": true}, {"class_id": 56, "label": "chair", "confidence": 0.19598960876464844, "xyxy_pixels": [392.65185546875, 1.070281982421875, 639.7474365234375, 480.0], "household_reporting_class": true}, {"class_id": 25, "label": "umbrella", "confidence": 0.1546591967344284, "xyxy_pixels": [96.95597839355469, 0.0, 570.6661987304688, 394.45068359375], "household_reporting_class": false}, {"class_id": 0, "label": "person", "confidence": 0.10256802290678024, "xyxy_pixels": [471.85784912109375, 234.22674560546875, 486.1583251953125, 254.05889892578125], "household_reporting_class": false}]}
+{"input": {"path": "artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/frames/obs_004/rgb.png", "sha256": "0fd269d1a4a4b71e88a1ee2eb46ac48b2757bd221cab7a56e165b0b29c667515"}, "raw_boxes": [{"class_id": 56, "label": "chair", "confidence": 0.42947566509246826, "xyxy_pixels": [528.2305908203125, 122.77486419677734, 639.9794921875, 315.3438415527344], "household_reporting_class": true}, {"class_id": 13, "label": "bench", "confidence": 0.4015530049800873, "xyxy_pixels": [527.8905029296875, 122.68314361572266, 639.9940185546875, 316.3403625488281], "household_reporting_class": false}, {"class_id": 56, "label": "chair", "confidence": 0.13439542055130005, "xyxy_pixels": [278.6019287109375, 1.815643310546875, 408.45849609375, 460.4104309082031], "household_reporting_class": true}]}
+{"input": {"path": "artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/frames/obs_005/rgb.png", "sha256": "fb0cb4e0c80a472eaf26e56510abe300eac5687a9ba183c68f0226e1fe4dba5d"}, "raw_boxes": [{"class_id": 62, "label": "tv", "confidence": 0.2737683355808258, "xyxy_pixels": [219.63848876953125, 30.62370491027832, 321.21484375, 82.26113891601562], "household_reporting_class": true}, {"class_id": 62, "label": "tv", "confidence": 0.15354445576667786, "xyxy_pixels": [457.3437805175781, 0.0, 640.0, 78.9373550415039], "household_reporting_class": true}, {"class_id": 56, "label": "chair", "confidence": 0.11034507304430008, "xyxy_pixels": [119.46581268310547, 104.16070556640625, 211.111572265625, 136.8036346435547], "household_reporting_class": true}, {"class_id": 56, "label": "chair", "confidence": 0.10918542742729187, "xyxy_pixels": [231.9082794189453, 104.18717956542969, 365.85614013671875, 190.01673889160156], "household_reporting_class": true}]}
+{"input": {"path": "artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/frames/obs_006/rgb.png", "sha256": "349085255ad64cecb9b23c37e6a07cc809c1d9b5a339da2bbcbcee8d9950e2b9"}, "raw_boxes": []}
+{"input": {"path": "artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/frames/obs_007/rgb.png", "sha256": "86d1952a0a623b09fa57fc5e08570e5fadfb41aee4032aecc95f9963c053c01a"}, "raw_boxes": []}
+{"input": {"path": "artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/frames/obs_008/rgb.png", "sha256": "92176f5a9e421290e24105c9614e176faf3efd7d6efb79b7839df6c754e79175"}, "raw_boxes": []}
+FILE artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/capture.json exists True
+keys ['capture_run_utc', 'consumer_seam', 'transport_isolation', 'camera_chain', 'pose_thresholds', 'viewpoints', 'navigation_claim', 'observed_pose_source']
+{"capture_run_utc": "2026-09-09T01:47:29.017929Z", "consumer_seam": "Gazebo rgbd_camera -> bridge -> rclpy persistence -> source-time native Pose_V interpolation", "transport_isolation": {"docker_network": "none", "ros_localhost_only": true, "ign_ip": "127.0.0.1"}, "camera_chain": {"model_to_base_link_m": [0.0, 0.0, 0.0763], "base_link_to_camera_link_m": [0.18, 0.0, 0.15], "camera_optical_convention": "+Z forward, +X right, +Y down; recorded SDF convention, not residual-tuned"}, "pose_thresholds": {"max_source_bracket_gap_ns": 50000000, "stability_half_window_ns": 250000000, "max_source_gap_in_stability_window_ns": 50000000, "max_translation_from_interpolated_pose_m": 0.01, "max_rotation_from_interpolated_pose_rad": 0.01, "minimum_stability_samples": 4}, "navigation_claim": "NONE; diagnostic teleports only.", "observed_pose_source": "Persistent native Pose_V source stream with strict source-time interpolation and continuous stability-window checks; bridge receipt clocks are diagnostic only."}
+{"id": "obs_001", "diagnostic_teleport": true, "evaluator_private": {"labels_map": {"width": 640, "height": 480, "encoding": "rgb8", "step": 1920, "is_bigendian": false, "stamp_ns": 925000000, "frame_id": "kuruma/camera_link/eval_segmentation"}, "colored_map": {"encoding": "rgb8", "step": 1920, "stamp_ns": 925000000, "frame_id": "kuruma/camera_link/eval_segmentation"}, "rgb_label_delta_ns": 0, "rgb_colored_delta_ns": 0}, "requested_pose_world": [6.0, 2.5, 0.08, 0.0, 0.0, -1.57079632679], "native_pose_at_image": {"source_stamp_ns": 925000000, "interpolation": {"lower_source_stamp_ns": 925000000, "upper_source_stamp_ns": 925000000, "bracket_gap_ns": 0, "fraction": 0.0}, "entity": {"name": "kuruma", "position": {"x": 6.0, "y": 2.5000000000000724, "z": -0.00019761581308272436}, "orientation": {"x": 1.4738420486285043e-09, "y": 1.4738384095356097e-09, "z": -0.7071067811848163, "w": 0.7071067811882787}}}, "native_pose_stability": {"source_window_ns": [675000000, 1175000000], "sample_count": 127, "max_source_gap_ns": 4000000, "max_translation_from_interpolated_pose_m": 0.0002519956924784128, "max_rotation_from_interpolated_pose_rad": 0.0, "continuous": true}, "bridge_pose_observation": {"bridge_tf_header_stamp_ns": 0, "observed_clock_ns": 925000000, "parent_frame": "", "child_frame": "kuruma"}, "post_pose_clock_fence_ns": 424000000, "post_pose_accept_after_ns": 924000000, "rgb_stamp_ns": 925000000, "depth_stamp_ns": 925000000, "camera_info_stamp_ns": 925000000, "rgb_depth_sync_delta_ns": 0, "stale_messages_discarded": {"rgb": 7, "depth": 7, "labels": 7, "colored": 7}, "frames": ["kuruma/camera_link/camera", "kuruma/camera_link/camera", "kuruma/camera_link/camera"], "depth_finite_positive_ratio": 0.8735709635416666, "depth_min_m": 0.4562269151210785, "depth_max_m": 7.8835062980651855}
+bash: cd /home/gxxl/soarm-car-companion-validation && rg -n 'G4...
+config/companion_metric_calibration.json:8:    "scope": "Runtime-only fixed green-X and blue-Y panel calibration. It is not part of the furnished-home study, method input, target identity set, or evaluation ground truth.",
+scripts/companion_reload_geometry.py:73:    calibration = json.loads((root / "camera_info.json").read_text())
+scripts/companion_reload_geometry.py:74:    if depth.dtype != np.float32 or depth.shape != invalid.shape or calibration["depth_unit"] != "m":
+scripts/companion_reload_geometry.py:76:    return depth, invalid, calibration
+scripts/companion_reload_geometry.py:79:def source_points(depth, invalid, calibration, stride=2):
+scripts/companion_reload_geometry.py:80:    fy, fx = calibration["k"][4], calibration["k"][0]
+scripts/companion_reload_geometry.py:81:    cx, cy = calibration["k"][2], calibration["k"][5]
+scripts/companion_reload_geometry.py:89:    source_depth, source_invalid, source_calibration = loaded[source["id"]]
+scripts/companion_reload_geometry.py:90:    target_depth, target_invalid, target_calibration = loaded[target["id"]]
+scripts/companion_reload_geometry.py:91:    camera_points = from_world(to_world(source_points(source_depth, source_invalid, source_calibration), camera_transform(source)), camera_transform(target))
+scripts/companion_reload_geometry.py:94:    fx, fy, cx, cy = target_calibration["k"][0], target_calibration["k"][4], target_calibration["k"][2], target_calibration["k"][5]
+scripts/companion_panel_calibration.py:2:"""Evaluate fixed-color runtime-only calibration planes from saved RGB-D."""
+scripts/companion_panel_calibration.py:30:        depth, invalid, calibration = load_frame(args.input_dir, record)
+scripts/companion_panel_calibration.py:41:            fx, fy, cx, cy = calibration["k"][0], calibration["k"][4], calibration["k"][2], calibration["k"][5]
+scripts/companion_panel_calibration.py:46:            result.update({"axis_error_median_m": float(np.median(error)), "axis_error_p95_abs_m": float(np.percentile(np.abs(error), 95)), "status": "DESCRIPTIVE_CALIBRATION_ONLY", "warning": "Fixed color and plane axis were declared before capture. This supports only the runtime calibration transform/depth convention, never furnished-home accuracy, target identity, or method evidence."})
+scripts/companion_panel_calibration.py:50:    (args.output_dir / "panel_calibration.json").write_text(json.dumps(report, indent=2) + "\n")
+docs/research/companion-metric-pilot-contract.md:43:必须实际贯通 Gazebo rgbd_camera -> ros_gz_bridge -> subscriber -> float32 depth/calibration/pose persistence -> independent reload/backprojection/transform diagnostics -> frozen YOLO on the same saved RGB。仅通过 Python 语法/JSON schema 不算完成。
+docs/research/companion-first-pilot.md:13:artifacts/companion-home-validation/runtime/metric-persistent-calibration-a27e139
+docs/research/companion-first-pilot.md:41:为独立检查完整旋转/轴链，runtime wrapper 只在独立 calibration run 添加固定绿色 X-plane (`x=-5.0 m`) 和垂直的蓝色 Y-plane (`y=2.8 m`)。颜色 mask 在采集和残差之前固定：green `G>150,R/B<100`，blue `B>150,R/G<100`。persistent source-pose 校准后，green-X 在两个 yaw-zero views 均有超过 135k mask pixels，axis median error 为 `-0.00996 m`、`-0.01001 m`；blue-Y 在 90-degree view 有 97,824 mask pixels，median error `-0.00994 m`。两个独立 axes/headings 的 requirement 成立。它仅支持 runtime calibration 的声明 transform/depth convention，绝不替代 furnished-home accuracy 或提供方法目标。
+docs/research/companion-first-pilot.md:57:python3 scripts/companion_panel_calibration.py \
+docs/research/companion-first-pilot.md:58:  --input-dir artifacts/companion-home-validation/runtime/metric-persistent-calibration-a27e139 \
+docs/research/companion-first-pilot.md:62:新 capture 使用默认 `config/companion_metric_pilot.json`。独立 panel run 必须设置 `COMPANION_CAPTURE_CONFIG=config/companion_metric_calibration.json` 和 `COMPANION_RUNTIME_CALIBRATION_PANEL=1`；该开关不能作为 home study、planner 或方法输入。
+scripts/companion_capture.py:270:                raise AssertionError(f"invalid RGB-D/calibration at {point['id']}")
+scripts/companion_capture.py:280:            calibration = {"width": info.width, "height": info.height, "k": list(info.k), "p": list(info.p), "d": list(info.d), "r": list(info.r), "distortion_model": info.distortion_model, "header_stamp_ns": stamp_ns(info), "frame_id": info.header.frame_id, "rgb_encoding": rgb.encoding, "rgb_step": rgb.step, "rgb_is_bigendian": bool(rgb.is_bigendian), "depth_encoding": depth.encoding, "depth_step": depth.step, "depth_is_bigendian": bool(depth.is_bigendian), "depth_unit": "m"}
+scripts/companion_capture.py:281:            (frame / "camera_info.json").write_text(json.dumps(calibration, indent=2) + "\n")
+# 真实 RGB-D / 观测位姿开发小试
+本记录只覆盖隔离的开发集传感器与几何诊断。所有 `set_pose` 都是诊断放置，不是导航路径；没有调用 `/cmd_vel`、Nav2、scored method 或导航完成接口。原始模型、资产锁、FAST-LIO、安全链和网络隔离未改动。
+## 可恢复证据
+Git 跟踪的无损证据、consumer 输出和 SHA-256 在 [MANIFEST.md](/home/gxxl/soarm-car-companion-validation/artifacts/companion-home-validation/evidence/MANIFEST.md)。首阶段合同副本在 [companion-metric-pilot-contract.md](/home/gxxl/soarm-car-companion-validation/docs/research/companion-metric-pilot-contract.md)。
+当前 C3/C4 接受证据目录为：
+```text
+artifacts/companion-home-validation/runtime/metric-persistent-a27e139-final
+artifacts/companion-home-validation/runtime/metric-persistent-calibration-a27e139
+```
+对应的 tracked archives 包含 raw RGB、float32 meter depth、invalid mask、完整 CameraInfo、完整 native Pose_V stream、geometry/YOLO/panel consumer JSON 和图像。旧 `first-stage-pilot` 与 `metric-home-pilot-raw` archive 仍可恢复，但其 native Pose_V 只有约 1.1 秒间隔的 CLI endpoints，**已被明确 superseded，不能作为 C3 pose acceptance**。
+真实消费链为：
+```text
+Gazebo Fortress rgbd_camera -> ros_gz_bridge -> rclpy persistence
+-> persistent native Pose_V -> source-time interpolation -> reload z-buffer diagnostic -> frozen YOLO-World
+```
+容器保持 `--network none`、`ROS_LOCALHOST_ONLY=1`、独占 `IGN_PARTITION`、`IGN_IP=127.0.0.1` 和 owned-ID cleanup。源世界和镜像身份保存在每次 `evidence.json`；Kuruma SDF 未改动。
+## C3: 持续原生姿态流
+早期 bridge `TFMessage` 的 source header 为零，receipt-clock 差不能证明采集时间。新 run 启动独立、持续的 native `ign topic -e /world/default/dynamic_pose/info --json-output` stream，保存每条含 source timestamp 与 exact `kuruma` entity 的完整 envelope。
+冻结的 C3 阈值为：source image bracket gap <= 50 ms，image 前后各 250 ms 连续稳定窗，窗内 source gap <= 50 ms，至少 4 samples，任一样本到 image-time interpolated pose 的位移 <= 10 mm、旋转 <= 0.01 rad。每帧以 source-time tight bracket 线性插值位置、SLERP quaternion，并把 `native_pose_at_image` 保存为 geometry 唯一使用的 pose；不再使用 pre/post endpoint。四帧的 bracket 均为 17 ms，稳定窗各 31 samples，最大 stream gap 17--18 ms，最大位移 0.48--0.77 mm，最大旋转 0.00177--0.00317 rad。bridge receipt clocks只保留为诊断。
+已知 robot self simulator pose 仅为明确标记的受控研究条件（D2），绝不进入 planner。后续研究命名采用 **VisualConf**；目标身份/位姿/hidden meshes 始终仅供 evaluator，不能泄漏给方法。
+## C4: 几何和旋转校准
+旧 `a -> c` 的 10.8957 m 不是几何 accuracy：旧实现把 in-bounds 投影直接称为对应且重复加权 target pixel。新 reload 对所有有向对拒绝 nonfinite/behind-camera 点，为每个 target pixel 留一个最近 source Z-buffer 点，并分别报告 target-invalid、behind-nearer-surface、foreground 和 depth-compatible。`depth-compatible` 是描述性分类，不证明 same-surface 或 accuracy。
+新 persistent home run 有四个 development views 和 12 个有向对。预先选择的 `overlap_base -> overlap_forward` 有 56.82% supported unique-pixel coverage：245 behind、97 foreground、35,782 descriptive compatible，descriptive absolute median `0.000791 m`、P95 `0.02150 m`。这些数值由保存 raw 重新消费而来，仍不能扩展为 home accuracy、地图、导航或方法结论。
+为独立检查完整旋转/轴链，runtime wrapper 只在独立 calibration run 添加固定绿色 X-plane (`x=-5.0 m`) 和垂直的蓝色 Y-plane (`y=2.8 m`)。颜色 mask 在采集和残差之前固定：green `G>150,R/B<100`，blue `B>150,R/G<100`。persistent source-pose 校准后，green-X 在两个 yaw-zero views 均有超过 135k mask pixels，axis median error 为 `-0.00996 m`、`-0.01001 m`；blue-Y 在 90-degree view 有 97,824 mask pixels，median error `-0.00994 m`。两个独立 axes/headings 的 requirement 成立。它仅支持 runtime calibration 的声明 transform/depth convention，绝不替代 furnished-home accuracy 或提供方法目标。
+冻结 YOLO-World 实际消费四张 persistent home RGB 并保留 9 个 raw boxes。没有目标 identity、关系 anchor、准确率或 test-split 声明。
+## 精确重放
+从 Git archive 恢复后，在含有解压后的 run 目录中执行：
+```bash
+python3 scripts/companion_reload_geometry.py \
+  --input-dir artifacts/companion-home-validation/runtime/metric-persistent-a27e139-final \
+  --output-dir /tmp/metric-persistent-geometry-replay
+/home/gxxl/miniconda3/envs/yolo/bin/python scripts/run_companion_yoloworld_smoke.py \
+  --input-dir artifacts/companion-home-validation/runtime/metric-persistent-a27e139-final \
+  --output-dir /tmp/metric-persistent-yolo-replay \
+  --model /home/gxxl/soarm-car/artifacts/perception-dev/models/yolov8s-worldv2.pt
+python3 scripts/companion_panel_calibration.py \
+  --input-dir artifacts/companion-home-validation/runtime/metric-persistent-calibration-a27e139 \
+  --output-dir /tmp/metric-persistent-panel-replay
+```
+新 capture 使用默认 `config/companion_metric_pilot.json`。独立 panel run 必须设置 `COMPANION_CAPTURE_CONFIG=config/companion_metric_calibration.json` 和 `COMPANION_RUNTIME_CALIBRATION_PANEL=1`；该开关不能作为 home study、planner 或方法输入。
+artifacts/companion-home-validation/evidence/metric-persistent-panel-calibration.tar.gz
+artifacts/companion-home-validation/evidence/metric-persistent-home-pilot.tar.gz
+artifacts/companion-home-validation/evidence/metric-panel-calibration-raw.tar.gz
+artifacts/companion-home-validation/evidence/metric-home-pilot-raw.tar.gz
+artifacts/companion-home-validation/run-final/reproducibility.json
+artifacts/companion-home-validation/run-final/yolo-world-smoke/results.json
+artifacts/companion-home-validation/run-final/evidence.json
+artifacts/companion-home-validation/run-final/results.json
+artifacts/companion-home-validation/run-pre-isolation/SUPERSEDED.json
+artifacts/companion-home-validation/run-pre-isolation/evidence.json
+artifacts/companion-home-validation/run-pre-isolation/results.json
+obs_001 roll_deg 0.0 pitch_deg 0.0 up_axis_tilt_deg 0.0 stable True
+obs_002 roll_deg -0.004 pitch_deg 0.0046 up_axis_tilt_deg 0.0061 stable True
+obs_003 roll_deg 0.0002 pitch_deg -0.0003 up_axis_tilt_deg 0.0003 stable True
+obs_004 roll_deg -0.0 pitch_deg 0.0 up_axis_tilt_deg 0.0 stable True
+obs_005 roll_deg 0.0 pitch_deg -0.0 up_axis_tilt_deg 0.0 stable True
+obs_006 roll_deg 0.0329 pitch_deg 0.0307 up_axis_tilt_deg 0.045 stable True
+obs_007 roll_deg 0.0039 pitch_deg 0.0037 up_axis_tilt_deg 0.0054 stable True
+obs_008 roll_deg -0.0002 pitch_deg -0.0002 up_axis_tilt_deg 0.0002 stable True
+The saved poses pass the 5° attitude check at all eight image timestamps; the largest tilt is 0.045°. Two evaluator issues need correction before A1 scoring: substring class mapping labels `Tablet_01_001` as a dining table, and the sole dining-table detection does not meet the current GT IoU threshold. The next run must therefore allow relation-anchor failure and unknown results.
+bash: cd /home/gxxl/soarm-car-companion-validation && nl -ba sc...
+     1	#!/usr/bin/env python3
+     2	"""Reload persisted RGB-D views and report directional visibility diagnostics, not accuracy."""
+     3	import argparse
+     4	import json
+     5	import math
+     6	import struct
+     7	import zlib
+     8	from pathlib import Path
+     9
+    10	import numpy as np
+    11
+    12	TOLERANCE_M = 0.10
+    13	MIN_DIAGNOSTIC_PIXELS = 50
+    14
+    15
+    16	def png(path, array):
+    17	    height, width, channels = array.shape
+    18	    color = 2 if channels == 3 else 0
+    19	    raw = b"".join(b"\0" + row.tobytes() for row in array)
+    20	    def chunk(tag, data):
+    21	        return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data) & 0xffffffff)
+    22	    path.write_bytes(b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", width, height, 8, color, 0, 0, 0)) + chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b""))
+    23
+    24
+    25	def quaternion_matrix(x, y, z, w):
+    26	    norm = math.sqrt(x * x + y * y + z * z + w * w)
+    27	    if norm == 0:
+    28	        raise ValueError("zero observed pose quaternion")
+    29	    x, y, z, w = x / norm, y / norm, z / norm, w / norm
+    30	    return np.array([
+    31	        [1 - 2 * (y * y + z * z), 2 * (x * y + z * w), 2 * (x * z - y * w)],
+    32	        [2 * (x * y - z * w), 1 - 2 * (x * x + z * z), 2 * (y * z + x * w)],
+    33	        [2 * (x * z + y * w), 2 * (y * z - x * w), 1 - 2 * (x * x + y * y)],
+    34	    ])
+    35
+    36
+    37	def camera_transform(record):
+    38	    if "native_pose_at_image" in record:
+    39	        pose = record["native_pose_at_image"]["entity"]
+    40	        translation = [pose["position"].get(axis, 0.0) for axis in ("x", "y", "z")]
+    41	        quaternion = [pose["orientation"].get(axis, 0.0) for axis in ("x", "y", "z", "w")]
+    42	    elif "native_pose_before_frame" in record:
+    43	        pose = record["native_pose_before_frame"]["entity"]
+    44	        translation = [pose["position"].get(axis, 0.0) for axis in ("x", "y", "z")]
+    45	        quaternion = [pose["orientation"].get(axis, 0.0) for axis in ("x", "y", "z", "w")]
+    46	    else:
+    47	        pose = record["observed_model_pose"]
+    48	        translation = pose["translation_m"]
+    49	        quaternion = pose["quaternion_xyzw"]
+    50	    rotation = quaternion_matrix(*quaternion).T
+    51	    # This declared SDF chain is a hypothesis recorded for audit, not optimized from residuals.
+    52	    origin = np.asarray(translation, dtype=np.float64)
+    53	    camera_origin = origin + rotation @ np.array([.180, 0.0, .0763 + .150])
+    54	    # Optical +Z -> base +X, optical +X -> base -Y, optical +Y -> base -Z.
+    55	    optical_to_base_rows = np.array([[0.0, -1.0, 0.0], [0.0, 0.0, -1.0], [1.0, 0.0, 0.0]])
+    56	    return camera_origin, rotation @ optical_to_base_rows.T
+    57
+    58
+    59	def to_world(points, transform):
+    60	    origin, rotation = transform
+    61	    return points @ rotation.T + origin
+    62
+    63
+    64	def from_world(points, transform):
+    65	    origin, rotation = transform
+    66	    return (points - origin) @ rotation
+    67
+    68
+    69	def load_frame(run, record):
+    70	    root = run / "frames" / record["id"]
+    71	    depth = np.load(root / "depth_m_float32.npy")
+    72	    invalid = np.load(root / "depth_invalid_mask.npy")
+    73	    calibration = json.loads((root / "camera_info.json").read_text())
+    74	    if depth.dtype != np.float32 or depth.shape != invalid.shape or calibration["depth_unit"] != "m":
+    75	        raise RuntimeError(f"reload invariant failed for {record['id']}")
+    76	    return depth, invalid, calibration
+    77
+    78
+    79	def source_points(depth, invalid, calibration, stride=2):
+    80	    fy, fx = calibration["k"][4], calibration["k"][0]
+    81	    cx, cy = calibration["k"][2], calibration["k"][5]
+    82	    v, u = np.indices(depth.shape)
+    20	    return pixels[:, :, 0], metadata
+    21
+    22
+    23	def source_class(name):
+    24	    lower = name.lower()
+    25	    if "chair" in lower:
+    26	        return "chair"
+    27	    if "table" in lower or "bench" in lower:
+    28	        return "dining table"
+    29	    if "sofa" in lower:
+    30	        return "couch"
+    31	    return None
+    32
+    33
+    34	def bbox(mask):
+    35	    rows, columns = np.nonzero(mask)
+    36	    return [int(columns.min()), int(rows.min()), int(columns.max() + 1), int(rows.max() + 1)]
+    37
+    38
+    39	def iou(first, second):
+    40	    left, top = max(first[0], second[0]), max(first[1], second[1])
+    41	    right, bottom = min(first[2], second[2]), min(first[3], second[3])
+    42	    overlap = max(0, right - left) * max(0, bottom - top)
+    43	    union = (first[2] - first[0]) * (first[3] - first[1]) + (second[2] - second[0]) * (second[3] - second[1]) - overlap
+    44	    return overlap / union if union else 0.0
+    45
+    46
+    47	def main():
+    48	    parser = argparse.ArgumentParser()
+    49	    parser.add_argument("--input-dir", type=Path, required=True)
+    50	    parser.add_argument("--yolo-results", type=Path, required=True)
+    51	    parser.add_argument("--output-dir", type=Path, required=True)
+    52	    args = parser.parse_args()
+    53	    if args.output_dir.exists():
+    54	        raise SystemExit(f"Refusing to overwrite output: {args.output_dir}")
+    55	    capture = json.loads((args.input_dir / "capture.json").read_text())
+    56	    labels = json.loads((args.input_dir / "private_instance_labels.json").read_text())["labels"]
+    57	    label_map = {item["label_id"]: item for item in labels}
+    58	    yolo = json.loads(args.yolo_results.read_text())
+    59	    yolo_by_observation = {Path(item["input"]["path"]).parent.name: item for item in yolo["frames"]}
+    60	    public_root, private_root = args.output_dir / "public", args.output_dir / "private"
+    61	    public_root.mkdir(parents=True); private_root.mkdir(); (private_root / "masks").mkdir()
+    62	    public_observations, private_observations, summary = [], [], []
+    63	    for record in capture["viewpoints"]:
+    64	        observation_id = record["id"]
+    65	        frame = args.input_dir / "frames" / observation_id
+    66	        values, metadata = decode_labels(frame)
+    67	        public_frame = public_root / observation_id; public_frame.mkdir()
+    68	        for filename in ("rgb.png", "depth_m_float32.npy", "depth_invalid_mask.npy", "camera_info.json"):
+    69	            shutil.copy2(frame / filename, public_frame / filename)
+    70	        public_observations.append({"observation_id": observation_id, "rgb_stamp_ns": record["rgb_stamp_ns"], "depth_stamp_ns": record["depth_stamp_ns"], "self_pose": record["native_pose_at_image"], "files": [filename for filename in ("rgb.png", "depth_m_float32.npy", "depth_invalid_mask.npy", "camera_info.json")]})
+    71	        visible = []
+    72	        overlay = Image.open(frame / "rgb.png").convert("RGB"); draw = ImageDraw.Draw(overlay)
+    73	        for label_id in np.unique(values):
+    74	            if label_id == 0:
+    75	                continue
+    76	            if int(label_id) not in label_map:
+    77	                raise RuntimeError(f"private label {int(label_id)} has no stable source mapping")
+    78	            mask = values == label_id
+    79	            pixels = int(mask.sum())
+    80	            if pixels < 100:
+    81	                continue
+    82	            item = label_map[int(label_id)]
+    83	            entry = {"label_id": int(label_id), "source_name": item["source_name"], "source_uri": item["source_uri"], "source_pose": item["source_pose"], "reporting_class": source_class(item["source_name"]), "visible_pixels": pixels, "bbox_xyxy": bbox(mask)}
+    84	            visible.append(entry)
+    85	            mask_dir = private_root / "masks" / observation_id
+    86	            mask_dir.mkdir(exist_ok=True)
+    87	            Image.fromarray((mask.astype(np.uint8) * 255), mode="L").save(mask_dir / f"{int(label_id):03d}.png")
+    88	            draw.rectangle(entry["bbox_xyxy"], outline=(255, 0, 255), width=2)
+    89	        overlay.save(private_root / f"{observation_id}_gt_overlay.png")
+    90	        private_observations.append({"observation_id": observation_id, "labels_metadata": metadata, "visible_instances": visible})
+    91	        predictions = yolo_by_observation.get(observation_id, {}).get("raw_boxes", [])
+    92	        eligible_gt = [item for item in visible if item["reporting_class"]]
+    93	        matched_gt, matches = set(), []
+    94	        for prediction in sorted(predictions, key=lambda item: item["confidence"], reverse=True):
+    95	            candidates = [(iou(prediction["xyxy_pixels"], target["bbox_xyxy"]), index) for index, target in enumerate(eligible_gt) if target["reporting_class"] == prediction["label"] and index not in matched_gt]
+    96	            if candidates:
+    97	                score, index = max(candidates)
+    98	                if score >= .5:
+    99	                    matched_gt.add(index); matches.append({"prediction_label": prediction["label"], "confidence": prediction["confidence"], "gt_label_id": eligible_gt[index]["label_id"], "iou": score})
+   100	        summary.append({"observation_id": observation_id, "visible_gt_reporting_instances_denominator": len(eligible_gt), "yolo_raw_boxes": len(predictions), "iou_threshold": .5, "class_matched_iou_matches": matches, "warning": "Detector-vs-GT visibility accounting only; not a relation, navigation, or accuracy score."})
+   101	    (public_root / "manifest.json").write_text(json.dumps({"scope": "PUBLIC_POLICY_INPUT_ONLY", "observations": public_observations, "forbidden": ["labels_map", "source instance names", "source poses", "private GT"]}, indent=2) + "\n")
+   102	    (private_root / "instances.json").write_text(json.dumps({"scope": "EVALUATOR_PRIVATE_ONLY", "observations": private_observations}, indent=2) + "\n")
+   103	    (private_root / "detector_gt_visibility.json").write_text(json.dumps({"scope": "EVALUATOR_PRIVATE_ONLY", "summary": summary}, indent=2) + "\n")
+   104	    print(json.dumps({"observations": len(public_observations), "visible_instances": sum(len(item["visible_instances"]) for item in private_observations), "public_has_labels": False}))
+   105
+   106
+   107	if __name__ == "__main__":
+   108	    main()
+artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evidence.json
+artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/raw_bridge_dynamic_pose_stream.json
+artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/raw_native_dynamic_pose_stream.json
+artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package/public/manifest.json
+artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/evaluator-package-final/public/manifest.json
+obs003_table_iou CoffeeTable_01_001 0.01774949467209404
+obs003_table_iou KitchenTable_01_001 0.13086628331285308
+CALIBRATION artifacts/companion-home-validation/runtime/metric-persistent-calibration-a27e139/panel-calibration/panel_calibration.json
+{
+  "scope": "runtime-only known green-X and blue-Y planes; never furnished-home targets, planner inputs, or evaluator ground truth",
+  "fixed_masks": "green: G>150,R/B<100; blue: B>150,R/G<100",
+  "measurements": [
+    {
+      "view_id": "panel_base",
+      "plane": "green_x",
+      "axis": "x",
+      "known_value_m": -5.0,
+      "fixed_color_pixels": 135127,
+      "valid_fixed_color_pixels": 135127,
+      "axis_error_median_m": -0.009957744788049894,
+      "axis_error_p95_abs_m": 0.009958279655754776,
+      "status": "DESCRIPTIVE_CALIBRATION_ONLY",
+      "warning": "Fixed color and plane axis were declared before capture. This supports only the runtime calibration transform/depth convention, never furnished-home accuracy, target identity, or method evidence."
+    },
+    {
+      "view_id": "panel_base",
+      "plane": "blue_y",
+      "axis": "y",
+      "known_value_m": 2.8,
+      "fixed_color_pixels": 0,
+      "valid_fixed_color_pixels": 0,
+      "status": "NOT_VERIFIED",
+      "reason": "fewer than 100 fixed-color plane pixels"
+    },
+    {
+      "view_id": "panel_forward",
+      "plane": "green_x",
+      "axis": "x",
+      "known_value_m": -5.0,
+      "fixed_color_pixels": 137243,
+      "valid_fixed_color_pixels": 137243,
+      "axis_error_median_m": -0.010014715296245313,
+      "axis_error_p95_abs_m": 0.010015009303814538,
+      "status": "DESCRIPTIVE_CALIBRATION_ONLY",
+      "warning": "Fixed color and plane axis were declared before capture. This supports only the runtime calibration transform/depth convention, never furnished-home accuracy, target identity, or method evidence."
+    },
+    {
+      "view_id": "panel_forward",
+      "plane": "blue_y",
+      "axis": "y",
+      "known_value_m": 2.8,
+      "fixed_color_pixels": 0,
+      "valid_fixed_color_pixels": 0,
+      "status": "NOT_VERIFIED",
+      "reason": "fewer than 100 fixed-color plane pixels"
+    },
+    {
+      "view_id": "panel_turn_90",
+      "plane": "green_x",
+      "axis": "x",
+      "known_value_m": -5.0,
+      "fixed_color_pixels": 0,
+      "valid_fixed_color_pixels": 0,
+      "status": "NOT_VERIFIED",
+      "reason": "fewer than 100 fixed-color plane pixels"
+    },
+    {
+      "view_id": "panel_turn_90",
+      "plane": "blue_y",
+      "axis": "y",
+      "known_value_m": 2.8,
+      "fixed_color_pixels": 97824,
+      "valid_fixed_color_pixels": 97824,
+      "axis_error_median_m": -0.009941886958345414,
+      "axis_error_p95_abs_m": 0.009942794262009946,
+      "status": "DESCRIPTIVE_CALIBRATION_ONLY",
+      "warning": "Fixed color and plane axis were declared before capture. This supports only the runtime calibration transform/depth convention, never furnished-home accuracy, target identity, or method evidence."
+    }
+  ],
+  "independent_axes_measured": [
+    "x",
+    "y"
+  ],
+  "two_heading_axis_requirement_met": true
+}
+POSE_STREAM artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/raw_native_dynamic_pose_stream.json
+{
+POSE_STREAM artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/raw_bridge_dynamic_pose_stream.json
+[
+Proceed to one offline A1 development run using the frozen detections and public RGB-D package. The acquisition seam is sufficient to start; relation-anchor quality and chair association are now the main uncertainties. A negative result—including complete relation abstention—is an acceptable measured outcome.
+**Inherited decisions**
+- Repository `/home/gxxl/soarm-car-companion-validation` is at `9bfe230`; the working tree is clean.
+- D1 is **VisualConf**, using frozen detector confidence. D2 explicitly permits independently stamped **known self-pose** for geometry; it does not establish localization or navigation performance.
+- Source identities, object poses, semantic masks and source geometry remain evaluator-only.
+- These eight observations are development views of one physical layout. Held-out physical layouts come after implementation and evaluation rules are frozen.
+- This assignment is inspection and a concrete execution contract: no repository writes, simulator run, navigation integration or large experiment prerequisite.
+**Diagnosis**
+1. **High — fix evaluator class mapping before scoring.**
+   [companion_evaluator_gt.py:23](/home/gxxl/soarm-car-companion-validation/scripts/companion_evaluator_gt.py:23) maps any name containing `table` to `dining table`. The saved private package therefore labels `Tablet_01_001` as a dining table; it also groups coffee tables with dining tables. Replace this with an explicit evaluator taxonomy derived from asset identity. Preserve the current package and emit a versioned correction.
+2. **High — the table detection is not yet a verified relation anchor.**
+   In the frozen `yolo/results.json`, the sole dining-table prediction is in `obs_003`. Its box IoU with `KitchenTable_01_001` is **0.13087**, below the existing 0.5 matching threshold; coffee-table IoU is **0.01775**. This could reflect poor localization, visible-mask extent, or mixed foreground. Do not silently lower the matching threshold to make it an anchor.
+3. **Medium — current matching does not evaluate persistent identities.**
+   [companion_evaluator_gt.py:91](/home/gxxl/soarm-car-companion-validation/scripts/companion_evaluator_gt.py:91) performs per-frame confidence-greedy box matching. `obs_002` also contains two overlapping predictions plausibly referring to one chair. Counting both as independent evidence would inflate multi-view support. The existing summary is correctly described as visibility accounting in [companion-visible-instance-gt.md:3](/home/gxxl/soarm-car-companion-validation/docs/research/companion-visible-instance-gt.md:3).
+4. **G4 image-time attitude check passed, with a bounded limitation.**
+   I normalized each saved quaternion and computed body-up tilt from world vertical. Maximum tilt across all eight observations was **0.0450°**, in `obs_006`; all image poses satisfy 5°. Continuous stability is recorded for all eight. I did not recompute attitude across every raw stability-window sample. The run must do that before claiming the complete G4 window gate. Stable tilt exceeding 5° remains invalid even if relative motion is negligible; passing G4 does not establish a legal navigation pose.
+5. **Calibration supports starting geometry, not assigning centimetre-level object accuracy.**
+   The saved two-axis calibration reports X/Y median errors around **−0.010 m** and `two_heading_axis_requirement_met: true`. Foreground selection and partial visibility introduce additional uncertainty that calibration alone does not bound.
+Artifact references above are under
+`artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/`, particularly `evaluator-package-final/private/instances.json`, `private/detector_gt_visibility.json`, `public/manifest.json`, and `yolo/results.json`.
+**Drift / contradiction check**
+The previous capture-only scope is superseded by the request for an executable A1 contract. Continue with scoring now, while preserving these boundaries:
+- A detected table class is not proof of correct table identity or geometry.
+- Missing couch detections are a detector failure, not evidence that no couch exists.
+- A1 must not obtain chair identities from evaluator labels.
+- Distance between source model origins is unsuitable relation truth: asset origins need not represent comparable physical locations.
+- Development views, query paraphrases and repeated runs are not independent test layouts.
+**Recommendation: smallest executable A1 contract**
+Use two offline entry points and one fixed configuration: a public-input method runner, a private evaluator, and a Chinese query/config file. These are proposed implementation targets, not existing commands. No new model or simulator work is necessary.
+1. **Inputs and geometry**
+   Give the method only public observations, a sanitized copy of frozen raw boxes keyed by opaque observation ID, and declared camera calibration/extrinsics. Preserve input hashes and detector threshold **0.1**.
+   Backproject metric optical-Z depth using CameraInfo and the documented transform at [companion_reload_geometry.py:37](/home/gxxl/soarm-car-companion-validation/scripts/companion_reload_geometry.py:37). Adapt the public manifest’s `self_pose` explicitly; do not enable the older pose fallbacks.
+   Recompute source-time and G4 gates from acquisition evidence in a separate validation step. Export only gate results needed by the method. Invalid observations retain an exclusion reason and remain visible in reporting.
+2. **Foreground from box depth**
+   Use this initial, fully recorded development configuration:
+   - Clip boxes; reject invalid, nonfinite and out-of-range depth.
+   - Backproject points, remove points within 5 cm of the declared floor plane, then form image-connected components with adjacent depth difference at most `max(0.05 m, 0.02 × depth)`.
+   - Retain components with at least 100 pixels and 5% of valid box pixels.
+   - Rank retained components by support in the central 60% of the box. Require the winning central support to be at least twice the runner-up; otherwise return `foreground_ambiguous`. Do not blindly select the nearest depth mode.
+   - Save selected pixels, competing supports, robust XY location, 10–90% spatial extents, truncation and spread. Re-run selection under a 5% box inset/outset and ±2 cm depth perturbation to obtain an explicit sensitivity envelope.
+   This is a conservative foreground proposal, not an instance mask guarantee. Chair backs with disconnected legs and tables overlapped by chairs are expected failure cases. Missing or unstable geometry produces unknown relation evidence.
+3. **Association preserving chair identity**
+   Process observations in fixed ID order. Associate within class using gated, one-to-one assignment based on world XY distance and reprojection compatibility.
+   Initial gates: XY location difference ≤0.30 m, projected support inside the other box ≥50%, and compatible overlapping depths within 0.10 m. Require the selected association’s normalized cost to beat its next alternative by 0.20; otherwise retain separate unresolved tracks.
+   Two distinct detections in the same image cannot enter the same track. Collapse a same-frame duplicate only when box IoU ≥0.7 **and** selected depth-component overlap ≥0.8; preserve duplicate provenance. Do not merge tracks by transitive proximity alone: every added observation must satisfy the track’s existing evidence. Report splits as well as merges.
+4. **V/R/M scores and abstention**
+   For every track, save the components separately:
+   - `V = maximum frozen detector confidence`.
+   - `M = min(1, (n−1)/2) × exp(−r/0.10 m)`, where `n` counts distinct, unambiguously associated observations and `r` is median XY residual about the track location. A singleton has `M=0`.
+   - `R`: relation evidence in `[0,1]`, with **unknown represented separately**. Compute relation scores at every geometry-envelope perturbation; use the lower score as conservative evidence and record the spread.
+   Run **V / V+R / V+M / V+R+M**, averaging enabled numeric components with equal weights. V alone is D1 VisualConf; geometry variants carry the D2 label. Unknown R cannot become zero, a neutral value, or an implicit pass: relation-enabled variants abstain when required evidence is unknown.
+   Freeze an initial top-two score margin of 0.05. Save forced rankings before abstention, accepted answers, and reason codes. Report coverage with error rates; an improvement achieved by refusing all queries is not successful disambiguation.
+5. **Feasible relation semantics and fixed Chinese queries**
+   Start with **relations between observed physical surfaces**, explicitly scoped to this development package. Fuse per-instance surface points in 2 cm voxels. Define:
+   - Left/right in the horizontal reference frame of `obs_001`, independent of subsequent camera heading.
+   - Representative surface location as the median of occupied XY voxels.
+   - Surface gap as the maximum of the two directional 10th-percentile nearest-neighbour XY distances. This avoids a single stray point defining proximity.
+   Use a **0.15 m ambiguity margin**, widened by the geometry sensitivity envelopes. For nearest/farthest, a winner is definite only when its distance interval separates from every competitor by that margin. For left/right, require separation from the anchor’s reference-axis interval; overlapping or incomplete evidence is unknown.
+   Freeze these six development queries before the first A1 score run:
+   | ID | Chinese query |
+   |---|---|
+   | Q1 | 找一把椅子。 |
+   | Q2 | 找到沙发。 |
+   | Q3 | 以观测 obs_001 的朝向为准，找餐桌左侧最靠左的一把椅子。 |
+   | Q4 | 以观测 obs_001 的朝向为准，找餐桌右侧最靠右的一把椅子。 |
+   | Q5 | 按本组观测到的物体表面间隙，找离餐桌最近的一把椅子。 |
+   | Q6 | 按本组观测到的物体表面间隙，找离餐桌最远的一把椅子。 |
+   Q1 allows any independently matched chair. Q2 retains visible couch GT despite zero couch detections. Q3–Q6 may have no definite answer; keep them and report why. “Leftmost” uses the declared representative surface location. These queries do not establish natural-language parsing performance.
+6. **Independent evaluator and truth**
+   Correct the explicit taxonomy first. Build GT geometry from **private instance masks plus valid depth**, transformed independently from the method’s foreground and association output. Stable semantic IDs identify chairs across views. Source geometry may later bound unobserved surfaces, but source model-origin distance never defines truth.
+   Keep two evaluation layers separate:
+   - **Detection/identity:** deterministic maximum-weight, one-to-one class-matched box assignment at the existing IoU ≥0.5 threshold. Save unmatched and competing assignments. Derive track identity from constituent matches; conflicting IDs mark contamination rather than being hidden by majority voting. Report fragmentation and duplicate tracks.
+   - **Relations:** compute answer sets from private-mask geometry using the frozen semantics and uncertainty margin. Report definite, ambiguous and insufficient-geometry cases separately. Partial observed surfaces support only the declared observed-surface relation.
+   Also report foreground mask purity/coverage and geometry error evaluator-only. These diagnose why box matching or relations fail; they must not repair method outputs.
+**Implementation/run acceptance matrix**
+| Requirement | Smallest observable acceptance |
+|---|---|
+| Input boundary | Method runs with only public package, sanitized detections and calibration mounted; outputs contain no source names or GT IDs. |
+| Pose/calibration/G4 | Consumer reload succeeds; per-observation timestamp and full-window attitude checks recorded; >5° cases excluded with reasons. |
+| Foreground | Every eligible box has saved component evidence or explicit failure; perturbation sensitivity is recorded. |
+| Chair association | Every track lists original detections; duplicate, ambiguous and split cases remain auditable; evaluator reports identity conflicts. |
+| Ablations | All four variants consume identical frozen detections and observation budgets and produce all six query records. |
+| Independent scoring | Versioned taxonomy; private matching and relation labels generated without using predicted scores to choose GT. |
+| Real development outcome | Report counts, candidate recall, Top-1, MRR, coverage, accepted-answer error, relation ambiguity and unknown reasons. Missing targets receive zero retrieval credit when GT is definite. |
+| Freeze before test | Save code/config/query/input/output hashes and exact replay command. Any subsequent rule change is a new development version; later test uses held-out physical layouts. |
+The real consumer check is the complete saved-public-input → foreground → tracks → four rankings → private scoring path. Syntax checks alone do not satisfy this contract. Zero valid table anchors, no association improvement, or lower A1 accuracy still complete the run if faithfully measured.
+**Risks**
+The table’s poor localization may prevent all relational answers. Partial visible surfaces may yield ambiguous geometric ordering even with perfect labels. The small, evaluator-selected development layout cannot support statistical generalization, and the proposed thresholds are starting development settings rather than calibrated confidence bounds.
+**Need from main agent**
+No additional decision is required for this bounded development implementation. Preserve every query and failed case; do not tune thresholds until an improvement appears without recording each development revision.
+**Suggested execution prompt**
+“Implement the six numbered requirements and eight acceptance rows above in `/home/gxxl/soarm-car-companion-validation`. Use one public offline A1 runner, one private evaluator, and one frozen configuration. Preserve existing acquisition artifacts; version the evaluator taxonomy correction. Exercise the complete consumer path on all eight observations and six queries, publish actual positive or negative development measurements, then freeze hashes before any held-out-layout test. Stop for a decision only if implementation requires new privileged method inputs, new model inference, simulator acquisition, or changing the declared relation semantics.”
+```acceptance-report
+{
+  "criteriaSatisfied": [
+    {
+      "id": "criterion-1",
+      "status": "satisfied",
+      "evidence": "Inspected revision 9bfe230, evaluator code, public/private artifacts, frozen detections and calibration output; returned severity-tagged findings with paths, measured table IoUs, image-time attitude results, and a concrete A1 implementation/run contract."
+    }
+  ],
+  "changedFiles": [],
+  "testsAddedOrUpdated": [],
+  "commandsRun": [
+    {
+      "command": "Read-only batch 1: git revision/status and evaluator documentation/script inspection",
+      "result": "passed",
+      "summary": "Confirmed revision 9bfe230, clean working tree, and evaluator-only acquisition scope."
+    },
+    {
+      "command": "Read-only batch 2: repository contract search and public/private/YOLO artifact inspection",
+      "result": "passed",
+      "summary": "Verified frozen detections, instance labels, source-time poses, duplicate-chair concern and erroneous Tablet dining-table taxonomy."
+    },
+    {
+      "command": "Read-only batch 3: calibration-contract inspection and normalized quaternion attitude calculation",
+      "result": "passed",
+      "summary": "All eight image-time poses satisfy 5 degrees; maximum body-up tilt is 0.0450 degrees."
+    },
+    {
+      "command": "Read-only batch 4: transform/matcher inspection, table IoU calculation and saved calibration-result inspection",
+      "result": "passed",
+      "summary": "Dining-table prediction IoU is 0.13087 against KitchenTable and 0.01775 against CoffeeTable; two-axis calibration result is present."
+    }
+  ],
+  "validationOutput": [
+    "Four read-only tool calls completed; no simulator or implementation run performed.",
+    "Returned public-depth foreground, conservative chair association, V/R/M ablations, relation abstention, fixed Chinese queries, independent GT evaluation and development-freeze acceptance criteria."
+  ],
+  "residualRisks": [
+    "Full raw stability-window attitude was not recomputed; only saved image-time poses were independently checked.",
+    "The sole table prediction may provide no valid relation anchor.",
+    "Partial visible surfaces can leave GT relations ambiguous.",
+    "No A1 performance result is claimed; implementation and measured development execution remain the next task.",
+    "Eight development observations cover one layout and cannot establish held-out performance."
+  ],
+  "noStagedFiles": true,
+  "diffSummary": "No files changed.",
+  "reviewFindings": [
+    "High: scripts/companion_evaluator_gt.py:23 - substring taxonomy maps Tablet to dining table and conflates coffee tables with dining tables.",
+    "High: artifacts/companion-home-validation/runtime/instance-survey-e8974b6-retry1/yolo/results.json - sole dining-table prediction has only 0.13087 IoU with visible KitchenTable GT.",
+    "Medium: scripts/companion_evaluator_gt.py:91 - current per-frame greedy matching does not evaluate persistent chair identities or track contamination."
+  ],
+  "manualNotes": "The requested advisory deliverable is complete. A narrow implementation handoff is warranted; positive and negative development outcomes are equally acceptable."
+}
+```
