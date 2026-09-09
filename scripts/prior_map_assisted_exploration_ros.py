@@ -13,12 +13,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from exploration_core import ExplorationCore, load_pinned_prior
-from prior_map_assisted_exploration import ExplorationSupervisor, PointCloudAdapter, State
+from prior_map_assisted_exploration import ExplorationSupervisor, LocalizationBootstrap, PointCloudAdapter, State
 from shared_nav2_transport import NavigationActionTransport
 
 import rclpy
 from action_msgs.msg import GoalStatus
-from geometry_msgs.msg import PoseStamped, Twist
+from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Twist
 from nav2_msgs.action import ComputePathToPose, NavigateToPose
 from rclpy.action import ActionClient
 from rclpy.clock import Clock, ClockType
@@ -220,9 +220,12 @@ class PriorMapExplorationNode(Node):
             source_map_id=prior.map_identity,
         )
         self.tf_buffer = Buffer()
+        self.bootstrap = LocalizationBootstrap()
+        self.bootstrap_pub = self.create_publisher(PoseWithCovarianceStamped, '/initialpose', 10)
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.revision = 0
         self.create_subscription(LocalizationHealth, '/localization/health', self.health, 10)
+        self.create_subscription(Odometry, '/Odometry', self.bootstrap_odometry, 10)
         self.create_subscription(PointCloud2, '/mid360/points', self.cloud, 10)
         self.create_subscription(Twist, '/safe_cmd_vel', self.safe_command, 10)
         self.create_subscription(Odometry, '/odom', self.measured_pose, 10)
@@ -244,7 +247,12 @@ class PriorMapExplorationNode(Node):
         self.supervisor.start(time.monotonic())
 
     def health(self, message):
+        matching = message.state == LocalizationHealth.HEALTHY and message.map_id == self.get_parameter('expected_health_map_id').value
+        self.bootstrap.healthy(matching)
         self.supervisor.health('HEALTHY' if message.state == LocalizationHealth.HEALTHY else 'UNHEALTHY', message.map_id, time.monotonic())
+
+    def bootstrap_odometry(self, message):
+        self.bootstrap.odometry_sample(seconds(message.header.stamp))
 
     def cloud(self, message):
         if self.drop_source:
@@ -320,7 +328,15 @@ class PriorMapExplorationNode(Node):
         self.named_status = {'state': 'active', 'place_id': prepared['place_id'], 'map_goal': verified, 'goal_uuid': self.nav.send_prepared(verified)}
 
     def tick(self):
-        self.supervisor.tick(time.monotonic())
+        wall_now = time.monotonic()
+        self.bootstrap.clock_sample(self.get_clock().now().nanoseconds / 1e9)
+        if self.bootstrap.due(wall_now):
+            seed = PoseWithCovarianceStamped()
+            seed.header.frame_id = 'map'
+            seed.header.stamp = self.get_clock().now().to_msg()
+            seed.pose.pose.orientation.w = 1.0
+            self.bootstrap_pub.publish(seed)
+        self.supervisor.tick(wall_now)
         if self.supervisor.state in (State.FRONTIERS_EXHAUSTED, State.BUDGET_EXHAUSTED):
             self._dispatch_named_task()
         if self.named_status['state'] == 'active':
@@ -343,7 +359,7 @@ class PriorMapExplorationNode(Node):
             os.replace(temporary, checkpoint)
             self.last_checkpoint = wall_now
         if wall_now - self.last_report >= 1.0 or state_changed:
-            report = {'state': self.supervisor.state.value, 'reason': self.supervisor.reason, 'core_state_checkpoint': 'checkpoint.json', 'goals': self.supervisor.goals, 'named_task': self.named_status, 'safe_cmd_vel': self.stop_samples, 'measured_pose': self.pose_samples, 'cadence': {'fsm_hz': 20, 'progress_report_hz_max': 1, 'checkpoint_seconds': 5}}
+            report = {'state': self.supervisor.state.value, 'reason': self.supervisor.reason, 'core_state_checkpoint': 'checkpoint.json', 'bootstrap': {'requests': self.bootstrap.sent, 'complete': self.bootstrap.complete, 'source_conditions': self.bootstrap.conditions}, 'goals': self.supervisor.goals, 'named_task': self.named_status, 'safe_cmd_vel': self.stop_samples, 'measured_pose': self.pose_samples, 'cadence': {'fsm_hz': 20, 'progress_report_hz_max': 1, 'checkpoint_seconds': 5}}
             temporary = self.evidence_dir / 'report.json.tmp'
             temporary.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
             os.replace(temporary, self.evidence_dir / 'report.json')

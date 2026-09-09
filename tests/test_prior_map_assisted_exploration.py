@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from prior_map_assisted_exploration import ExplorationSupervisor, FreshnessGate, PointCloudAdapter, State
+from prior_map_assisted_exploration import ExplorationSupervisor, FreshnessGate, LocalizationBootstrap, PointCloudAdapter, State
 
 MAP_ID = 'house_widened_reference.pcd'
 
@@ -92,6 +92,24 @@ class PlannerCancelNavigator(AsyncNavigator):
 class SupervisorTests(unittest.TestCase):
     def record(self, adapter, identifier, revision, stamp, receipt, clock, tf=True):
         return adapter.record(identifier, revision, stamp, [0., 0., .2], [0., 0., 0.], [(1., 0., .2)], receipt, clock, tf)
+
+    def test_known_origin_bootstrap_waits_for_clock_and_local_odometry_only(self):
+        bootstrap = LocalizationBootstrap()
+        self.assertFalse(bootstrap.due(0.))
+        bootstrap.clock_sample(1.)
+        self.assertFalse(bootstrap.due(.1))
+        bootstrap.odometry_sample(1.)
+        self.assertTrue(bootstrap.due(.2))
+        self.assertEqual(bootstrap.sent, 1)
+        self.assertFalse(bootstrap.due(.4))
+        bootstrap.clock_sample(2.)
+        bootstrap.odometry_sample(2.)
+        self.assertTrue(bootstrap.due(.8))
+        bootstrap.healthy(True)
+        bootstrap.clock_sample(3.)
+        bootstrap.odometry_sample(3.)
+        self.assertFalse(bootstrap.due(1.5))
+        self.assertEqual(bootstrap.sent, 2)
 
     def test_explicit_floor_band_and_high_classification(self):
         adapter = PointCloudAdapter(MAP_ID, ground_z=1., floor_tolerance=.1, navigation_z_min=1.2, navigation_z_max=1.8)

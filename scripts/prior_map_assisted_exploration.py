@@ -95,6 +95,45 @@ class FreshnessGate:
         return True
 
 
+class LocalizationBootstrap:
+    """Bounded known-origin seed; waits only for clock and local FAST-LIO odometry."""
+
+    def __init__(self, sends=6, interval=.5):
+        self.sends, self.interval = sends, interval
+        self.clock = None
+        self.odom_stamp = None
+        self.last_clock = None
+        self.last_odom_stamp = None
+        self.sent = 0
+        self.last_send = None
+        self.complete = False
+        self.conditions = []
+
+    def clock_sample(self, value):
+        self.clock = value
+
+    def odometry_sample(self, stamp):
+        self.odom_stamp = stamp
+
+    def healthy(self, matching):
+        if matching:
+            self.complete = True
+
+    def due(self, wall_now):
+        if self.complete or self.sent >= self.sends:
+            return False
+        advancing_clock = self.clock is not None and self.clock > 0 and (self.last_clock is None or self.clock > self.last_clock)
+        advancing_odom = self.odom_stamp is not None and self.odom_stamp > 0 and (self.last_odom_stamp is None or self.odom_stamp > self.last_odom_stamp)
+        self.conditions = [{'clock': self.clock, 'odom_stamp': self.odom_stamp, 'advancing_clock': advancing_clock, 'advancing_odom': advancing_odom}]
+        if not (advancing_clock and advancing_odom):
+            return False
+        if self.last_send is not None and wall_now - self.last_send < self.interval:
+            return False
+        self.last_clock, self.last_odom_stamp, self.last_send = self.clock, self.odom_stamp, wall_now
+        self.sent += 1
+        return True
+
+
 class PointCloudAdapter:
     """Build core observations from already TF-validated map-frame point samples."""
 
