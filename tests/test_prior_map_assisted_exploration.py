@@ -74,6 +74,21 @@ class AsyncNavigator(Navigator):
         return {'accepted': True, 'status': 'SUCCEEDED', 'frame_id': 'map', 'poses': [[1., 2.]]}
 
 
+class PlannerCancelNavigator(AsyncNavigator):
+    def compute_path(self, goal):
+        self.busy = True
+        self.terminal = False
+        return super().compute_path(goal)
+
+    def cancel(self):
+        self.cancelled = True
+
+    def poll_cancel(self):
+        if self.path_ready:
+            self.busy = False
+            self.terminal = True
+
+
 class SupervisorTests(unittest.TestCase):
     def record(self, adapter, identifier, revision, stamp, receipt, clock, tf=True):
         return adapter.record(identifier, revision, stamp, [0., 0., .2], [0., 0., 0.], [(1., 0., .2)], receipt, clock, tf)
@@ -117,6 +132,25 @@ class SupervisorTests(unittest.TestCase):
         supervisor.tick(2.1)
         self.assertEqual(supervisor.state, State.NAVIGATING)
         self.assertEqual(nav.sent, [[1.0, 2.0]])
+
+    def test_sensor_loss_during_planning_waits_for_planner_terminal(self):
+        core, nav = Core(), PlannerCancelNavigator()
+        supervisor = ExplorationSupervisor(core, nav, MAP_ID)
+        adapter = PointCloudAdapter(MAP_ID)
+        supervisor.start(0.)
+        supervisor.health('HEALTHY', MAP_ID, 1.)
+        supervisor.enqueue(self.record(adapter, 'one', 1, 1., 1., 1.))
+        supervisor.tick(1.)
+        supervisor.health('HEALTHY', MAP_ID, 2.)
+        supervisor.enqueue(self.record(adapter, 'two', 2, 2., 2., 2.))
+        supervisor.tick(2.)
+        self.assertEqual(supervisor.state, State.PLANNING)
+        supervisor.tick(4.)
+        self.assertEqual(supervisor.state, State.CANCELLING)
+        self.assertTrue(nav.cancelled)
+        nav.path_ready = True
+        supervisor.tick(4.1)
+        self.assertEqual(supervisor.state, State.SENSOR_FAULT)
 
     def test_latest_bounded_queue_and_path_then_navigation_then_coverage(self):
         core, nav = Core(), Navigator()
