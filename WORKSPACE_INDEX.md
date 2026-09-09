@@ -15,7 +15,7 @@
 
 | 本机路径（均在 `/home/gxxl/`） | 分支 / 核对 HEAD | 用途与使用边界 |
 |---|---|---|
-| `soarm-car-graduation` | `integration/graduation-assistant` / `0f05aea` | **当前产品功能集成工作区**：恢复快照、命名请求、语义记忆、VL裁剪和只读工作台已合并。入口 http://127.0.0.1:8766；说明 `docs/robot-workspace.md`，批次追溯 `docs/research/unattended-graduation-experiments.md`。 |
+| `soarm-car-graduation` | `integration/graduation-assistant` / `ee29af9` | **当前产品功能集成工作区**：恢复快照、命名请求、语义记忆、VL裁剪和只读工作台已合并。入口 http://127.0.0.1:8766；说明 `docs/robot-workspace.md`，批次追溯 `docs/research/unattended-graduation-experiments.md`。 |
 | `soarm-car-nav-recovery` | `experiment/nav-baseline-recovery` / `33187ea` | 原导航当前状态恢复快照，两个独立恢复验证通过；已合并集成分支 `75cbe01`，未修改原导航。 |
 | `soarm-car-nav2-clean` | `experiment/nav2-clean-baseline` / `41463f9` | **现有自主导航优先复用基线**：球轮 `kuruma_ros2_control`、FAST-LIO、Smac、全向 MPPI；有多房间成功记录。当前有修改及未跟踪脚本，不能仅凭 HEAD 还原当前成功实现。 |
 | `soarm-car-companion-validation` | `research/companion-home-validation` / `08f5eb2` | 家具住宅 GUI、RGB-D、论文包及手动演示。最新演示是球轮 + Fortress `VelocityControl` 运动学近似，不是上述 ros2_control 导航基线。 |
@@ -34,7 +34,7 @@
 | `soarm-car-vlm-crops` | `experiment/vlm-crop-context` / `7c95161` | 已合并；16次实测，发现编号敏感性，未证实语义增益。 |
 | `soarm-car-nav-request` | `experiment/nav-request-identity` / `e2fe305` | 已修正并合并；真实ROS Goal序列化和伪造请求拒绝，不发送动作。 |
 | `soarm-car-assistant-inspector` | `experiment/assistant-inspector` / `e788dbd` | UI初始分支，已合并；**运行用集成工作区**，其中已改为通用产品命名并修正HTTP HEAD响应。原8765服务已停止。 |
-| `soarm-car-nav-service` | `experiment/reuse-nav-service` / 基点 `010c380` | 原始脚本有界往返复用检查进行中，不改导航实现。 |
+| `soarm-car-nav-service` | `experiment/reuse-nav-service` / `63b98e1` | 原始消费者 room-1→hub/mian 往返实际成功；只在独立运行副本添加NVIDIA/X11/EGL启动环境补丁，原导航实现不变。两次启动失败及最终成功均保留，已合并 `7c4046e`。 |
 
 临时恢复验证工作树在 `/tmp/soarm-nav2-clean-restore-41463f9` 和 `/tmp/soarm-nav2-clean-parent-restore-20260909`，不是新导航实现。其他 worktree（如 Astra、rethink-test）通过 `git worktree list` 查询。
 
