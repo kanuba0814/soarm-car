@@ -1,0 +1,27 @@
+image=sha256:1da9a18609c4664d7441d9f334c95e971f0795aa3815f6707ed761f2ce93d227
+runtime_head=41463f9a07dc317eb837558ad55b137fb92e35eb
+runtime_status:
+ M ros2_ws/src/soarm_navigation/behavior_trees/navigate_through_poses_holonomic.xml
+ M ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml
+ M ros2_ws/src/soarm_navigation/soarm_navigation/launch/house_fastlio_nav2.launch.py
+ M ros2_ws/src/soarm_simulation/config/kuruma_ros2_control_controllers.yaml
+ M ros2_ws/src/soarm_simulation/maps/house_floorplan.pgm
+ M ros2_ws/src/soarm_simulation/models/house_floorplan/model.sdf
+ M ros2_ws/src/soarm_simulation/worlds/house_floorplan.sdf
+ M ros2_ws/src/soarm_simulation/worlds/house_floorplan_ros2_control.sdf
+ M vendor/localization/src/FAST_LIO_LOCALIZATION_ROS2/config/soarm_house_localization.yaml
+?? artifacts/
+?? ros2_ws/src/soarm_navigation/behavior_trees/navigate_position_only_holonomic.xml
+?? ros2_ws/src/soarm_navigation/config/house_nav2_mppi_shim.yaml
+?? scripts/generate_house_reference_pcd.py
+?? scripts/nav2-clean-planar-probe.py
+?? scripts/nav2-clean-route-consumer.py
+?? scripts/nav2-clean-yaw-probe.py
+?? scripts/run-nav2-clean-comparison.sh
+?? scripts/run-nav2-clean-planar-probe.sh
+?? scripts/run-nav2-clean-yaw-probe.sh
+runner_sha256=2e471c5befc343690c9e124bd4e7de392fce771bc8049a512389cbf66f7fd61b  /tmp/soarm-nav2-clean-parent-restore-20260909/scripts/run-nav2-clean-comparison.sh
+consumer_sha256=48c79b8dfba6890a9db3fc5c32fe62b064e576e00dad1e4c8d4f44f78a01de33  /tmp/soarm-nav2-clean-parent-restore-20260909/scripts/nav2-clean-route-consumer.py
+preexisting_prefix:
+ros_domain=246
+ign_partition=soarm-nav2-reuse-direct-mppi-20260909
