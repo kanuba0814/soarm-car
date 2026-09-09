@@ -1,10 +1,10 @@
-# 本地毕业助手检查器
+# 家庭机器人工作台
 
-该实验是只读、离线的实现检查器，不启动 ROS、GPU 或导航，也不发送运动指令。
+提供定位与导航说明、场景记忆查询、视觉分析和运行记录。当前为只读离线回放模式，不启动 ROS、GPU 或导航，也不发送运动指令。界面采用通用机器人产品命名，不按论文或毕业设计用途包装。
 
 ```bash
 python3 experiment/assistant-inspector/server.py \
-  --port 8765 \
+  --port 8766 \
   --output /tmp/soarm-assistant-inspector-cache
 ```
 

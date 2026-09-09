@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Loopback-only, read-only inspector for archived graduation assistant evidence."""
+"""Loopback-only, read-only robot workspace for archived observations."""
 from __future__ import annotations
 
 import argparse
