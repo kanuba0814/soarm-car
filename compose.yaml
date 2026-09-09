@@ -13,9 +13,8 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - ${XAUTHORITY:-/dev/null}:/tmp/.host-xauthority:ro
     devices:
-      - /dev/dri:/dev/dri
+      - /dev/dri/renderD128:/dev/dri/renderD128
     group_add:
-      - ${VIDEO_GID:-39}
       - ${RENDER_GID:-105}
     network_mode: host
     ipc: host
@@ -28,6 +27,9 @@ services:
       QT_X11_NO_MITSHM: "1"
       QT_XCB_GL_INTEGRATION: xcb_glx
       LIBGL_ALWAYS_SOFTWARE: ${LIBGL_ALWAYS_SOFTWARE:-0}
+      OMP_NUM_THREADS: ${OMP_NUM_THREADS:-2}
+      OPENBLAS_NUM_THREADS: ${OPENBLAS_NUM_THREADS:-2}
+      MKL_NUM_THREADS: ${MKL_NUM_THREADS:-2}
       ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-42}
     stdin_open: true
     tty: true

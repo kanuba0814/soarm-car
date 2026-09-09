@@ -1,0 +1,2 @@
+CONTAINER ID   NAME                       CPU %     MEM USAGE / LIMIT     MEM %     NET I/O   BLOCK I/O         PIDS
+c5f5a05f642c   soarm-intel-sensor-19196   299.00%   728.9MiB / 30.83GiB   2.31%     0B / 0B   95.3MB / 1.16MB   149

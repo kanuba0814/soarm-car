@@ -14,10 +14,10 @@ if [[ ! -r "$XAUTHORITY" ]]; then
     echo "Xauthority file is not readable: $XAUTHORITY" >&2
     return 1 2>/dev/null || exit 1
 fi
-if [[ ! -e /dev/dri/renderD128 ]]; then
-    echo "/dev/dri/renderD128 was not found; hardware acceleration is unavailable." >&2
+intel_render_node=/dev/dri/renderD128
+if [[ ! -c "$intel_render_node" ]]; then
+    echo "$intel_render_node is not an available Intel render node." >&2
     return 1 2>/dev/null || exit 1
 fi
 
-export VIDEO_GID="$(stat -c %g /dev/dri/card* | head -1)"
-export RENDER_GID="$(stat -c %g /dev/dri/renderD* | head -1)"
+export RENDER_GID="$(stat -c %g "$intel_render_node")"
