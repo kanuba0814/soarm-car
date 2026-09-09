@@ -1,0 +1,20 @@
+{
+  "asset_manifest_sha256": "5cc1652b6c5210b61c62c40683368c6ba3231ede3b5e4516f310be78bcd04944",
+  "map_goal": {
+    "frame_id": "map",
+    "orientation": {
+      "w": 1.0,
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "position": {
+      "x": -1.2240907573593973,
+      "y": 5.400267829207922,
+      "z": 0.0
+    }
+  },
+  "place_id": "room-1",
+  "require_heading": false,
+  "status": "prepared_for_serialization"
+}

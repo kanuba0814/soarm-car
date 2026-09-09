@@ -1,0 +1,19 @@
+--- ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml	2026-09-05 23:49:30.580333458 +0900
++++ ros2_ws/src/soarm_navigation/config/house_nav2_mppi_shim.yaml	2026-09-05 23:49:44.623481589 +0900
+@@ -45,7 +45,15 @@
+       yaw_goal_tolerance: 3.141592653589793
+       stateful: false
+     FollowPath:
+-      plugin: nav2_mppi_controller::MPPIController
++      plugin: nav2_rotation_shim_controller::RotationShimController
++      primary_controller: nav2_mppi_controller::MPPIController
++      angular_dist_threshold: 0.785
++      angular_disengage_threshold: 0.3925
++      forward_sampling_distance: 0.5
++      rotate_to_heading_angular_vel: 0.8
++      max_angular_accel: 2.0
++      simulate_ahead_time: 1.0
++      rotate_to_goal_heading: false
+       closed_loop: true
+       time_steps: 56
+       model_dt: 0.05

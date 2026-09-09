@@ -1,0 +1,150 @@
+{
+  "comparison": "Only FollowPath plugin/wrapper differs. Position-only goal checking is identical.",
+  "configs": {
+    "direct_mppi": {
+      "path": "ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml",
+      "sha256": "b5c4a85a389a77bda2308665aea81d80749fb04a66ad643d1ed0520662da1c1f"
+    },
+    "rotation_shim": {
+      "path": "ros2_ws/src/soarm_navigation/config/house_nav2_mppi_shim.yaml",
+      "sha256": "ad131e623840dffc359d6beaeffa57e9983ab8404700071505d723c33f05fa28"
+    }
+  },
+  "saved_route": [
+    {
+      "aliases": [
+        "\u4fa7\u5ba41"
+      ],
+      "goal_mode": "auto",
+      "goal_pose": [
+        -1.2240907573593973,
+        5.400267829207922,
+        0.0
+      ],
+      "id": "room-1",
+      "polygon": [
+        [
+          -2.9813664596273295,
+          6.50513698630137
+        ],
+        [
+          -3.0310559006211184,
+          4.270547945205481
+        ],
+        [
+          0.5465838509316772,
+          4.320205479452056
+        ],
+        [
+          0.5962732919254652,
+          6.50513698630137
+        ]
+      ],
+      "require_yaw": false,
+      "revision": 1
+    },
+    {
+      "aliases": [
+        "\u4fa7\u5ba42"
+      ],
+      "goal_mode": "auto",
+      "goal_pose": [
+        1.9542591454151035,
+        5.456758536319294,
+        0.0
+      ],
+      "id": "room-2",
+      "polygon": [
+        [
+          0.7950310559006208,
+          6.554794520547947
+        ],
+        [
+          0.5962732919254652,
+          4.419520547945206
+        ],
+        [
+          3.229813664596273,
+          4.36986301369863
+        ],
+        [
+          3.180124223602485,
+          6.554794520547947
+        ]
+      ],
+      "require_yaw": false,
+      "revision": 1
+    },
+    {
+      "aliases": [
+        "\u4fa7\u5ba43"
+      ],
+      "goal_mode": "auto",
+      "goal_pose": [
+        5.308152814437589,
+        4.618155043149364,
+        0.0
+      ],
+      "id": "room-3",
+      "polygon": [
+        [
+          3.378881987577641,
+          6.50513698630137
+        ],
+        [
+          3.4285714285714306,
+          2.78082191780822
+        ],
+        [
+          7.254658385093169,
+          2.78082191780822
+        ],
+        [
+          7.204968944099381,
+          6.40582191780822
+        ]
+      ],
+      "require_yaw": false,
+      "revision": 1
+    },
+    {
+      "aliases": [
+        "\u5ba2\u5385"
+      ],
+      "goal_mode": "manual",
+      "goal_pose": [
+        0,
+        0,
+        0
+      ],
+      "id": "mian",
+      "polygon": [
+        [
+          -3.8260869565217392,
+          -1.5890410958904102
+        ],
+        [
+          1.987577639751553,
+          -1.5890410958904102
+        ],
+        [
+          1.987577639751553,
+          2.9297945205479454
+        ],
+        [
+          -3.875776397515528,
+          3.0787671232876708
+        ]
+      ],
+      "require_yaw": true,
+      "revision": 1
+    }
+  ],
+  "source_hashes": {
+    "model_sdf": "c1e8568b4c44460d47b86fa27cb329689a3910cc2505d307d40ce7c18cdc7398",
+    "occupancy": "7d9c0b348928d1cb11c3ae033191b05989d35078ae34f3527c5779e0b731e08b",
+    "pcd": "f930a35e03ad641d2ad25174afa19f6fe9d070e38ae1bfe63391a5f3afac9a12",
+    "rooms": "742399c8fb8150fb55d78d230f9d90785193dff466c9e79690314266a49859d5",
+    "world_sdf": "6f6bc249c8d89afa493e9f53fa1bbc717820fe0150a02f99ab0573025ec980d1"
+  }
+}

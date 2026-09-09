@@ -1,0 +1,117 @@
+{
+  "scope": "parent verified immutable run receipts; not new navigation execution",
+  "runs": [
+    {
+      "path": "artifacts/evidence/nav2-clean-renderer-parity-20260909T091000Z",
+      "sha256": {
+        "companion-after-topics.txt": "9ee816639b5fe9317aea5b6f1c9d641b4d03b7200ef7f37beeb0fa86d6b070f0",
+        "companion-after.txt": "5eaff847f3d3c600f0cc501af773713b4eb515db22d6021fd9ed27568f4ca361",
+        "companion-restore-exit-status.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "companion-restore.log": "8dd5a940817b387eb92c84816addfe972e70f91f62a32d48212a0b1cebe9e66f",
+        "companion-stop.log": "1cde6b9ce6e6d6317c2b80696713b2b78308bfd4088401017a470cac86fb8948",
+        "consumer.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "direct-vs-shim.diff": "594b4b819e4bc4181ced378d78e6f537a4079b5a041c7ef7744005f6becb2871",
+        "evidence-sha256sums.txt": "912a1a38d1f5ec6512b6217c349c3dd8753407dab618089d882f5c38bf8ca195",
+        "metrics.json": "593a28d434823200a10ba78edfc6d583acfa48d927c772dbbf0c230cb4fda94d",
+        "nav2-container.log": "463d5b3aceb7802fdde312eaf65124f9dd62a0034dad590ccb37dfb5507dc7af",
+        "preflight.txt": "689847764ff2d3c56350962560fa0647a2c1696c9c2271b2948e86238af456cd",
+        "renderer-overlay.diff": "f44ca0dc6ed34070dce2138d4076e362ec8eddf9eb3460d191a83d2a587e4b30",
+        "renderer-probe-command.txt": "880b951f1ce18ed383aaf2085359905388e070f3b45b6e05375b0b2149bc59e0",
+        "renderer-probe-exit-status.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "renderer-probe.stderr.log": "ab286c2b5845317eae7336b01911ebb1b3153a4b24e3098ae3b1378503968ebd",
+        "renderer-probe.stdout.log": "acfc7cc540f46cde1473dd927f878444b898c512414f298454c227b959d452c2",
+        "residual-risks.md": "138e34ebbb36f5e860e7352f321691effae1eadf72681e0673973e3498a43065",
+        "review-findings.md": "18dda38de26a3c001fea28424d575716a50fb3667b955f9a8ef19059ad9e9d6c",
+        "run-command.txt": "95c51b21dafb3df29b6e9762b0493160bbe4da8ae3308cc3cec60d02dad384b3",
+        "run-report.md": "008d0e525042d54081638bb5739290d22fae23728a39dd30efb4706b82e697c7",
+        "run-timing.txt": "33ffcaa26972f6ef1d6607f9c09ee5dce13e4b9cffa26811ec916538f92aae76",
+        "runner-exit-status.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "runner.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "runner.stdout.log": "1a6127a4e965059477a207a1e5bf0e3930f60323ade2e5920b940a12bb893d78",
+        "runtime-snapshot.json": "84f4388061c061359fdd8ab7c90cbaf6afd24fd9af7c6be951a33868611f7e48",
+        "runtime-summary.json": "2493ffe27dbe6dcaed6cde6681483730e31ca259b2a4da2c83f3ffa416bae9d4",
+        "validation-summary.txt": "1559e644006d7c56fc7bd92a8dad67b76bbbdebaeb560d2fdcf37b33201b36a5"
+      },
+      "complete": true,
+      "passed": true,
+      "route": [
+        {
+          "room_id": "room-1",
+          "status": 4,
+          "cancelled_at_bound": false,
+          "elapsed_sim_s": 43.516,
+          "localization_truth_error_max_m": 0.05719821426193935
+        },
+        {
+          "room_id": "hub",
+          "status": 4,
+          "cancelled_at_bound": false,
+          "elapsed_sim_s": 20.101,
+          "localization_truth_error_max_m": 0.09013947520629939
+        }
+      ]
+    },
+    {
+      "path": "artifacts/evidence/nav2-clean-retry-20260909T090500Z",
+      "sha256": {
+        "companion-after-topics.txt": "9ee816639b5fe9317aea5b6f1c9d641b4d03b7200ef7f37beeb0fa86d6b070f0",
+        "companion-after.txt": "8372f2756729354537127619774a4dd6ffd2ff3f35b0ef8c8409db83ff76a00b",
+        "companion-restore-exit-status.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "companion-restore.log": "aa4b49d1ea80593721feb08d2b7accffe447972fea2c824203dde3419f5eb524",
+        "companion-stop.log": "1cde6b9ce6e6d6317c2b80696713b2b78308bfd4088401017a470cac86fb8948",
+        "consumer.log": "d9add6c35c2e43ca61ac1ee286f3e350f16acff946161448f05c4c3dffc9c4ea",
+        "direct-vs-shim.diff": "43292b321b90d0844664df21bc86de419b0f48bf2846d1597c190480d6d51be1",
+        "evidence-sha256sums.txt": "1d54ed13f9c3397c632d54172ef0c50dd1c334d8fdd7d507c40def2399bbcc8e",
+        "metrics.json": "c921cfed30f19ef7defd86703bfd789f294ddc159843850e8a2fa1eb22061750",
+        "nav2-container.log": "5b14a3f60f101841a4fc301510e8f9997f68414fa3de4caf794303949ac93bd6",
+        "preflight.txt": "8e15acc06bd98e87a46ef8dfcc2d427beb37b49a080d46dffaf85fea872a8bb2",
+        "residual-risks.md": "fc0cfa917282b4d15da53bcefbf1bb8ff464e1972597f8ddb4362a19611a1666",
+        "review-findings.md": "febbf4d6c52e0330cd20b5137665c05d6fd1ce4132bcd160536e8a07d75225a9",
+        "run-command.txt": "c4483b0721fbc84f89a7ee5bfb54e765c72abd90a61e65afff56ddec1d333c2d",
+        "run-report.md": "d1c01a07d3995de869cb54cda490e05bdd5487b25c7d774dfe7b91fd9b4ab1d3",
+        "run-timing.txt": "a2b3d4f1a8b2b9df1f2b9379a7af5bf7b2a0e1a3e141cefbf94936151edd3505",
+        "runner-exit-status.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "runner.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "runner.stdout.log": "1c260580e98c8373e98ff7cfbaf35ff98bed280eb61a2d8f46e6768aea622cb4",
+        "runtime-gates.txt": "675a1e23454173c250b68806325ce4e4f9eca2f9a8f8324285cbeae67ad1ed1b",
+        "runtime-snapshot.json": "84f4388061c061359fdd8ab7c90cbaf6afd24fd9af7c6be951a33868611f7e48",
+        "runtime-summary.json": "b6d8ce199cc0a3bafecf2f36d3725a98ceddb2639c89b449d8a69d224bbeee2a"
+      },
+      "complete": false,
+      "passed": false,
+      "route": []
+    },
+    {
+      "path": "artifacts/evidence/nav2-clean-reuse-20260909T174500Z",
+      "sha256": {
+        "companion-after-processes.txt": "81a9f5ad3a981a648e8cb819923406fe0aac3f71fb0660e3ddc4689c004553cf",
+        "companion-after-topics.txt": "9ee816639b5fe9317aea5b6f1c9d641b4d03b7200ef7f37beeb0fa86d6b070f0",
+        "companion-after.txt": "0b9207344c73753ee0181916cfd29f1df8cd58a5d63af74b23e015eec7d0f254",
+        "companion-before.txt": "a5a9a131092a417e84e4f7c93254192936c50374a2296b089d2bcedd56bdcb48",
+        "companion-restore-correct-root.log": "127308cf95e90957dbbb5c2d4eb396b0be89f6165dffb004c3adde0067f3c522",
+        "companion-restore-exit-status.txt": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3",
+        "companion-restore-final-exit-status.txt": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+        "companion-restore.log": "efeddd13e41b0b98718eb0235237adc2f47dfefa8147c37cb127e076fafd2582",
+        "companion-stop.log": "200d41dcfe19d06481132c713e38f85b5bae93240d22113677c027f3eecdf2cb",
+        "direct-vs-shim.diff": "43292b321b90d0844664df21bc86de419b0f48bf2846d1597c190480d6d51be1",
+        "evidence-sha256sums.txt": "71796fc62772a2425c1e190493d267c3814814065dc92cbd8050ceefa22d286f",
+        "named-request-room-1-prepared.json": "01555edcd4d1f44a3ef55d71f22eff37bade30d67f2fbc1a533328d40b8a1586",
+        "named-request-room-1-verified.json": "31f34f269ebeae438b4ef0857042264694290a525589f0eb24672d1f44188efc",
+        "named-request-room-1.json": "a64239d424fa159dda240329de27e702895927987658a147a01e811a0ad78f60",
+        "nav2-container.log": "a827f0197789cb6565d2d22ca3475a2995d87613762da36418178e30c9510aff",
+        "preflight.txt": "54edd66564c79799cf8458c14404083da64a3a32958b834d8a284d5ecd98bd70",
+        "residual-risks.md": "fd7596730e776730905c69cce7568cfb9502948aa8fe9d0b4b4568a350d1de8e",
+        "review-findings.md": "161b3c1ed2831f9dd32ac4af8a0144286b7988b39dfedd3da4c3374b5c6ee982",
+        "run-command.txt": "569aeb3a270fd207798e42186a7de5c002dc391931d94b8bf61bfcf0a450ff8f",
+        "run-report.md": "0d8b71e4a56411889adb6e596fc0b5b9682a6cba4289bd1d7d85dc98c51b883a",
+        "run-timing.txt": "1ceb71963415f5d4e72ba846899f734baaff35cd1005ce5a52a17a723b3e0b04",
+        "runner-exit-status.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+        "runner.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "runner.stdout.log": "6a2afbcecf5053ddc777781058540308dfd165412ecb6ff7aeda1427c80c627f",
+        "runtime-snapshot.json": "84f4388061c061359fdd8ab7c90cbaf6afd24fd9af7c6be951a33868611f7e48",
+        "runtime-summary.json": "ff70eafd7f25a5683a58c5de0bdaa2ccc9717537cdc447e9a53b331a1c0fd8c2"
+      }
+    }
+  ],
+  "manifest_note": "Original successful-run evidence-sha256sums.txt incorrectly includes its own hash; all other 26 listed hashes match. Original manifest retained unchanged; this external index hashes the original manifest as ordinary data."
+}

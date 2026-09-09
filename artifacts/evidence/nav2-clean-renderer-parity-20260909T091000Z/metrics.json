@@ -1,0 +1,1100 @@
+{
+  "classification": "saved multiroom route passed with healthy localization",
+  "complete": true,
+  "error": null,
+  "limits": {
+    "sim_seconds_per_goal": 120.0,
+    "wall_seconds_per_goal": 180.0
+  },
+  "passed": true,
+  "raw_health_samples": [
+    {
+      "fitness": null,
+      "rejections": 0,
+      "rmse": null,
+      "sim_time": 0.1,
+      "state": 0
+    },
+    {
+      "fitness": null,
+      "rejections": 0,
+      "rmse": null,
+      "sim_time": 0.701,
+      "state": 0
+    },
+    {
+      "fitness": 0.8449198007583618,
+      "rejections": 0,
+      "rmse": 0.09514394402503967,
+      "sim_time": 1.208,
+      "state": 1
+    },
+    {
+      "fitness": 0.8449198007583618,
+      "rejections": 0,
+      "rmse": 0.09514394402503967,
+      "sim_time": 1.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.8449198007583618,
+      "rejections": 0,
+      "rmse": 0.09528065472841263,
+      "sim_time": 2.301,
+      "state": 1
+    },
+    {
+      "fitness": 0.8449198007583618,
+      "rejections": 0,
+      "rmse": 0.09528065472841263,
+      "sim_time": 2.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8449198007583618,
+      "rejections": 0,
+      "rmse": 0.09528068453073502,
+      "sim_time": 3.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8449198007583618,
+      "rejections": 0,
+      "rmse": 0.09528068453073502,
+      "sim_time": 3.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8474114537239075,
+      "rejections": 0,
+      "rmse": 0.09596411883831024,
+      "sim_time": 4.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8474114537239075,
+      "rejections": 0,
+      "rmse": 0.09596411883831024,
+      "sim_time": 4.902,
+      "state": 1
+    },
+    {
+      "fitness": 0.8626943230628967,
+      "rejections": 0,
+      "rmse": 0.11861871182918549,
+      "sim_time": 5.5,
+      "state": 1
+    },
+    {
+      "fitness": 0.8626943230628967,
+      "rejections": 0,
+      "rmse": 0.11861871182918549,
+      "sim_time": 6.0,
+      "state": 1
+    },
+    {
+      "fitness": 0.8560209274291992,
+      "rejections": 0,
+      "rmse": 0.1018190085887909,
+      "sim_time": 6.5,
+      "state": 1
+    },
+    {
+      "fitness": 0.8560209274291992,
+      "rejections": 0,
+      "rmse": 0.1018190085887909,
+      "sim_time": 7.0,
+      "state": 1
+    },
+    {
+      "fitness": 0.8487805128097534,
+      "rejections": 0,
+      "rmse": 0.10074513405561447,
+      "sim_time": 7.501,
+      "state": 1
+    },
+    {
+      "fitness": 0.8487805128097534,
+      "rejections": 0,
+      "rmse": 0.10074513405561447,
+      "sim_time": 8.1,
+      "state": 1
+    },
+    {
+      "fitness": 0.853881299495697,
+      "rejections": 0,
+      "rmse": 0.10391590744256973,
+      "sim_time": 8.6,
+      "state": 1
+    },
+    {
+      "fitness": 0.853881299495697,
+      "rejections": 0,
+      "rmse": 0.10391590744256973,
+      "sim_time": 9.101,
+      "state": 1
+    },
+    {
+      "fitness": 0.8432304263114929,
+      "rejections": 0,
+      "rmse": 0.10416098684072495,
+      "sim_time": 9.7,
+      "state": 1
+    },
+    {
+      "fitness": 0.8472553491592407,
+      "rejections": 0,
+      "rmse": 0.1012113019824028,
+      "sim_time": 10.208,
+      "state": 1
+    },
+    {
+      "fitness": 0.8472553491592407,
+      "rejections": 0,
+      "rmse": 0.1012113019824028,
+      "sim_time": 10.801,
+      "state": 1
+    },
+    {
+      "fitness": 0.839195966720581,
+      "rejections": 0,
+      "rmse": 0.10565581917762756,
+      "sim_time": 11.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.839195966720581,
+      "rejections": 0,
+      "rmse": 0.10565581917762756,
+      "sim_time": 11.902,
+      "state": 1
+    },
+    {
+      "fitness": 0.831632673740387,
+      "rejections": 0,
+      "rmse": 0.10824655741453171,
+      "sim_time": 12.5,
+      "state": 1
+    },
+    {
+      "fitness": 0.831632673740387,
+      "rejections": 0,
+      "rmse": 0.10824655741453171,
+      "sim_time": 13.0,
+      "state": 1
+    },
+    {
+      "fitness": 0.8486841917037964,
+      "rejections": 0,
+      "rmse": 0.11049294471740723,
+      "sim_time": 13.501,
+      "state": 1
+    },
+    {
+      "fitness": 0.8486841917037964,
+      "rejections": 0,
+      "rmse": 0.11049294471740723,
+      "sim_time": 14.1,
+      "state": 1
+    },
+    {
+      "fitness": 0.8391304612159729,
+      "rejections": 0,
+      "rmse": 0.10980609804391861,
+      "sim_time": 14.6,
+      "state": 1
+    },
+    {
+      "fitness": 0.8391304612159729,
+      "rejections": 0,
+      "rmse": 0.10980609804391861,
+      "sim_time": 15.1,
+      "state": 1
+    },
+    {
+      "fitness": 0.8369829654693604,
+      "rejections": 0,
+      "rmse": 0.11146537959575653,
+      "sim_time": 15.6,
+      "state": 1
+    },
+    {
+      "fitness": 0.8369829654693604,
+      "rejections": 0,
+      "rmse": 0.11146537959575653,
+      "sim_time": 16.1,
+      "state": 1
+    },
+    {
+      "fitness": 0.839243471622467,
+      "rejections": 0,
+      "rmse": 0.10646415501832962,
+      "sim_time": 16.6,
+      "state": 1
+    },
+    {
+      "fitness": 0.839243471622467,
+      "rejections": 0,
+      "rmse": 0.10646415501832962,
+      "sim_time": 17.1,
+      "state": 1
+    },
+    {
+      "fitness": 0.8387096524238586,
+      "rejections": 0,
+      "rmse": 0.10080000758171082,
+      "sim_time": 17.601,
+      "state": 1
+    },
+    {
+      "fitness": 0.8498845100402832,
+      "rejections": 0,
+      "rmse": 0.10435879975557327,
+      "sim_time": 18.202,
+      "state": 1
+    },
+    {
+      "fitness": 0.8498845100402832,
+      "rejections": 0,
+      "rmse": 0.10435879975557327,
+      "sim_time": 18.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.834645688533783,
+      "rejections": 0,
+      "rmse": 0.10722433030605316,
+      "sim_time": 19.3,
+      "state": 1
+    },
+    {
+      "fitness": 0.834645688533783,
+      "rejections": 0,
+      "rmse": 0.10722433030605316,
+      "sim_time": 19.801,
+      "state": 1
+    },
+    {
+      "fitness": 0.8612440228462219,
+      "rejections": 0,
+      "rmse": 0.11013490706682205,
+      "sim_time": 20.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8612440228462219,
+      "rejections": 0,
+      "rmse": 0.11013490706682205,
+      "sim_time": 20.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8545454740524292,
+      "rejections": 0,
+      "rmse": 0.11110002547502518,
+      "sim_time": 21.402,
+      "state": 1
+    },
+    {
+      "fitness": 0.8545454740524292,
+      "rejections": 0,
+      "rmse": 0.11110002547502518,
+      "sim_time": 22.001,
+      "state": 1
+    },
+    {
+      "fitness": 0.8646408915519714,
+      "rejections": 0,
+      "rmse": 0.11237227916717529,
+      "sim_time": 22.502,
+      "state": 1
+    },
+    {
+      "fitness": 0.8646408915519714,
+      "rejections": 0,
+      "rmse": 0.11237227916717529,
+      "sim_time": 23.1,
+      "state": 1
+    },
+    {
+      "fitness": 0.8454545736312866,
+      "rejections": 0,
+      "rmse": 0.1115432158112526,
+      "sim_time": 23.6,
+      "state": 1
+    },
+    {
+      "fitness": 0.8454545736312866,
+      "rejections": 0,
+      "rmse": 0.1115432158112526,
+      "sim_time": 24.1,
+      "state": 1
+    },
+    {
+      "fitness": 0.8535825610160828,
+      "rejections": 0,
+      "rmse": 0.1238844245672226,
+      "sim_time": 24.6,
+      "state": 1
+    },
+    {
+      "fitness": 0.8536585569381714,
+      "rejections": 0,
+      "rmse": 0.12126379460096359,
+      "sim_time": 25.202,
+      "state": 1
+    },
+    {
+      "fitness": 0.8536585569381714,
+      "rejections": 0,
+      "rmse": 0.12126379460096359,
+      "sim_time": 25.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.8495298027992249,
+      "rejections": 0,
+      "rmse": 0.12088407576084137,
+      "sim_time": 26.3,
+      "state": 1
+    },
+    {
+      "fitness": 0.8495298027992249,
+      "rejections": 0,
+      "rmse": 0.12088407576084137,
+      "sim_time": 26.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.853210985660553,
+      "rejections": 0,
+      "rmse": 0.12316809594631195,
+      "sim_time": 27.3,
+      "state": 1
+    },
+    {
+      "fitness": 0.853210985660553,
+      "rejections": 0,
+      "rmse": 0.12316809594631195,
+      "sim_time": 27.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.853210985660553,
+      "rejections": 0,
+      "rmse": 0.12188014388084412,
+      "sim_time": 28.3,
+      "state": 1
+    },
+    {
+      "fitness": 0.853210985660553,
+      "rejections": 0,
+      "rmse": 0.12188014388084412,
+      "sim_time": 28.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.845678985118866,
+      "rejections": 0,
+      "rmse": 0.11709505319595337,
+      "sim_time": 29.3,
+      "state": 1
+    },
+    {
+      "fitness": 0.845678985118866,
+      "rejections": 0,
+      "rmse": 0.11709505319595337,
+      "sim_time": 29.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.853210985660553,
+      "rejections": 0,
+      "rmse": 0.12241202592849731,
+      "sim_time": 30.3,
+      "state": 1
+    },
+    {
+      "fitness": 0.853210985660553,
+      "rejections": 0,
+      "rmse": 0.12241202592849731,
+      "sim_time": 30.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.8518518805503845,
+      "rejections": 0,
+      "rmse": 0.12237957864999771,
+      "sim_time": 31.3,
+      "state": 1
+    },
+    {
+      "fitness": 0.8518518805503845,
+      "rejections": 0,
+      "rmse": 0.12237957864999771,
+      "sim_time": 31.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.8445122241973877,
+      "rejections": 0,
+      "rmse": 0.11967265605926514,
+      "sim_time": 32.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8445122241973877,
+      "rejections": 0,
+      "rmse": 0.11967265605926514,
+      "sim_time": 32.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8506097793579102,
+      "rejections": 0,
+      "rmse": 0.12509192526340485,
+      "sim_time": 33.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8506097793579102,
+      "rejections": 0,
+      "rmse": 0.12509192526340485,
+      "sim_time": 33.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8518518805503845,
+      "rejections": 0,
+      "rmse": 0.12179996073246002,
+      "sim_time": 34.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8518518805503845,
+      "rejections": 0,
+      "rmse": 0.12179996073246002,
+      "sim_time": 34.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.853210985660553,
+      "rejections": 0,
+      "rmse": 0.12537546455860138,
+      "sim_time": 35.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.853210985660553,
+      "rejections": 0,
+      "rmse": 0.12537546455860138,
+      "sim_time": 35.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8461538553237915,
+      "rejections": 0,
+      "rmse": 0.12066376209259033,
+      "sim_time": 36.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8461538553237915,
+      "rejections": 0,
+      "rmse": 0.12066376209259033,
+      "sim_time": 36.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.850931704044342,
+      "rejections": 0,
+      "rmse": 0.12251368165016174,
+      "sim_time": 37.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.850931704044342,
+      "rejections": 0,
+      "rmse": 0.12251368165016174,
+      "sim_time": 37.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8518518805503845,
+      "rejections": 0,
+      "rmse": 0.12195827811956406,
+      "sim_time": 38.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8518518805503845,
+      "rejections": 0,
+      "rmse": 0.12195827811956406,
+      "sim_time": 38.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8513931632041931,
+      "rejections": 0,
+      "rmse": 0.12369170039892197,
+      "sim_time": 39.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8513931632041931,
+      "rejections": 0,
+      "rmse": 0.12369170039892197,
+      "sim_time": 39.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8518518805503845,
+      "rejections": 0,
+      "rmse": 0.12117419391870499,
+      "sim_time": 40.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8518518805503845,
+      "rejections": 0,
+      "rmse": 0.12117419391870499,
+      "sim_time": 40.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8513931632041931,
+      "rejections": 0,
+      "rmse": 0.12364301830530167,
+      "sim_time": 41.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8513931632041931,
+      "rejections": 0,
+      "rmse": 0.12364301830530167,
+      "sim_time": 41.901,
+      "state": 1
+    },
+    {
+      "fitness": 0.8523076772689819,
+      "rejections": 0,
+      "rmse": 0.12345313280820847,
+      "sim_time": 42.5,
+      "state": 1
+    },
+    {
+      "fitness": 0.8523076772689819,
+      "rejections": 0,
+      "rmse": 0.12345313280820847,
+      "sim_time": 43.0,
+      "state": 1
+    },
+    {
+      "fitness": 0.845678985118866,
+      "rejections": 0,
+      "rmse": 0.11982284486293793,
+      "sim_time": 43.5,
+      "state": 1
+    },
+    {
+      "fitness": 0.845678985118866,
+      "rejections": 0,
+      "rmse": 0.11982284486293793,
+      "sim_time": 44.001,
+      "state": 1
+    },
+    {
+      "fitness": 0.8518518805503845,
+      "rejections": 0,
+      "rmse": 0.12199819833040237,
+      "sim_time": 44.6,
+      "state": 1
+    },
+    {
+      "fitness": 0.8518518805503845,
+      "rejections": 0,
+      "rmse": 0.12199819833040237,
+      "sim_time": 45.1,
+      "state": 1
+    },
+    {
+      "fitness": 0.8554216623306274,
+      "rejections": 0,
+      "rmse": 0.12170838564634323,
+      "sim_time": 45.6,
+      "state": 1
+    },
+    {
+      "fitness": 0.8554216623306274,
+      "rejections": 0,
+      "rmse": 0.12170838564634323,
+      "sim_time": 46.101,
+      "state": 1
+    },
+    {
+      "fitness": 0.8518518805503845,
+      "rejections": 0,
+      "rmse": 0.12353560328483582,
+      "sim_time": 46.7,
+      "state": 1
+    },
+    {
+      "fitness": 0.8598130941390991,
+      "rejections": 0,
+      "rmse": 0.12387970089912415,
+      "sim_time": 47.412,
+      "state": 1
+    },
+    {
+      "fitness": 0.8598130941390991,
+      "rejections": 0,
+      "rmse": 0.12387970089912415,
+      "sim_time": 48.001,
+      "state": 1
+    },
+    {
+      "fitness": 0.8664688467979431,
+      "rejections": 0,
+      "rmse": 0.12549452483654022,
+      "sim_time": 48.6,
+      "state": 1
+    },
+    {
+      "fitness": 0.8664688467979431,
+      "rejections": 0,
+      "rmse": 0.12549452483654022,
+      "sim_time": 49.1,
+      "state": 1
+    },
+    {
+      "fitness": 0.8602739572525024,
+      "rejections": 0,
+      "rmse": 0.10781000554561615,
+      "sim_time": 49.6,
+      "state": 1
+    },
+    {
+      "fitness": 0.8602739572525024,
+      "rejections": 0,
+      "rmse": 0.10781000554561615,
+      "sim_time": 50.1,
+      "state": 1
+    },
+    {
+      "fitness": 0.8596938848495483,
+      "rejections": 0,
+      "rmse": 0.11319036781787872,
+      "sim_time": 50.6,
+      "state": 1
+    },
+    {
+      "fitness": 0.8596938848495483,
+      "rejections": 0,
+      "rmse": 0.11319036781787872,
+      "sim_time": 51.1,
+      "state": 1
+    },
+    {
+      "fitness": 0.8503937125205994,
+      "rejections": 0,
+      "rmse": 0.11612676829099655,
+      "sim_time": 51.601,
+      "state": 1
+    },
+    {
+      "fitness": 0.8503937125205994,
+      "rejections": 0,
+      "rmse": 0.11612676829099655,
+      "sim_time": 52.101,
+      "state": 1
+    },
+    {
+      "fitness": 0.84375,
+      "rejections": 0,
+      "rmse": 0.10473889112472534,
+      "sim_time": 52.601,
+      "state": 1
+    },
+    {
+      "fitness": 0.84375,
+      "rejections": 0,
+      "rmse": 0.10473889112472534,
+      "sim_time": 53.101,
+      "state": 1
+    },
+    {
+      "fitness": 0.851111114025116,
+      "rejections": 0,
+      "rmse": 0.10099421441555023,
+      "sim_time": 53.7,
+      "state": 1
+    },
+    {
+      "fitness": 0.8479809761047363,
+      "rejections": 0,
+      "rmse": 0.11047124862670898,
+      "sim_time": 54.2,
+      "state": 1
+    },
+    {
+      "fitness": 0.8479809761047363,
+      "rejections": 0,
+      "rmse": 0.11047124862670898,
+      "sim_time": 54.7,
+      "state": 1
+    },
+    {
+      "fitness": 0.8511627912521362,
+      "rejections": 0,
+      "rmse": 0.10756074637174606,
+      "sim_time": 55.204,
+      "state": 1
+    },
+    {
+      "fitness": 0.8511627912521362,
+      "rejections": 0,
+      "rmse": 0.10756074637174606,
+      "sim_time": 55.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.8477272987365723,
+      "rejections": 0,
+      "rmse": 0.11776675283908844,
+      "sim_time": 56.3,
+      "state": 1
+    },
+    {
+      "fitness": 0.8477272987365723,
+      "rejections": 0,
+      "rmse": 0.11776675283908844,
+      "sim_time": 56.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.8421052694320679,
+      "rejections": 0,
+      "rmse": 0.10745278745889664,
+      "sim_time": 57.3,
+      "state": 1
+    },
+    {
+      "fitness": 0.8421052694320679,
+      "rejections": 0,
+      "rmse": 0.10745278745889664,
+      "sim_time": 57.8,
+      "state": 1
+    },
+    {
+      "fitness": 0.8532494902610779,
+      "rejections": 0,
+      "rmse": 0.100735604763031,
+      "sim_time": 58.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8532494902610779,
+      "rejections": 0,
+      "rmse": 0.100735604763031,
+      "sim_time": 58.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8465116024017334,
+      "rejections": 0,
+      "rmse": 0.10641799867153168,
+      "sim_time": 59.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8465116024017334,
+      "rejections": 0,
+      "rmse": 0.10641799867153168,
+      "sim_time": 59.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8504464030265808,
+      "rejections": 0,
+      "rmse": 0.09903872758150101,
+      "sim_time": 60.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8504464030265808,
+      "rejections": 0,
+      "rmse": 0.09903872758150101,
+      "sim_time": 60.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8564705848693848,
+      "rejections": 0,
+      "rmse": 0.10374803096055984,
+      "sim_time": 61.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8564705848693848,
+      "rejections": 0,
+      "rmse": 0.10374803096055984,
+      "sim_time": 61.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8500000238418579,
+      "rejections": 0,
+      "rmse": 0.10432242602109909,
+      "sim_time": 62.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8500000238418579,
+      "rejections": 0,
+      "rmse": 0.10432242602109909,
+      "sim_time": 62.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8413098454475403,
+      "rejections": 0,
+      "rmse": 0.1012701615691185,
+      "sim_time": 63.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8413098454475403,
+      "rejections": 0,
+      "rmse": 0.1012701615691185,
+      "sim_time": 63.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8547215461730957,
+      "rejections": 0,
+      "rmse": 0.10193002969026566,
+      "sim_time": 64.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8547215461730957,
+      "rejections": 0,
+      "rmse": 0.10193002969026566,
+      "sim_time": 64.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8527919054031372,
+      "rejections": 0,
+      "rmse": 0.09488248080015182,
+      "sim_time": 65.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8527919054031372,
+      "rejections": 0,
+      "rmse": 0.09488248080015182,
+      "sim_time": 65.9,
+      "state": 1
+    },
+    {
+      "fitness": 0.8668341636657715,
+      "rejections": 0,
+      "rmse": 0.11117568612098694,
+      "sim_time": 66.4,
+      "state": 1
+    },
+    {
+      "fitness": 0.8668341636657715,
+      "rejections": 0,
+      "rmse": 0.11117568612098694,
+      "sim_time": 66.9,
+      "state": 1
+    }
+  ],
+  "raw_status_samples": [
+    {
+      "sim_time": 3.681,
+      "statuses": [
+        2
+      ]
+    },
+    {
+      "sim_time": 47.412,
+      "statuses": [
+        4
+      ]
+    },
+    {
+      "sim_time": 47.413,
+      "statuses": [
+        4,
+        2
+      ]
+    }
+  ],
+  "route": [
+    {
+      "actual_plan": {
+        "length_m": 0.2500000037252903,
+        "point_count": 6,
+        "sampled_xy": [
+          [
+            -1.224999899044633,
+            5.175000185146928
+          ],
+          [
+            -1.224999899044633,
+            5.225000185891986
+          ],
+          [
+            -1.224999899044633,
+            5.275000186637044
+          ],
+          [
+            -1.224999899044633,
+            5.325000187382102
+          ],
+          [
+            -1.224999899044633,
+            5.37500018812716
+          ],
+          [
+            -1.224999899044633,
+            5.425000188872218
+          ]
+        ]
+      },
+      "actual_yaw_travel_rad": 2.165157902074977,
+      "cancelled_at_bound": false,
+      "commanded_angular_integral_rad": 2.1651178323484754,
+      "elapsed_sim_s": 43.516,
+      "elapsed_wall_s": 44.591467857997486,
+      "fitness_min": 0.831632673740387,
+      "goal": [
+        -1.2240907573593973,
+        5.400267829207922,
+        0.0
+      ],
+      "health_states": [
+        1
+      ],
+      "localization_goal_error_m": 0.16650210935709767,
+      "localization_truth_error_max_m": 0.05719821426193935,
+      "max_rejections": 0,
+      "requested_poses": [
+        [
+          -1.2240907573593973,
+          5.400267829207922,
+          0.0
+        ]
+      ],
+      "rmse_max": 0.12537546455860138,
+      "room_id": "room-1",
+      "status": 4,
+      "status_name": "SUCCEEDED",
+      "truth_end": [
+        -1.2502352235030978,
+        5.268698805784331,
+        0.005852094984450288
+      ],
+      "truth_goal_error_m": 0.1341414963185386,
+      "truth_goal_yaw_error_rad": 0.005852094984450288,
+      "truth_start": [
+        3.641642899151601e-10,
+        -8.758889036674472e-07,
+        -4.870260236763868e-08
+      ],
+      "truth_xy_progress_m": 5.415005489439698
+    },
+    {
+      "actual_plan": {
+        "length_m": 0.4121320404972102,
+        "point_count": 8,
+        "sampled_xy": [
+          [
+            -0.17499988339841366,
+            0.32500011287629604
+          ],
+          [
+            -0.17499988339841366,
+            0.275000112131238
+          ],
+          [
+            -0.1249998826533556,
+            0.22500011138617992
+          ],
+          [
+            -0.1249998826533556,
+            0.17500011064112186
+          ],
+          [
+            -0.07499988190829754,
+            0.1250001098960638
+          ],
+          [
+            -0.07499988190829754,
+            0.07500010915100574
+          ],
+          [
+            -0.07499988190829754,
+            0.025000108405947685
+          ],
+          [
+            -0.02499988116323948,
+            -0.024999892339110374
+          ]
+        ]
+      },
+      "actual_yaw_travel_rad": 2.4623418670606783,
+      "cancelled_at_bound": false,
+      "commanded_angular_integral_rad": 2.4885577966081884,
+      "elapsed_sim_s": 20.101,
+      "elapsed_wall_s": 20.38165042000037,
+      "fitness_min": 0.8413098454475403,
+      "goal": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "health_states": [
+        1
+      ],
+      "localization_goal_error_m": 0.17685208455722534,
+      "localization_truth_error_max_m": 0.09013947520629939,
+      "max_rejections": 0,
+      "requested_poses": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "rmse_max": 0.12549452483654022,
+      "room_id": "hub",
+      "status": 4,
+      "status_name": "SUCCEEDED",
+      "truth_end": [
+        -0.09866803699881939,
+        0.07774834737416515,
+        -0.5130735972061135
+      ],
+      "truth_goal_error_m": 0.12561921447220661,
+      "truth_goal_yaw_error_rad": 0.5130735972061135,
+      "truth_start": [
+        -1.2502352235030978,
+        5.268698805784331,
+        0.005852094984450288
+      ],
+      "truth_xy_progress_m": 5.3171490149047065
+    }
+  ],
+  "selected_route": "room-1",
+  "telemetry": {
+    "clock_positive": true,
+    "fastlio_stamp_positive": true,
+    "initial_clock_s": 3.68,
+    "odom_stamps_positive": true,
+    "stamps_monotonic_at_initialization": true
+  }
+}

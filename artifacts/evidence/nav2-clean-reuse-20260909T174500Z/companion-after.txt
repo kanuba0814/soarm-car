@@ -1,0 +1,20 @@
+id=4a3de64abdcba6b7554ada8021f3de0fcedf25d18623e4e4f47f23c7708b926f image=soarm-car-ros2-dev:hm3d status=running __GLX_VENDOR_LIBRARY_NAME=nvidia
+XDG_RUNTIME_DIR=/tmp/runtime-root
+ROS_LOCALHOST_ONLY=1
+IGN_PARTITION=soarm-companion-home-demo-ign
+DISPLAY=:0
+XAUTHORITY=/tmp/.host-xauthority
+__EGL_VENDOR_LIBRARY_FILENAMES=/tmp/nvidia-egl.json
+ROS_DOMAIN_ID=174
+IGN_IP=127.0.0.1
+NVIDIA_DRIVER_CAPABILITIES=graphics,utility,compute
+LD_LIBRARY_PATH=
+LIBGL_DRIVERS_PATH=
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+LANG=C.UTF-8
+LC_ALL=C.UTF-8
+ROS_DISTRO=humble
+DEBIAN_FRONTEND=noninteractive
+ARC140T_MESA_VERSION=25.1.7
+
+running 4a3de64abdcba6b7554ada8021f3de0fcedf25d18623e4e4f47f23c7708b926f soarm-car-ros2-dev:hm3d

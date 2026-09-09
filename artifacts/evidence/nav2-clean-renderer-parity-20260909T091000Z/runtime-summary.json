@@ -1,0 +1,167 @@
+{
+  "cases": {
+    "direct_mppi": {
+      "classification": "saved multiroom route passed with healthy localization",
+      "complete": true,
+      "error": null,
+      "passed": true,
+      "route": [
+        {
+          "actual_plan": {
+            "length_m": 0.2500000037252903,
+            "point_count": 6,
+            "sampled_xy": [
+              [
+                -1.224999899044633,
+                5.175000185146928
+              ],
+              [
+                -1.224999899044633,
+                5.225000185891986
+              ],
+              [
+                -1.224999899044633,
+                5.275000186637044
+              ],
+              [
+                -1.224999899044633,
+                5.325000187382102
+              ],
+              [
+                -1.224999899044633,
+                5.37500018812716
+              ],
+              [
+                -1.224999899044633,
+                5.425000188872218
+              ]
+            ]
+          },
+          "actual_yaw_travel_rad": 2.165157902074977,
+          "cancelled_at_bound": false,
+          "commanded_angular_integral_rad": 2.1651178323484754,
+          "elapsed_sim_s": 43.516,
+          "elapsed_wall_s": 44.591467857997486,
+          "fitness_min": 0.831632673740387,
+          "goal": [
+            -1.2240907573593973,
+            5.400267829207922,
+            0.0
+          ],
+          "health_states": [
+            1
+          ],
+          "localization_goal_error_m": 0.16650210935709767,
+          "localization_truth_error_max_m": 0.05719821426193935,
+          "max_rejections": 0,
+          "requested_poses": [
+            [
+              -1.2240907573593973,
+              5.400267829207922,
+              0.0
+            ]
+          ],
+          "rmse_max": 0.12537546455860138,
+          "room_id": "room-1",
+          "status": 4,
+          "status_name": "SUCCEEDED",
+          "truth_end": [
+            -1.2502352235030978,
+            5.268698805784331,
+            0.005852094984450288
+          ],
+          "truth_goal_error_m": 0.1341414963185386,
+          "truth_goal_yaw_error_rad": 0.005852094984450288,
+          "truth_start": [
+            3.641642899151601e-10,
+            -8.758889036674472e-07,
+            -4.870260236763868e-08
+          ],
+          "truth_xy_progress_m": 5.415005489439698
+        },
+        {
+          "actual_plan": {
+            "length_m": 0.4121320404972102,
+            "point_count": 8,
+            "sampled_xy": [
+              [
+                -0.17499988339841366,
+                0.32500011287629604
+              ],
+              [
+                -0.17499988339841366,
+                0.275000112131238
+              ],
+              [
+                -0.1249998826533556,
+                0.22500011138617992
+              ],
+              [
+                -0.1249998826533556,
+                0.17500011064112186
+              ],
+              [
+                -0.07499988190829754,
+                0.1250001098960638
+              ],
+              [
+                -0.07499988190829754,
+                0.07500010915100574
+              ],
+              [
+                -0.07499988190829754,
+                0.025000108405947685
+              ],
+              [
+                -0.02499988116323948,
+                -0.024999892339110374
+              ]
+            ]
+          },
+          "actual_yaw_travel_rad": 2.4623418670606783,
+          "cancelled_at_bound": false,
+          "commanded_angular_integral_rad": 2.4885577966081884,
+          "elapsed_sim_s": 20.101,
+          "elapsed_wall_s": 20.38165042000037,
+          "fitness_min": 0.8413098454475403,
+          "goal": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "health_states": [
+            1
+          ],
+          "localization_goal_error_m": 0.17685208455722534,
+          "localization_truth_error_max_m": 0.09013947520629939,
+          "max_rejections": 0,
+          "requested_poses": [
+            [
+              0.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "rmse_max": 0.12549452483654022,
+          "room_id": "hub",
+          "status": 4,
+          "status_name": "SUCCEEDED",
+          "truth_end": [
+            -0.09866803699881939,
+            0.07774834737416515,
+            -0.5130735972061135
+          ],
+          "truth_goal_error_m": 0.12561921447220661,
+          "truth_goal_yaw_error_rad": 0.5130735972061135,
+          "truth_start": [
+            -1.2502352235030978,
+            5.268698805784331,
+            0.005852094984450288
+          ],
+          "truth_xy_progress_m": 5.3171490149047065
+        }
+      ]
+    }
+  },
+  "run_dir": "artifacts/nav2-clean-direct-mppi-20260909T091056Z"
+}

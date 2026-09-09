@@ -1,0 +1,6 @@
+owner_before:
+id=ed99e78e865eb19caed2264d4bf1061f56b1fe460b931a20307629757a27d831 image=soarm-car-ros2-dev:hm3d status=running display=LIBGL_DRIVERS_PATH=
+ROS_DOMAIN_ID=174
+DISPLAY=:0
+IGN_PARTITION=soarm-companion-home-demo-ign
+XAUTHORITY=/tmp/.host-xauthority

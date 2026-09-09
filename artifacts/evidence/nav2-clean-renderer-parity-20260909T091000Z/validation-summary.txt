@@ -1,0 +1,11 @@
+source differences outside artifacts and .git:
+Files /home/gxxl/soarm-car-nav2-clean/scripts/run-nav2-clean-comparison.sh and /tmp/soarm-nav2-renderer-parity-20260909/scripts/run-nav2-clean-comparison.sh differ
+launch-overlay syntax:
+goal status summary:
+room-1 status=SUCCEEDED status_code=4 cancelled=false sim_s=43.516 wall_s=44.591467857997486 truth_gap_m=0.1341414963185386 localization_truth_max_m=0.05719821426193935 health=1 rejections=0
+hub status=SUCCEEDED status_code=4 cancelled=false sim_s=20.101 wall_s=20.38165042000037 truth_gap_m=0.12561921447220661 localization_truth_max_m=0.09013947520629939 health=1 rejections=0
+renderer probe GLX:
+23:direct rendering: Yes
+28:OpenGL vendor string: NVIDIA Corporation
+29:OpenGL renderer string: NVIDIA GeForce RTX 3070/PCIe/SSE2
+30:OpenGL core profile version string: 4.6.0 NVIDIA 610.57.04
