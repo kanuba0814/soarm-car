@@ -158,8 +158,15 @@ class PointCloudAdapter:
             return 'floor'
         return 'obstacle' if self.navigation_z_min <= relative_z <= self.navigation_z_max else 'floor'
 
-    def record(self, identifier, revision, sensor_stamp, sensor_origin, robot_pose, points, receipt, clock, tf_ok, sample_policy='full_message_uniform_index', ground_reference_z=None, policy=None):
+    def record(self, identifier, revision, sensor_stamp, sensor_origin, robot_pose, points, receipt, clock, tf_ok, sample_policy='full_message_uniform_index', ground_reference_z=None, policy=None, ground_plane_origin=None, ground_plane_normal=None):
         ground = self.ground_z if ground_reference_z is None else ground_reference_z
+        plane_origin = ground_plane_origin or [0.0, 0.0, ground]
+        plane_normal = ground_plane_normal or [0.0, 0.0, 1.0]
+        if len(plane_origin) != 3 or len(plane_normal) != 3 or not all(isinstance(value, (int, float)) and math.isfinite(value) for value in plane_origin + plane_normal):
+            raise ValueError('invalid ground plane')
+        normal_length = math.sqrt(sum(value * value for value in plane_normal))
+        if abs(normal_length - 1.0) > 1e-6:
+            raise ValueError('ground plane normal must be unit')
         if not isinstance(ground, (int, float)) or not math.isfinite(ground):
             raise ValueError('nonfinite ground reference')
         returns = []
@@ -168,7 +175,12 @@ class PointCloudAdapter:
                 break
             if len(point) != 3 or not all(math.isfinite(value) for value in point):
                 raise ValueError('nonfinite PointCloud2 point')
-            returns.append({'xyz': list(point), 'kind': self.classify(point, ground_reference_z)})
+            if ground_plane_origin is None and ground_plane_normal is None:
+                kind = self.classify(point, ground_reference_z)
+            else:
+                height = sum((point[index] - plane_origin[index]) * plane_normal[index] for index in range(3))
+                kind = 'floor' if abs(height) <= self.floor_tolerance else ('obstacle' if self.navigation_z_min <= height <= self.navigation_z_max else 'floor')
+            returns.append({'xyz': list(point), 'kind': kind})
         return SourceRecord({
             'id': identifier,
             'revision': revision,
@@ -178,6 +190,8 @@ class PointCloudAdapter:
             'sensor_origin': list(sensor_origin),
             'robot_pose': list(robot_pose),
             'ground_reference_z': ground,
+            'ground_plane_origin': list(plane_origin),
+            'ground_plane_normal': list(plane_normal),
             'returns': returns,
             'sample_policy': sample_policy,
             'sensor_policy': policy or {},

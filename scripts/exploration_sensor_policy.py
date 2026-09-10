@@ -45,9 +45,9 @@ def self_mask(base_points):
     return masked
 
 
-def select_rays(raw_points, base_points, map_points, ground_reference_z, *, max_rays=1024,
-                azimuth_bins=720, floor_tolerance=.03, navigation_z_min=.03,
-                navigation_z_max=1.50):
+def select_rays(raw_points, base_points, map_points, ground_reference_z, *, ground_plane_origin=None,
+                ground_plane_normal=None, max_rays=1024, azimuth_bins=720, floor_tolerance=.03,
+                navigation_z_min=.03, navigation_z_max=1.50):
     """Retain the nearest non-self navigation return per azimuth, then visibility extras."""
     raw = np.asarray(raw_points, dtype=float)
     base = np.asarray(base_points, dtype=float)
@@ -55,7 +55,11 @@ def select_rays(raw_points, base_points, map_points, ground_reference_z, *, max_
     finite = np.isfinite(raw).all(axis=1) & np.isfinite(base).all(axis=1) & np.isfinite(mapped).all(axis=1)
     own = self_mask(base) & finite
     usable = finite & ~own
-    relative_height = mapped[:, 2] - ground_reference_z
+    ground_origin = np.asarray(ground_plane_origin if ground_plane_origin is not None else [0., 0., ground_reference_z], dtype=float)
+    ground_normal = np.asarray(ground_plane_normal if ground_plane_normal is not None else [0., 0., 1.], dtype=float)
+    if not np.isfinite(ground_origin).all() or not np.isfinite(ground_normal).all() or abs(np.linalg.norm(ground_normal) - 1.) > 1e-6:
+        raise ValueError('invalid ground plane')
+    relative_height = (mapped - ground_origin) @ ground_normal
     navigation = usable & (relative_height >= navigation_z_min) & (relative_height <= navigation_z_max)
     indices = np.flatnonzero(navigation)
     if len(indices):
@@ -88,6 +92,8 @@ def select_rays(raw_points, base_points, map_points, ground_reference_z, *, max_
         'selected_raw_indices': selected.tolist(),
         'selected_body_ranges_m': np.linalg.norm(base[selected], axis=1).tolist(),
         'ground_reference_z_map': float(ground_reference_z),
+        'ground_plane_origin_map': ground_origin.tolist(),
+        'ground_plane_normal_map': ground_normal.tolist(),
         'floor_tolerance_m': floor_tolerance,
         'navigation_height_band_relative_base_footprint_m': [navigation_z_min, navigation_z_max],
         'self_model_sha256': SELF_MODEL_SHA256,

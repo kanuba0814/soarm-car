@@ -95,7 +95,7 @@ def _cluster_id(group): return "frontier-" + hashlib.sha256(",".join("%d:%d" % c
 
 class ExplorationCore:
     """Transport-neutral frontier core. `observed` is navigation-band evidence only."""
-    STATE_VERSION = 1
+    STATE_VERSION = 2
     def __init__(self, prior, max_rays=2048, max_candidates=16, max_attempts=2, navigation_z_min=-.30, navigation_z_max=.50):
         if not (0 < max_rays <= 2048 and 0 < max_candidates <= 128 and 0 < max_attempts <= 16): raise InputError("invalid bounded configuration")
         if not all(math.isfinite(v) for v in (navigation_z_min, navigation_z_max)) or navigation_z_min > navigation_z_max: raise InputError("invalid navigation height band")
@@ -104,8 +104,14 @@ class ExplorationCore:
         self.observed, self.visibility, self.live_obstacles = set(), set(), set()
         self.revision, self._accepted_ids, self._retry_regions, self._issued_regions = 0, set(), [], {}
 
-    def _in_navigation_band(self, point): return self.navigation_z_min <= point[2] <= self.navigation_z_max
-    def _nav_return(self, origin, item, endpoint): return item.get("kind") in ("hit", "obstacle") and self._in_navigation_band(origin) and self._in_navigation_band(endpoint)
+    def _in_navigation_band(self, point, ground_origin, ground_normal):
+        height = sum((point[index] - ground_origin[index]) * ground_normal[index] for index in range(3))
+        return self.navigation_z_min <= height <= self.navigation_z_max
+
+    def _nav_return(self, origin, item, endpoint, ground_origin, ground_normal):
+        return (item.get("kind") in ("hit", "obstacle") and
+                self._in_navigation_band(origin, ground_origin, ground_normal) and
+                self._in_navigation_band(endpoint, ground_origin, ground_normal))
 
     def apply_observation(self, record):
         required = ("id", "revision", "map_identity", "frame", "sensor_origin", "robot_pose", "returns")
@@ -115,6 +121,11 @@ class ExplorationCore:
         if record["frame"] != "map" or not _finite_point(record["sensor_origin"], 3) or not _finite_point(record["robot_pose"], 3): raise InputError("invalid frame or pose")
         ground_reference = record.get("ground_reference_z", 0.0)
         if not isinstance(ground_reference, (int, float)) or not math.isfinite(ground_reference): raise InputError("invalid ground reference")
+        ground_origin = record.get("ground_plane_origin", [0.0, 0.0, ground_reference])
+        ground_normal = record.get("ground_plane_normal", [0.0, 0.0, 1.0])
+        if not _finite_point(ground_origin, 3) or not _finite_point(ground_normal, 3): raise InputError("invalid ground plane")
+        normal_length = math.sqrt(sum(value * value for value in ground_normal))
+        if abs(normal_length - 1.0) > 1e-6: raise InputError("ground plane normal must be unit")
         if not isinstance(record["revision"], int) or record["revision"] <= 0: raise InputError("invalid revision")
         if record["id"] in self._accepted_ids: return {"status": "duplicate", "revision": self.revision, "new_observed_cells": 0}
         if record["revision"] <= self.revision: raise InputError("stale revision")
@@ -129,10 +140,10 @@ class ExplorationCore:
             parsed.append((item, endpoint, self.prior.world_to_cell(endpoint)))
         # First pass makes all same-record obstacle endpoints opaque before any ray is traced.
         blockers = set(self.live_obstacles)
-        blockers.update(cell for item, endpoint, cell in parsed if item.get("kind") == "obstacle" and self._nav_return(origin, item, endpoint) and self.prior.inside(cell))
+        blockers.update(cell for item, endpoint, cell in parsed if item.get("kind") == "obstacle" and self._nav_return(origin, item, endpoint, ground_origin, ground_normal) and self.prior.inside(cell))
         pending_visibility, pending_navigation = set(), set()
         for item, endpoint, endpoint_cell in parsed:
-            navigation_evidence = self._nav_return(origin, item, endpoint)
+            navigation_evidence = self._nav_return(origin, item, endpoint, ground_origin, ground_normal)
             for cell in _line_cells(self.prior, origin, endpoint):
                 if not self.prior.inside(cell): break
                 pending_visibility.add(cell)
@@ -213,10 +224,10 @@ class ExplorationCore:
 
     def export_state(self):
         """JSON-safe deterministic checkpoint; map frame and ID history are retained."""
-        return {"state_version": self.STATE_VERSION, "map_identity": self.prior.map_identity, "frame": "map", "revision": self.revision, "navigation_z_band": [self.navigation_z_min, self.navigation_z_max], "observed_cells": _cells_to_json(self.observed), "visibility_cells": _cells_to_json(self.visibility), "live_obstacle_cells": _cells_to_json(self.live_obstacles), "accepted_observation_ids": sorted(self._accepted_ids), "retry_regions": [{"id": region["id"], "cells": _cells_to_json(region["cells"]), "attempts": region["attempts"]} for region in sorted(self._retry_regions, key=lambda item: item["id"])]}
+        return {"state_version": self.STATE_VERSION, "height_reference_policy": "source_stamped_ground_plane_v1", "map_identity": self.prior.map_identity, "frame": "map", "revision": self.revision, "navigation_z_band": [self.navigation_z_min, self.navigation_z_max], "observed_cells": _cells_to_json(self.observed), "visibility_cells": _cells_to_json(self.visibility), "live_obstacle_cells": _cells_to_json(self.live_obstacles), "accepted_observation_ids": sorted(self._accepted_ids), "retry_regions": [{"id": region["id"], "cells": _cells_to_json(region["cells"]), "attempts": region["attempts"]} for region in sorted(self._retry_regions, key=lambda item: item["id"])]}
 
     def import_state(self, state):
-        if not isinstance(state, dict) or state.get("state_version") != self.STATE_VERSION or state.get("map_identity") != self.prior.map_identity or state.get("frame") != "map": raise InputError("incompatible persisted state")
+        if not isinstance(state, dict) or state.get("state_version") != self.STATE_VERSION or state.get("height_reference_policy") != "source_stamped_ground_plane_v1" or state.get("map_identity") != self.prior.map_identity or state.get("frame") != "map": raise InputError("incompatible persisted state")
         if state.get("navigation_z_band") != [self.navigation_z_min, self.navigation_z_max]: raise InputError("persisted navigation band mismatch")
         revision, accepted = state.get("revision"), state.get("accepted_observation_ids")
         if not isinstance(revision, int) or revision < 0 or not isinstance(accepted, list) or len(set(accepted)) != len(accepted): raise InputError("invalid persisted state")

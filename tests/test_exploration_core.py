@@ -1,5 +1,6 @@
 import hashlib
 import json
+import math
 import subprocess
 import sys
 import tempfile
@@ -41,6 +42,18 @@ class CoreTests(unittest.TestCase):
         wrong = observation("wrong", 3, []); wrong["map_identity"] = "other"
         with self.assertRaisesRegex(InputError, "identity"): core.apply_observation(wrong)
         with self.assertRaisesRegex(InputError, "nonfinite"): core.apply_observation(observation("nan", 3, [{"xyz": [float("nan"), 1, 0], "kind": "hit"}]))
+
+    def test_ground_plane_height_is_translation_and_tilt_invariant(self):
+        first = observation('plane-a', 1, [{'xyz': [2., 1., .2], 'kind': 'hit'}], sensor=(1., 1., .2))
+        first['ground_plane_origin'], first['ground_plane_normal'] = [0., 0., 0.], [0., 0., 1.]
+        shifted = observation('plane-b', 1, [{'xyz': [2., 1., 10.2], 'kind': 'hit'}], sensor=(1., 1., 10.2))
+        shifted['ground_plane_origin'], shifted['ground_plane_normal'] = [0., 0., 10.], [0., 0., 1.]
+        core_a, core_b = ExplorationCore(prior(), navigation_z_min=.03, navigation_z_max=1.5), ExplorationCore(prior(), navigation_z_min=.03, navigation_z_max=1.5)
+        self.assertEqual(core_a.apply_observation(first)['new_observed_cells'], core_b.apply_observation(shifted)['new_observed_cells'])
+        floor = observation('tilted-floor', 1, [{'xyz': [2., 1., .1], 'kind': 'hit'}], sensor=(1., 1., 0.))
+        floor['ground_plane_origin'], floor['ground_plane_normal'] = [0., 0., 0.], [-.1, 0., math.sqrt(.99)]
+        with self.assertRaisesRegex(InputError, 'unit'):
+            ExplorationCore(prior()).apply_observation(dict(floor, ground_plane_normal=[0., 0., .9]))
 
     def test_floor_and_high_visibility_cannot_create_navigation_goal(self):
         for identifier, rays in (("floor", dense_rays("floor", 0.)), ("high", dense_rays("hit", 2.))):

@@ -287,10 +287,13 @@ class PriorMapExplorationNode(Node):
                 return (translation.x, translation.y, translation.z), (rotation.x, rotation.y, rotation.z, rotation.w)
             map_translation, map_rotation = components(cloud_tf.transform)
             body_translation, body_rotation = components(body_tf.transform)
+            ground_origin, ground_rotation = components(base_tf.transform)
+            ground_normal = rotation_matrix(ground_rotation)[:, 2].tolist()
             map_points = transform_points(raw_points, map_translation, map_rotation)
             body_points = transform_points(raw_points, body_translation, body_rotation)
             base = base_tf.transform.translation
             points, policy = select_rays(raw_points, body_points, map_points, base.z,
+                                         ground_plane_origin=ground_origin, ground_plane_normal=ground_normal,
                                          max_rays=self.adapter.max_validated_rays,
                                          floor_tolerance=self.adapter.floor_tolerance,
                                          navigation_z_min=self.adapter.navigation_z_min,
@@ -303,7 +306,7 @@ class PriorMapExplorationNode(Node):
                 raise RuntimeError('PointCloud2 has no finite non-self samples')
             self.revision += 1
             origin = cloud_tf.transform.translation
-            record = self.adapter.record('mid360-%d' % self.revision, self.revision, stamp, (origin.x, origin.y, origin.z), (base.x, base.y, base.z), points.tolist(), receipt, self.get_clock().now().nanoseconds / 1e9, True, policy['name'], ground_reference_z=base.z, policy=policy)
+            record = self.adapter.record('mid360-%d' % self.revision, self.revision, stamp, (origin.x, origin.y, origin.z), (base.x, base.y, base.z), points.tolist(), receipt, self.get_clock().now().nanoseconds / 1e9, True, policy['name'], ground_reference_z=base.z, policy=policy, ground_plane_origin=ground_origin, ground_plane_normal=ground_normal)
         except Exception as error:
             self.get_logger().warn('PointCloud2/TF rejected: %s' % error)
             return
