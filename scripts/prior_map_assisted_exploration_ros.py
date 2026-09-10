@@ -274,7 +274,8 @@ class PriorMapExplorationNode(Node):
             body_tf = self.tf_buffer.lookup_transform('base_link', 'livox_frame', rclpy.time.Time.from_msg(message.header.stamp))
             if seconds(cloud_tf.header.stamp) <= 0 or seconds(base_tf.header.stamp) <= 0:
                 raise RuntimeError('unstamped transform')
-            raw_points = list(point_cloud2.read_points(message, field_names=('x', 'y', 'z'), skip_nans=True))
+            cloud_values = point_cloud2.read_points(message, field_names=('x', 'y', 'z'), skip_nans=True)
+            raw_points = [(float(point['x']), float(point['y']), float(point['z'])) for point in cloud_values]
             def components(transform):
                 translation, rotation = transform.translation, transform.rotation
                 return (translation.x, translation.y, translation.z), (rotation.x, rotation.y, rotation.z, rotation.w)
