@@ -4,6 +4,7 @@
 This node supplies only the stamped PointCloud2/TF, health, and Nav2 action
 boundary.  Frontier construction remains in exploration_core.py.
 """
+import hashlib
 import json
 import math
 import os
@@ -13,7 +14,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from exploration_core import ExplorationCore, load_pinned_prior
-from exploration_sensor_policy import select_rays, transform_points
+from exploration_sensor_policy import SELF_MODEL_SHA256, rotation_matrix, select_rays, transform_points
 from prior_map_assisted_exploration import ExplorationSupervisor, LocalizationBootstrap, PointCloudAdapter, State
 from shared_nav2_transport import NavigationActionTransport
 
@@ -202,6 +203,11 @@ class PriorMapExplorationNode(Node):
         self.declare_parameter('named_request', '')
         self.declare_parameter('asset_root', '/tmp/soarm-intel-nav-restore-20260909')
         self.declare_parameter('expected_health_map_id', 'house_widened_reference.pcd')
+        model_path = Path(__file__).parents[1] / 'ros2_ws/src/soarm_simulation/models/kuruma_ros2_control/model.sdf'
+        deployed_model_hash = hashlib.sha256(model_path.read_bytes()).hexdigest()
+        if deployed_model_hash != SELF_MODEL_SHA256:
+            raise RuntimeError('self-mask model hash does not match deployed SDF')
+        self.deployed_model_hash = deployed_model_hash
         manifest = self.get_parameter('prior_manifest').value
         prior_asset_root = self.get_parameter('prior_asset_root').value
         if prior_asset_root:
@@ -245,7 +251,7 @@ class PriorMapExplorationNode(Node):
         self.last_checkpoint, self.last_report, self.last_state = 0.0, 0.0, None
         if self.evidence_dir:
             self.evidence_dir.mkdir(parents=True, exist_ok=True)
-            (self.evidence_dir / 'metadata.json').write_text(json.dumps({'map_identity': prior.map_identity, 'health_map_id': self.get_parameter('expected_health_map_id').value, 'use_sim_time': True, 'wallclock_watchdog': 'time.monotonic', 'ground_z': self.adapter.ground_z, 'ground_reference': 'source-stamped map z of base_footprint', 'floor_tolerance': self.adapter.floor_tolerance, 'navigation_z_band_relative_base_footprint': [self.adapter.navigation_z_min, self.adapter.navigation_z_max], 'point_sample_policy': 'nearest nonself navigation return per 720 azimuth bins then visibility extras', 'max_validated_rays': self.adapter.max_validated_rays}, indent=2) + '\n')
+            (self.evidence_dir / 'metadata.json').write_text(json.dumps({'map_identity': prior.map_identity, 'health_map_id': self.get_parameter('expected_health_map_id').value, 'use_sim_time': True, 'wallclock_watchdog': 'time.monotonic', 'ground_z': self.adapter.ground_z, 'ground_reference': 'source-stamped map z of base_footprint', 'floor_tolerance': self.adapter.floor_tolerance, 'navigation_z_band_relative_base_footprint': [self.adapter.navigation_z_min, self.adapter.navigation_z_max], 'point_sample_policy': 'nearest nonself navigation return per 720 azimuth bins then visibility extras', 'max_validated_rays': self.adapter.max_validated_rays, 'self_model_sha256': self.deployed_model_hash}, indent=2) + '\n')
         self.create_service(Trigger, '~/pause', self.pause)
         self.create_service(Trigger, '~/resume', self.resume)
         self.create_service(Trigger, '~/stop', self.stop)
@@ -289,6 +295,10 @@ class PriorMapExplorationNode(Node):
                                          floor_tolerance=self.adapter.floor_tolerance,
                                          navigation_z_min=self.adapter.navigation_z_min,
                                          navigation_z_max=self.adapter.navigation_z_max)
+            policy['source_transforms'] = {
+                'map_from_livox_frame': {'translation': list(map_translation), 'quaternion_xyzw': list(map_rotation), 'rotation_matrix': rotation_matrix(map_rotation).tolist()},
+                'base_link_from_livox_frame': {'translation': list(body_translation), 'quaternion_xyzw': list(body_rotation), 'rotation_matrix': rotation_matrix(body_rotation).tolist()},
+            }
             if not len(points):
                 raise RuntimeError('PointCloud2 has no finite non-self samples')
             self.revision += 1

@@ -16,6 +16,7 @@ class SensorPolicyTests(unittest.TestCase):
         sensor = np.array([[0., 0., -0.05], [0.151, 0., -0.05]])
         body = transform_points(sensor, (0., 0., .17), (0., 0., 0., 1.))
         self.assertEqual(self_mask(body).tolist(), [True, False])
+        self.assertFalse(self_mask(np.array([[0., 0., .1202]]))[0])
         rotated = transform_points(np.array([[.0, .16, -.05]]), (0., 0., .17), (0., 0., .70710678, .70710678))
         self.assertFalse(self_mask(rotated)[0])
 

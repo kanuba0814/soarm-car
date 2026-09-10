@@ -5,6 +5,7 @@ import numpy as np
 
 # Frozen kuruma_ros2_control electronics_envelope visual geometry in base_link.
 SELF_MODEL_SHA256 = "a8d8f3c3ad114ebd7ac99408de5e3d382c06342ca98a4a13eea8658e404307eb"
+SELF_NUMERICAL_TOLERANCE_M = 1e-4  # Measured float32 roof residual: 22 values <=1e-5, 196 <=1e-4.
 SELF_BOXES = (
     (-0.18, 0.18, -0.18, 0.18, -0.03, 0.03),  # electronics_collision
     (-0.15, 0.15, -0.13, 0.13, 0.02, 0.12),  # electronics_envelope
@@ -34,13 +35,13 @@ def self_mask(base_points):
     points = np.asarray(base_points, dtype=float)
     masked = np.zeros(len(points), dtype=bool)
     for minimum_x, maximum_x, minimum_y, maximum_y, minimum_z, maximum_z in SELF_BOXES:
-        tolerance = 1e-9
+        tolerance = SELF_NUMERICAL_TOLERANCE_M
         masked |= ((minimum_x - tolerance <= points[:, 0]) & (points[:, 0] <= maximum_x + tolerance) &
                    (minimum_y - tolerance <= points[:, 1]) & (points[:, 1] <= maximum_y + tolerance) &
                    (minimum_z - tolerance <= points[:, 2]) & (points[:, 2] <= maximum_z + tolerance))
     for center_x, center_y, center_z, radius in SELF_SPHERES:
         masked |= ((points[:, 0] - center_x) ** 2 + (points[:, 1] - center_y) ** 2 +
-                   (points[:, 2] - center_z) ** 2 <= radius ** 2 + 1e-9)
+                   (points[:, 2] - center_z) ** 2 <= (radius + SELF_NUMERICAL_TOLERANCE_M) ** 2)
     return masked
 
 
@@ -79,10 +80,13 @@ def select_rays(raw_points, base_points, map_points, ground_reference_z, *, max_
         'raw_count': int(len(raw)),
         'finite_count': int(finite.sum()),
         'self_filtered_count': int(own.sum()),
+        'self_numerical_tolerance_m': SELF_NUMERICAL_TOLERANCE_M,
         'navigation_candidates': int(navigation.sum()),
         'navigation_bins_retained': int(len(selected_navigation)),
         'visibility_extras_retained': int(max(0, len(selected) - len(selected_navigation))),
         'selected_count': int(len(selected)),
+        'selected_raw_indices': selected.tolist(),
+        'selected_body_ranges_m': np.linalg.norm(base[selected], axis=1).tolist(),
         'ground_reference_z_map': float(ground_reference_z),
         'floor_tolerance_m': floor_tolerance,
         'navigation_height_band_relative_base_footprint_m': [navigation_z_min, navigation_z_max],
