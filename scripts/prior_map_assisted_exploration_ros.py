@@ -236,6 +236,7 @@ class PriorMapExplorationNode(Node):
         self.bootstrap_pub = self.create_publisher(PoseWithCovarianceStamped, '/initialpose', 10)
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.revision = 0
+        self.pending_cloud = None
         self.create_subscription(LocalizationHealth, '/localization/health', self.health, 10)
         self.create_subscription(Odometry, '/Odometry', self.bootstrap_odometry, 10)
         self.create_subscription(PointCloud2, '/mid360/points', self.cloud, 10)
@@ -308,6 +309,9 @@ class PriorMapExplorationNode(Node):
             origin = cloud_tf.transform.translation
             record = self.adapter.record('mid360-%d' % self.revision, self.revision, stamp, (origin.x, origin.y, origin.z), (base.x, base.y, base.z), points.tolist(), receipt, self.get_clock().now().nanoseconds / 1e9, True, policy['name'], ground_reference_z=base.z, policy=policy, ground_plane_origin=ground_origin, ground_plane_normal=ground_normal)
         except Exception as error:
+            if 'extrapolation into the future' in str(error):
+                self.pending_cloud = message  # Bounded retry at its original source stamp.
+                return
             self.get_logger().warn('PointCloud2/TF rejected: %s' % error)
             return
         self.supervisor.enqueue(record)
@@ -407,6 +411,9 @@ class PriorMapExplorationNode(Node):
     def tick(self):
         wall_now = time.monotonic()
         self.bootstrap.clock_sample(self.get_clock().now().nanoseconds / 1e9)
+        if self.pending_cloud is not None:
+            pending, self.pending_cloud = self.pending_cloud, None
+            self.cloud(pending)
         if self.bootstrap.due(wall_now):
             seed = PoseWithCovarianceStamped()
             seed.header.frame_id = 'map'
