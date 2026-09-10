@@ -39,3 +39,20 @@ the audited selector-only overlay SHA-256
 `a520fa54f04feb26b2ceb8da8723046b89c2c8ab1d4cb1444cba63df17ec94d5`.
 This file-identity allowance does not establish which runtime backend is active;
 that requires runtime evidence.
+
+## Native Cloud Interpretation
+
+The native lidar has 720 horizontal samples and 16 vertical samples across
+`[-0.4, 0.4]` radians, not degrees. Observations use source-stamped
+`base_link <- livox_frame` and `map <- livox_frame` transforms. The frozen
+robot SDF hash is checked before use; only its documented body boxes and wheel
+spheres are self-filtered. A measured 0.1 mm numerical surface tolerance is
+recorded with each observation after a raw float32 residual measurement.
+
+Map points remain in `map`. Floor and navigation-return height are evaluated
+relative to the source-stamped `map` Z of `base_footprint`: floor tolerance is
+0.03 m and navigation-return band is 0.03 to 1.50 m. The adapter retains the
+nearest non-self navigation return in every one of 720 azimuth bins before
+adding bounded floor/high visibility extras. It records transform matrices,
+selected raw indices, ranges, model hash, ground reference, and policy counts
+for offline replay.
