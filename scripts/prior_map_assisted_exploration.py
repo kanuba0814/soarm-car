@@ -198,6 +198,7 @@ class ExplorationSupervisor:
         self._last_progress = None
         self._last_observation_receipt = None
         self._pending_terminal = None
+        self.dispatch_authorized = True
 
     def start(self, now):
         if self.state != State.IDLE:
@@ -207,6 +208,20 @@ class ExplorationSupervisor:
 
     def health(self, state, map_id, receipt):
         self.gate.health(state, map_id, receipt)
+
+    def require_gate_arm(self):
+        """Hold goal dispatch until the existing safety gate confirms its arm RPC."""
+        self.dispatch_authorized = False
+
+    def authorize_dispatch(self):
+        if self.state != State.READY or self.active is not None or self.navigator.busy or not self.navigator.terminal:
+            raise RuntimeError('gate arm requires no active navigation action')
+        self.dispatch_authorized = True
+
+    def source_fault(self, now, reason='supervisor source-drop injection'):
+        """Fault the owner directly; dropping a callback alone must not permit another goal."""
+        if self.state not in TERMINAL:
+            self._request_cancel(State.SENSOR_FAULT, reason, now)
 
     def enqueue(self, record):
         self.records.append(record)
@@ -225,6 +240,7 @@ class ExplorationSupervisor:
         self.gate.consecutive = 0
         self.records.clear()
         self.active = None
+        self.dispatch_authorized = False
         self._transition(State.READY, 'resume requires fresh healthy source records and a new plan', now)
 
     def cancel(self, now):
@@ -344,6 +360,9 @@ class ExplorationSupervisor:
                 self.failures += 1
             self._transition(State.READY, 'goal terminal; selecting fresh candidate', now)
         if not self.gate.ready(now):
+            self._progress(now)
+            return self.state
+        if not self.dispatch_authorized:
             self._progress(now)
             return self.state
         if len(self.goals) >= self.max_goals:

@@ -1,11 +1,12 @@
 # Prior Map Exploration Runtime
 
-Run only after the Intel owner has started the validated restored Nav2 runtime:
+Run only after the NVIDIA runtime owner has released the validated restored Nav2 runtime. Execute this inside that same container and ROS overlay; it does not launch Gazebo or a second navigation stack:
 
 ```bash
-EXPLORATION_EVIDENCE_DIR=/tmp/prior-map-run-001 \
+EXPLORATION_EVIDENCE_DIR=/output/prior-map-run-001 \
+NAV2_ASSET_ROOT=/workspaces/soarm-car \
 ./scripts/run-prior-map-exploration-task.sh \
-  --ros-args -p prior_asset_root:=/tmp/soarm-intel-nav-restore-20260909
+  --ros-args
 ```
 
 `prior_asset_root` relocates only the locked prior manifest's YAML and PGM paths
@@ -22,8 +23,8 @@ source /workspaces/soarm-car/install/setup.bash
 PYTHONPATH=/work/scripts:$PYTHONPATH \
 timeout 3 python3 /work/scripts/prior_map_assisted_exploration_ros.py --ros-args \
   -p evidence_dir:=/output/evidence \
-  -p prior_asset_root:=/asset \
-  -p asset_root:=/asset
+  -p prior_asset_root:=/workspaces/soarm-car \
+  -p asset_root:=/workspaces/soarm-car
 ```
 
 This starts no Gazebo, renderer, devices, publishers, or goals. A timeout exit

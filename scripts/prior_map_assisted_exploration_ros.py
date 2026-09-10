@@ -221,6 +221,11 @@ class PriorMapExplorationNode(Node):
         )
         self.tf_buffer = Buffer()
         self.bootstrap = LocalizationBootstrap()
+        self.gate_arm_client = self.create_client(Trigger, '/localization_cmd_gate/arm')
+        self.gate_arm_future = None
+        self.gate_arm_attempt = 0.0
+        self.gate_arm_status = {'state': 'pending'}
+        self.supervisor.require_gate_arm()
         self.bootstrap_pub = self.create_publisher(PoseWithCovarianceStamped, '/initialpose', 10)
         self.tf_listener = TransformListener(self.tf_buffer, self)
         self.revision = 0
@@ -232,6 +237,7 @@ class PriorMapExplorationNode(Node):
         evidence_dir = self.get_parameter('evidence_dir').value
         self.evidence_dir = Path(evidence_dir) if evidence_dir else None
         self.stop_samples, self.pose_samples = [], []
+        self.last_measured_pose = None
         self.named_status = {'state': 'not_requested'}
         self.paused_checkpoint = None
         self.drop_source = False
@@ -288,6 +294,8 @@ class PriorMapExplorationNode(Node):
     def resume(self, _request, response):
         try:
             self.supervisor.resume(self.paused_checkpoint, time.monotonic())
+            self.gate_arm_future = None
+            self.gate_arm_status = {'state': 'pending'}
             response.success, response.message = True, 'fresh source and a new plan are required'
         except Exception as error:
             response.success, response.message = False, str(error)
@@ -300,7 +308,9 @@ class PriorMapExplorationNode(Node):
 
     def inject_source_drop(self, _request, response):
         self.drop_source = not self.drop_source
-        response.success, response.message = True, 'source drop=' + str(self.drop_source)
+        if self.drop_source:
+            self.supervisor.source_fault(time.monotonic())
+        response.success, response.message = True, 'supervisor source-drop injection=' + str(self.drop_source)
         return response
 
     def safe_command(self, message):
@@ -308,8 +318,48 @@ class PriorMapExplorationNode(Node):
         del self.stop_samples[:-200]
 
     def measured_pose(self, message):
-        self.pose_samples.append({'receipt': time.monotonic(), 'frame_id': message.header.frame_id, 'x': message.pose.pose.position.x, 'y': message.pose.pose.position.y, 'linear_x': message.twist.twist.linear.x, 'linear_y': message.twist.twist.linear.y, 'angular_z': message.twist.twist.angular.z})
+        stamp = seconds(message.header.stamp)
+        x, y = message.pose.pose.position.x, message.pose.pose.position.y
+        sample = {'receipt': time.monotonic(), 'source_stamp': stamp, 'frame_id': message.header.frame_id, 'x': x, 'y': y}
+        if not all(math.isfinite(value) for value in (stamp, x, y)):
+            sample['finite_difference'] = 'rejected_nonfinite'
+        elif self.last_measured_pose is None or stamp <= self.last_measured_pose['source_stamp']:
+            sample['finite_difference'] = 'awaiting_advancing_stamp'
+        else:
+            previous = self.last_measured_pose
+            dt = stamp - previous['source_stamp']
+            vx, vy = (x - previous['x']) / dt, (y - previous['y']) / dt
+            sample.update({'finite_difference': 'valid', 'dt': dt, 'measured_linear_x': vx, 'measured_linear_y': vy, 'measured_linear_speed': math.hypot(vx, vy)})
+        if all(math.isfinite(value) for value in (stamp, x, y)) and (self.last_measured_pose is None or stamp > self.last_measured_pose['source_stamp']):
+            self.last_measured_pose = {'source_stamp': stamp, 'x': x, 'y': y}
+        self.pose_samples.append(sample)
         del self.pose_samples[:-200]
+
+    def _arm_gate_when_ready(self, wall_now):
+        """Arm only while no action is active and source health is fresh."""
+        if self.supervisor.dispatch_authorized or self.supervisor.state != State.READY:
+            return
+        if self.nav.busy or not self.nav.terminal or not self.supervisor.gate.ready(wall_now):
+            return
+        if self.gate_arm_future is not None:
+            if not self.gate_arm_future.done():
+                return
+            try:
+                response = self.gate_arm_future.result()
+                if response.success:
+                    self.supervisor.authorize_dispatch()
+                    self.gate_arm_status = {'state': 'confirmed', 'message': response.message, 'receipt': wall_now}
+                else:
+                    self.gate_arm_status = {'state': 'rejected', 'message': response.message, 'receipt': wall_now}
+            except Exception as error:
+                self.gate_arm_status = {'state': 'error', 'message': str(error), 'receipt': wall_now}
+            self.gate_arm_future = None
+            return
+        if wall_now - self.gate_arm_attempt < 1.0 or not self.gate_arm_client.service_is_ready():
+            return
+        self.gate_arm_attempt = wall_now
+        self.gate_arm_status = {'state': 'requested', 'receipt': wall_now}
+        self.gate_arm_future = self.gate_arm_client.call_async(Trigger.Request())
 
     def _dispatch_named_task(self):
         request = self.get_parameter('named_request').value
@@ -337,6 +387,7 @@ class PriorMapExplorationNode(Node):
             seed.pose.pose.orientation.w = 1.0
             self.bootstrap_pub.publish(seed)
         self.supervisor.tick(wall_now)
+        self._arm_gate_when_ready(wall_now)
         if self.supervisor.state in (State.FRONTIERS_EXHAUSTED, State.BUDGET_EXHAUSTED):
             self._dispatch_named_task()
         if self.named_status['state'] == 'active':
@@ -359,7 +410,7 @@ class PriorMapExplorationNode(Node):
             os.replace(temporary, checkpoint)
             self.last_checkpoint = wall_now
         if wall_now - self.last_report >= 1.0 or state_changed:
-            report = {'state': self.supervisor.state.value, 'reason': self.supervisor.reason, 'core_state_checkpoint': 'checkpoint.json', 'bootstrap': {'requests': self.bootstrap.sent, 'complete': self.bootstrap.complete, 'source_conditions': self.bootstrap.conditions}, 'goals': self.supervisor.goals, 'named_task': self.named_status, 'safe_cmd_vel': self.stop_samples, 'measured_pose': self.pose_samples, 'cadence': {'fsm_hz': 20, 'progress_report_hz_max': 1, 'checkpoint_seconds': 5}}
+            report = {'state': self.supervisor.state.value, 'reason': self.supervisor.reason, 'core_state_checkpoint': 'checkpoint.json', 'bootstrap': {'requests': self.bootstrap.sent, 'complete': self.bootstrap.complete, 'source_conditions': self.bootstrap.conditions}, 'gate_arm': self.gate_arm_status, 'goals': self.supervisor.goals, 'named_task': self.named_status, 'safe_cmd_vel': self.stop_samples, 'measured_pose': self.pose_samples, 'cadence': {'fsm_hz': 20, 'progress_report_hz_max': 1, 'checkpoint_seconds': 5}}
             temporary = self.evidence_dir / 'report.json.tmp'
             temporary.write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
             os.replace(temporary, self.evidence_dir / 'report.json')

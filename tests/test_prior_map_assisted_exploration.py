@@ -259,7 +259,7 @@ class SupervisorTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             request = Path(temporary) / 'request.json'
             request.write_text(json.dumps({'place_id': 'room-1', 'frame_id': 'map', 'require_heading': False}))
-            prepared = prepare(request, Path('/tmp/soarm-intel-nav-restore-20260909'))
+            prepared = prepare(request, Path('/home/gxxl/soarm-car-nav2-clean'))
         self.assertEqual(prepared['status'], 'prepared_for_serialization')
         self.assertFalse(prepared['require_heading'])
         self.assertEqual(prepared['map_goal']['frame_id'], 'map')
@@ -300,6 +300,45 @@ class SupervisorTests(unittest.TestCase):
         nav.terminal, nav.result = True, 'CANCELED'
         supervisor.tick(4.1)
         self.assertEqual(supervisor.state, State.SENSOR_FAULT)
+
+    def test_source_drop_fault_cancels_active_goal_and_prevents_replacement(self):
+        core, nav = Core(), Navigator()
+        supervisor = ExplorationSupervisor(core, nav, MAP_ID)
+        adapter = PointCloudAdapter(MAP_ID)
+        supervisor.start(0.)
+        supervisor.health('HEALTHY', MAP_ID, 1.)
+        supervisor.enqueue(self.record(adapter, 'one', 1, 1., 1., 1.))
+        supervisor.tick(1.)
+        supervisor.health('HEALTHY', MAP_ID, 2.)
+        supervisor.enqueue(self.record(adapter, 'two', 2, 2., 2., 2.))
+        supervisor.tick(2.)
+        self.assertEqual(supervisor.state, State.NAVIGATING)
+        supervisor.source_fault(2.1)
+        self.assertEqual(supervisor.state, State.CANCELLING)
+        self.assertTrue(nav.cancelled)
+        nav.terminal, nav.busy = True, False
+        supervisor.tick(2.2)
+        self.assertEqual(supervisor.state, State.SENSOR_FAULT)
+        self.assertEqual(len(nav.sent), 1)
+
+    def test_gate_arm_blocks_dispatch_until_confirmed_without_an_active_goal(self):
+        core, nav = Core(), Navigator()
+        supervisor = ExplorationSupervisor(core, nav, MAP_ID)
+        adapter = PointCloudAdapter(MAP_ID)
+        supervisor.require_gate_arm()
+        supervisor.start(0.)
+        supervisor.health('HEALTHY', MAP_ID, 1.)
+        supervisor.enqueue(self.record(adapter, 'one', 1, 1., 1., 1.))
+        supervisor.tick(1.)
+        supervisor.health('HEALTHY', MAP_ID, 2.)
+        supervisor.enqueue(self.record(adapter, 'two', 2, 2., 2., 2.))
+        supervisor.tick(2.)
+        self.assertEqual(supervisor.state, State.READY)
+        self.assertEqual(nav.sent, [])
+        nav.terminal = True
+        supervisor.authorize_dispatch()
+        supervisor.tick(2.1)
+        self.assertEqual(supervisor.state, State.NAVIGATING)
 
 
 if __name__ == '__main__':
