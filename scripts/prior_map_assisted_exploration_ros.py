@@ -273,13 +273,16 @@ class PriorMapExplorationNode(Node):
             if seconds(cloud_tf.header.stamp) <= 0 or seconds(base_tf.header.stamp) <= 0:
                 raise RuntimeError('unstamped transform')
             raw_points = list(point_cloud2.read_points(message, field_names=('x', 'y', 'z'), skip_nans=True))
-            stride = max(1, math.ceil(len(raw_points) / self.adapter.max_validated_rays))
-            sampled = raw_points[::stride][:self.adapter.max_validated_rays]
+            finite_points = [point for point in raw_points if len(point) == 3 and all(math.isfinite(value) for value in point)]
+            if not finite_points:
+                raise RuntimeError('PointCloud2 contains no finite samples')
+            stride = max(1, math.ceil(len(finite_points) / self.adapter.max_validated_rays))
+            sampled = finite_points[::stride][:self.adapter.max_validated_rays]
             points = [transform_point(point, cloud_tf.transform) for point in sampled]
             self.revision += 1
             origin = cloud_tf.transform.translation
             base = base_tf.transform.translation
-            record = self.adapter.record('mid360-%d' % self.revision, self.revision, stamp, (origin.x, origin.y, origin.z), (base.x, base.y, base.z), points, receipt, self.get_clock().now().nanoseconds / 1e9, True, 'uniform_index_across_full_message:%d/%d' % (len(sampled), len(raw_points)))
+            record = self.adapter.record('mid360-%d' % self.revision, self.revision, stamp, (origin.x, origin.y, origin.z), (base.x, base.y, base.z), points, receipt, self.get_clock().now().nanoseconds / 1e9, True, 'uniform_index_across_finite_message:%d/%d_finite/%d_raw' % (len(sampled), len(finite_points), len(raw_points)))
         except Exception as error:
             self.get_logger().warn('PointCloud2/TF rejected: %s' % error)
             return
