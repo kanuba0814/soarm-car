@@ -8,6 +8,8 @@ import time
 from collections import deque
 from pathlib import Path
 
+import numpy as np
+
 ROBOT_RADIUS_M = math.sqrt(.3 ** 2 + .3 ** 2) + .05
 NAV2_ARRIVAL_TOLERANCE_M = .2
 
@@ -104,6 +106,44 @@ class ExplorationCore:
         self.navigation_z_min, self.navigation_z_max = navigation_z_min, navigation_z_max
         self.observed, self.visibility, self.live_obstacles = set(), set(), set()
         self.revision, self._accepted_ids, self._retry_regions, self._issued_regions = 0, set(), [], {}
+        self._prior_free = np.array([[prior.occupancy((x, y)) == 'free' for y in range(prior.height)] for x in range(prior.width)], dtype=bool)
+        extent_cells = math.ceil(ROBOT_RADIUS_M / prior.resolution)
+        self._footprint_offsets = tuple((dx, dy) for dx in range(-extent_cells, extent_cells + 1) for dy in range(-extent_cells, extent_cells + 1) if self._offset_intersects_footprint(dx, dy))
+        self._configuration_cache_revision = None
+        self._configuration_cache = None
+
+    def _offset_intersects_footprint(self, dx, dy):
+        half = self.prior.resolution / 2
+        nearest_x = max(abs(dx) * self.prior.resolution - half, 0.0)
+        nearest_y = max(abs(dy) * self.prior.resolution - half, 0.0)
+        return math.hypot(nearest_x, nearest_y) <= ROBOT_RADIUS_M
+
+    def _configuration_space(self):
+        if self._configuration_cache_revision == self.revision and self._configuration_cache is not None:
+            return self._configuration_cache
+        base = self._prior_free.copy()
+        for x, y in self.observed:
+            base[x, y] = True
+        # Observation is the authoritative free-space evidence; prior free cells alone are insufficient.
+        observed = np.zeros_like(base)
+        for x, y in self.observed:
+            observed[x, y] = True
+        base = observed & self._prior_free
+        for x, y in self.live_obstacles:
+            base[x, y] = False
+        configuration = base.copy()
+        width, height = self.prior.width, self.prior.height
+        for dx, dy in self._footprint_offsets:
+            shifted = np.zeros_like(base)
+            source_x0, source_x1 = max(0, dx), min(width, width + dx)
+            source_y0, source_y1 = max(0, dy), min(height, height + dy)
+            target_x0, target_x1 = max(0, -dx), min(width, width - dx)
+            target_y0, target_y1 = max(0, -dy), min(height, height - dy)
+            if target_x0 < target_x1 and target_y0 < target_y1:
+                shifted[target_x0:target_x1, target_y0:target_y1] = base[source_x0:source_x1, source_y0:source_y1]
+            configuration &= shifted
+        self._configuration_cache_revision, self._configuration_cache = self.revision, configuration
+        return configuration
 
     def _in_navigation_band(self, point, ground_origin, ground_normal):
         height = sum((point[index] - ground_origin[index]) * ground_normal[index] for index in range(3))
@@ -154,6 +194,7 @@ class ExplorationCore:
         before_observed, before_visibility = len(self.observed), len(self.visibility)
         self.visibility.update(pending_visibility); self.observed.update(pending_navigation); self.live_obstacles.update(blockers)
         self.revision = record["revision"]; self._accepted_ids.add(record["id"])
+        self._configuration_cache_revision, self._configuration_cache = None, None
         return {"status": "applied", "revision": self.revision, "new_observed_cells": len(self.observed) - before_observed, "new_visibility_cells": len(self.visibility) - before_visibility}
 
     def _footprint_ok(self, cell):
@@ -169,7 +210,8 @@ class ExplorationCore:
                     if not self.prior.inside(candidate) or candidate not in self.observed or candidate in self.live_obstacles or self.prior.occupancy(candidate) != "free": return False
         return True
 
-    def _traversable(self, cell): return cell in self.observed and cell not in self.live_obstacles and self.prior.occupancy(cell) == "free" and self._footprint_ok(cell)
+    def _traversable(self, cell):
+        return self.prior.inside(cell) and bool(self._configuration_space()[cell[0], cell[1]])
     def _reachable(self, start):
         if not self._traversable(start): return set()
         seen, queue = {start}, deque([start])

@@ -79,6 +79,17 @@ class CoreTests(unittest.TestCase):
         before = set(core.observed); core.apply_observation(observation("missing", 3, [{"kind": "no_return"}]))
         self.assertEqual(before, core.observed)
 
+    def test_cached_configuration_space_matches_scalar_footprint_all_cells(self):
+        core = ExplorationCore(prior(24, 21, .05, occupied=[(10, y) for y in range(4, 18)]))
+        core.observed.update((x, y) for x in range(24) for y in range(21) if core.prior.occupancy((x, y)) == 'free')
+        core.visibility.update(core.observed)
+        core.live_obstacles.add((5, 5))
+        cached = core._configuration_space()
+        for x in range(core.prior.width):
+            for y in range(core.prior.height):
+                scalar = core._footprint_ok((x, y)) and (x, y) not in core.live_obstacles
+                self.assertEqual(bool(cached[x, y]), scalar, (x, y))
+
     def test_footprint_corner_out_of_bounds_and_rotated_origin(self):
         core = ExplorationCore(prior()); visible_square(core); center = (35, 35)
         self.assertTrue(core._footprint_ok(center))
