@@ -5,7 +5,15 @@ import numpy as np
 
 # Frozen kuruma_ros2_control electronics_envelope visual geometry in base_link.
 SELF_MODEL_SHA256 = "a8d8f3c3ad114ebd7ac99408de5e3d382c06342ca98a4a13eea8658e404307eb"
-SELF_BOXES = ((-0.15, 0.15, -0.13, 0.13, 0.02, 0.12),)
+SELF_BOXES = (
+    (-0.18, 0.18, -0.18, 0.18, -0.03, 0.03),  # electronics_collision
+    (-0.15, 0.15, -0.13, 0.13, 0.02, 0.12),  # electronics_envelope
+    (-0.30, 0.30, 0.27, 0.30, -0.015, 0.015),
+    (-0.30, 0.30, -0.30, -0.27, -0.015, 0.015),
+    (0.27, 0.30, -0.27, 0.27, -0.015, 0.015),
+    (-0.30, -0.27, -0.27, 0.27, -0.015, 0.015),
+)
+SELF_SPHERES = tuple((x, y, 0.0, .0763) for x in (-.1736, .1736) for y in (-.2228, .2228))
 
 
 def rotation_matrix(quaternion):
@@ -30,6 +38,9 @@ def self_mask(base_points):
         masked |= ((minimum_x - tolerance <= points[:, 0]) & (points[:, 0] <= maximum_x + tolerance) &
                    (minimum_y - tolerance <= points[:, 1]) & (points[:, 1] <= maximum_y + tolerance) &
                    (minimum_z - tolerance <= points[:, 2]) & (points[:, 2] <= maximum_z + tolerance))
+    for center_x, center_y, center_z, radius in SELF_SPHERES:
+        masked |= ((points[:, 0] - center_x) ** 2 + (points[:, 1] - center_y) ** 2 +
+                   (points[:, 2] - center_z) ** 2 <= radius ** 2 + 1e-9)
     return masked
 
 
@@ -76,6 +87,6 @@ def select_rays(raw_points, base_points, map_points, ground_reference_z, *, max_
         'floor_tolerance_m': floor_tolerance,
         'navigation_height_band_relative_base_footprint_m': [navigation_z_min, navigation_z_max],
         'self_model_sha256': SELF_MODEL_SHA256,
-        'self_geometry': {'boxes_base_link': [list(box) for box in SELF_BOXES]},
+        'self_geometry': {'boxes_base_link': [list(box) for box in SELF_BOXES], 'spheres_base_link': [list(sphere) for sphere in SELF_SPHERES]},
     }
     return mapped[selected], policy
