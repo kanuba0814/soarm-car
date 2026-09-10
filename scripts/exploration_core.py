@@ -113,6 +113,8 @@ class ExplorationCore:
         if record["map_identity"] != self.prior.map_identity: raise InputError("wrong map identity")
         if not isinstance(record["id"], str) or not record["id"]: raise InputError("invalid observation id")
         if record["frame"] != "map" or not _finite_point(record["sensor_origin"], 3) or not _finite_point(record["robot_pose"], 3): raise InputError("invalid frame or pose")
+        ground_reference = record.get("ground_reference_z", 0.0)
+        if not isinstance(ground_reference, (int, float)) or not math.isfinite(ground_reference): raise InputError("invalid ground reference")
         if not isinstance(record["revision"], int) or record["revision"] <= 0: raise InputError("invalid revision")
         if record["id"] in self._accepted_ids: return {"status": "duplicate", "revision": self.revision, "new_observed_cells": 0}
         if record["revision"] <= self.revision: raise InputError("stale revision")

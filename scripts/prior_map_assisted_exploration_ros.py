@@ -13,6 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from exploration_core import ExplorationCore, load_pinned_prior
+from exploration_sensor_policy import select_rays, transform_points
 from prior_map_assisted_exploration import ExplorationSupervisor, LocalizationBootstrap, PointCloudAdapter, State
 from shared_nav2_transport import NavigationActionTransport
 
@@ -194,9 +195,9 @@ class PriorMapExplorationNode(Node):
         self.declare_parameter('prior_asset_root', '')
         self.declare_parameter('max_validated_rays', 1024)
         self.declare_parameter('ground_z', 0.0)
-        self.declare_parameter('floor_tolerance', .10)
-        self.declare_parameter('navigation_z_min', -.30)
-        self.declare_parameter('navigation_z_max', .50)
+        self.declare_parameter('floor_tolerance', .03)
+        self.declare_parameter('navigation_z_min', .03)
+        self.declare_parameter('navigation_z_max', 1.50)
         self.declare_parameter('evidence_dir', '')
         self.declare_parameter('named_request', '')
         self.declare_parameter('asset_root', '/tmp/soarm-intel-nav-restore-20260909')
@@ -244,7 +245,7 @@ class PriorMapExplorationNode(Node):
         self.last_checkpoint, self.last_report, self.last_state = 0.0, 0.0, None
         if self.evidence_dir:
             self.evidence_dir.mkdir(parents=True, exist_ok=True)
-            (self.evidence_dir / 'metadata.json').write_text(json.dumps({'map_identity': prior.map_identity, 'health_map_id': self.get_parameter('expected_health_map_id').value, 'use_sim_time': True, 'wallclock_watchdog': 'time.monotonic', 'ground_z': self.adapter.ground_z, 'floor_tolerance': self.adapter.floor_tolerance, 'navigation_z_band': [self.adapter.navigation_z_min, self.adapter.navigation_z_max], 'point_sample_policy': 'uniform_index_across_full_message', 'max_validated_rays': self.adapter.max_validated_rays}, indent=2) + '\n')
+            (self.evidence_dir / 'metadata.json').write_text(json.dumps({'map_identity': prior.map_identity, 'health_map_id': self.get_parameter('expected_health_map_id').value, 'use_sim_time': True, 'wallclock_watchdog': 'time.monotonic', 'ground_z': self.adapter.ground_z, 'ground_reference': 'source-stamped map z of base_footprint', 'floor_tolerance': self.adapter.floor_tolerance, 'navigation_z_band_relative_base_footprint': [self.adapter.navigation_z_min, self.adapter.navigation_z_max], 'point_sample_policy': 'nearest nonself navigation return per 720 azimuth bins then visibility extras', 'max_validated_rays': self.adapter.max_validated_rays}, indent=2) + '\n')
         self.create_service(Trigger, '~/pause', self.pause)
         self.create_service(Trigger, '~/resume', self.resume)
         self.create_service(Trigger, '~/stop', self.stop)
@@ -270,19 +271,28 @@ class PriorMapExplorationNode(Node):
                 raise RuntimeError('expected PointCloud2 frame livox_frame')
             cloud_tf = self.tf_buffer.lookup_transform('map', 'livox_frame', rclpy.time.Time.from_msg(message.header.stamp))
             base_tf = self.tf_buffer.lookup_transform('map', 'base_footprint', rclpy.time.Time.from_msg(message.header.stamp))
+            body_tf = self.tf_buffer.lookup_transform('base_link', 'livox_frame', rclpy.time.Time.from_msg(message.header.stamp))
             if seconds(cloud_tf.header.stamp) <= 0 or seconds(base_tf.header.stamp) <= 0:
                 raise RuntimeError('unstamped transform')
             raw_points = list(point_cloud2.read_points(message, field_names=('x', 'y', 'z'), skip_nans=True))
-            finite_points = [point for point in raw_points if len(point) == 3 and all(math.isfinite(value) for value in point)]
-            if not finite_points:
-                raise RuntimeError('PointCloud2 contains no finite samples')
-            stride = max(1, math.ceil(len(finite_points) / self.adapter.max_validated_rays))
-            sampled = finite_points[::stride][:self.adapter.max_validated_rays]
-            points = [transform_point(point, cloud_tf.transform) for point in sampled]
+            def components(transform):
+                translation, rotation = transform.translation, transform.rotation
+                return (translation.x, translation.y, translation.z), (rotation.x, rotation.y, rotation.z, rotation.w)
+            map_translation, map_rotation = components(cloud_tf.transform)
+            body_translation, body_rotation = components(body_tf.transform)
+            map_points = transform_points(raw_points, map_translation, map_rotation)
+            body_points = transform_points(raw_points, body_translation, body_rotation)
+            base = base_tf.transform.translation
+            points, policy = select_rays(raw_points, body_points, map_points, base.z,
+                                         max_rays=self.adapter.max_validated_rays,
+                                         floor_tolerance=self.adapter.floor_tolerance,
+                                         navigation_z_min=self.adapter.navigation_z_min,
+                                         navigation_z_max=self.adapter.navigation_z_max)
+            if not len(points):
+                raise RuntimeError('PointCloud2 has no finite non-self samples')
             self.revision += 1
             origin = cloud_tf.transform.translation
-            base = base_tf.transform.translation
-            record = self.adapter.record('mid360-%d' % self.revision, self.revision, stamp, (origin.x, origin.y, origin.z), (base.x, base.y, base.z), points, receipt, self.get_clock().now().nanoseconds / 1e9, True, 'uniform_index_across_finite_message:%d/%d_finite/%d_raw' % (len(sampled), len(finite_points), len(raw_points)))
+            record = self.adapter.record('mid360-%d' % self.revision, self.revision, stamp, (origin.x, origin.y, origin.z), (base.x, base.y, base.z), points.tolist(), receipt, self.get_clock().now().nanoseconds / 1e9, True, policy['name'], ground_reference_z=base.z, policy=policy)
         except Exception as error:
             self.get_logger().warn('PointCloud2/TF rejected: %s' % error)
             return

@@ -147,22 +147,28 @@ class PointCloudAdapter:
         self.ground_z, self.floor_tolerance = ground_z, floor_tolerance
         self.navigation_z_min, self.navigation_z_max = navigation_z_min, navigation_z_max
 
-    def classify(self, point):
-        """Floor/high samples add visibility only; only the declared band blocks Nav2."""
-        if abs(point[2] - self.ground_z) <= self.floor_tolerance:
+    def classify(self, point, ground_reference_z=None):
+        """Explicit ground references use relative bands; legacy fixtures retain map-Z bands."""
+        if ground_reference_z is None:
+            if abs(point[2] - self.ground_z) <= self.floor_tolerance:
+                return 'floor'
+            return 'obstacle' if self.navigation_z_min <= point[2] <= self.navigation_z_max else 'floor'
+        relative_z = point[2] - ground_reference_z
+        if abs(relative_z) <= self.floor_tolerance:
             return 'floor'
-        if self.navigation_z_min <= point[2] <= self.navigation_z_max:
-            return 'obstacle'
-        return 'floor'
+        return 'obstacle' if self.navigation_z_min <= relative_z <= self.navigation_z_max else 'floor'
 
-    def record(self, identifier, revision, sensor_stamp, sensor_origin, robot_pose, points, receipt, clock, tf_ok, sample_policy='full_message_uniform_index'):
+    def record(self, identifier, revision, sensor_stamp, sensor_origin, robot_pose, points, receipt, clock, tf_ok, sample_policy='full_message_uniform_index', ground_reference_z=None, policy=None):
+        ground = self.ground_z if ground_reference_z is None else ground_reference_z
+        if not isinstance(ground, (int, float)) or not math.isfinite(ground):
+            raise ValueError('nonfinite ground reference')
         returns = []
         for point in points:
             if len(returns) >= self.max_validated_rays:
                 break
             if len(point) != 3 or not all(math.isfinite(value) for value in point):
                 raise ValueError('nonfinite PointCloud2 point')
-            returns.append({'xyz': list(point), 'kind': self.classify(point)})
+            returns.append({'xyz': list(point), 'kind': self.classify(point, ground_reference_z)})
         return SourceRecord({
             'id': identifier,
             'revision': revision,
@@ -171,8 +177,10 @@ class PointCloudAdapter:
             'source_stamp': sensor_stamp,
             'sensor_origin': list(sensor_origin),
             'robot_pose': list(robot_pose),
+            'ground_reference_z': ground,
             'returns': returns,
             'sample_policy': sample_policy,
+            'sensor_policy': policy or {},
         }, receipt, clock, tf_ok)
 
 
