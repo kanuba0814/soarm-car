@@ -9,6 +9,7 @@ from collections import deque
 from pathlib import Path
 
 ROBOT_RADIUS_M = math.sqrt(.3 ** 2 + .3 ** 2) + .05
+NAV2_ARRIVAL_TOLERANCE_M = .2
 
 class InputError(ValueError):
     pass
@@ -186,7 +187,10 @@ class ExplorationCore:
     def candidates(self, robot_pose):
         if not _finite_point(robot_pose, 3): raise InputError("invalid robot pose")
         start, reachable = self.prior.world_to_cell(robot_pose), self._reachable(self.prior.world_to_cell(robot_pose))
-        frontier = {cell for cell in self.observed if cell not in self.live_obstacles and self.prior.occupancy(cell) == "free" and any(adjacent not in self.observed for adjacent in _neighbors(cell))}
+        def eligible_unknown(cell):
+            return (self.prior.inside(cell) and self.prior.occupancy(cell) == "free" and
+                    cell not in self.observed and cell not in self.live_obstacles)
+        frontier = {cell for cell in self.observed if cell not in self.live_obstacles and self.prior.occupancy(cell) == "free" and any(eligible_unknown(adjacent) for adjacent in _neighbors(cell))}
         base = {"revision": self.revision, "observed_area_cells": len(self.observed), "visibility_area_cells": len(self.visibility), "reference_prior_connected_area_cells": self._prior_connected_area(start)}
         if not frontier:
             return dict(base, status="no_frontier" if reachable else "blocked", candidates=[], rejections=[])
@@ -205,8 +209,11 @@ class ExplorationCore:
                 rejections.append({"cluster_id": cluster_id, "reason": "no_safe_approach"}); continue
             self._issued_regions[cluster_id] = set(group)
             approach = min(approaches, key=lambda cell: (math.hypot(cell[0] - start[0], cell[1] - start[1]), cell))
-            gain = sum(1 for cell in group for neighbor in _neighbors(cell) if neighbor not in self.observed)
-            output.append({"cluster_id": cluster_id, "goal": list(self.prior.cell_center(approach)), "frontier_cells": len(group), "predicted_gain_cells": gain, "distance_m": round(math.hypot(approach[0] - start[0], approach[1] - start[1]) * self.prior.resolution, 6)})
+            distance_m = math.hypot(approach[0] - start[0], approach[1] - start[1]) * self.prior.resolution
+            if distance_m < NAV2_ARRIVAL_TOLERANCE_M + self.prior.resolution:
+                rejections.append({"cluster_id": cluster_id, "reason": "no_meaningful_approach"}); continue
+            gain = len({neighbor for cell in group for neighbor in _neighbors(cell) if eligible_unknown(neighbor)})
+            output.append({"cluster_id": cluster_id, "goal": list(self.prior.cell_center(approach)), "frontier_cells": len(group), "predicted_gain_cells": gain, "distance_m": round(distance_m, 6)})
         output.sort(key=lambda item: (-item["predicted_gain_cells"], item["distance_m"], item["cluster_id"]))
         status = "ok" if output else ("exhausted" if rejections and all(item["reason"] == "retry_exhausted" for item in rejections) else "blocked")
         return dict(base, status=status, candidates=output[:self.max_candidates], rejections=rejections)

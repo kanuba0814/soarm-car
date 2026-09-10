@@ -98,6 +98,15 @@ class CoreTests(unittest.TestCase):
         self.assertEqual(exhausted["status"], "exhausted")
         self.assertIn("retry_exhausted", [item["reason"] for item in exhausted["rejections"]])
 
+    def test_known_wall_and_map_edge_do_not_create_frontiers(self):
+        map_with_wall = prior(3, 3, .05, occupied=[(x, y) for x in range(3) for y in range(3) if (x, y) != (1, 1)])
+        core = ExplorationCore(map_with_wall)
+        core.observed.add((1, 1))
+        core.visibility.add((1, 1))
+        result = core.candidates([.075, .075, 0.])
+        self.assertEqual(result['status'], 'blocked')
+        self.assertEqual(result['candidates'], [])
+
     def test_nonempty_frontier_without_safe_approach_is_blocked(self):
         core = ExplorationCore(prior()); core.observed.update({(20, 20), (21, 20)}); core.visibility.update(core.observed)
         result = core.candidates([1., 1., 0.])
