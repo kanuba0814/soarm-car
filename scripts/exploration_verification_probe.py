@@ -46,6 +46,7 @@ class VerificationPolicy:
         self.pretrigger = None
         self.flags, self.stop_stamps = [], set()
         self.stop_start = None
+        self.stop_verified = False
 
     def start(self, wall, clock=None):
         self.started_wall, self.started_clock = wall, clock
@@ -87,6 +88,8 @@ class VerificationPolicy:
                 self.active_uuid, self.active_goal_stamp = uuid, goal_stamp
             elif uuid != self.active_uuid:
                 self.flags.append('late_or_concurrent_goal:' + uuid)
+                if self.triggered and not self.stop_verified:
+                    self.result = 'FAIL'
                 return
         if uuid != self.active_uuid:
             return
@@ -102,10 +105,11 @@ class VerificationPolicy:
                 self.terminal is None and self.active_uuid is not None and motion is not None and
                 motion['moving'] and wall - motion['wall'] <= FRESH_SECONDS and self.fresh(wall))
 
-    def trigger(self, wall):
+    def trigger(self, wall, motion=None):
         self.triggered, self.trigger_wall = True, wall
         self.pretrigger = {'uuid': self.active_uuid, 'goal_stamp': self.active_goal_stamp,
-                           'wall': wall, 'source_clock': self.last_clock}
+                           'wall': wall, 'source_clock': self.last_clock,
+                           'measured_motion': dict(motion) if motion is not None else None}
 
     def rpc_response(self, success, message):
         self.trigger_response = {'success': bool(success), 'message': str(message)}
@@ -117,17 +121,24 @@ class VerificationPolicy:
             return False
         zero = (velocity_zero and velocity_wall is not None and velocity_wall >= self.trigger_wall and
                 wall - velocity_wall <= FRESH_SECONDS and motion is not None and not motion['moving'] and
+                motion['wall'] >= self.trigger_wall and 0 <= wall - motion['wall'] <= FRESH_SECONDS and
                 self.fresh(wall))
         if not zero:
             self.stop_start, self.stop_stamps = None, set()
             return False
         if self.stop_start is None:
-            self.stop_start = wall
+            self.stop_start = motion['wall']
         self.stop_stamps.add(motion['stamp'])
-        return wall - self.stop_start >= STOP_SECONDS and len(self.stop_stamps) >= STOP_STAMPS
+        self.stop_verified = (motion['wall'] - self.stop_start >= STOP_SECONDS and
+                              len(self.stop_stamps) >= STOP_STAMPS)
+        return self.stop_verified
 
     def finalize(self, wall, budget):
         if self.result:
+            return self.result
+        if self.triggered and not self.stop_verified and wall - self.trigger_wall > 3.0:
+            self.flags.append('stop_deadline_exceeded_3_wall_seconds')
+            self.result = 'FAIL'
             return self.result
         if wall - self.started_wall >= budget:
             return 'TIMEOUT'
@@ -153,6 +164,9 @@ class ProbeNode:
         self.policy, self.args = VerificationPolicy(args.operation, args.observe_only), args
         self.policy.start(time.monotonic())
         self.events = deque(maxlen=300)
+        self.event_count = 0
+        self.event_stream = (args.output_dir / 'events.jsonl').open('x', buffering=1)
+        self.last_clock_logged_wall = -math.inf
         self.latest_motion = None
         self.latest_zero_velocity = False
         self.latest_velocity_wall = None
@@ -168,14 +182,20 @@ class ProbeNode:
         self.node.create_timer(.05, self.tick, clock=Clock(clock_type=ClockType.STEADY_TIME))
 
     def event(self, kind, **data):
-        self.events.append({'wall': time.monotonic(), 'kind': kind, **data})
+        record = {'wall': time.monotonic(), 'kind': kind, **data}
+        self.events.append(record)
+        self.event_count += 1
+        self.event_stream.write(json.dumps(record, sort_keys=True) + '\n')
 
     def on_clock(self, message):
         source = stamp_seconds(message.clock)
         if self.policy.clock(source, time.monotonic()):
             if self.policy.started_clock is None:
                 self.policy.started_clock = source
-            self.event('clock', source_stamp=source)
+            wall = time.monotonic()
+            if wall - self.last_clock_logged_wall >= .05:
+                self.event('clock', source_stamp=source)
+                self.last_clock_logged_wall = wall
 
     def on_health(self, message):
         source = stamp_seconds(message.stamp)
@@ -185,11 +205,20 @@ class ProbeNode:
     def on_odom(self, message):
         pose = message.pose.pose
         yaw = yaw_from_quaternion(pose.orientation)
-        if yaw is None:
+        stamp = stamp_seconds(message.header.stamp)
+        if (yaw is None or message.header.frame_id != 'odom_combined' or
+                not all(math.isfinite(value) for value in (stamp, pose.position.x, pose.position.y))):
+            self.latest_motion = None
+            self.event('odom_invalid')
             return
-        self.latest_motion = self.policy.odom(stamp_seconds(message.header.stamp), pose.position.x, pose.position.y, yaw, time.monotonic())
-        if self.latest_motion:
-            self.event('odom', **self.latest_motion)
+        previous_stamp = self.policy.last_odom[0] if self.policy.last_odom else None
+        motion = self.policy.odom(stamp, pose.position.x, pose.position.y, yaw, time.monotonic())
+        if motion is not None:
+            self.latest_motion = motion
+            self.event('odom', frame_id=message.header.frame_id, **motion)
+        elif previous_stamp is not None and stamp < previous_stamp:
+            self.latest_motion = None
+            self.event('odom_rollback', source_stamp=stamp)
 
     def on_velocity(self, message):
         values = (message.linear.x, message.linear.y, message.angular.z)
@@ -218,7 +247,7 @@ class ProbeNode:
                 self.policy.result = 'FAIL'
                 self.policy.flags.append('selected_service_unavailable')
             else:
-                self.policy.trigger(wall)
+                self.policy.trigger(wall, self.latest_motion)
                 self.future = self.service.call_async(self.Trigger.Request())
                 self.event('trigger_sent', operation=self.args.operation, uuid=self.policy.active_uuid)
         if self.future is not None and self.future.done():
@@ -255,11 +284,11 @@ class ProbeNode:
                    'active_uuid': self.policy.active_uuid, 'pretrigger_measurement': self.policy.pretrigger,
                    'trigger_response': self.policy.trigger_response, 'resume_response': self.resume_response,
                    'terminal': self.policy.terminal,
-                   'flags': self.policy.flags, 'events': len(self.events),
-                   'note': 'CPU policy cases are not live evidence.'}
-        with (self.args.output_dir / 'events.jsonl').open('w') as stream:
-            for event in self.events:
-                stream.write(json.dumps(event, sort_keys=True) + '\n')
+                   'flags': self.policy.flags, 'events': self.event_count,
+                   'stop_bound_wall_seconds': 3.0,
+                   'note': 'Verifies moving cancellation and stop, not resumed motion; CPU cases are not live evidence.'}
+        self.event_stream.flush()
+        self.event_stream.close()
         (self.args.output_dir / 'summary.json').write_text(json.dumps(summary, indent=2, sort_keys=True) + '\n')
         print(json.dumps(summary, sort_keys=True))
 
@@ -287,8 +316,11 @@ def main(argv=None):
     import rclpy
     rclpy.init()
     probe = ProbeNode(args)
+    from rclpy.executors import ExternalShutdownException
     try:
         rclpy.spin(probe.node)
+    except ExternalShutdownException:
+        pass
     finally:
         if rclpy.ok():
             probe.node.destroy_node()

@@ -3,7 +3,8 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
-from exploration_verification_probe import VerificationPolicy
+from exploration_verification_probe import ProbeNode, VerificationPolicy
+from types import SimpleNamespace
 
 
 class VerificationPolicyTests(unittest.TestCase):
@@ -70,6 +71,52 @@ class VerificationPolicyTests(unittest.TestCase):
         policy.status('b', 2, 11., .4)
         self.assertEqual(policy.active_uuid, 'a')
         self.assertIn('late_or_concurrent_goal:b', policy.flags)
+
+    def test_stale_motion_with_fresh_health_cannot_complete_stop(self):
+        policy = VerificationPolicy('pause')
+        self.ready(policy)
+        self.moving_goal(policy)
+        policy.trigger(.3)
+        policy.rpc_response(True, 'ok')
+        policy.status('a', 5, 11., .4)
+        for stamp, wall in ((13., .5), (14., .6), (15., .7)):
+            policy.clock(stamp, wall)
+            policy.health(1, stamp, wall)
+            motion = policy.odom(stamp, .05, 0., 0., wall)
+            self.assertFalse(policy.stopped_sample(True, wall, motion, wall))
+        policy.clock(20., 2.)
+        policy.health(1, 20., 2.)
+        self.assertFalse(policy.stopped_sample(True, 2., motion, 2.))
+        self.assertEqual(policy.finalize(3.31, 120), 'FAIL')
+
+    def test_duplicate_pose_preserves_last_valid_motion_in_adapter(self):
+        probe = object.__new__(ProbeNode)
+        probe.policy = VerificationPolicy('pause')
+        probe.latest_motion = None
+        probe.event = lambda *args, **kwargs: None
+        def message(stamp, x):
+            return SimpleNamespace(
+                header=SimpleNamespace(frame_id='odom_combined', stamp=SimpleNamespace(sec=stamp, nanosec=0)),
+                pose=SimpleNamespace(pose=SimpleNamespace(
+                    position=SimpleNamespace(x=x, y=0.),
+                    orientation=SimpleNamespace(x=0., y=0., z=0., w=1.))))
+        probe.on_odom(message(11, 0.))
+        probe.on_odom(message(12, .05))
+        original = probe.latest_motion
+        self.assertTrue(original['moving'])
+        probe.on_odom(message(12, .05))
+        self.assertIs(probe.latest_motion, original)
+        probe.on_odom(message(10, .05))
+        self.assertIsNone(probe.latest_motion)
+
+    def test_new_goal_before_verified_stop_fails(self):
+        policy = VerificationPolicy('pause')
+        self.ready(policy)
+        motion = self.moving_goal(policy)
+        policy.trigger(.3, motion)
+        self.assertEqual(policy.pretrigger['measured_motion'], motion)
+        policy.status('b', 2, 12., .4)
+        self.assertEqual(policy.finalize(.4, 120), 'FAIL')
 
     def test_old_goal_is_rejected_and_timeout_is_explicit(self):
         policy = VerificationPolicy('pause')
