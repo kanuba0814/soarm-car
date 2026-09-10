@@ -4,7 +4,7 @@
 
 ## 首要约定
 
-- **当前资源约束（2026-09-09最新核对）：仅Intel核显** `8086:7d51`（Arc Pro 130T/140T），DRI `card1/renderD128`；NVIDIA已不存在。新运行禁止沿用 `--gpus all`、NVIDIA GLX/EGL或CUDA假设。先验证实际Intel renderer；CPU软件渲染须如实标注。一次只跑一套仿真，CPU实验可适度并行，模型推理不与仿真争用核显。历史NVIDIA结果仅是历史记录。
+- **最新资源授权（2026-09-10）：NVIDIA已恢复，取代此前Intel-only限制。** 已实查RTX3070、驱动610.57.04、8GiB显存约7.6GiB空闲；NVIDIA在card0/renderD129，Intel ARL仍在card1/renderD128。优先恢复已验证的NVIDIA渲染环境，但须读取实际OGRE renderer确认，不能仅凭设备存在。一次一套仿真；端到端验证前不并行大模型推理。Intel实验、CPU优化及失败记录全部保留。
 
 - **导航已有成功实现，优先复用 `/home/gxxl/soarm-car-nav2-clean` 的现有入口。不得因为 AWS 研究支线失败而重写导航或声称整个项目没有导航能力。**
 - 当前任务：小型 VL、语义栅格及其组合的离线开发验证；随后基于已有导航接口设计毕业演示。不是再造 Nav2，也不是扩大论文评估规模。
@@ -28,11 +28,13 @@
 | `soarm-car-larger-house` | `feature/larger-house-clearance` / `5148af6` | 房屋尺度/净空与定位场景历史分支。 |
 | `soarm-car-companion-nav` | `research/companion-nav-knownpose` / `4035770` | AWS 已知自身位姿研究支线，保留 ABORTED 记录；**不作为现有导航的替代入口**，也不代表其他分支导航失败。 |
 
-### Intel自主探索批次（进行中）
+### 自主探索批次（进行中，NVIDIA恢复后继续）
 
 | 工作树 | 分支 | 当前职责 |
 |---|---|---|
-| `soarm-car-intel-runtime` | `experiment/intel-runtime` | Intel渲染与传感器验证、运行环境交接；独占仿真直到明确释放。不得使用历史NVIDIA启动补丁。 |
+| `soarm-car-intel-runtime` | `experiment/intel-runtime` | Intel阶段渲染、心跳与输入新鲜度调查/修复；现为历史实验，不拥有当前仿真。 |
+| `soarm-car-sensor-pipeline` | `experiment/sensor-pipeline` | 原生点云转换与轨迹显示优化，保留真实等价/延迟验证及Intel参数试验；现不拥有仿真。 |
+| `soarm-car-nvidia-runtime` | `experiment/nvidia-exploration-runtime` | 当前NVIDIA渲染和原导航恢复，成功后明确把唯一仿真/动作所有权交给探索运行工作树。 |
 | `soarm-car-frontier-core` | `experiment/frontier-core` | CPU先验地图辅助前沿算法；观察网格与先验分离，评审/修正后才能实跑。 |
 | `soarm-car-exploration-runtime` | `experiment/exploration-runtime` | 在原消费者任务选择处扩展探索，单一共享动作传输；等待Intel与核心验收后进行真实端到端验证。 |
 
