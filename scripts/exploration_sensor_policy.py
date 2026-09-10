@@ -5,7 +5,7 @@ import numpy as np
 
 # Frozen kuruma_ros2_control electronics_envelope visual geometry in base_link.
 SELF_MODEL_SHA256 = "a8d8f3c3ad114ebd7ac99408de5e3d382c06342ca98a4a13eea8658e404307eb"
-SELF_NUMERICAL_TOLERANCE_M = 1e-4  # Measured float32 roof residual: 22 values <=1e-5, 196 <=1e-4.
+SELF_NUMERICAL_TOLERANCE_M = 1e-3  # Full replayed roof residual distribution reaches 0.52 mm; bounded at 1 mm.
 SELF_BOXES = (
     (-0.18, 0.18, -0.18, 0.18, -0.03, 0.03),  # electronics_collision
     (-0.15, 0.15, -0.13, 0.13, 0.02, 0.12),  # electronics_envelope

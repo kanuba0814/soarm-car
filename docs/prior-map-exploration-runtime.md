@@ -46,8 +46,9 @@ The native lidar has 720 horizontal samples and 16 vertical samples across
 `[-0.4, 0.4]` radians, not degrees. Observations use source-stamped
 `base_link <- livox_frame` and `map <- livox_frame` transforms. The frozen
 robot SDF hash is checked before use; only its documented body boxes and wheel
-spheres are self-filtered. A measured 0.1 mm numerical surface tolerance is
-recorded with each observation after a raw float32 residual measurement.
+spheres are self-filtered. A measured rendered-surface uncertainty is recorded
+with each observation: full replayed roof residuals reach 0.52 mm, so the
+explicit numerical self-mask tolerance is bounded at 1.0 mm.
 
 Map points remain in `map`. Floor and navigation-return height are evaluated
 relative to the source-stamped `map` Z of `base_footprint`: floor tolerance is

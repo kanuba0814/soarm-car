@@ -13,10 +13,10 @@ from test_exploration_core import observation, prior
 
 class SensorPolicyTests(unittest.TestCase):
     def test_source_stamped_body_transform_masks_only_known_envelope(self):
-        sensor = np.array([[0., 0., -0.05], [0.151, 0., -0.05]])
+        sensor = np.array([[0., 0., -0.05], [0.1812, 0., -0.05]])
         body = transform_points(sensor, (0., 0., .17), (0., 0., 0., 1.))
         self.assertEqual(self_mask(body).tolist(), [True, False])
-        self.assertFalse(self_mask(np.array([[0., 0., .1202]]))[0])
+        self.assertFalse(self_mask(np.array([[0., 0., .1212]]))[0])
         rotated = transform_points(np.array([[.0, .16, -.05]]), (0., 0., .17), (0., 0., .70710678, .70710678))
         self.assertFalse(self_mask(rotated)[0])
 
