@@ -160,8 +160,8 @@ class PointCloudAdapter:
 
     def record(self, identifier, revision, sensor_stamp, sensor_origin, robot_pose, points, receipt, clock, tf_ok, sample_policy='full_message_uniform_index', ground_reference_z=None, policy=None, ground_plane_origin=None, ground_plane_normal=None):
         ground = self.ground_z if ground_reference_z is None else ground_reference_z
-        plane_origin = ground_plane_origin or [0.0, 0.0, ground]
-        plane_normal = ground_plane_normal or [0.0, 0.0, 1.0]
+        plane_origin = list(ground_plane_origin) if ground_plane_origin is not None else [0.0, 0.0, ground]
+        plane_normal = list(ground_plane_normal) if ground_plane_normal is not None else [0.0, 0.0, 1.0]
         if len(plane_origin) != 3 or len(plane_normal) != 3 or not all(isinstance(value, (int, float)) and math.isfinite(value) for value in plane_origin + plane_normal):
             raise ValueError('invalid ground plane')
         normal_length = math.sqrt(sum(value * value for value in plane_normal))
