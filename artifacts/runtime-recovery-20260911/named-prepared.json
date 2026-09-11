@@ -1,0 +1,20 @@
+{
+  "asset_manifest_sha256": "6aed91728a8794d3594e4bda0365a853615eb0aabc9d3592f48472cdc7da3ad1",
+  "map_goal": {
+    "frame_id": "map",
+    "orientation": {
+      "w": 1.0,
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    },
+    "position": {
+      "x": 0.0,
+      "y": 0.0,
+      "z": 0.0
+    }
+  },
+  "place_id": "mian",
+  "require_heading": false,
+  "status": "prepared_for_serialization"
+}

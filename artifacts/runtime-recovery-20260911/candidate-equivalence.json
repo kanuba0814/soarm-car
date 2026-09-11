@@ -1,0 +1,20 @@
+[
+  {
+    "revision": 1,
+    "old_seconds": 0.18011813500015705,
+    "new_seconds": 0.12329639199924713,
+    "exact_shortlist_match": true
+  },
+  {
+    "revision": 6,
+    "old_seconds": 0.17784253700028785,
+    "new_seconds": 0.0984326730003886,
+    "exact_shortlist_match": true
+  },
+  {
+    "revision": 9,
+    "old_seconds": 0.1768836619994545,
+    "new_seconds": 0.09959458899993479,
+    "exact_shortlist_match": true
+  }
+]

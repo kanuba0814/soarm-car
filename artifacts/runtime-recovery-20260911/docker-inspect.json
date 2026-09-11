@@ -1,0 +1,301 @@
+[
+    {
+        "Id": "64c45b0111a6cd9d312678eb709998e04d3051c3b88b894c837f0d29f6fe8939",
+        "Created": "2026-09-10T14:58:13.752261204Z",
+        "Path": "/entrypoint.sh",
+        "Args": [
+            "bash",
+            "-lc",
+            "\n        source /opt/ros/humble/setup.bash\n        source /tmp/soarm_ros2/install/setup.bash\n        mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root\n        python3 -c 'import json; json.dump({\"file_format_version\":\"1.0.0\",\"ICD\":{\"library_path\":\"libEGL_nvidia.so.0\"}},open(\"/tmp/nvidia-egl.json\",\"w\"))'\n        exec ros2 launch soarm_navigation house_fastlio_nav2.launch.py rviz:=false use_native_livox_converter:=true throttle_odom_path:=false\n    "
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 18680,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-09-10T14:58:13.876221274Z",
+            "FinishedAt": "0001-01-01T00:00:00Z"
+        },
+        "Image": "sha256:1da9a18609c4664d7441d9f334c95e971f0795aa3815f6707ed761f2ce93d227",
+        "ResolvConfPath": "/var/lib/docker/containers/64c45b0111a6cd9d312678eb709998e04d3051c3b88b894c837f0d29f6fe8939/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/64c45b0111a6cd9d312678eb709998e04d3051c3b88b894c837f0d29f6fe8939/hostname",
+        "HostsPath": "/var/lib/docker/containers/64c45b0111a6cd9d312678eb709998e04d3051c3b88b894c837f0d29f6fe8939/hosts",
+        "LogPath": "/var/lib/docker/containers/64c45b0111a6cd9d312678eb709998e04d3051c3b88b894c837f0d29f6fe8939/64c45b0111a6cd9d312678eb709998e04d3051c3b88b894c837f0d29f6fe8939-json.log",
+        "Name": "/soarm-exploration-recovery-20260911",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "/home/gxxl/soarm-car-nvidia-runtime/tmpdir:/workspaces/soarm-car",
+                "/home/gxxl/soarm-car-exploration-runtime/artifacts/runtime-recovery-20260911:/output",
+                "/tmp/.X11-unix:/tmp/.X11-unix:rw",
+                "/run/user/1000/xauth_gGhIGI:/tmp/.host-xauthority:ro"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "none",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": null,
+            "CgroupnsMode": "private",
+            "Dns": null,
+            "DnsOptions": [],
+            "DnsSearch": [],
+            "ExtraHosts": null,
+            "GroupAdd": [
+                "105"
+            ],
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": false,
+            "SecurityOpt": [
+                "label=disable"
+            ],
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 268435456,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 0,
+            "NanoCpus": 0,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": [],
+            "BlkioDeviceReadBps": [],
+            "BlkioDeviceWriteBps": [],
+            "BlkioDeviceReadIOps": [],
+            "BlkioDeviceWriteIOps": [],
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": [
+                {
+                    "PathOnHost": "/dev/dri/card0",
+                    "PathInContainer": "/dev/dri/card0",
+                    "CgroupPermissions": "rwm"
+                },
+                {
+                    "PathOnHost": "/dev/dri/renderD129",
+                    "PathInContainer": "/dev/dri/renderD129",
+                    "CgroupPermissions": "rwm"
+                }
+            ],
+            "DeviceCgroupRules": null,
+            "DeviceRequests": [
+                {
+                    "Driver": "",
+                    "Count": -1,
+                    "DeviceIDs": null,
+                    "Capabilities": [
+                        [
+                            "gpu"
+                        ]
+                    ],
+                    "Options": {}
+                }
+            ],
+            "MemoryReservation": 0,
+            "MemorySwap": 0,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": null,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware",
+                "/sys/devices/system/cpu/cpu0/thermal_throttle",
+                "/sys/devices/system/cpu/cpu1/thermal_throttle",
+                "/sys/devices/system/cpu/cpu2/thermal_throttle",
+                "/sys/devices/system/cpu/cpu3/thermal_throttle",
+                "/sys/devices/system/cpu/cpu4/thermal_throttle",
+                "/sys/devices/system/cpu/cpu5/thermal_throttle",
+                "/sys/devices/system/cpu/cpu6/thermal_throttle",
+                "/sys/devices/system/cpu/cpu7/thermal_throttle",
+                "/sys/devices/system/cpu/cpu8/thermal_throttle",
+                "/sys/devices/system/cpu/cpu9/thermal_throttle",
+                "/sys/devices/system/cpu/cpu10/thermal_throttle",
+                "/sys/devices/system/cpu/cpu11/thermal_throttle",
+                "/sys/devices/system/cpu/cpu12/thermal_throttle",
+                "/sys/devices/system/cpu/cpu13/thermal_throttle",
+                "/sys/devices/system/cpu/cpu14/thermal_throttle",
+                "/sys/devices/system/cpu/cpu15/thermal_throttle"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "/home/gxxl/soarm-car-exploration-runtime/artifacts/runtime-recovery-20260911",
+                "Destination": "/output",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/tmp/.X11-unix",
+                "Destination": "/tmp/.X11-unix",
+                "Mode": "rw",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/run/user/1000/xauth_gGhIGI",
+                "Destination": "/tmp/.host-xauthority",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "/home/gxxl/soarm-car-nvidia-runtime/tmpdir",
+                "Destination": "/workspaces/soarm-car",
+                "Mode": "",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "64c45b0111a6",
+            "Domainname": "",
+            "User": "",
+            "AttachStdin": false,
+            "AttachStdout": false,
+            "AttachStderr": false,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "__GLX_VENDOR_LIBRARY_NAME=nvidia",
+                "XDG_RUNTIME_DIR=/tmp/runtime-root",
+                "IGN_PARTITION=soarm-exploration-recovery-20260911-83",
+                "IGN_IP=127.0.0.1",
+                "NVIDIA_DRIVER_CAPABILITIES=graphics,utility,compute",
+                "__EGL_VENDOR_LIBRARY_FILENAMES=/tmp/nvidia-egl.json",
+                "ROS_DOMAIN_ID=83",
+                "ROS_LOCALHOST_ONLY=1",
+                "DISPLAY=:0",
+                "XAUTHORITY=/tmp/.host-xauthority",
+                "LD_LIBRARY_PATH=",
+                "LIBGL_DRIVERS_PATH=",
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "LANG=C.UTF-8",
+                "LC_ALL=C.UTF-8",
+                "ROS_DISTRO=humble",
+                "DEBIAN_FRONTEND=noninteractive",
+                "ARC140T_MESA_VERSION=25.1.7"
+            ],
+            "Cmd": [
+                "bash",
+                "-lc",
+                "\n        source /opt/ros/humble/setup.bash\n        source /tmp/soarm_ros2/install/setup.bash\n        mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root\n        python3 -c 'import json; json.dump({\"file_format_version\":\"1.0.0\",\"ICD\":{\"library_path\":\"libEGL_nvidia.so.0\"}},open(\"/tmp/nvidia-egl.json\",\"w\"))'\n        exec ros2 launch soarm_navigation house_fastlio_nav2.launch.py rviz:=false use_native_livox_converter:=true throttle_odom_path:=false\n    "
+            ],
+            "Image": "sha256:1da9a18609c4664d7441d9f334c95e971f0795aa3815f6707ed761f2ce93d227",
+            "Volumes": null,
+            "WorkingDir": "/workspaces/soarm-car",
+            "Entrypoint": [
+                "/entrypoint.sh"
+            ],
+            "Labels": {
+                "com.docker.compose.project": "soarm-car",
+                "com.docker.compose.service": "ros2-dev",
+                "com.docker.compose.version": "5.5.0",
+                "org.opencontainers.image.version": "22.04"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "6a2da4c0bb5af21a2c4575b77d56b8eba5e9d0a0a66c16934e43bb8ab365c815",
+            "SandboxKey": "/var/run/docker/netns/6a2da4c0bb5a",
+            "Ports": {},
+            "Networks": {
+                "none": {
+                    "IPAMConfig": null,
+                    "Links": null,
+                    "Aliases": null,
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "6267520f6bbe1c921ff7e1b9e4012a2b811e28d4153252c758ebb37520a1a16b",
+                    "EndpointID": "93545aa69db0275d620de8e96e0a247a363294f65b9e15edbe80c909c527180f",
+                    "Gateway": "",
+                    "IPAddress": "",
+                    "MacAddress": "",
+                    "IPPrefixLen": 0,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": null
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:961c1c8031f4d2c67dc40ecee6d538e25734d12c0f489f06d5cc035ef8c4a2ce",
+            "size": 5073,
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    }
+]

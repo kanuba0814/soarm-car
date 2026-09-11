@@ -1,0 +1,75 @@
+{
+  "recorded_at": "2026-09-11T00:29:47.404620+09:00",
+  "runtime_base": "e574f2515ee479b4025bc4fb48d4b58cc205f9ab",
+  "nav_asset_base": "291124bfaa482e9b67c77847a1581c17ffa75a57",
+  "nav_asset_delta": "nav-assets.diff",
+  "source_sha256": {
+    "scripts/exploration_core.py": "fbe8f1fed2c728b73e4fa62afde92bc3e975497d4ea2e8cd21cdb66e72dcf8f0",
+    "scripts/prior_map_assisted_exploration.py": "279f0cc84e79b07fbda4e7a49cf3e69af3fb2427ddddd9d68e9066a394b4bb4e",
+    "scripts/prior_map_assisted_exploration_ros.py": "9bbf966bbef06eae5c9c0e736e17ee192faeba3df72c6b33df06544dc665679b",
+    "scripts/shared_nav2_transport.py": "569d2f1efc70705e62a06cbf6af16ea7f10ea2cca9d20f8d68b24b990fc293c1",
+    "scripts/exploration_sensor_policy.py": "5bfaad166421a603cf7126b5d489f8521e733553d00cac431baf56744e2b9f08"
+  },
+  "successful_exploration_segments": [
+    {
+      "navigation_uuid": "8e0d49de-1a11-4793-a2c7-664832e63028",
+      "goal": [
+        -1.125,
+        3.4250000000000007
+      ],
+      "coverage_delta": 5939,
+      "accepted_nonempty_path_uuids": [
+        "a55ac68c-8667-498d-9ead-59da09ace4e3"
+      ]
+    },
+    {
+      "navigation_uuid": "4f20f388-5859-426e-a837-1d6239c1af96",
+      "goal": [
+        4.375,
+        3.325000000000001
+      ],
+      "coverage_delta": 76,
+      "accepted_nonempty_path_uuids": [
+        "1a4a9be6-1e51-457b-9ac9-b876ce9a7ae2"
+      ]
+    },
+    {
+      "navigation_uuid": "a161c60e-652b-46dd-958c-bc9cef06b142",
+      "goal": [
+        5.075000000000001,
+        2.625
+      ],
+      "coverage_delta": 10,
+      "accepted_nonempty_path_uuids": [
+        "a8cd2f62-c556-45cd-b076-992fc2a4e49d",
+        "fc81d4ad-3f61-45a3-bd18-4d2369eea7bd"
+      ]
+    }
+  ],
+  "exploration_terminal": "frontiers_exhausted",
+  "named_task": {
+    "goal_uuid": "7d73e292-eb6d-49e3-952e-a1658acbd557",
+    "map_goal": {
+      "frame_id": "map",
+      "orientation": {
+        "w": 1.0,
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      }
+    },
+    "place_id": "mian",
+    "state": "succeeded"
+  },
+  "pause_resume": "pause-probe-003/summary.json",
+  "silent_input_watchdog": "watchdog-probe-006/summary.json",
+  "replay": "replay-verification.json",
+  "renderer": "ogre2-renderer.txt",
+  "progress_reference_live": "watchdog-006/events.jsonl",
+  "scope": "Prior-map-assisted, known-origin NVIDIA simulation; not unknown-world SLAM, speech, free-form language interpretation, or real hardware."
+}

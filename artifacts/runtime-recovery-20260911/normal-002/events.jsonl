@@ -1,0 +1,9 @@
+{"reason": "waiting for fresh source records", "state": "ready", "time": 4245.779942129}
+{"progress": {"failures": 0, "goals": 0, "observed_area_cells": 0, "reference_prior_connected_area_cells": null, "remaining_frontiers": 0, "selected_goal": null}, "state": "ready", "time": 4245.830165424}
+{"progress": {"failures": 0, "goals": 0, "observed_area_cells": 0, "reference_prior_connected_area_cells": null, "remaining_frontiers": 0, "selected_goal": null}, "state": "ready", "time": 4246.880049574}
+{"progress": {"failures": 0, "goals": 0, "observed_area_cells": 21959, "reference_prior_connected_area_cells": null, "remaining_frontiers": 0, "selected_goal": null}, "state": "ready", "time": 4247.94901603}
+{"reason": "ComputePathToPose pending", "state": "planning", "time": 4248.580042515}
+{"reason": "NavigateToPose active after accepted nonempty ComputePathToPose", "state": "navigating", "time": 4248.780136099}
+{"progress": {"failures": 0, "goals": 0, "observed_area_cells": 21987, "reference_prior_connected_area_cells": null, "remaining_frontiers": 0, "selected_goal": "frontier-87f9c6175a8b9578"}, "state": "navigating", "time": 4248.980067858}
+{"reason": "source receipt stale or unavailable", "state": "cancelling", "time": 4248.980067858}
+{"reason": "source receipt stale or unavailable", "state": "sensor_fault", "time": 4249.13004197}

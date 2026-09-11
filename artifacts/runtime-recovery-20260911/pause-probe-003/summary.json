@@ -1,0 +1,32 @@
+{
+  "active_uuid": "95312a49156e49d5b2f16dc4a5e4fc1b",
+  "events": 1251,
+  "flags": [],
+  "note": "Verifies moving cancellation and stop, not resumed motion; CPU cases are not live evidence.",
+  "observe_only": false,
+  "operation": "pause",
+  "pretrigger_measurement": {
+    "goal_stamp": 1068.903,
+    "measured_motion": {
+      "linear": 0.04266270302682508,
+      "moving": true,
+      "stamp": 1069.199999999,
+      "wall": 4378.839628324,
+      "yaw_rate": 0.004764087828763262
+    },
+    "source_clock": 1069.235,
+    "uuid": "95312a49156e49d5b2f16dc4a5e4fc1b",
+    "wall": 4378.853250302
+  },
+  "result": "PASS",
+  "resume_response": {
+    "message": "fresh source and a new plan are required",
+    "success": true
+  },
+  "stop_bound_wall_seconds": 3.0,
+  "terminal": "CANCELED",
+  "trigger_response": {
+    "message": "cancellation requested; resume requires confirmed cancellation",
+    "success": true
+  }
+}

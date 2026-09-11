@@ -1,0 +1,9 @@
+{"reason": "waiting for fresh source records", "state": "ready", "time": 5022.801781477}
+{"progress": {"failures": 0, "goals": 0, "observed_area_cells": 0, "reference_prior_connected_area_cells": null, "remaining_frontiers": 0, "selected_goal": null, "selection_revision": null}, "state": "ready", "time": 5022.851940502}
+{"progress": {"failures": 0, "goals": 0, "observed_area_cells": 0, "reference_prior_connected_area_cells": null, "remaining_frontiers": 0, "selected_goal": null, "selection_revision": null}, "state": "ready", "time": 5023.852009156}
+{"progress": {"failures": 0, "goals": 0, "observed_area_cells": 21969, "reference_prior_connected_area_cells": null, "remaining_frontiers": 0, "selected_goal": null, "selection_revision": null}, "state": "ready", "time": 5024.888888157}
+{"reason": "ComputePathToPose pending", "state": "planning", "time": 5025.451970807}
+{"reason": "NavigateToPose active after accepted nonempty ComputePathToPose", "state": "navigating", "time": 5025.666313035}
+{"progress": {"failures": 0, "goals": 0, "observed_area_cells": 21969, "reference_prior_connected_area_cells": 28216, "remaining_frontiers": 16, "selected_goal": "frontier-87f9c6175a8b9578", "selection_revision": 6}, "state": "navigating", "time": 5025.902832333}
+{"reason": "source receipt stale or unavailable", "state": "cancelling", "time": 5026.851956996}
+{"reason": "source receipt stale or unavailable", "state": "sensor_fault", "time": 5026.901907345}

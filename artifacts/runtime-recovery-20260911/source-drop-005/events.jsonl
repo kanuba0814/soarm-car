@@ -1,0 +1,10 @@
+{"reason": "waiting for fresh source records", "state": "ready", "time": 4821.491573074}
+{"progress": {"failures": 0, "goals": 0, "observed_area_cells": 0, "reference_prior_connected_area_cells": null, "remaining_frontiers": 0, "selected_goal": null, "selection_revision": null}, "state": "ready", "time": 4821.54182477}
+{"progress": {"failures": 0, "goals": 0, "observed_area_cells": 0, "reference_prior_connected_area_cells": null, "remaining_frontiers": 0, "selected_goal": null, "selection_revision": null}, "state": "ready", "time": 4822.541837223}
+{"progress": {"failures": 0, "goals": 0, "observed_area_cells": 0, "reference_prior_connected_area_cells": null, "remaining_frontiers": 0, "selected_goal": null, "selection_revision": null}, "state": "ready", "time": 4823.54190303}
+{"progress": {"failures": 0, "goals": 0, "observed_area_cells": 21786, "reference_prior_connected_area_cells": null, "remaining_frontiers": 0, "selected_goal": null, "selection_revision": null}, "state": "ready", "time": 4824.557305031}
+{"reason": "ComputePathToPose pending", "state": "planning", "time": 4825.207179747}
+{"reason": "NavigateToPose active after accepted nonempty ComputePathToPose", "state": "navigating", "time": 4825.407683341}
+{"progress": {"failures": 0, "goals": 0, "observed_area_cells": 21786, "reference_prior_connected_area_cells": 28216, "remaining_frontiers": 16, "selected_goal": "frontier-074a1e6e78e8d9ff", "selection_revision": 6}, "state": "navigating", "time": 4825.612726935}
+{"reason": "supervisor source-drop injection", "state": "cancelling", "time": 4825.810100134}
+{"reason": "supervisor source-drop injection", "state": "sensor_fault", "time": 4825.841645278}

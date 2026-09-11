@@ -1,0 +1,27 @@
+{
+  "scope": "CPU_ONLY_NODE_STARTUP_SMOKE_NOT_LIVE_E2E",
+  "image": "sha256:15012136e44c6a439c137ac62a67c0f38f09f55a357ba03a916a48895f6e4dc9",
+  "network": "none",
+  "devices": "none",
+  "interface_build": {
+    "package": "existing ros2_ws/src/soarm_interfaces only",
+    "result": "passed",
+    "generated_import": "soarm_interfaces.msg._localization_health"
+  },
+  "node": {
+    "use_sim_time": true,
+    "clock_present": false,
+    "steady_time_startup_grace_seconds": 45,
+    "timeout_exit_code": 124,
+    "terminal_state": "sensor_fault",
+    "terminal_reason": "startup data grace expired: health unavailable, stale, or wrong map identity"
+  },
+  "evidence_files": [
+    "metadata.json",
+    "relocated-prior-manifest.json",
+    "events.jsonl",
+    "checkpoint.json",
+    "report.json"
+  ],
+  "limitations": "No publishers, Gazebo, renderer, Nav2 action, device, or live navigation was started."
+}

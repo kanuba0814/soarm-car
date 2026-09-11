@@ -1,0 +1,101 @@
+{"kind": "clock", "source_stamp": 1032.209, "wall": 4341.042022966}
+{"kind": "clock", "source_stamp": 1032.26, "wall": 4341.092712246}
+{"kind": "clock", "source_stamp": 1032.311, "wall": 4341.143637912}
+{"kind": "clock", "source_stamp": 1032.36, "wall": 4341.193846959}
+{"kind": "clock", "source_stamp": 1032.411, "wall": 4341.244832283}
+{"kind": "clock", "source_stamp": 1032.46, "wall": 4341.295103026}
+{"kind": "clock", "source_stamp": 1032.51, "wall": 4341.345123269}
+{"kind": "clock", "source_stamp": 1032.56, "wall": 4341.395249658}
+{"kind": "clock", "source_stamp": 1032.611, "wall": 4341.446121825}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4341.454285476, "zero": true}
+{"kind": "clock", "source_stamp": 1032.662, "wall": 4341.497118169}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4341.504142986, "zero": true}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.4507052824552995e-06, "moving": false, "stamp": 1032.599999999, "wall": 4341.508024204, "yaw_rate": 5.7777161966368326e-08}
+{"kind": "clock", "source_stamp": 1032.71, "wall": 4341.547716437}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4341.554227347, "zero": true}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.7878351838381864e-06, "moving": false, "stamp": 1032.699999999, "wall": 4341.561106368, "yaw_rate": 8.029131599157784e-08}
+{"kind": "clock", "source_stamp": 1032.761, "wall": 4341.598798015}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4341.603929153, "zero": true}
+{"kind": "clock", "source_stamp": 1032.812, "wall": 4341.649586984}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4341.653931186, "zero": true}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.7900985262683853e-06, "moving": false, "stamp": 1032.799999999, "wall": 4341.679672454, "yaw_rate": 7.264486730919007e-08}
+{"kind": "clock", "source_stamp": 1032.863, "wall": 4341.700519463}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4341.704043159, "zero": true}
+{"kind": "clock", "source_stamp": 1032.914, "wall": 4341.753621952}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4341.754033696, "zero": true}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.8063253918795364e-06, "moving": false, "stamp": 1032.899999999, "wall": 4341.758514885, "yaw_rate": 1.1805968331402565e-07}
+{"kind": "clock", "source_stamp": 1032.966, "wall": 4341.803762309}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4341.804812662, "zero": true}
+{"kind": "clock", "source_stamp": 1033.016, "wall": 4341.853807308}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4341.854098209, "zero": true}
+{"kind": "health", "source_stamp": 1033.025, "state": 1, "wall": 4341.863457992}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.753890701231211e-06, "moving": false, "stamp": 1033.0, "wall": 4341.878779836, "yaw_rate": 1.5930365964174727e-08}
+{"kind": "health", "source_stamp": 1033.061, "state": 1, "wall": 4341.90472845}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4341.904975682, "zero": true}
+{"kind": "clock", "source_stamp": 1033.065, "wall": 4341.905159326}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4341.954126188, "zero": true}
+{"kind": "clock", "source_stamp": 1033.101, "wall": 4341.961539639}
+{"kind": "health", "source_stamp": 1033.103, "state": 1, "wall": 4341.963551296}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.567493199648638e-06, "moving": false, "stamp": 1033.099999999, "wall": 4342.000047683, "yaw_rate": 2.927955105591401e-08}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.003970183, "zero": true}
+{"kind": "clock", "source_stamp": 1033.153, "wall": 4342.011718459}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.054176019, "zero": true}
+{"kind": "clock", "source_stamp": 1033.204, "wall": 4342.062834315}
+{"kind": "health", "source_stamp": 1033.203, "state": 1, "wall": 4342.06426822}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.7194006146097406e-06, "moving": false, "stamp": 1033.199999999, "wall": 4342.080058783, "yaw_rate": 1.5080984915712378e-07}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.104214718, "zero": true}
+{"kind": "clock", "source_stamp": 1033.255, "wall": 4342.113702645}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.154228698, "zero": true}
+{"kind": "health", "source_stamp": 1033.3, "state": 1, "wall": 4342.163446747}
+{"kind": "clock", "source_stamp": 1033.301, "wall": 4342.173704414}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.204054568, "zero": true}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.812048731709429e-06, "moving": false, "stamp": 1033.299999999, "wall": 4342.210799286, "yaw_rate": 2.0910318268582285e-08}
+{"kind": "clock", "source_stamp": 1033.355, "wall": 4342.224642182}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.25398846, "zero": true}
+{"kind": "health", "source_stamp": 1033.393, "state": 1, "wall": 4342.26341378}
+{"kind": "clock", "source_stamp": 1033.405, "wall": 4342.274697865}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.937835829342464e-06, "moving": false, "stamp": 1033.399999999, "wall": 4342.290645351, "yaw_rate": 1.1897910521374988e-07}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.303996756, "zero": true}
+{"kind": "clock", "source_stamp": 1033.456, "wall": 4342.325553244}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.353990282, "zero": true}
+{"kind": "health", "source_stamp": 1033.493, "state": 1, "wall": 4342.36351818}
+{"kind": "clock", "source_stamp": 1033.501, "wall": 4342.38162268}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.8915684525597604e-06, "moving": false, "stamp": 1033.5, "wall": 4342.398732196, "yaw_rate": 9.418117868423557e-08}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.404034256, "zero": true}
+{"kind": "clock", "source_stamp": 1033.555, "wall": 4342.43237819}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.454053637, "zero": true}
+{"kind": "health", "source_stamp": 1033.585, "state": 1, "wall": 4342.463324442}
+{"kind": "clock", "source_stamp": 1033.605, "wall": 4342.482560742}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.503933395, "zero": true}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.3812796025594302e-06, "moving": false, "stamp": 1033.599999999, "wall": 4342.523989997, "yaw_rate": 4.021041512226856e-08}
+{"kind": "clock", "source_stamp": 1033.656, "wall": 4342.533606153}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.553998836, "zero": true}
+{"kind": "health", "source_stamp": 1033.685, "state": 1, "wall": 4342.563539779}
+{"kind": "clock", "source_stamp": 1033.701, "wall": 4342.58696425}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.603972778, "zero": true}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.6815171322884217e-06, "moving": false, "stamp": 1033.699999999, "wall": 4342.605718558, "yaw_rate": 1.1419692708803906e-07}
+{"kind": "clock", "source_stamp": 1033.754, "wall": 4342.637249933}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.653978202, "zero": true}
+{"kind": "health", "source_stamp": 1033.779, "state": 1, "wall": 4342.663432489}
+{"kind": "clock", "source_stamp": 1033.805, "wall": 4342.688278412}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.703980548, "zero": true}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.490579030191313e-06, "moving": false, "stamp": 1033.799999999, "wall": 4342.725219921, "yaw_rate": 1.73218551655243e-08}
+{"kind": "clock", "source_stamp": 1033.856, "wall": 4342.739239621}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.753985853, "zero": true}
+{"kind": "health", "source_stamp": 1033.879, "state": 1, "wall": 4342.763247682}
+{"kind": "clock", "source_stamp": 1033.901, "wall": 4342.791722411}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.804087677, "zero": true}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.4876523799696097e-06, "moving": false, "stamp": 1033.899999999, "wall": 4342.809126422, "yaw_rate": 9.90822281164741e-08}
+{"kind": "clock", "source_stamp": 1033.954, "wall": 4342.841989839}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.85395996, "zero": true}
+{"kind": "health", "source_stamp": 1033.974, "state": 1, "wall": 4342.863460188}
+{"kind": "clock", "source_stamp": 1034.004, "wall": 4342.892031025}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.904221072, "zero": true}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.6868008667484422e-06, "moving": false, "stamp": 1034.0, "wall": 4342.929920478, "yaw_rate": 7.257854088847602e-08}
+{"kind": "clock", "source_stamp": 1034.055, "wall": 4342.943030372}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4342.955288589, "zero": true}
+{"kind": "health", "source_stamp": 1034.061, "state": 1, "wall": 4342.963264735}
+{"kind": "health", "source_stamp": 1034.07, "state": 1, "wall": 4342.964095807}
+{"kind": "clock", "source_stamp": 1034.101, "wall": 4342.995630231}
+{"angular_z": 0.0, "kind": "safe_cmd_vel", "linear_x": 0.0, "linear_y": 0.0, "wall": 4343.003973358, "zero": true}
+{"frame_id": "odom_combined", "kind": "odom", "linear": 1.4146015906723176e-06, "moving": false, "stamp": 1034.099999999, "wall": 4343.032926871, "yaw_rate": 5.397936866795795e-08}
