@@ -89,6 +89,9 @@ class FreshnessGate:
         if not self.health_ok or self.health_receipt is None or now - self.health_receipt < 0 or now - self.health_receipt > self.timeout:
             self.reason = 'health unavailable, stale, or wrong map identity'
             return False
+        if self.last_receipt is None or now - self.last_receipt < 0 or now - self.last_receipt > self.timeout:
+            self.reason = 'source receipt stale or unavailable'
+            return False
         if self.consecutive < self.resume_records:
             self.reason = 'insufficient consecutive fresh source records'
             return False
@@ -213,11 +216,13 @@ class ExplorationSupervisor:
         self.state, self.reason = State.IDLE, 'not started'
         self.robot_pose = None
         self.started_at = None
+        self.reacquisition_deadline = None
         self.active = None
         self.goals = []
         self.failures = 0
         self.events = deque(maxlen=256)
         self._last_progress = None
+        self._last_shortlist = {}
         self._last_observation_receipt = None
         self._pending_terminal = None
         self.dispatch_authorized = True
@@ -260,6 +265,7 @@ class ExplorationSupervisor:
             raise RuntimeError('resume requires confirmed cancellation')
         self.core.import_state(checkpoint)
         self.gate.consecutive = 0
+        self.reacquisition_deadline = now + self.startup_grace
         self.records.clear()
         self.active = None
         self.dispatch_authorized = False
@@ -290,6 +296,7 @@ class ExplorationSupervisor:
             self.navigator.cancel()
             self._transition(State.CANCELLING, reason, now)
         else:
+            self._pending_terminal = None
             self._transition(terminal, reason, now)
 
     def _finish_cancel(self, now):
@@ -318,12 +325,15 @@ class ExplorationSupervisor:
         self._transition(State.NAVIGATING, 'NavigateToPose active after accepted nonempty ComputePathToPose', now)
 
     def _progress(self, now, shortlist=None):
+        if shortlist is not None:
+            self._last_shortlist = shortlist
         if self._last_progress is not None and now - self._last_progress < 1.0:
             return
         self._last_progress = now
-        shortlist = shortlist or {}
+        shortlist = self._last_shortlist
         self.events.append({'time': now, 'state': self.state.value, 'progress': {
-            'observed_area_cells': shortlist.get('observed_area_cells', len(getattr(self.core, 'observed', []))),
+            'observed_area_cells': len(getattr(self.core, 'observed', [])),
+            'selection_revision': shortlist.get('revision'),
             'reference_prior_connected_area_cells': shortlist.get('reference_prior_connected_area_cells'),
             'remaining_frontiers': len(shortlist.get('candidates', [])),
             'selected_goal': self.active['candidate']['cluster_id'] if self.active else None,
@@ -338,8 +348,6 @@ class ExplorationSupervisor:
             raise RuntimeError('supervisor not started')
         if now - self.started_at > self.wall_limit:
             self._request_cancel(State.BUDGET_EXHAUSTED, 'whole-run wall budget exhausted', now)
-        if self.state == State.READY and now - self.started_at > self.startup_grace and not self.gate.ready(now):
-            self._request_cancel(State.SENSOR_FAULT, 'startup data grace expired: ' + self.gate.reason, now)
         if self.state != State.CANCELLING and self.records:
             newest = self.records[-1]
             if (self._last_observation_receipt is None or
@@ -352,6 +360,11 @@ class ExplorationSupervisor:
                 self.core.apply_observation(newest.observation)
                 self.consumed.append(newest.observation)
                 self._last_observation_receipt = newest.receipt
+        readiness_deadline = self.reacquisition_deadline if self.reacquisition_deadline is not None else self.started_at + self.startup_grace
+        if self.state == State.READY and now > readiness_deadline and not self.gate.ready(now):
+            self._request_cancel(State.SENSOR_FAULT, 'startup data grace expired: ' + self.gate.reason, now)
+        if self.state in (State.CANCELLING, State.PLANNING, State.NAVIGATING):
+            self._progress(now)
         if self.state == State.CANCELLING:
             self._finish_cancel(now)
             return self.state
@@ -376,7 +389,7 @@ class ExplorationSupervisor:
             gained = len(getattr(self.core, 'observed', [])) - self.active['coverage_before']
             succeeded = result == 'SUCCEEDED' and gained > 0
             self.core.report_result(candidate['cluster_id'], gained, succeeded)
-            self.goals.append({'cluster_id': candidate['cluster_id'], 'goal_uuid': self.active['goal_uuid'], 'status': result, 'coverage_delta': gained})
+            self.goals.append({'cluster_id': candidate['cluster_id'], 'goal': candidate['goal'], 'goal_uuid': self.active['goal_uuid'], 'status': result, 'coverage_before': self.active['coverage_before'], 'coverage_after': len(getattr(self.core, 'observed', [])), 'revision': self.core.revision, 'coverage_delta': gained})
             self.active = None
             if not succeeded:
                 self.failures += 1

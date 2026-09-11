@@ -1,0 +1,14 @@
+{
+  "active_uuid": null,
+  "events": 7144,
+  "flags": [],
+  "note": "Verifies moving cancellation and stop, not resumed motion; CPU cases are not live evidence.",
+  "observe_only": false,
+  "operation": "pause",
+  "pretrigger_measurement": null,
+  "result": "TIMEOUT",
+  "resume_response": null,
+  "stop_bound_wall_seconds": 3.0,
+  "terminal": null,
+  "trigger_response": null
+}

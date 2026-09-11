@@ -10,6 +10,7 @@ import math
 import os
 import sys
 import time
+import uuid
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
@@ -31,6 +32,7 @@ from sensor_msgs.msg import PointCloud2
 from sensor_msgs_py import point_cloud2
 from soarm_interfaces.msg import LocalizationHealth
 from std_srvs.srv import Trigger
+from unique_identifier_msgs.msg import UUID
 from tf2_ros import Buffer, TransformListener
 
 
@@ -137,6 +139,10 @@ class Nav2Adapter:
             wrapped = self.path_result_future.result()
             path = wrapped.result.path
             result = {'accepted': True, 'status': 'SUCCEEDED' if wrapped.status == GoalStatus.STATUS_SUCCEEDED else 'FAILED', 'frame_id': path.header.frame_id, 'poses': path.poses}
+            if self.node.evidence_dir:
+                evidence = {'wall_monotonic': time.monotonic(), 'goal_uuid': str(uuid.UUID(bytes=bytes(self.path_handle.goal_id.uuid))), 'status': wrapped.status, 'frame_id': path.header.frame_id, 'poses': [[pose.pose.position.x, pose.pose.position.y] for pose in path.poses]}
+                with (self.node.evidence_dir / 'paths.jsonl').open('a') as stream:
+                    stream.write(json.dumps(evidence) + '\n')
         except Exception:
             result = {'accepted': False}
         self.path_result_future = None
@@ -151,8 +157,9 @@ class Nav2Adapter:
         self.goal_sequence += 1
         action = NavigateToPose.Goal()
         action.pose = self._pose(goal)
-        self.transport.send(action)
-        return 'exploration-%d' % self.goal_sequence
+        identifier = uuid.uuid4()
+        self.transport.send(action, goal_uuid=UUID(uuid=list(identifier.bytes)))
+        return str(identifier)
 
     def send_prepared(self, goal):
         self.nav_started = True
@@ -168,8 +175,9 @@ class Nav2Adapter:
         action.pose.pose.orientation.y = goal['orientation']['y']
         action.pose.pose.orientation.z = goal['orientation']['z']
         action.pose.pose.orientation.w = goal['orientation']['w']
-        self.transport.send(action)
-        return 'named-%d' % self.goal_sequence
+        identifier = uuid.uuid4()
+        self.transport.send(action, goal_uuid=UUID(uuid=list(identifier.bytes)))
+        return str(identifier)
 
     def poll(self):
         if not self.transport.terminal:
@@ -339,8 +347,8 @@ class PriorMapExplorationNode(Node):
 
     def inject_source_drop(self, _request, response):
         self.drop_source = not self.drop_source
-        if self.drop_source:
-            self.supervisor.source_fault(time.monotonic())
+        # Only suppress this consumer's input. The unchanged freshness watchdog
+        # must detect silence and cancel; the injector must not call it directly.
         response.success, response.message = True, 'supervisor source-drop injection=' + str(self.drop_source)
         return response
 
@@ -420,8 +428,10 @@ class PriorMapExplorationNode(Node):
             seed.header.stamp = self.get_clock().now().to_msg()
             seed.pose.pose.orientation.w = 1.0
             self.bootstrap_pub.publish(seed)
-        self.supervisor.tick(wall_now)
-        self._arm_gate_when_ready(wall_now)
+        # A retried cloud obtains a receipt after the timer's initial snapshot.
+        # Evaluate freshness after that work, never against an earlier timestamp.
+        self.supervisor.tick(time.monotonic())
+        self._arm_gate_when_ready(time.monotonic())
         if self.supervisor.state in (State.FRONTIERS_EXHAUSTED, State.BUDGET_EXHAUSTED):
             self._dispatch_named_task()
         if self.named_status['state'] == 'active':

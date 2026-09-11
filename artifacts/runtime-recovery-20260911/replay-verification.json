@@ -1,0 +1,15 @@
+{
+  "input": "normal-003/observations.jsonl",
+  "record_count": 159,
+  "sha256": "2acc7651d92f9b35c6a9d327c03bfda11a0c5aa593be6237e3f6012d0f46ae82",
+  "started_from_zero_coverage": true,
+  "checkpoint_matches": {
+    "observed_cells": true,
+    "visibility_cells": true,
+    "live_obstacle_cells": true,
+    "accepted_observation_ids": true,
+    "revision": true
+  },
+  "observed_cells": 28344,
+  "wall_seconds": 9.903713641999275
+}

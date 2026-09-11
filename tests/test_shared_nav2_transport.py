@@ -43,12 +43,19 @@ class Client:
         self.sent = []
         self.response = Future()
 
-    def send_goal_async(self, goal):
+    def send_goal_async(self, goal, **options):
+        self.options = options
         self.sent.append(goal)
         return self.response
 
 
 class SharedNav2TransportTests(unittest.TestCase):
+    def test_explicit_uuid_reaches_action_client_unchanged(self):
+        client = Client()
+        identifier = object()
+        NavigationActionTransport(client).send('goal', goal_uuid=identifier)
+        self.assertIs(client.options['goal_uuid'], identifier)
+
     def test_late_accepted_cancel_remains_busy_until_terminal_result(self):
         client = Client()
         transport = NavigationActionTransport(client)

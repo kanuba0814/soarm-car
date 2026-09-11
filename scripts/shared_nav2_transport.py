@@ -35,13 +35,14 @@ class NavigationActionTransport:
     def busy(self):
         return self._response_pending or self._handle is not None
 
-    def send(self, goal):
+    def send(self, goal, *, goal_uuid=None):
         if self.busy:
             raise RuntimeError('NavigateToPose action is not terminal')
         self._response_pending = True
         self._result = None
         self._cancel_requested = False
-        self._client.send_goal_async(goal).add_done_callback(self._response)
+        options = {} if goal_uuid is None else {'goal_uuid': goal_uuid}
+        self._client.send_goal_async(goal, **options).add_done_callback(self._response)
 
     def cancel(self):
         """Request cancellation, retaining the slot until the result arrives."""

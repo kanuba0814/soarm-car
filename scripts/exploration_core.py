@@ -111,21 +111,29 @@ class ExplorationCore:
         self._footprint_offsets = tuple((dx, dy) for dx in range(-extent_cells, extent_cells + 1) for dy in range(-extent_cells, extent_cells + 1) if self._offset_intersects_footprint(dx, dy))
         self._configuration_cache_revision = None
         self._configuration_cache = None
+        self._configuration_by_radius = {}
+        self._offsets_by_radius = {ROBOT_RADIUS_M: self._footprint_offsets}
+        self._prior_component_sizes = {}
 
-    def _offset_intersects_footprint(self, dx, dy):
+    def _offset_intersects_footprint(self, dx, dy, radius=ROBOT_RADIUS_M):
         half = self.prior.resolution / 2
         nearest_x = max(abs(dx) * self.prior.resolution - half, 0.0)
         nearest_y = max(abs(dy) * self.prior.resolution - half, 0.0)
-        return math.hypot(nearest_x, nearest_y) <= ROBOT_RADIUS_M
+        return math.hypot(nearest_x, nearest_y) <= radius
 
-    def _configuration_space(self):
-        if self._configuration_cache_revision == self.revision and self._configuration_cache is not None:
-            return self._configuration_cache
-        base = self._prior_free.copy()
-        for x, y in self.observed:
-            base[x, y] = True
+    def _configuration_space(self, radius=ROBOT_RADIUS_M):
+        if self._configuration_cache_revision != self.revision or self._configuration_cache is None:
+            self._configuration_by_radius = {}
+        if radius in self._configuration_by_radius:
+            return self._configuration_by_radius[radius]
+        if radius not in self._offsets_by_radius:
+            extent = math.ceil(radius / self.prior.resolution)
+            self._offsets_by_radius[radius] = tuple(
+                (dx, dy) for dx in range(-extent, extent + 1)
+                for dy in range(-extent, extent + 1)
+                if self._offset_intersects_footprint(dx, dy, radius))
         # Observation is the authoritative free-space evidence; prior free cells alone are insufficient.
-        observed = np.zeros_like(base)
+        observed = np.zeros_like(self._prior_free)
         for x, y in self.observed:
             observed[x, y] = True
         base = observed & self._prior_free
@@ -133,7 +141,7 @@ class ExplorationCore:
             base[x, y] = False
         configuration = base.copy()
         width, height = self.prior.width, self.prior.height
-        for dx, dy in self._footprint_offsets:
+        for dx, dy in self._offsets_by_radius[radius]:
             shifted = np.zeros_like(base)
             source_x0, source_x1 = max(0, dx), min(width, width + dx)
             source_y0, source_y1 = max(0, dy), min(height, height + dy)
@@ -142,7 +150,9 @@ class ExplorationCore:
             if target_x0 < target_x1 and target_y0 < target_y1:
                 shifted[target_x0:target_x1, target_y0:target_y1] = base[source_x0:source_x1, source_y0:source_y1]
             configuration &= shifted
-        self._configuration_cache_revision, self._configuration_cache = self.revision, configuration
+        self._configuration_cache_revision = self.revision
+        self._configuration_by_radius[radius] = configuration
+        self._configuration_cache = configuration
         return configuration
 
     def _in_navigation_band(self, point, ground_origin, ground_normal):
@@ -210,6 +220,21 @@ class ExplorationCore:
                     if not self.prior.inside(candidate) or candidate not in self.observed or candidate in self.live_obstacles or self.prior.occupancy(candidate) != "free": return False
         return True
 
+    def _clearance_ok(self, point, radius):
+        min_x = math.floor((point[0] - radius - self.prior.origin[0]) / self.prior.resolution)
+        max_x = math.floor((point[0] + radius - self.prior.origin[0]) / self.prior.resolution)
+        min_y = math.floor((point[1] - radius - self.prior.origin[1]) / self.prior.resolution)
+        max_y = math.floor((point[1] + radius - self.prior.origin[1]) / self.prior.resolution)
+        for x in range(min_x, max_x + 1):
+            for y in range(min_y, max_y + 1):
+                cell_min_x = self.prior.origin[0] + x * self.prior.resolution
+                cell_min_y = self.prior.origin[1] + y * self.prior.resolution
+                nearest_x = min(max(point[0], cell_min_x), cell_min_x + self.prior.resolution)
+                nearest_y = min(max(point[1], cell_min_y), cell_min_y + self.prior.resolution)
+                if math.hypot(point[0] - nearest_x, point[1] - nearest_y) <= radius and (not self.prior.inside((x, y)) or (x, y) not in self.observed or (x, y) in self.live_obstacles or self.prior.occupancy((x, y)) != 'free'):
+                    return False
+        return True
+
     def _traversable(self, cell):
         return self.prior.inside(cell) and bool(self._configuration_space()[cell[0], cell[1]])
     def _reachable(self, start):
@@ -228,6 +253,8 @@ class ExplorationCore:
 
     def candidates(self, robot_pose):
         if not _finite_point(robot_pose, 3): raise InputError("invalid robot pose")
+        if not self._clearance_ok(robot_pose, ROBOT_RADIUS_M):
+            return {'status': 'blocked', 'candidates': [], 'rejections': [{'reason': 'start_clearance_occupied'}], 'observed_area_cells': len(self.observed), 'visibility_area_cells': len(self.visibility)}
         start, reachable = self.prior.world_to_cell(robot_pose), self._reachable(self.prior.world_to_cell(robot_pose))
         def eligible_unknown(cell):
             return (self.prior.inside(cell) and self.prior.occupancy(cell) == "free" and
@@ -236,21 +263,41 @@ class ExplorationCore:
         base = {"revision": self.revision, "observed_area_cells": len(self.observed), "visibility_area_cells": len(self.visibility), "reference_prior_connected_area_cells": self._prior_connected_area(start)}
         if not frontier:
             return dict(base, status="no_frontier" if reachable else "blocked", candidates=[], rejections=[])
-        output, rejections, offset = [], [], math.ceil(ROBOT_RADIUS_M / self.prior.resolution)
+        output, rejections = [], []
+        goal_clearance = ROBOT_RADIUS_M + NAV2_ARRIVAL_TOLERANCE_M
+        goal_offset = math.ceil(goal_clearance / self.prior.resolution)
+        goal_configuration = self._configuration_space(goal_clearance)
+        minimum_distance = NAV2_ARRIVAL_TOLERANCE_M + self.prior.resolution
+        safe_approaches = sorted(
+            (cell for cell in reachable if goal_configuration[cell] and
+             math.hypot(cell[0] - start[0], cell[1] - start[1]) * self.prior.resolution >= minimum_distance),
+            key=lambda cell: (math.hypot(cell[0] - start[0], cell[1] - start[1]), cell))
+        approach_rank = np.full(self._prior_free.shape, len(safe_approaches), dtype=np.int32)
+        for rank, cell in enumerate(safe_approaches):
+            approach_rank[cell] = rank
+        offsets = np.array([(dx, dy) for dx in range(-goal_offset - 1, goal_offset + 2)
+                            for dy in range(-goal_offset - 1, goal_offset + 2)
+                            if abs(dx) + abs(dy) <= goal_offset + 1], dtype=np.int32)
         for group in _clusters(frontier):
             region, default_id = self._region_for(group), _cluster_id(group)
             cluster_id = region["id"] if region else default_id
             if region and region["attempts"] >= self.max_attempts:
                 rejections.append({"cluster_id": cluster_id, "reason": "retry_exhausted"}); continue
-            approaches = set()
-            for edge in group:
-                for dx in range(-offset - 1, offset + 2):
-                    for dy in range(-offset - 1, offset + 2):
-                        if offset <= abs(dx) + abs(dy) <= offset + 1 and (edge[0] + dx, edge[1] + dy) in reachable: approaches.add((edge[0] + dx, edge[1] + dy))
-            if not approaches:
+            # Same Manhattan neighborhood and deterministic distance/cell order,
+            # evaluated in bounded NumPy batches instead of nested Python loops.
+            best_rank = len(safe_approaches)
+            edges = np.array(list(group), dtype=np.int32)
+            for begin in range(0, len(edges), 128):
+                cells = (edges[begin:begin + 128, None, :] + offsets[None, :, :]).reshape(-1, 2)
+                inside = ((cells[:, 0] >= 0) & (cells[:, 0] < self.prior.width) &
+                          (cells[:, 1] >= 0) & (cells[:, 1] < self.prior.height))
+                cells = cells[inside]
+                if len(cells):
+                    best_rank = min(best_rank, int(approach_rank[cells[:, 0], cells[:, 1]].min()))
+            if best_rank == len(safe_approaches):
                 rejections.append({"cluster_id": cluster_id, "reason": "no_safe_approach"}); continue
             self._issued_regions[cluster_id] = set(group)
-            approach = min(approaches, key=lambda cell: (math.hypot(cell[0] - start[0], cell[1] - start[1]), cell))
+            approach = safe_approaches[best_rank]
             distance_m = math.hypot(approach[0] - start[0], approach[1] - start[1]) * self.prior.resolution
             if distance_m < NAV2_ARRIVAL_TOLERANCE_M + self.prior.resolution:
                 rejections.append({"cluster_id": cluster_id, "reason": "no_meaningful_approach"}); continue
@@ -288,12 +335,15 @@ class ExplorationCore:
         self._retry_regions = [{"id": item["id"], "cells": _cells_from_json(item["cells"]), "attempts": item["attempts"]} for item in groups]
 
     def _prior_connected_area(self, start):
+        if start in self._prior_component_sizes:
+            return self._prior_component_sizes[start]
         if self.prior.occupancy(start) != "free": return 0
         seen, queue = {start}, deque([start])
         while queue:
             cell = queue.popleft()
             for adjacent in _neighbors(cell):
                 if adjacent not in seen and self.prior.occupancy(adjacent) == "free": seen.add(adjacent); queue.append(adjacent)
+        self._prior_component_sizes.update((cell, len(seen)) for cell in seen)
         return len(seen)
 
 def run_cli(input_path, output_path):

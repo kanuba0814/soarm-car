@@ -282,6 +282,42 @@ class SupervisorTests(unittest.TestCase):
         self.assertEqual(supervisor.state, State.READY)
         self.assertEqual(supervisor.gate.consecutive, 0)
 
+    def test_fresh_health_does_not_hide_old_source_receipts(self):
+        gate = FreshnessGate(MAP_ID)
+        adapter = PointCloudAdapter(MAP_ID)
+        self.assertTrue(gate.source(self.record(adapter, 'one', 1, 1., 10., 1.)))
+        self.assertTrue(gate.source(self.record(adapter, 'two', 2, 2., 11., 2.)))
+        gate.health('HEALTHY', MAP_ID, 100.)
+        self.assertFalse(gate.ready(100.))
+        self.assertIn('source receipt stale', gate.reason)
+
+    def test_old_episode_resume_has_new_reacquisition_deadline(self):
+        core, nav = Core(), Navigator()
+        core.export_state = lambda: {'state_version': 1}
+        core.import_state = lambda _state: None
+        supervisor = ExplorationSupervisor(core, nav, MAP_ID)
+        adapter = PointCloudAdapter(MAP_ID)
+        supervisor.start(0.)
+        nav.terminal = True
+        checkpoint = supervisor.pause(400.)
+        supervisor.tick(400.1)
+        supervisor.resume(checkpoint, 402.)
+        supervisor.health('HEALTHY', MAP_ID, 402.)
+        supervisor.tick(402.103)
+        self.assertEqual(supervisor.state, State.READY)
+        self.assertEqual(supervisor.started_at, 0.)
+        supervisor.enqueue(self.record(adapter, 'fresh-one', 1, 10., 402.2, 10.))
+        supervisor.tick(402.2)
+        supervisor.health('HEALTHY', MAP_ID, 402.8)
+        supervisor.enqueue(self.record(adapter, 'fresh-two', 2, 11., 402.8, 11.))
+        supervisor.tick(402.8)
+        self.assertEqual(supervisor.state, State.READY)
+        self.assertEqual(len(nav.sent), 0)
+        supervisor.authorize_dispatch()
+        supervisor.tick(402.9)
+        self.assertEqual(supervisor.state, State.NAVIGATING)
+        self.assertEqual(len(nav.sent), 1)
+
     def test_source_loss_cancels_and_waits_for_terminal_result(self):
         core, nav = Core(), Navigator()
         supervisor = ExplorationSupervisor(core, nav, MAP_ID)

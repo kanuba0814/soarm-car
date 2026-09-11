@@ -1,0 +1,29 @@
+{
+  "active_uuid": "816ee2dd26b64665a20d25119c4a83e5",
+  "events": 1269,
+  "flags": [],
+  "note": "Verifies moving cancellation and stop, not resumed motion; CPU cases are not live evidence.",
+  "observe_only": false,
+  "operation": "inject_source_drop",
+  "pretrigger_measurement": {
+    "goal_stamp": 36.782,
+    "measured_motion": {
+      "linear": 0.02854650282734845,
+      "moving": true,
+      "stamp": 37.0,
+      "wall": 5026.017690482,
+      "yaw_rate": 0.043580234798657635
+    },
+    "source_clock": 37.033,
+    "uuid": "816ee2dd26b64665a20d25119c4a83e5",
+    "wall": 5026.02987731
+  },
+  "result": "PASS",
+  "resume_response": null,
+  "stop_bound_wall_seconds": 3.0,
+  "terminal": "CANCELED",
+  "trigger_response": {
+    "message": "supervisor source-drop injection=True",
+    "success": true
+  }
+}

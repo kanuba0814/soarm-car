@@ -1,0 +1,2995 @@
+{
+  "bootstrap": {
+    "complete": true,
+    "requests": 1,
+    "source_conditions": [
+      {
+        "advancing_clock": true,
+        "advancing_odom": false,
+        "clock": 213.127,
+        "odom_stamp": 213.0
+      }
+    ]
+  },
+  "cadence": {
+    "checkpoint_seconds": 5,
+    "fsm_hz": 20,
+    "progress_report_hz_max": 1
+  },
+  "core_state_checkpoint": "checkpoint.json",
+  "gate_arm": {
+    "message": "Gate armed; waiting for a fresh navigation command.",
+    "receipt": 3505.369464655,
+    "state": "confirmed"
+  },
+  "goals": [],
+  "measured_pose": [
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.107054263,
+      "source_stamp": 900.2,
+      "x": -0.0006309421215977604,
+      "y": 0.011595647121684543
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.125662776,
+      "source_stamp": 900.2,
+      "x": -0.0006309421215977604,
+      "y": 0.011595647121684543
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.14523439,
+      "source_stamp": 900.2,
+      "x": -0.0006309421215977604,
+      "y": 0.011595647121684543
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.165260183,
+      "source_stamp": 900.2,
+      "x": -0.0006309421215977604,
+      "y": 0.011595647121684543
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.196161922,
+      "source_stamp": 900.2,
+      "x": -0.0006309421215977604,
+      "y": 0.011595647121684543
+    },
+    {
+      "dt": 0.09999999999990905,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0003689886597632935,
+      "measured_linear_x": -0.0002814179969724059,
+      "measured_linear_y": -0.00023865569763563258,
+      "receipt": 4206.205143299,
+      "source_stamp": 900.3,
+      "x": -0.0006590839212949754,
+      "y": 0.011571781551921002
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.225313828,
+      "source_stamp": 900.3,
+      "x": -0.0006590839212949754,
+      "y": 0.011571781551921002
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.245695822,
+      "source_stamp": 900.3,
+      "x": -0.0006590839212949754,
+      "y": 0.011571781551921002
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.265462078,
+      "source_stamp": 900.3,
+      "x": -0.0006590839212949754,
+      "y": 0.011571781551921002
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.309238406,
+      "source_stamp": 900.3,
+      "x": -0.0006590839212949754,
+      "y": 0.011571781551921002
+    },
+    {
+      "dt": 0.09999999900003331,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0020432650311842772,
+      "measured_linear_x": 0.0014102348798050795,
+      "measured_linear_y": 0.001478570110424811,
+      "receipt": 4206.309716718,
+      "source_stamp": 900.399999999,
+      "x": -0.0005180604347246553,
+      "y": 0.011719638561484962
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.328833456,
+      "source_stamp": 900.399999999,
+      "x": -0.0005180604347246553,
+      "y": 0.011719638561484962
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.348399857,
+      "source_stamp": 900.399999999,
+      "x": -0.0005180604347246553,
+      "y": 0.011719638561484962
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.368446548,
+      "source_stamp": 900.399999999,
+      "x": -0.0005180604347246553,
+      "y": 0.011719638561484962
+    },
+    {
+      "dt": 0.10000000100001216,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0014738879467512337,
+      "measured_linear_x": 0.0006808966851153209,
+      "measured_linear_y": 0.0013071822305162869,
+      "receipt": 4206.413147825,
+      "source_stamp": 900.5,
+      "x": -0.0004499707655322183,
+      "y": 0.011850356785843789
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.413598757,
+      "source_stamp": 900.5,
+      "x": -0.0004499707655322183,
+      "y": 0.011850356785843789
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.428411362,
+      "source_stamp": 900.5,
+      "x": -0.0004499707655322183,
+      "y": 0.011850356785843789
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.448523669,
+      "source_stamp": 900.5,
+      "x": -0.0004499707655322183,
+      "y": 0.011850356785843789
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.468329832,
+      "source_stamp": 900.5,
+      "x": -0.0004499707655322183,
+      "y": 0.011850356785843789
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0008739723019421807,
+      "measured_linear_x": 0.0003892060078948446,
+      "measured_linear_y": 0.0007825255701768935,
+      "receipt": 4206.497755525,
+      "source_stamp": 900.6,
+      "x": -0.000411050164742725,
+      "y": 0.011928609342861496
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.508712606,
+      "source_stamp": 900.6,
+      "x": -0.000411050164742725,
+      "y": 0.011928609342861496
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.528825465,
+      "source_stamp": 900.6,
+      "x": -0.000411050164742725,
+      "y": 0.011928609342861496
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.548838521,
+      "source_stamp": 900.6,
+      "x": -0.000411050164742725,
+      "y": 0.011928609342861496
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.568660324,
+      "source_stamp": 900.6,
+      "x": -0.000411050164742725,
+      "y": 0.011928609342861496
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0005032511223678009,
+      "measured_linear_x": 0.00013518879997770594,
+      "measured_linear_y": 0.0004847532161059266,
+      "receipt": 4206.59943404,
+      "source_stamp": 900.7,
+      "x": -0.0003975312847449513,
+      "y": 0.0119770846644721
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.611117981,
+      "source_stamp": 900.7,
+      "x": -0.0003975312847449513,
+      "y": 0.0119770846644721
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.629280582,
+      "source_stamp": 900.7,
+      "x": -0.0003975312847449513,
+      "y": 0.0119770846644721
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.649507073,
+      "source_stamp": 900.7,
+      "x": -0.0003975312847449513,
+      "y": 0.0119770846644721
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.669668721,
+      "source_stamp": 900.7,
+      "x": -0.0003975312847449513,
+      "y": 0.0119770846644721
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.699820395,
+      "source_stamp": 900.7,
+      "x": -0.0003975312847449513,
+      "y": 0.0119770846644721
+    },
+    {
+      "dt": 0.09999999999990905,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0002354045709624082,
+      "measured_linear_x": -2.156927575144482e-05,
+      "measured_linear_y": 0.00023441433056354215,
+      "receipt": 4206.709653493,
+      "source_stamp": 900.8,
+      "x": -0.00039968821232009384,
+      "y": 0.012000526097528432
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.729581604,
+      "source_stamp": 900.8,
+      "x": -0.00039968821232009384,
+      "y": 0.012000526097528432
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.749445292,
+      "source_stamp": 900.8,
+      "x": -0.00039968821232009384,
+      "y": 0.012000526097528432
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.769506203,
+      "source_stamp": 900.8,
+      "x": -0.00039968821232009384,
+      "y": 0.012000526097528432
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.81240948,
+      "source_stamp": 900.8,
+      "x": -0.00039968821232009384,
+      "y": 0.012000526097528432
+    },
+    {
+      "dt": 0.09999999900003331,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.00010393494199047199,
+      "measured_linear_x": -9.769267859598986e-05,
+      "measured_linear_y": 3.547693215743722e-05,
+      "receipt": 4206.812701361,
+      "source_stamp": 900.899999999,
+      "x": -0.0004094574800820034,
+      "y": 0.0120040737907087
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.829607693,
+      "source_stamp": 900.899999999,
+      "x": -0.0004094574800820034,
+      "y": 0.0120040737907087
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.852080979,
+      "source_stamp": 900.899999999,
+      "x": -0.0004094574800820034,
+      "y": 0.0120040737907087
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.869729627,
+      "source_stamp": 900.899999999,
+      "x": -0.0004094574800820034,
+      "y": 0.0120040737907087
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.914922397,
+      "source_stamp": 900.899999999,
+      "x": -0.0004094574800820034,
+      "y": 0.0120040737907087
+    },
+    {
+      "dt": 0.10000000100001216,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0023667422759136632,
+      "measured_linear_x": -0.0017488444827212118,
+      "measured_linear_y": -0.0015946824059519076,
+      "receipt": 4206.915507779,
+      "source_stamp": 901.0,
+      "x": -0.0005843419301029903,
+      "y": 0.011844605548518808
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.929575984,
+      "source_stamp": 901.0,
+      "x": -0.0005843419301029903,
+      "y": 0.011844605548518808
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.957109377,
+      "source_stamp": 901.0,
+      "x": -0.0005843419301029903,
+      "y": 0.011844605548518808
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4206.976661741,
+      "source_stamp": 901.0,
+      "x": -0.0005843419301029903,
+      "y": 0.011844605548518808
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0012532939668458657,
+      "measured_linear_x": -0.00042959120791820945,
+      "measured_linear_y": -0.0011773687448763108,
+      "receipt": 4207.022688179,
+      "source_stamp": 901.1,
+      "x": -0.000627301050894821,
+      "y": 0.01172686867403115
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.029451316,
+      "source_stamp": 901.1,
+      "x": -0.000627301050894821,
+      "y": 0.01172686867403115
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.049202936,
+      "source_stamp": 901.1,
+      "x": -0.000627301050894821,
+      "y": 0.01172686867403115
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.069509538,
+      "source_stamp": 901.1,
+      "x": -0.000627301050894821,
+      "y": 0.01172686867403115
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.089360739,
+      "source_stamp": 901.1,
+      "x": -0.000627301050894821,
+      "y": 0.01172686867403115
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0008373112920036007,
+      "measured_linear_x": -1.7085229525560918e-05,
+      "measured_linear_y": -0.0008371369628972299,
+      "receipt": 4207.13686852,
+      "source_stamp": 901.2,
+      "x": -0.0006290095738473775,
+      "y": 0.011643154977741408
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.137379847,
+      "source_stamp": 901.2,
+      "x": -0.0006290095738473775,
+      "y": 0.011643154977741408
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.149448509,
+      "source_stamp": 901.2,
+      "x": -0.0006290095738473775,
+      "y": 0.011643154977741408
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.169395654,
+      "source_stamp": 901.2,
+      "x": -0.0006290095738473775,
+      "y": 0.011643154977741408
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.189281083,
+      "source_stamp": 901.2,
+      "x": -0.0006290095738473775,
+      "y": 0.011643154977741408
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.231808379,
+      "source_stamp": 901.2,
+      "x": -0.0006290095738473775,
+      "y": 0.011643154977741408
+    },
+    {
+      "dt": 0.09999999999990905,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.00047544599273856004,
+      "measured_linear_x": -1.931097181689847e-05,
+      "measured_linear_y": -0.00047505365842043766,
+      "receipt": 4207.239572478,
+      "source_stamp": 901.3,
+      "x": -0.0006309406710290656,
+      "y": 0.011595649611899407
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.261198261,
+      "source_stamp": 901.3,
+      "x": -0.0006309406710290656,
+      "y": 0.011595649611899407
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.279856875,
+      "source_stamp": 901.3,
+      "x": -0.0006309406710290656,
+      "y": 0.011595649611899407
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.299701083,
+      "source_stamp": 901.3,
+      "x": -0.0006309406710290656,
+      "y": 0.011595649611899407
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.328021855,
+      "source_stamp": 901.3,
+      "x": -0.0006309406710290656,
+      "y": 0.011595649611899407
+    },
+    {
+      "dt": 0.09999999900003331,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0003689774376968934,
+      "measured_linear_x": -0.00028144913197583827,
+      "measured_linear_y": -0.00023860162539138756,
+      "receipt": 4207.339997254,
+      "source_stamp": 901.399999999,
+      "x": -0.0006590855839452097,
+      "y": 0.011571789449598862
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.359804147,
+      "source_stamp": 901.399999999,
+      "x": -0.0006590855839452097,
+      "y": 0.011571789449598862
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.380091326,
+      "source_stamp": 901.399999999,
+      "x": -0.0006590855839452097,
+      "y": 0.011571789449598862
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.399580445,
+      "source_stamp": 901.399999999,
+      "x": -0.0006590855839452097,
+      "y": 0.011571789449598862
+    },
+    {
+      "dt": 0.10000000100001216,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0020432832874824917,
+      "measured_linear_x": 0.0014102405477103403,
+      "measured_linear_y": 0.0014785899331792092,
+      "receipt": 4207.439061672,
+      "source_stamp": 901.5,
+      "x": -0.000518061527763918,
+      "y": 0.011719648444395391
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.448704378,
+      "source_stamp": 901.5,
+      "x": -0.000518061527763918,
+      "y": 0.011719648444395391
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.468723449,
+      "source_stamp": 901.5,
+      "x": -0.000518061527763918,
+      "y": 0.011719648444395391
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.488988439,
+      "source_stamp": 901.5,
+      "x": -0.000518061527763918,
+      "y": 0.011719648444395391
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.508855574,
+      "source_stamp": 901.5,
+      "x": -0.000518061527763918,
+      "y": 0.011719648444395391
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.001473801326705122,
+      "measured_linear_x": 0.0006809156240676636,
+      "measured_linear_y": 0.0013070746969849588,
+      "receipt": 4207.537203155,
+      "source_stamp": 901.6,
+      "x": -0.0004499699653571361,
+      "y": 0.011850355914093917
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.55087902,
+      "source_stamp": 901.6,
+      "x": -0.0004499699653571361,
+      "y": 0.011850355914093917
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.570133542,
+      "source_stamp": 901.6,
+      "x": -0.0004499699653571361,
+      "y": 0.011850355914093917
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.588636117,
+      "source_stamp": 901.6,
+      "x": -0.0004499699653571361,
+      "y": 0.011850355914093917
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.608523512,
+      "source_stamp": 901.6,
+      "x": -0.0004499699653571361,
+      "y": 0.011850355914093917
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0008739477162853543,
+      "measured_linear_x": 0.00038921776788258247,
+      "measured_linear_y": 0.0007824922619201331,
+      "receipt": 4207.645580503,
+      "source_stamp": 901.7,
+      "x": -0.00041104818856886903,
+      "y": 0.011928605140285948
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.654901603,
+      "source_stamp": 901.7,
+      "x": -0.00041104818856886903,
+      "y": 0.011928605140285948
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.675179759,
+      "source_stamp": 901.7,
+      "x": -0.00041104818856886903,
+      "y": 0.011928605140285948
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.695505717,
+      "source_stamp": 901.7,
+      "x": -0.00041104818856886903,
+      "y": 0.011928605140285948
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.71506167,
+      "source_stamp": 901.7,
+      "x": -0.00041104818856886903,
+      "y": 0.011928605140285948
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.746164976,
+      "source_stamp": 901.7,
+      "x": -0.00041104818856886903,
+      "y": 0.011928605140285948
+    },
+    {
+      "dt": 0.09999999999990905,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0005032428353728499,
+      "measured_linear_x": 0.00013519792149190176,
+      "measured_linear_y": 0.00048474206891745516,
+      "receipt": 4207.756084908,
+      "source_stamp": 901.8,
+      "x": -0.00039752839641969115,
+      "y": 0.01197707934717765
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.775111573,
+      "source_stamp": 901.8,
+      "x": -0.00039752839641969115,
+      "y": 0.01197707934717765
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.795181341,
+      "source_stamp": 901.8,
+      "x": -0.00039752839641969115,
+      "y": 0.01197707934717765
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.814963046,
+      "source_stamp": 901.8,
+      "x": -0.00039752839641969115,
+      "y": 0.01197707934717765
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.866589443,
+      "source_stamp": 901.8,
+      "x": -0.00039752839641969115,
+      "y": 0.01197707934717765
+    },
+    {
+      "dt": 0.09999999900003331,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.00023546036160413647,
+      "measured_linear_x": -2.156267641363777e-05,
+      "measured_linear_y": 0.0002344709638156321,
+      "receipt": 4207.867042754,
+      "source_stamp": 901.899999999,
+      "x": -0.00039968466403949297,
+      "y": 0.01200052644332475
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.881954805,
+      "source_stamp": 901.899999999,
+      "x": -0.00039968466403949297,
+      "y": 0.01200052644332475
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.901680694,
+      "source_stamp": 901.899999999,
+      "x": -0.00039968466403949297,
+      "y": 0.01200052644332475
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.921844863,
+      "source_stamp": 901.899999999,
+      "x": -0.00039968466403949297,
+      "y": 0.01200052644332475
+    },
+    {
+      "dt": 0.10000000100001216,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.00010395006544850986,
+      "measured_linear_x": -9.770722562551165e-05,
+      "measured_linear_y": 3.5481180466760745e-05,
+      "receipt": 4207.949312393,
+      "source_stamp": 902.0,
+      "x": -0.00040945538669975254,
+      "y": 0.012004074561406907
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.963792306,
+      "source_stamp": 902.0,
+      "x": -0.00040945538669975254,
+      "y": 0.012004074561406907
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4207.981877492,
+      "source_stamp": 902.0,
+      "x": -0.00040945538669975254,
+      "y": 0.012004074561406907
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.012177226,
+      "source_stamp": 902.0,
+      "x": -0.00040945538669975254,
+      "y": 0.012004074561406907
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.031911302,
+      "source_stamp": 902.0,
+      "x": -0.00040945538669975254,
+      "y": 0.012004074561406907
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.002366766271622801,
+      "measured_linear_x": -0.0017488826987961256,
+      "measured_linear_y": -0.0015946761082874707,
+      "receipt": 4208.06775921,
+      "source_stamp": 902.1,
+      "x": -0.0005843436565794049,
+      "y": 0.011844606950578124
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.07474065,
+      "source_stamp": 902.1,
+      "x": -0.0005843436565794049,
+      "y": 0.011844606950578124
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.094987702,
+      "source_stamp": 902.1,
+      "x": -0.0005843436565794049,
+      "y": 0.011844606950578124
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.114725651,
+      "source_stamp": 902.1,
+      "x": -0.0005843436565794049,
+      "y": 0.011844606950578124
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.134653257,
+      "source_stamp": 902.1,
+      "x": -0.0005843436565794049,
+      "y": 0.011844606950578124
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0012533075776758253,
+      "measured_linear_x": -0.00042959077489687256,
+      "measured_linear_y": -0.0011773833914163854,
+      "receipt": 4208.181047296,
+      "source_stamp": 902.2,
+      "x": -0.0006273027340691019,
+      "y": 0.011726868611436458
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.181506432,
+      "source_stamp": 902.2,
+      "x": -0.0006273027340691019,
+      "y": 0.011726868611436458
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.196161408,
+      "source_stamp": 902.2,
+      "x": -0.0006273027340691019,
+      "y": 0.011726868611436458
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.21604897,
+      "source_stamp": 902.2,
+      "x": -0.0006273027340691019,
+      "y": 0.011726868611436458
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.236655213,
+      "source_stamp": 902.2,
+      "x": -0.0006273027340691019,
+      "y": 0.011726868611436458
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.270297248,
+      "source_stamp": 902.2,
+      "x": -0.0006273027340691019,
+      "y": 0.011726868611436458
+    },
+    {
+      "dt": 0.09999999999990905,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0008373077943150891,
+      "measured_linear_x": -1.7096829543108918e-05,
+      "measured_linear_y": -0.0008371332276527874,
+      "receipt": 4208.276446757,
+      "source_stamp": 902.3,
+      "x": -0.0006290124170234112,
+      "y": 0.011643155288671256
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.297483622,
+      "source_stamp": 902.3,
+      "x": -0.0006290124170234112,
+      "y": 0.011643155288671256
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.31751088,
+      "source_stamp": 902.3,
+      "x": -0.0006290124170234112,
+      "y": 0.011643155288671256
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.337170311,
+      "source_stamp": 902.3,
+      "x": -0.0006290124170234112,
+      "y": 0.011643155288671256
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.385358211,
+      "source_stamp": 902.3,
+      "x": -0.0006290124170234112,
+      "y": 0.011643155288671256
+    },
+    {
+      "dt": 0.09999999900003331,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0004754525373721714,
+      "measured_linear_x": -1.9310086930498183e-05,
+      "measured_linear_y": -0.0004750602444284016,
+      "receipt": 4208.385750293,
+      "source_stamp": 902.399999999,
+      "x": -0.0006309434256971516,
+      "y": 0.01159564926470346
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.397206278,
+      "source_stamp": 902.399999999,
+      "x": -0.0006309434256971516,
+      "y": 0.01159564926470346
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.41735582,
+      "source_stamp": 902.399999999,
+      "x": -0.0006309434256971516,
+      "y": 0.01159564926470346
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.438134907,
+      "source_stamp": 902.399999999,
+      "x": -0.0006309434256971516,
+      "y": 0.01159564926470346
+    },
+    {
+      "dt": 0.10000000100001216,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0003689469043193716,
+      "measured_linear_x": -0.000281423064944885,
+      "measured_linear_y": -0.0002385851561264333,
+      "receipt": 4208.46792952,
+      "source_stamp": 902.5,
+      "x": -0.0006590857324730666,
+      "y": 0.011571790748852229
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.477467905,
+      "source_stamp": 902.5,
+      "x": -0.0006590857324730666,
+      "y": 0.011571790748852229
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.497399529,
+      "source_stamp": 902.5,
+      "x": -0.0006590857324730666,
+      "y": 0.011571790748852229
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.517300059,
+      "source_stamp": 902.5,
+      "x": -0.0006590857324730666,
+      "y": 0.011571790748852229
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.537561956,
+      "source_stamp": 902.5,
+      "x": -0.0006590857324730666,
+      "y": 0.011571790748852229
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0020432753230718317,
+      "measured_linear_x": 0.001410242807419191,
+      "measured_linear_y": 0.0014785767717628785,
+      "receipt": 4208.586189522,
+      "source_stamp": 902.6,
+      "x": -0.0005180614517311154,
+      "y": 0.01171964842602855
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.586508691,
+      "source_stamp": 902.6,
+      "x": -0.0005180614517311154,
+      "y": 0.01171964842602855
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.597425837,
+      "source_stamp": 902.6,
+      "x": -0.0005180614517311154,
+      "y": 0.01171964842602855
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.617028441,
+      "source_stamp": 902.6,
+      "x": -0.0005180614517311154,
+      "y": 0.01171964842602855
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.637606865,
+      "source_stamp": 902.6,
+      "x": -0.0005180614517311154,
+      "y": 0.01171964842602855
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0014738231906771578,
+      "measured_linear_x": 0.0006808980503573576,
+      "measured_linear_y": 0.0013071085044468755,
+      "receipt": 4208.667228191,
+      "source_stamp": 902.7,
+      "x": -0.00044997164669536416,
+      "y": 0.011850359276473267
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.677262428,
+      "source_stamp": 902.7,
+      "x": -0.00044997164669536416,
+      "y": 0.011850359276473267
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.697711956,
+      "source_stamp": 902.7,
+      "x": -0.00044997164669536416,
+      "y": 0.011850359276473267
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.717416195,
+      "source_stamp": 902.7,
+      "x": -0.00044997164669536416,
+      "y": 0.011850359276473267
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.737020427,
+      "source_stamp": 902.7,
+      "x": -0.00044997164669536416,
+      "y": 0.011850359276473267
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.767374309,
+      "source_stamp": 902.7,
+      "x": -0.00044997164669536416,
+      "y": 0.011850359276473267
+    },
+    {
+      "dt": 0.09999999999990905,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0008739428861899821,
+      "measured_linear_x": 0.0003892106682507014,
+      "measured_linear_y": 0.0007824903986899255,
+      "receipt": 4208.777371037,
+      "source_stamp": 902.8,
+      "x": -0.0004110505798703294,
+      "y": 0.011928608316342189
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.797510197,
+      "source_stamp": 902.8,
+      "x": -0.0004110505798703294,
+      "y": 0.011928608316342189
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.817272596,
+      "source_stamp": 902.8,
+      "x": -0.0004110505798703294,
+      "y": 0.011928608316342189
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.839485864,
+      "source_stamp": 902.8,
+      "x": -0.0004110505798703294,
+      "y": 0.011928608316342189
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.879683219,
+      "source_stamp": 902.8,
+      "x": -0.0004110505798703294,
+      "y": 0.011928608316342189
+    },
+    {
+      "dt": 0.09999999900003331,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0005032245868635611,
+      "measured_linear_x": 0.00013519376213261565,
+      "measured_linear_y": 0.00048472428400528025,
+      "receipt": 4208.880043729,
+      "source_stamp": 902.899999999,
+      "x": -0.0003975312037922571,
+      "y": 0.011977080744258009
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.89745588,
+      "source_stamp": 902.899999999,
+      "x": -0.0003975312037922571,
+      "y": 0.011977080744258009
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.917458159,
+      "source_stamp": 902.899999999,
+      "x": -0.0003975312037922571,
+      "y": 0.011977080744258009
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.937376811,
+      "source_stamp": 902.899999999,
+      "x": -0.0003975312037922571,
+      "y": 0.011977080744258009
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.972589312,
+      "source_stamp": 902.899999999,
+      "x": -0.0003975312037922571,
+      "y": 0.011977080744258009
+    },
+    {
+      "dt": 0.10000000100001216,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0002354798084019952,
+      "measured_linear_x": -2.155698228809945e-05,
+      "measured_linear_y": 0.00023449101620247827,
+      "receipt": 4208.977562802,
+      "source_stamp": 903.0,
+      "x": -0.0003996869020426243,
+      "y": 0.01200052984611275
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4208.997453716,
+      "source_stamp": 903.0,
+      "x": -0.0003996869020426243,
+      "y": 0.01200052984611275
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.019473393,
+      "source_stamp": 903.0,
+      "x": -0.0003996869020426243,
+      "y": 0.01200052984611275
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.040006967,
+      "source_stamp": 903.0,
+      "x": -0.0003996869020426243,
+      "y": 0.01200052984611275
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.00010394824447866397,
+      "measured_linear_x": -9.770658077095947e-05,
+      "measured_linear_y": 3.547762117510232e-05,
+      "receipt": 4209.082576053,
+      "source_stamp": 903.1,
+      "x": -0.0004094575601197225,
+      "y": 0.012004077608230261
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.083011538,
+      "source_stamp": 903.1,
+      "x": -0.0004094575601197225,
+      "y": 0.012004077608230261
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.100853961,
+      "source_stamp": 903.1,
+      "x": -0.0004094575601197225,
+      "y": 0.012004077608230261
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.119886594,
+      "source_stamp": 903.1,
+      "x": -0.0004094575601197225,
+      "y": 0.012004077608230261
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.139949015,
+      "source_stamp": 903.1,
+      "x": -0.0004094575601197225,
+      "y": 0.012004077608230261
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0023667892736635417,
+      "measured_linear_x": -0.00174886659389078,
+      "measured_linear_y": -0.0015947279086733438,
+      "receipt": 4209.19063224,
+      "source_stamp": 903.2,
+      "x": -0.0005843442195088402,
+      "y": 0.01184460481736289
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.191100155,
+      "source_stamp": 903.2,
+      "x": -0.0005843442195088402,
+      "y": 0.01184460481736289
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.199522554,
+      "source_stamp": 903.2,
+      "x": -0.0005843442195088402,
+      "y": 0.01184460481736289
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.220535137,
+      "source_stamp": 903.2,
+      "x": -0.0005843442195088402,
+      "y": 0.01184460481736289
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.23991611,
+      "source_stamp": 903.2,
+      "x": -0.0005843442195088402,
+      "y": 0.01184460481736289
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.269901861,
+      "source_stamp": 903.2,
+      "x": -0.0005843442195088402,
+      "y": 0.01184460481736289
+    },
+    {
+      "dt": 0.09999999999990905,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0012532836677136565,
+      "measured_linear_x": -0.0004295261590141721,
+      "measured_linear_y": -0.0011773815144125233,
+      "receipt": 4209.279703064,
+      "source_stamp": 903.3,
+      "x": -0.0006272968354102184,
+      "y": 0.011726866665921746
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.299547438,
+      "source_stamp": 903.3,
+      "x": -0.0006272968354102184,
+      "y": 0.011726866665921746
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.319815971,
+      "source_stamp": 903.3,
+      "x": -0.0006272968354102184,
+      "y": 0.011726866665921746
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.354587557,
+      "source_stamp": 903.3,
+      "x": -0.0006272968354102184,
+      "y": 0.011726866665921746
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.361888255,
+      "source_stamp": 903.3,
+      "x": -0.0006272968354102184,
+      "y": 0.011726866665921746
+    },
+    {
+      "dt": 0.09999999900003331,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0008373242372809441,
+      "measured_linear_x": -1.70913073028927e-05,
+      "measured_linear_y": -0.0008371497868080675,
+      "receipt": 4209.397153693,
+      "source_stamp": 903.399999999,
+      "x": -0.0006290059661234169,
+      "y": 0.01164315168807806
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.399664034,
+      "source_stamp": 903.399999999,
+      "x": -0.0006290059661234169,
+      "y": 0.01164315168807806
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.419851382,
+      "source_stamp": 903.399999999,
+      "x": -0.0006290059661234169,
+      "y": 0.01164315168807806
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.439396146,
+      "source_stamp": 903.399999999,
+      "x": -0.0006290059661234169,
+      "y": 0.01164315168807806
+    },
+    {
+      "dt": 0.10000000100001216,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0004754315286755443,
+      "measured_linear_x": -1.9329235716637728e-05,
+      "measured_linear_y": -0.0004750384396081812,
+      "receipt": 4209.469470102,
+      "source_stamp": 903.5,
+      "x": -0.0006309388897144102,
+      "y": 0.011595647843642198
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.479512489,
+      "source_stamp": 903.5,
+      "x": -0.0006309388897144102,
+      "y": 0.011595647843642198
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.499577115,
+      "source_stamp": 903.5,
+      "x": -0.0006309388897144102,
+      "y": 0.011595647843642198
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.519582171,
+      "source_stamp": 903.5,
+      "x": -0.0006309388897144102,
+      "y": 0.011595647843642198
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.539582529,
+      "source_stamp": 903.5,
+      "x": -0.0006309388897144102,
+      "y": 0.011595647843642198
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0003689858315680148,
+      "measured_linear_x": -0.00028145051052368424,
+      "measured_linear_y": -0.0002386129795796886,
+      "receipt": 4209.585019821,
+      "source_stamp": 903.6,
+      "x": -0.000659083940766785,
+      "y": 0.011571786545684224
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.585380648,
+      "source_stamp": 903.6,
+      "x": -0.000659083940766785,
+      "y": 0.011571786545684224
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.599796055,
+      "source_stamp": 903.6,
+      "x": -0.000659083940766785,
+      "y": 0.011571786545684224
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.619765125,
+      "source_stamp": 903.6,
+      "x": -0.000659083940766785,
+      "y": 0.011571786545684224
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.640146112,
+      "source_stamp": 903.6,
+      "x": -0.000659083940766785,
+      "y": 0.011571786545684224
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.002043278204082362,
+      "measured_linear_x": 0.0014102364155406846,
+      "measured_linear_y": 0.0014785868495157816,
+      "receipt": 4209.670202589,
+      "source_stamp": 903.7,
+      "x": -0.0005180602992126845,
+      "y": 0.011719645230635836
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.679711154,
+      "source_stamp": 903.7,
+      "x": -0.0005180602992126845,
+      "y": 0.011719645230635836
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.699616568,
+      "source_stamp": 903.7,
+      "x": -0.0005180602992126845,
+      "y": 0.011719645230635836
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.719700699,
+      "source_stamp": 903.7,
+      "x": -0.0005180602992126845,
+      "y": 0.011719645230635836
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.739785314,
+      "source_stamp": 903.7,
+      "x": -0.0005180602992126845,
+      "y": 0.011719645230635836
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.784269565,
+      "source_stamp": 903.7,
+      "x": -0.0005180602992126845,
+      "y": 0.011719645230635836
+    },
+    {
+      "dt": 0.09999999999990905,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.001473833082083631,
+      "measured_linear_x": 0.0006809324481291326,
+      "measured_linear_y": 0.0013071017385532777,
+      "receipt": 4209.784701216,
+      "source_stamp": 903.8,
+      "x": -0.0004499670543998331,
+      "y": 0.011850355404491045
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.799983994,
+      "source_stamp": 903.8,
+      "x": -0.0004499670543998331,
+      "y": 0.011850355404491045
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.819770158,
+      "source_stamp": 903.8,
+      "x": -0.0004499670543998331,
+      "y": 0.011850355404491045
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.839930688,
+      "source_stamp": 903.8,
+      "x": -0.0004499670543998331,
+      "y": 0.011850355404491045
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.882577355,
+      "source_stamp": 903.8,
+      "x": -0.0004499670543998331,
+      "y": 0.011850355404491045
+    },
+    {
+      "dt": 0.09999999900003331,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0008739583865016432,
+      "measured_linear_x": 0.00038923248366617795,
+      "measured_linear_y": 0.0007824968594158151,
+      "receipt": 4209.88297855,
+      "source_stamp": 903.899999999,
+      "x": -0.00041104380642243484,
+      "y": 0.011928605089650155
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.899545519,
+      "source_stamp": 903.899999999,
+      "x": -0.00041104380642243484,
+      "y": 0.011928605089650155
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.91940405,
+      "source_stamp": 903.899999999,
+      "x": -0.00041104380642243484,
+      "y": 0.011928605089650155
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.939466663,
+      "source_stamp": 903.899999999,
+      "x": -0.00041104380642243484,
+      "y": 0.011928605089650155
+    },
+    {
+      "dt": 0.10000000100001216,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.0005032779249692324,
+      "measured_linear_x": 0.0001351696330298202,
+      "measured_linear_y": 0.00048478638601751186,
+      "receipt": 4209.972275443,
+      "source_stamp": 904.0,
+      "x": -0.00039752684298428154,
+      "y": 0.011977083728736699
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4209.981833914,
+      "source_stamp": 904.0,
+      "x": -0.00039752684298428154,
+      "y": 0.011977083728736699
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4210.001538116,
+      "source_stamp": 904.0,
+      "x": -0.00039752684298428154,
+      "y": 0.011977083728736699
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4210.024165029,
+      "source_stamp": 904.0,
+      "x": -0.00039752684298428154,
+      "y": 0.011977083728736699
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4210.043916859,
+      "source_stamp": 904.0,
+      "x": -0.00039752684298428154,
+      "y": 0.011977083728736699
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.00023539443326539314,
+      "measured_linear_x": -2.155677869870797e-05,
+      "measured_linear_y": 0.0002344052996509903,
+      "receipt": 4210.074756884,
+      "source_stamp": 904.1,
+      "x": -0.00039968252085415283,
+      "y": 0.012000524258701803
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4210.085105801,
+      "source_stamp": 904.1,
+      "x": -0.00039968252085415283,
+      "y": 0.012000524258701803
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4210.10405922,
+      "source_stamp": 904.1,
+      "x": -0.00039968252085415283,
+      "y": 0.012000524258701803
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4210.123635122,
+      "source_stamp": 904.1,
+      "x": -0.00039968252085415283,
+      "y": 0.012000524258701803
+    },
+    {
+      "finite_difference": "awaiting_advancing_stamp",
+      "frame_id": "odom_combined",
+      "receipt": 4210.143994844,
+      "source_stamp": 904.1,
+      "x": -0.00039968252085415283,
+      "y": 0.012000524258701803
+    },
+    {
+      "dt": 0.10000000000002274,
+      "finite_difference": "valid",
+      "frame_id": "odom_combined",
+      "measured_linear_speed": 0.00010396562236557719,
+      "measured_linear_x": -9.772269203031192e-05,
+      "measured_linear_y": 3.5484166838332505e-05,
+      "receipt": 4210.164155122,
+      "source_stamp": 904.2,
+      "x": -0.00040945479005718624,
+      "y": 0.012004072675385637
+    }
+  ],
+  "named_task": {
+    "state": "not_requested"
+  },
+  "reason": "source receipt stale or unavailable",
+  "safe_cmd_vel": [
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.203946211
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.269687546
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.304058727
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.365182925
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.403937014
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.47780039
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.504068956
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.58955789
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.603995211
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.654248235
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.703962029
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.754032967
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.804053446
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.853943292
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.903923441
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4200.953974169
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.003995153
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.053918476
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.103984256
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.153922499
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.203973098
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.253952929
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.30396951
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.353949967
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.404615579
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.453874119
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.516778144
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.553967988
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.604123646
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.653996548
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.716151402
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.753996532
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.806291437
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.85390478
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.912494774
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4201.953991429
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.014302751
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.053967185
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.110987846
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.154021658
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.232277296
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.253988281
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.314102951
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.354028267
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.428412186
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.453898823
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.524232697
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.553959876
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.628990005
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.653986063
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.729838846
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.754035882
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.821179478
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.855476983
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.934003695
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4202.953977039
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.036612904
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.053969035
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.133797757
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.154046073
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.222957363
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.254122434
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.335301634
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.354078166
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.404250347
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.454342309
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.538449019
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.553959567
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.604251807
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.654029228
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.703991484
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.754061028
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.803988917
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.854077951
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.903895626
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4203.968133099
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.004046878
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.081455439
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.104116981
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.179523471
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.204092693
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.300407507
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.304056848
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.37570301
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.403972845
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.471563242
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.504052312
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.571837098
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.603954847
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.688550207
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.703993056
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.794177398
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.804072263
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.854257941
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.903988017
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4204.9542228
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.007158072
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.053926064
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.104101369
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.153988569
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.204087894
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.253992735
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.304036671
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.354116943
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.404850508
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.454163551
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.504801562
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.553968152
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.606225376
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.654012185
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.703963196
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.75403685
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.804919639
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.854198511
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.905121923
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4205.953895599
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.004044597
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.054120624
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.104051327
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.154035254
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.203985344
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.254026331
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.30913214
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.353973468
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.413051374
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.454148873
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.504215154
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.554217056
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.604036115
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.654213774
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.703918179
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.754033226
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.812331597
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.853936175
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.914816415
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4206.954382458
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.022610846
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.054344841
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.136769732
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.154467443
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.204199181
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.254274164
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.30393871
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.354025536
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.404007299
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.45396608
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.503929537
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.553940603
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.603945553
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.654063285
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.703986961
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.75397732
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.804200546
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.866480689
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.904012641
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4207.954037518
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.004258734
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.067686111
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.104039684
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.180938519
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.203990252
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.270223953
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.304526726
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.385262381
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.404015275
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.4678546
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.504047521
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.586104281
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.603999564
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.667150749
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.704051003
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.767257509
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.803973028
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.87958912
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.903987891
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4208.972514468
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.004049338
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.082472775
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.104016296
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.190532606
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.204069264
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.26979346
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.304111047
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.355010193
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.403963582
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.46939561
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.504026206
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.584912881
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.604074025
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.670127066
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.704006914
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.784169022
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.803925256
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.882480171
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.904014277
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4209.972198368
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4210.003950054
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4210.074683959
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4210.104373744
+    },
+    {
+      "angular_z": 0.0,
+      "linear_x": 0.0,
+      "linear_y": 0.0,
+      "receipt": 4210.154468136
+    }
+  ],
+  "state": "sensor_fault"
+}

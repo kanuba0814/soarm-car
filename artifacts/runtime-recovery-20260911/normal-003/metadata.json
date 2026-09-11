@@ -1,0 +1,16 @@
+{
+  "map_identity": "house_floorplan-v1-7d9c0b34",
+  "health_map_id": "house_widened_reference.pcd",
+  "use_sim_time": true,
+  "wallclock_watchdog": "time.monotonic",
+  "ground_z": 0.0,
+  "ground_reference": "source-stamped map z of base_footprint",
+  "floor_tolerance": 0.03,
+  "navigation_z_band_relative_base_footprint": [
+    0.03,
+    1.5
+  ],
+  "point_sample_policy": "nearest nonself navigation return per 720 azimuth bins then visibility extras",
+  "max_validated_rays": 1024,
+  "self_model_sha256": "a8d8f3c3ad114ebd7ac99408de5e3d382c06342ca98a4a13eea8658e404307eb"
+}
