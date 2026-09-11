@@ -163,6 +163,7 @@ class ProbeNode:
         self.node = Node('exploration_verification_probe')
         self.policy, self.args = VerificationPolicy(args.operation, args.observe_only), args
         self.policy.start(time.monotonic())
+        self.done = False
         self.events = deque(maxlen=300)
         self.event_count = 0
         self.event_stream = (args.output_dir / 'events.jsonl').open('x', buffering=1)
@@ -237,8 +238,7 @@ class ProbeNode:
 
     def _complete(self, result):
         self.write(result)
-        self.node.destroy_node()
-        self.rclpy.shutdown()
+        self.done = True
 
     def tick(self):
         wall = time.monotonic()
@@ -318,7 +318,8 @@ def main(argv=None):
     probe = ProbeNode(args)
     from rclpy.executors import ExternalShutdownException
     try:
-        rclpy.spin(probe.node)
+        while rclpy.ok() and not probe.done:
+            rclpy.spin_once(probe.node, timeout_sec=.1)
     except ExternalShutdownException:
         pass
     finally:
