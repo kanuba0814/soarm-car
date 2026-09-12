@@ -59,6 +59,7 @@ harness.create_subscription(
     lambda message: safe_commands.append((time.monotonic(), message.linear.x)), 10)
 navigate = ActionClient(harness, NavigateToPose, "/navigate_to_pose", callback_group=callback_group)
 arm = harness.create_client(Trigger, "/localization_cmd_gate/arm", callback_group=callback_group)
+stop = harness.create_client(Trigger, "/localization_cmd_gate/stop", callback_group=callback_group)
 executor = MultiThreadedExecutor(num_threads=4)
 executor.add_node(gate)
 executor.add_node(harness)
@@ -84,6 +85,7 @@ def publish_command(value):
 try:
     assert navigate.wait_for_server(timeout_sec=3.0)
     assert arm.wait_for_service(timeout_sec=3.0)
+    assert stop.wait_for_service(timeout_sec=3.0)
     publish_health(LocalizationHealth.HEALTHY)
     publish_command(0.25)
     time.sleep(0.2)
@@ -96,6 +98,19 @@ try:
     goal_handle = send_future.result()
     assert goal_handle is not None and goal_handle.accepted
     result_future = goal_handle.get_result_async()
+
+    # Operator stop must latch final output immediately and wait for the actual
+    # action result, not merely a cancel-service acknowledgement.
+    stop_future = stop.call_async(Trigger.Request())
+    deadline = time.monotonic() + 3.0
+    while not stop_future.done() and time.monotonic() < deadline:
+        time.sleep(0.01)
+    assert stop_future.done() and stop_future.result().success
+    deadline = time.monotonic() + 3.0
+    while not result_future.done() and time.monotonic() < deadline:
+        time.sleep(0.01)
+    assert result_future.done() and result_future.result().status == GoalStatus.STATUS_CANCELED
+    assert safe_commands and abs(safe_commands[-1][1]) < 1e-9
 
     publish_health(LocalizationHealth.DEGRADED)
     deadline = time.monotonic() + 3.0

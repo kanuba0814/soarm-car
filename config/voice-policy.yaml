@@ -16,6 +16,20 @@ intents:
     priority: emergency
     action: cancel_all_and_stop
 
+  navigate_to_room:
+    phrases:
+      - "去{place}"
+      - "前往{place}"
+    confirmation: explicit_gui_plan_confirmation
+    action: room_navigation_confirmed_plan
+    prerequisites:
+      - place_in_allowlist
+      - lidar_ready
+      - map_loaded
+      - localization_ready
+      - tf_ready
+      - safety_ready
+
   go_to_place_and_grasp:
     phrases:
       - "去{place}抓取{object}"

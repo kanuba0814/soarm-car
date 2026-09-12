@@ -17,7 +17,7 @@ def generate_launch_description():
     shadow_share = get_package_share_directory('soarm_fixed_map_localization')
     nav2_share = get_package_share_directory('nav2_bringup')
     params_file = os.path.join(navigation_share, 'config', 'house_nav2_mppi.yaml')
-    map_file = os.path.join(simulation_share, 'maps', 'house_floorplan.yaml')
+    map_file = LaunchConfiguration('occupancy_yaml')
     configured_params = RewrittenYaml(
         source_file=params_file,
         param_rewrites={
@@ -29,6 +29,11 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('gz_args', default_value='-r -s'),
         DeclareLaunchArgument('rviz', default_value='false'),
+        # Legacy standalone launch keeps its filename compatibility default;
+        # the room-navigation launch supplies the computed immutable digest.
+        DeclareLaunchArgument('occupancy_yaml', default_value=os.path.join(simulation_share, 'maps', 'house_floorplan.yaml')),
+        DeclareLaunchArgument('localization_pcd', default_value='/workspaces/soarm-car/artifacts/fastlio_house_floorplan.pcd'),
+        DeclareLaunchArgument('bundle_id', default_value='fastlio_house_floorplan.pcd'),
         DeclareLaunchArgument('fixed_map_shadow', default_value='false'),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(PathJoinSubstitution([simulation_share, 'launch', 'kuruma_ros2_control.launch.py'])),
@@ -47,7 +52,9 @@ def generate_launch_description():
         ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(PathJoinSubstitution([localization_share, 'launch', 'velodyne_localization.launch.py'])),
-            launch_arguments={'use_sim_time': 'true', 'config_file': 'soarm_house_localization.yaml', 'rviz': 'false'}.items()),
+            launch_arguments={'use_sim_time': 'true', 'config_file': 'soarm_house_localization.yaml', 'rviz': 'false',
+                              'map_file_path': LaunchConfiguration('localization_pcd'),
+                              'bundle_id': LaunchConfiguration('bundle_id')}.items()),
         Node(
             package='soarm_fixed_map_localization', executable='fixed_map_shadow_node',
             name='fixed_map_shadow', parameters=[os.path.join(shadow_share, 'config', 'house_shadow.yaml')],
@@ -60,7 +67,13 @@ def generate_launch_description():
                 'health_timeout': 0.5,
                 'command_timeout': 0.5,
                 'publish_rate': 20.0,
+                'expected_map_id': LaunchConfiguration('bundle_id'),
             }],
+        ),
+        Node(
+            package='soarm_navigation', executable='body_height_filter',
+            name='body_height_filter',
+            parameters=[{'use_sim_time': True}],
         ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(PathJoinSubstitution([nav2_share, 'launch', 'navigation_launch.py'])),

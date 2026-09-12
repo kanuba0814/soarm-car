@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>soarm_room_navigation</name><version>0.1.0</version>
+  <description>Fail-closed Chinese language room navigation for immutable simulation map bundles.</description>
+  <maintainer email="maintainers@example.com">SOARM maintainers</maintainer><license>Apache-2.0</license>
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>action_msgs</exec_depend><exec_depend>ament_index_python</exec_depend><exec_depend>geometry_msgs</exec_depend><exec_depend>launch</exec_depend><exec_depend>launch_ros</exec_depend><exec_depend>nav2_msgs</exec_depend><exec_depend>nav_msgs</exec_depend><exec_depend>rclpy</exec_depend><exec_depend>sensor_msgs</exec_depend><exec_depend>soarm_interfaces</exec_depend><exec_depend>std_srvs</exec_depend><exec_depend>tf2_ros</exec_depend>
+  <exec_depend>soarm_navigation</exec_depend><exec_depend>soarm_simulation</exec_depend>
+  <test_depend>nav_msgs</test_depend><test_depend>python3-pytest</test_depend><export><build_type>ament_python</build_type></export>
+</package>

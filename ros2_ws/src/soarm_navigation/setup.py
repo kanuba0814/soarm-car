@@ -19,6 +19,7 @@ setup(
     zip_safe=True,
     entry_points={
         'console_scripts': [
+            'body_height_filter = soarm_navigation.body_height_filter:main',
             'localization_cmd_gate = soarm_navigation.localization_cmd_gate:main',
         ],
     },

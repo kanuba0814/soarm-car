@@ -20,6 +20,8 @@ def generate_launch_description():
     config_file = LaunchConfiguration('config_file')
     rviz_use = LaunchConfiguration('rviz')
     rviz_cfg = LaunchConfiguration('rviz_cfg')
+    map_file_path = LaunchConfiguration('map_file_path')
+    bundle_id = LaunchConfiguration('bundle_id')
 
     declare_use_sim_time_cmd = DeclareLaunchArgument(
         'use_sim_time', default_value='true',
@@ -41,6 +43,8 @@ def generate_launch_description():
         'rviz_cfg', default_value=default_rviz_config_path,
         description='RViz config file path'
     )
+    declare_map_file_path_cmd = DeclareLaunchArgument('map_file_path', default_value='')
+    declare_bundle_id_cmd = DeclareLaunchArgument('bundle_id', default_value='')
 
     # fast_lio_node (예시로 fastlio_mapping 실행)
     fast_lio_node = Node(
@@ -48,7 +52,7 @@ def generate_launch_description():
         executable='fastlio_mapping',
         name='fast_lio_mapping',
         parameters=[PathJoinSubstitution([config_path, config_file]),
-                    {'use_sim_time': use_sim_time}],
+                    {'use_sim_time': use_sim_time, 'map_file_path': map_file_path}],
         output='screen'
     )
 
@@ -58,7 +62,7 @@ def generate_launch_description():
         executable='global_localization.py',
         name='global_localization',
         parameters=[PathJoinSubstitution([config_path, config_file]),
-                    {'use_sim_time': use_sim_time}],
+                    {'use_sim_time': use_sim_time, 'map_id': bundle_id}],
         output='screen'
     )
 
@@ -68,7 +72,7 @@ def generate_launch_description():
         executable='transform_fusion.py',
         name='transform_fusion',
         parameters=[PathJoinSubstitution([config_path, config_file]),
-                    {'use_sim_time': use_sim_time}],
+                    {'use_sim_time': use_sim_time, 'localization_map_id': bundle_id}],
         output='screen'
     )
 
@@ -78,9 +82,9 @@ def generate_launch_description():
         executable='global_map_publisher.py',
         name='global_map_publisher',
         parameters=[PathJoinSubstitution([config_path, config_file]),
-                    {'use_sim_time': use_sim_time}],
+                    {'use_sim_time': use_sim_time, 'map_file_path': map_file_path}],
         output='screen'
-    )    
+    )
 
     rviz_node = Node(
         package='rviz2',
@@ -96,6 +100,8 @@ def generate_launch_description():
     ld.add_action(decalre_config_file_cmd)
     ld.add_action(declare_rviz_cmd)
     ld.add_action(declare_rviz_config_path_cmd)
+    ld.add_action(declare_map_file_path_cmd)
+    ld.add_action(declare_bundle_id_cmd)
 
     ld.add_action(fast_lio_node)
     ld.add_action(global_localization_node)
