@@ -1,0 +1,17 @@
+orbslam3:
+  camera:
+    model: Dabai_DC1
+    profile: config/dabai-dc1-profile.json
+    rgb_topic: /camera/color/image_raw
+    depth_topic: /camera/depth/image_raw
+    color_info_topic: /camera/color/camera_info
+    depth_info_topic: /camera/depth/camera_info
+    depth_map_factor: null
+    time_sync_tolerance_s: 0.03
+  frames:
+    map: visual_map
+    camera: camera_link
+  safety:
+    publish_map_to_odom: false
+    publish_tf: false
+    require_verified_profile: true

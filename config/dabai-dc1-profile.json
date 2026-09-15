@@ -1,0 +1,103 @@
+{
+  "model": "Dabai DC1",
+  "vendor": "Orbbec",
+  "usb": {
+    "vendor_id": "2bc5",
+    "product_ids": [
+      "0557",
+      "0657"
+    ],
+    "serial_number": "CC1S74101GJ",
+    "evidence": "artifacts/perception-dev/dabai-dc1/lsusb-nn.txt"
+  },
+  "rgb": {
+    "width": 640,
+    "height": 480,
+    "fps": 30,
+    "encoding": "rgb8"
+  },
+  "depth": {
+    "width": 640,
+    "height": 400,
+    "fps": 30,
+    "encoding": "16UC1",
+    "unit": "mm",
+    "scale_to_m": 0.001,
+    "range_m": null
+  },
+  "rgb_depth_registration": {
+    "supported": true,
+    "enabled": true,
+    "verified": false,
+    "note": "Driver accepts hardware registration and reports shared optical frame/K; geometric accuracy and differing image heights require validation before ORB-SLAM3."
+  },
+  "intrinsics": {
+    "color_camera_info": {
+      "width": 640,
+      "height": 480,
+      "frame_id": "camera_color_optical_frame",
+      "k": [
+        488.09033203125,
+        0.0,
+        320.88531494140625,
+        0.0,
+        488.09033203125,
+        211.70437622070312,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "d": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "depth_camera_info": {
+      "width": 640,
+      "height": 400,
+      "frame_id": "camera_color_optical_frame",
+      "k": [
+        488.09033203125,
+        0.0,
+        320.88531494140625,
+        0.0,
+        488.09033203125,
+        211.70437622070312,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "d": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "extrinsics": {
+    "rgb_to_depth": null,
+    "base_link_to_camera_link": null
+  },
+  "ros2_driver": {
+    "name": "astra_camera (OpenNI)",
+    "image": "soarm-car-astra-s-ros2-dev:latest",
+    "launch": "dabai_dc1.launch.xml",
+    "ros_domain_id": 44,
+    "topic_profile": "RGB, depth, both CameraInfo, /tf_static; reliable image subscriptions",
+    "image_id": "sha256:0b40ce5724b73897175d9488bb53363da69fdc0bf457f7b78b21680f4e8c2af8"
+  },
+  "evidence": [
+    "2026-09-13 hardware serial CC1S74101GJ and USB 2bc5:0557 / 2bc5:0657.",
+    "SDK v2.9.3 enumerates zero devices; OpenNI enumerates and streams successfully.",
+    "Depth log reports PIXEL_FORMAT_DEPTH_1_MM; 640x400@30 supported, 640x480 depth rejected.",
+    "artifacts/perception-dev/dabai-dc1/live-check.json",
+    "artifacts/perception-dev/dabai-dc1/driver-smoke-20260913/bag-check.json: actual 15 second capture passed",
+    "artifacts/perception-dev/dabai-dc1/driver-ctrlc-20260913/bag-check.json: interactive Ctrl-C recording and automatic validation passed"
+  ],
+  "status": "RECORDING_VERIFIED_ORBSLAM3_GEOMETRY_PENDING"
+}

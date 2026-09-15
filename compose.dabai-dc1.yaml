@@ -1,0 +1,19 @@
+services:
+  ros2-dev:
+    volumes: !override
+      # Keep the image-built workspace and install tree visible at runtime.
+      - ./recordings:/recordings
+      - ./artifacts/perception-dev:/artifacts/perception-dev
+      # libusb needs the complete device directory for bus enumeration.
+      - /dev/bus/usb/${DC1_USB_BUS:?Set DC1_USB_BUS like 003}:/dev/bus/usb/${DC1_USB_BUS}
+    devices: !override
+      - /dev/dri:/dev/dri
+      - ${DC1_VIDEO_DEVICE:-/dev/video4}:/dev/video4
+      - ${DC1_METADATA_DEVICE:-/dev/video5}:/dev/video5
+    device_cgroup_rules:
+      - 'c 189:* rmw'
+    group_add:
+      - ${VIDEO_GID:-39}
+    environment:
+      DC1_VIDEO_DEVICE: /dev/dc1-camera
+      ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-42}

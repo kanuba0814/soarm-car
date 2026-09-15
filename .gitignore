@@ -20,6 +20,9 @@ __pycache__/
 .env
 .env.*
 !.env.example
+recordings/
+datasets/
+artifacts/perception-dev/
 *.bag
 *.db3
 *.mcap

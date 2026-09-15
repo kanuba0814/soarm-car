@@ -27,9 +27,31 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-rosdep \
     python3-yaml \
     libpcl-dev \
+    libeigen3-dev \
+    libopencv-dev \
+    libglew-dev \
+    libpython3-dev \
+    libavcodec-dev \
+    libavformat-dev \
+    libswscale-dev \
+    libdc1394-dev \
+    libssl-dev \
+    libusb-1.0-0-dev \
+    libgflags-dev \
+    libgoogle-glog-dev \
+    nlohmann-json3-dev \
     python3-numpy \
     python3-open3d \
     ros-humble-foxglove-bridge \
+    ros-humble-backward-ros \
+    ros-humble-camera-info-manager \
+    ros-humble-cv-bridge \
+    ros-humble-diagnostic-updater \
+    ros-humble-image-transport \
+    ros-humble-image-publisher \
+    ros-humble-rclcpp-components \
+    ros-humble-tf2-sensor-msgs \
+    ros-humble-rosbag2-storage-mcap \
     ros-humble-joint-state-publisher-gui \
     ros-humble-nav2-map-server \
     ros-humble-nav2-lifecycle-manager \
@@ -73,8 +95,16 @@ RUN mkdir -p /opt/mesa/share/glvnd/egl_vendor.d \
 WORKDIR /workspaces/soarm-car
 COPY ros2_ws/src /workspaces/soarm-car/ros2_ws/src
 COPY vendor/localization/src /workspaces/soarm-car/vendor/localization/src
+COPY vendor/orbbec/OrbbecSDK_ROS2 /workspaces/soarm-car/vendor/orbbec/OrbbecSDK_ROS2
+COPY vendor/orb_slam3/ORB_SLAM3 /workspaces/soarm-car/vendor/orb_slam3/ORB_SLAM3
+COPY vendor/orb_slam3/Pangolin /workspaces/soarm-car/vendor/orb_slam3/Pangolin
+RUN cmake -S /workspaces/soarm-car/vendor/orb_slam3/Pangolin -B /tmp/pangolin-build \
+    -DCMAKE_BUILD_TYPE=Release -DBUILD_PANGOLIN_PYTHON=OFF \
+    && cmake --build /tmp/pangolin-build --parallel 2 \
+    && cmake --install /tmp/pangolin-build
+RUN cd /workspaces/soarm-car/vendor/orb_slam3/ORB_SLAM3 && ./build.sh
 RUN source /opt/ros/humble/setup.bash && colcon build --symlink-install \
-    --base-paths ros2_ws/src vendor/localization/src \
+    --base-paths ros2_ws/src vendor/localization/src vendor/orbbec/OrbbecSDK_ROS2 \
     --cmake-args -DLIVOX_ROS_DRIVER2_MESSAGES_ONLY=ON
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
