@@ -27,6 +27,7 @@
 | `soarm-car-hm3d-apartments` | `feature/hm3d-apartment-worlds` / `9e8228a` | HM3D apartment_a/b 家庭场景与资产转换；资产许可和忽略文件需另行恢复。 |
 | `soarm-car-larger-house` | `feature/larger-house-clearance` / `5148af6` | 房屋尺度/净空与定位场景历史分支。 |
 | `soarm-car-companion-nav` | `research/companion-nav-knownpose` / `4035770` | AWS 已知自身位姿研究支线，保留 ABORTED 记录；**不作为现有导航的替代入口**，也不代表其他分支导航失败。 |
+| `soarm-car-keyboard-teleop` | `feature/keyboard-teleop` / 基于 `f999496` | 键盘遥控与 STM32 下位机串口适配：`soarm_teleop` 包一个键盘节点覆盖三种目标（Fortress `/cmd_vel`、ros2_control `/safe_cmd_vel`、物理车经安全门），串口适配器是下位机 USART1 唯一写入者。协议帧对照交付文档示例帧逐字节验证，PTY 回环冒烟 `./scripts/dev-teleop-smoke.sh`；不绕过安全门，未接通实物。 |
 
 ### 自主探索批次（进行中，NVIDIA恢复后继续）
 

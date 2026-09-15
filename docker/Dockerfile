@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     mesa-utils \
     python3-colcon-common-extensions \
     python3-rosdep \
+    python3-serial \
     python3-yaml \
     libpcl-dev \
     python3-numpy \
