@@ -12,6 +12,8 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
+from intent_gateway import parse_navigation_intent
+
 ROOT = Path(__file__).resolve().parents[2]
 INSPECTOR = Path(__file__).resolve().parent
 PUBLIC_INPUT = ROOT / "artifacts/companion-home-validation/evidence/vlm-grid-dev-v1/public-input"
@@ -159,6 +161,20 @@ class InspectorHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(path.stat().st_size))
         self.send_header("X-Content-Type-Options", "nosniff")
         self.end_headers()
+
+    def do_POST(self):
+        parsed = urlparse(self.path)
+        if parsed.path != "/api/intent/preview":
+            return self.reject(HTTPStatus.NOT_FOUND, "未允许的只读路由")
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+            if length > 4096:
+                raise ValueError("输入过长")
+            body = json.loads(self.rfile.read(length))
+            result = parse_navigation_intent(body.get("text", ""), body.get("source", "text"))
+        except (ValueError, json.JSONDecodeError, AttributeError):
+            return self.reject(HTTPStatus.BAD_REQUEST, "请求必须是合法 JSON，且文本不超过 4096 字节")
+        return self.send_json(HTTPStatus.OK, result)
 
     def do_GET(self):
         parsed = urlparse(self.path)
