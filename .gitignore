@@ -26,11 +26,13 @@ artifacts/perception-dev/
 *.bag
 *.db3
 *.mcap
+/recordings/
 
 # Downloaded system/container images (manifest only goes in Git)
 artifacts/images/
 artifacts/*.pcd
 artifacts/*.json
+/artifacts/perception-dev/
 *.img
 *.img.xz
 *.iso
@@ -38,3 +40,12 @@ artifacts/*.json
 
 # Original third-party workspace archives (source manifests/snapshots are tracked separately)
 temple/*.zip
+
+# Local downloaded models/datasets and CAD inputs (not source assets)
+/mobileclip_blt.ts
+/artifacts/hm3d-*.tar
+/artifacts/HM3DSem-v0.2.zip
+/artifacts/kuruma.STEP
+
+# Local test cache
+.pytest_cache/

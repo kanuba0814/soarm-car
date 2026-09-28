@@ -60,7 +60,11 @@
 - 现有编排脚本：`scripts/run-nav2-clean-comparison.sh`。
 - 现有验证脚本：`scripts/dev-fastlio-house-nav2-smoke.sh`。
 - 配置：`ros2_ws/src/soarm_navigation/config/house_nav2_mppi.yaml`；行为树 `navigate_holonomic.xml`；需要保留该工作区的当前配套修改。
-- 机器人：`ros2_ws/src/soarm_simulation/models/kuruma_ros2_control/model.sdf`。已直接核对四轮 visual/collision 为半径 `0.0763 m` 球体，使用 `gz_ros2_control-system`，控制入口重映射至 `/safe_cmd_vel`。
+- 真实底盘下位机交付物：`artifacts/下位机代码+测试脚本+接口文档.zip`。该资料不是当前 Kuruma/Gazebo 仿真驱动，而是未来物理麦轮底盘的 STM32F405RGTx 固件、CAN 电机控制、上位机测试脚本和协议说明；ROS 2 应通过串口适配节点与其通信，不能把仿真 `ros2_control` 接口视为已接通实物。
+- 已核对的物理接口：STM32 `USART1`（PA9/PA10），115200-8N1、无流控、小端、二进制帧；帧格式 `AA 55 LEN CMD DATA CRC FE`，CRC 为 `LEN+CMD+DATA` 按字节 XOR，`LEN` 只能为 1–64，解析错误静默丢弃。核心命令为 `0x00` 心跳、`0x01` 速度（`float vx/vy/wz`，vx/vy 为 mm/s，wz 为尚未标定的 mrad/s）、`0x02` 模式、`0x03` 停止、`0x04` 相对位移（mm）、`0x10` 状态查询；应答为 `0x11` 状态和 `0x12` 位移完成。
+- ROS 接入硬约束：速度命令必须小于 500 ms 周期，建议 50–100 ms；进入/退出 `MODE_PC` 前必须先 `CMD_STOP`，退出交还遥控器；速度控制和位移队列不可混用。位移队列最多 8 段，只有成功完成才发 ACK，当前无失败/超时上报，且仅在全程不旋转时适用。心跳与位移共用超时计时器，位移执行期间不能发送心跳；状态查询不宜高频（固件应答会在中断上下文阻塞约 5 ms）。
+- 当前固件状态字段中只有 `mode`、4 路 `w_target` 和 4 路 `w_actual` 可靠；速度、电池、status、error 字段目前是预留/恒零。`wz` 标定、位移阻塞/打滑检测、失败上报和电压采集仍是实物联调验收项。上层仍必须保持 `Nav2/teleop → 安全门（唯一 `/safe_cmd_vel`）→ 物理串口适配器 → 下位机`，不得直接暴露串口帧或绕过停止/超时互锁。
+
 - 对应场景：`house_floorplan_ros2_control.sdf`；占据地图 `house_floorplan.{yaml,pgm}`；定位和房间数据由现有脚本选择（包括 `artifacts/house_widened_reference.pcd`、`artifacts/rooms-complete-reference.json`）。**不可套用到 AWS 或 HM3D 地图。**
 - 成功记录：`artifacts/nav2-clean-direct-mppi-20260905T173147Z/summary.json`。已直接读取 `cases.direct_mppi.complete=true`、`passed=true`，分类为 `saved multiroom route passed with healthy localization`。这是历史真实运行记录，不是本次重新运行；其他尝试也有失败，不承诺每次成功。
 

@@ -48,11 +48,11 @@ message(STATUS "ORRBEC Machine Bits : ${MACHINES_BIT}")
 
 if ((${MACHINES} MATCHES "x86_64") AND (${MACHINES_BIT} MATCHES "64"))
   set(HOST_PLATFORM "x64")
-elseif (${MACHINES} MATCHES "arm")
-  set(HOST_PLATFORM "arm")
 elseif ((${MACHINES} MATCHES "aarch64") AND (${MACHINES_BIT} MATCHES "64"))
   set(HOST_PLATFORM "arm64")
 elseif ((${MACHINES} MATCHES "aarch64") AND (${MACHINES_BIT} MATCHES "32"))
+  set(HOST_PLATFORM "arm")
+elseif (${MACHINES} MATCHES "arm")
   set(HOST_PLATFORM "arm")
 endif ()
 

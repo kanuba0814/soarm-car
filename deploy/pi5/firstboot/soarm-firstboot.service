@@ -1,0 +1,15 @@
+[Unit]
+Description=Install Docker, ROS 2 Humble and WHEELTEC base driver
+After=NetworkManager.service userconfig.service
+Wants=NetworkManager.service
+ConditionPathExists=!/var/lib/soarm-firstboot-complete
+
+[Service]
+Type=oneshot
+ExecStart=/opt/soarm-car/deploy/pi5/firstboot/complete-firstboot.sh
+Restart=on-failure
+RestartSec=30
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

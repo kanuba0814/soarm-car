@@ -1,0 +1,15 @@
+[connection]
+id=soarm-ethernet
+uuid=9c86a969-b484-4bef-a96b-7e39ba7df584
+type=ethernet
+autoconnect=true
+interface-name=eth0
+
+[ipv4]
+method=manual
+address1=10.42.0.2/24
+gateway=10.42.0.1
+dns=10.42.0.1
+
+[ipv6]
+method=disabled

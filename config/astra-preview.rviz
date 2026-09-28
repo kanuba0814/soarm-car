@@ -1,0 +1,72 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Global Options:
+    Background Color: 18; 21; 27
+    Fixed Frame: camera_depth_optical_frame
+    Frame Rate: 30
+  Displays:
+    - Class: rviz_default_plugins/TF
+      Name: Camera TF
+      Enabled: true
+      Frame Timeout: 2
+      Marker Scale: 0.08
+      Show Arrows: true
+      Show Axes: true
+      Show Names: false
+    - Class: rviz_default_plugins/PointCloud2
+      Name: Depth point cloud
+      Enabled: true
+      Topic:
+        Value: /camera/depth/points
+        Reliability Policy: Reliable
+        History Policy: Keep Last
+        Depth: 1
+      Queue Size: 1
+      Size (Pixels): 2
+      Style: Points
+      Color Transformer: AxisColor
+      Axis: Z
+      Decay Time: 0
+    - Class: rviz_default_plugins/Image
+      Name: Color image
+      Enabled: true
+      Topic:
+        Value: /camera/color/image_raw
+        Reliability Policy: Reliable
+        History Policy: Keep Last
+        Depth: 1
+      Queue Size: 1
+      Normalize Range: true
+    - Class: rviz_default_plugins/Image
+      Name: Depth image
+      Enabled: true
+      Topic:
+        Value: /camera/depth/image_raw
+        Reliability Policy: Reliable
+        History Policy: Keep Last
+        Depth: 1
+      Queue Size: 1
+      Normalize Range: true
+  Tools:
+    - Class: rviz_default_plugins/Interact
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 1.2
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0.6
+      Pitch: 0.25
+      Yaw: 0
+Window Geometry:
+  Height: 900
+  Width: 1400
+  X: 80
+  Y: 60
