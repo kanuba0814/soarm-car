@@ -30,7 +30,6 @@
       </link>
     </model>
     <include><uri>model://house_floorplan</uri></include>
-    <include><uri>model://house_furniture</uri></include>
     <include>
       <uri>model://kuruma_ros2_control</uri>
       <name>kuruma</name>

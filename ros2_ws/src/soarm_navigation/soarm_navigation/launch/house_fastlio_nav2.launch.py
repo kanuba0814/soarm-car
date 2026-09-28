@@ -16,12 +16,14 @@ def generate_launch_description():
     localization_share = get_package_share_directory('fast_lio_localization')
     shadow_share = get_package_share_directory('soarm_fixed_map_localization')
     nav2_share = get_package_share_directory('nav2_bringup')
-    params_file = os.path.join(navigation_share, 'config', 'house_nav2_mppi.yaml')
+    default_params_file = os.path.join(navigation_share, 'config', 'house_nav2_mppi.yaml')
+    default_nav_to_pose_bt_xml = os.path.join(
+        navigation_share, 'behavior_trees', 'navigate_position_only_holonomic.xml')
     map_file = os.path.join(simulation_share, 'maps', 'house_floorplan.yaml')
     configured_params = RewrittenYaml(
-        source_file=params_file,
+        source_file=LaunchConfiguration('nav2_params_file'),
         param_rewrites={
-            'default_nav_to_pose_bt_xml': os.path.join(navigation_share, 'behavior_trees', 'navigate_holonomic.xml'),
+            'default_nav_to_pose_bt_xml': LaunchConfiguration('nav_to_pose_bt_xml'),
             'default_nav_through_poses_bt_xml': os.path.join(navigation_share, 'behavior_trees', 'navigate_through_poses_holonomic.xml'),
         },
         convert_types=False,
@@ -29,6 +31,8 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument('gz_args', default_value='-r -s'),
         DeclareLaunchArgument('rviz', default_value='false'),
+        DeclareLaunchArgument('nav2_params_file', default_value=default_params_file),
+        DeclareLaunchArgument('nav_to_pose_bt_xml', default_value=default_nav_to_pose_bt_xml),
         DeclareLaunchArgument('fixed_map_shadow', default_value='false'),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(PathJoinSubstitution([simulation_share, 'launch', 'kuruma_ros2_control.launch.py'])),

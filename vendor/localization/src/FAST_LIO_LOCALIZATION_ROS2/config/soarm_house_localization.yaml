@@ -25,7 +25,7 @@
         max_unverified_rotation: 3.0
         max_unverified_seconds: 40.0
         health_heartbeat_rate: 10.0
-        map_id: fastlio_house_floorplan.pcd
+        map_id: house_widened_reference.pcd
 
 /transform_fusion:
     ros__parameters:
@@ -38,11 +38,11 @@
         base_to_body_rpy: [0.0, 0.0, 0.0]
         require_localization_health: true
         localization_health_timeout: 0.5
-        localization_map_id: fastlio_house_floorplan.pcd
+        localization_map_id: house_widened_reference.pcd
 
 /global_map_publisher:
     ros__parameters:
-        map_file_path: "/workspaces/soarm-car/artifacts/fastlio_house_floorplan.pcd"
+        map_file_path: "/workspaces/soarm-car/artifacts/house_widened_reference.pcd"
         interval: 1
 
 /**:
@@ -54,7 +54,7 @@
         filter_size_map: 0.5
         cube_side_length: 1000.0
         runtime_pos_log_enable: false
-        map_file_path: "/workspaces/soarm-car/artifacts/fastlio_house_floorplan.pcd"
+        map_file_path: "/workspaces/soarm-car/artifacts/house_widened_reference.pcd"
 
         common:
             lid_topic: "/livox/lidar"
