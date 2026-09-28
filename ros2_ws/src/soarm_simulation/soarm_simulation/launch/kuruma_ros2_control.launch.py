@@ -39,11 +39,12 @@ def generate_launch_description():
             '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
             '/ground_truth/odom@nav_msgs/msg/Odometry[gz.msgs.Odometry',
             '/gazebo/imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
-            '/gazebo/livox_imu@sensor_msgs/msg/Imu[gz.msgs.IMU',
             '/camera/image@sensor_msgs/msg/Image[gz.msgs.Image',
             '/camera/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
             '/camera/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
-            '/mid360/scan/points/points@sensor_msgs/msg/PointCloud2[gz.msgs.PointCloudPacked',
+            '/camera_right/image@sensor_msgs/msg/Image[gz.msgs.Image',
+            '/camera_right/camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo',
+            '/camera_right/depth_image@sensor_msgs/msg/Image[gz.msgs.Image',
         ], output='screen'),
         Node(package='soarm_simulation', executable='sim_adapter', parameters=[
             {'policy_file': os.path.join(sim_share, 'config', 'mission_policy.yaml')},
@@ -51,6 +52,7 @@ def generate_launch_description():
             {'arm_enabled': False},
         ]),
         Node(package='soarm_simulation', executable='odom_path'),
+        Node(package='soarm_uaf_tm', executable='uaf_tm_node', parameters=[{'depth_topic': '/camera/depth_image', 'camera_info_topic': '/camera/camera_info', 'odom_topic': '/wheel/odom_raw'}], output='screen'),
         Node(
             package='rviz2', executable='rviz2', name='simulation_rviz',
             condition=IfCondition(LaunchConfiguration('rviz')),
